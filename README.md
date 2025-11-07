@@ -163,14 +163,12 @@ Turborepo can use a technique known as [Remote Caching](https://turborepo.com/do
 By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
 
 ```
-cd my-turborepo
+cd project-management-platform
 
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
 turbo login
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
 pnpm exec turbo login
 ```
 
@@ -183,8 +181,6 @@ Next, you can link your Turborepo to your Remote Cache by running the following 
 turbo link
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
 pnpm exec turbo link
 ```
 
