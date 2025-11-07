@@ -8,8 +8,12 @@ services:
     ports:
       - 3000:3000
     command: pnpm run dev
+    depends_on:
+      api:
+        condition: service_healthy
     networks:
       - app_network
+
   api:
     container_name: api
     build:
@@ -19,13 +23,31 @@ services:
     ports:
       - 3001:3001
     env_file:
-      - ./apps/api/.env
+      - .env
     command: pnpm run dev
+    depends_on:
+      mongodb:
+        condition: service_healthy
     networks:
       - app_network
 
-# Define a network, which allows containers to communicate
-# with each other, by using their container name as a hostname
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app_network
+
 networks:
   app_network:
     driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
