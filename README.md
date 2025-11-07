@@ -2,7 +2,7 @@
 
 This i a full-stack monorepo application for managing projects, products, and related activities related to UTEQ.
 
-This repository is organized as a [Turborepo](https://turborepo.com/docs) workspace using **pnpm** as the package manager.  
+This repository is organized as a [Turborepo](https://turborepo.com/docs) workspace using **pnpm** as the package manager.
 It includes:
 
 - **Backend:** NestJS (runs on port `3001`)
@@ -83,7 +83,7 @@ You can see the installation guide [here](https://turborepo.com/docs/getting-sta
 
 ## Turborepo starter
 
-## What's inside?
+### What's inside?
 
 This Turborepo includes the following packages/apps:
 
