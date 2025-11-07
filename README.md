@@ -1,14 +1,87 @@
-# Turborepo starter
+# UTEQ Project Management Platform
 
-This Turborepo starter is maintained by the Turborepo core team.
+This i a full-stack monorepo application for managing projects, products, and related activities related to UTEQ.
 
-## Using this example
+This repository is organized as a [Turborepo](https://turborepo.com/docs) workspace using **pnpm** as the package manager.  
+It includes:
 
-Run the following command:
+- **Backend:** NestJS (runs on port `3001`)
+- **Frontend:** Next.js (runs on port `3000`)
+- **Shared Packages:** ESLint config, TypeScript config, and shared utilities
 
-```sh
-npx create-turbo@latest
+---
+
+## Tech Stack
+
+| Layer | Tech |
+|--------|------|
+| Frontend | [Next.js](https://nextjs.org/) + [TypeScript](https://www.typescriptlang.org/) + [TailwindCSS](https://tailwindcss.com/)|
+| Backend | [NestJS](https://nestjs.com/) + [TypeScript](https://www.typescriptlang.org/) |
+| Monorepo Tooling | [Turborepo](https://turbo.build/repo) |
+| Package Manager | [pnpm](https://pnpm.io) |
+| Language | TypeScript |
+| Runtime | Node.js (v20+) |
+
+---
+
+## Monorepo Structure
+```bash
+project-management-platform/
+├── apps/
+│   ├── api/                # NestJS backend
+│   └── web/                # Next.js frontend
+│
+├── packages/
+│   ├── eslint-config/      # Shared linting rules
+│   ├── typescript-config/  # Shared tsconfig base
+│   └── utils/              # (Optional) Shared utilities
+│
+├── .nvmrc                  # Node version lock
+├── turbo.json              # Turborepo configuration
+├── pnpm-workspace.yaml     # pnpm workspace definition
+└── README.md               # This file
 ```
+
+---
+
+## Getting Started
+
+### 1. Install Node.js
+
+Make sure you're using the correct Node.js version
+
+```bash
+# If you use NVM
+nvm install
+nvm use
+```
+The required Node version is defined in `.nvmrc` at the root of the project.
+
+### 2. Install pnpm
+
+If you don't already have `pnpm` installed globally:
+```bash
+npm install -g pnpm
+# verify installation
+pnpm -v
+```
+
+### 3. Install dependencies
+At the root of the monorepo, run:
+```bash
+pnpm install
+```
+
+### Install Turborepo
+Install turborepo repo globally:
+```bash
+pnpm add turbo --global
+```
+You can see the installation guide [here](https://turborepo.com/docs/getting-started/installation#installing-turbo)
+
+---
+
+## Turborepo starter
 
 ## What's inside?
 
@@ -16,9 +89,9 @@ This Turborepo includes the following packages/apps:
 
 ### Apps and Packages
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
+- `web`: frontend using [Next.js](https://nextjs.org/) app
+- `api`: backend using [NestJS](https://docs.nestjs.com/) as the framework
+- `@repo/ui`: a stub React component library used by `web`
 - `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
 - `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
 
@@ -37,14 +110,12 @@ This Turborepo has some additional tools already setup for you:
 To build all apps and packages, run the following command:
 
 ```
-cd my-turborepo
+cd project-management-platform
 
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
 turbo build
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
 pnpm exec turbo build
 ```
 
@@ -55,8 +126,6 @@ You can build a specific package by using a [filter](https://turborepo.com/docs/
 turbo build --filter=docs
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
 pnpm exec turbo build --filter=docs
 ```
 
@@ -65,14 +134,12 @@ pnpm exec turbo build --filter=docs
 To develop all apps and packages, run the following command:
 
 ```
-cd my-turborepo
+cd project-management-platform
 
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
 turbo dev
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
 pnpm exec turbo dev
 ```
 
@@ -83,8 +150,6 @@ You can develop a specific package by using a [filter](https://turborepo.com/doc
 turbo dev --filter=web
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
 pnpm exec turbo dev --filter=web
 ```
 
@@ -98,14 +163,12 @@ Turborepo can use a technique known as [Remote Caching](https://turborepo.com/do
 By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
 
 ```
-cd my-turborepo
+cd project-management-platform
 
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
 turbo login
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
 pnpm exec turbo login
 ```
 
@@ -118,8 +181,6 @@ Next, you can link your Turborepo to your Remote Cache by running the following 
 turbo link
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
 pnpm exec turbo link
 ```
 
