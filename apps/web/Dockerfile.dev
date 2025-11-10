@@ -1,0 +1,38 @@
+# -------------------------
+# Base Stage
+# -------------------------
+FROM node:20-alpine AS base
+RUN apk update && apk add --no-cache libc6-compat bash
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+WORKDIR /app
+
+# -------------------------
+# Install dependencies
+# -------------------------
+# Copy workspace root files
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+# Copy the web app source
+COPY apps/web ./apps/web
+# Copy shared packages
+COPY packages ./packages
+RUN pnpm install
+
+# -------------------------
+# Copy web source code
+# -------------------------
+COPY apps/web ./apps/web
+
+WORKDIR /app/apps/web
+
+# -------------------------
+# Expose port
+# -------------------------
+EXPOSE 3000
+
+# -------------------------
+# Command for development
+# -------------------------
+CMD ["pnpm", "dev"]

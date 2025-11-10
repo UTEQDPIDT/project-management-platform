@@ -3,14 +3,12 @@ services:
     container_name: web
     build:
       context: .
-      dockerfile: ./apps/web/Dockerfile
+      dockerfile: ./apps/web/Dockerfile.dev
     restart: always
     ports:
       - 3000:3000
-    command: pnpm run dev
     depends_on:
-      api:
-        condition: service_healthy
+      - api
     networks:
       - app_network
 
@@ -18,27 +16,29 @@ services:
     container_name: api
     build:
       context: .
-      dockerfile: ./apps/api/Dockerfile
+      dockerfile: ./apps/api/Dockerfile.dev
     restart: always
     ports:
       - 3001:3001
     env_file:
-      - .env
-    command: pnpm run dev
+      - ./apps/api/.env
     depends_on:
-      mongodb:
-        condition: service_healthy
+      - mongodb
     networks:
       - app_network
 
   mongodb:
-    container_name: mongodb
-    image: mongo:latest
+    image: mongo:6
     restart: always
     ports:
-      - "27017:27017"
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
     volumes:
-      - mongodb_data:/data/db
+      - type: bind
+        source: ./data
+        target: /data/db
     networks:
       - app_network
 

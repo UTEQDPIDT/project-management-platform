@@ -6,4 +6,5 @@ out
 *.log
 *.md
 .env
+data
 **/node_modules
