@@ -32,13 +32,14 @@ services:
       - app_network
 
   mongodb:
-    container_name: mongodb
-    image: mongo:latest
-    restart: always
-    ports:
-      - "27017:27017"
+    image: mongodb/mongodb-community-server:6.0-ubi8
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
     volumes:
-      - mongodb_data:/data/db
+      - type: bind
+        source: ./data
+        target: /data/db
     networks:
       - app_network
 
