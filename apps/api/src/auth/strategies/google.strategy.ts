@@ -24,7 +24,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     accessToken: string,
     refreshToken: string,
     profile: any,
-    donce: VerifyCallback,
+    done: VerifyCallback,
   ) {
     console.log({ profile });
   }
