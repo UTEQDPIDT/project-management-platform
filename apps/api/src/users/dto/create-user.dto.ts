@@ -21,14 +21,12 @@ export class CreateUserDto {
 
   @ApiProperty({
     description: 'El nombre(s) del usuario.',
-    readOnly: true,
   })
   @IsString()
   givenName: string;
 
   @ApiProperty({
     description: 'El appellido(s) del usuario.',
-    readOnly: true,
   })
   @IsString()
   @IsOptional()
@@ -36,7 +34,6 @@ export class CreateUserDto {
 
   @ApiProperty({
     description: 'La dirección de correo institucional del usuario.',
-    readOnly: true,
   })
   @IsString()
   @IsEmail()
@@ -44,7 +41,6 @@ export class CreateUserDto {
 
   @ApiPropertyOptional({
     description: 'La URL del avatar del usuario. Brindada por Google.',
-    readOnly: true,
   })
   @IsString()
   @IsUrl()
