@@ -5,16 +5,16 @@ export class User {
   @Prop({ enum: ['student', 'teacher', 'admin'], default: 'student' })
   role: string;
 
-  @Prop({ default: '' })
+  @Prop()
   givenName: string;
 
-  @Prop({ default: '' })
+  @Prop()
   familyName: string;
 
-  @Prop({ required: true, unique: true, default: '' })
+  @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ default: '' })
+  @Prop()
   avatarUrl: string;
 
   @Prop({
@@ -22,11 +22,10 @@ export class User {
     required: false,
     maxLength: 10,
     minLength: 10,
-    default: null,
   })
   matricula: string;
 
-  @Prop({ default: '' })
+  @Prop()
   division: string;
 
   @Prop()
@@ -35,10 +34,10 @@ export class User {
   @Prop({ enum: ['tsu', 'licenciatura', 'posgrado'], default: 'licenciatura' })
   careerLevel: string;
 
-  @Prop({ unique: true, required: false, default: null })
+  @Prop({ unique: true, required: false })
   employeeNumber: string;
 
-  @Prop({ default: '' })
+  @Prop()
   hashedRefreshToken?: string;
 }
 
