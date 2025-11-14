@@ -17,7 +17,7 @@ export class User {
   @Prop()
   avatarUrl: string;
 
-  @Prop({ unique: true, required: false })
+  @Prop({ unique: true, required: false, maxLength: 10, minLength: 10 })
   matricula: string;
 
   @Prop()
