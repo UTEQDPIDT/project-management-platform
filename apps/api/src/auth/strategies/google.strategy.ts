@@ -4,6 +4,7 @@ import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import googleOauthConfig from '../config/google-oauth.config';
 import { ConfigType } from '@nestjs/config';
 import { AuthService } from '../auth.service';
+import { UserRole } from '../../enums/user-role.enum';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
@@ -27,5 +28,13 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     done: VerifyCallback,
   ) {
     console.log({ profile });
+    const user = await this.authService.validateGoogleUser({
+      role: UserRole.STUDENT,
+      email: profile.emails[0].value,
+      givenName: profile.name.givenName,
+      familyName: profile.name.familyName,
+      avatarUrl: profile.photos[0].value,
+    });
+    done(null, user);
   }
 }
