@@ -2,6 +2,7 @@ import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -22,5 +23,11 @@ export class AuthController {
   googleCallback(@Req() req, @Res() res) {
     const response = this.authService.login(req.user._id);
     res.redirect(`http://localhost:3000`);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('signout')
+  signOut(@Req() req) {
+    this.authService.signOut(req.user.id);
   }
 }

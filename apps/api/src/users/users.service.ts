@@ -58,11 +58,23 @@ export class UsersService {
     } catch (err: any) {
       if (err.code === 11000) {
         throw new BadRequestException(
-          'Use: anyr with this matricula or employee number already exists',
+          'User with this matricula or employee number already exists',
         );
       }
       throw new BadRequestException(err.message);
     }
+  }
+
+  async updateHashedRefreshToken(userId: string, hashedRefreshToken: string) {
+    return await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        {
+          hashedRefreshToken,
+        },
+        { runValidators: true },
+      )
+      .exec();
   }
 
   async remove(id: string): Promise<User> {

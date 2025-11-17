@@ -39,7 +39,7 @@ export class User extends Document {
   employeeNumber: string;
 
   @Prop()
-  hashedRefreshToken?: string;
+  hashedRefreshToken?: string | null;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
