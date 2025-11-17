@@ -1,10 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { UserRole } from '../enums/user-role.enum';
+import { CareerLevel } from '../enums/career-level.enum';
 
 @Schema({ timestamps: true })
 export class User extends Document {
-  @Prop({ enum: ['student', 'teacher', 'admin'], default: 'student' })
-  role: string;
+  @Prop({ enum: UserRole, default: UserRole.STUDENT })
+  role: UserRole;
 
   @Prop()
   givenName: string;
@@ -32,8 +34,8 @@ export class User extends Document {
   @Prop()
   educationalProgram: string;
 
-  @Prop({ enum: ['tsu', 'licenciatura', 'posgrado'], default: 'licenciatura' })
-  careerLevel: string;
+  @Prop({ enum: CareerLevel, default: CareerLevel.LICENCIATURA })
+  careerLevel: CareerLevel;
 
   @Prop({ unique: true, required: false })
   employeeNumber: string;

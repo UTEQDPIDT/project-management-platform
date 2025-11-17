@@ -1,5 +1,5 @@
 export enum CareerLevel {
-  TSU = 'tsu',
-  LICENCIATURA = 'licenciatura',
-  POSGRADO = 'posgrado',
+  TSU = 'TSU',
+  LICENCIATURA = 'LICENCIATURA',
+  POSGRADO = 'POSGRADO',
 }
