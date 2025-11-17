@@ -10,6 +10,8 @@ import { UsersService } from '../users/users.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../schemas/user.schema';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import refreshJwtConfig from './config/refresh-jwt.config';
+import { RefreshJwtStrategy } from './strategies/refresh.strategy';
 
 @Module({
   imports: [
@@ -17,8 +19,15 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     ConfigModule.forFeature(googleOauthConfig),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
+    ConfigModule.forFeature(refreshJwtConfig),
   ],
-  providers: [AuthService, UsersService, GoogleStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    UsersService,
+    GoogleStrategy,
+    JwtStrategy,
+    RefreshJwtStrategy,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}
