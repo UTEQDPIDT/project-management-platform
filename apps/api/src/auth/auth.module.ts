@@ -6,13 +6,17 @@ import googleOauthConfig from './config/google-oauth.config';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from './config/jwt.config';
+import { UsersService } from '../users/users.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from '../schemas/user.schema';
 
 @Module({
   imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     ConfigModule.forFeature(googleOauthConfig),
     JwtModule.registerAsync(jwtConfig.asProvider()),
   ],
-  providers: [AuthService, GoogleStrategy],
+  providers: [AuthService, UsersService, GoogleStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}
