@@ -15,6 +15,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 @ApiTags('users')
@@ -40,6 +41,13 @@ export class UsersController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
+  }
+
+  @ApiOkResponse({ description: 'Usario existe en la base de datos.' })
+  @ApiUnauthorizedResponse({ description: 'Las credenciales son incorrectas.' })
+  @Get(':email')
+  findByEmail(@Param('email') email: string) {
+    return this.usersService.findByEmail(email);
   }
 
   @ApiOkResponse({ description: 'Usuario actualizado correctamente.' })
