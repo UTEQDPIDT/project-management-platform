@@ -40,7 +40,6 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    console.log('Searching user with email:', email);
     const user = await this.userModel.findOne({ email: email }).exec();
     return user || null;
   }
