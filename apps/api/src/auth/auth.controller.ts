@@ -22,12 +22,30 @@ export class AuthController {
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
     const response = await this.authService.login(req.user._id);
-    res.redirect(`http://localhost:3000?${response.accessToken}`);
+
+    res.cookie('accessToken', response.accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 1000, // 1h
+    });
+
+    res.cookie('refreshToken', response.refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
+    });
+
+    res.redirect(`http://localhost:3000`);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('signout')
-  signOut(@Req() req) {
-    this.authService.signOut(req.user.id);
+  async signOut(@Req() req, @Res() res) {
+    await this.authService.signOut(req.user.id);
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    return res.json({ message: 'Signed out successfully' });
   }
 }
