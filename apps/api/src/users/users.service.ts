@@ -39,10 +39,10 @@ export class UsersService {
     return user;
   }
 
-  async findByEmail(email: string): Promise<User> {
+  async findByEmail(email: string): Promise<User | null> {
+    console.log('Searching user with email:', email);
     const user = await this.userModel.findOne({ email: email }).exec();
-    if (!user) throw new UnauthorizedException(`Invalid credentials`);
-    return user;
+    return user || null;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {

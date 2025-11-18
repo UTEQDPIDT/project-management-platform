@@ -20,9 +20,9 @@ export class AuthController {
 
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
-  googleCallback(@Req() req, @Res() res) {
-    const response = this.authService.login(req.user._id);
-    res.redirect(`http://localhost:3000`);
+  async googleCallback(@Req() req, @Res() res) {
+    const response = await this.authService.login(req.user._id);
+    res.redirect(`http://localhost:3000?${response.accessToken}`);
   }
 
   @UseGuards(JwtAuthGuard)
