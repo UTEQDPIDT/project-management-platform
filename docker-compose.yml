@@ -44,9 +44,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=user
       - MONGO_INITDB_ROOT_PASSWORD=pass
     volumes:
-      - type: bind
-        source: ./data
-        target: /data/db
+      - mongodb_data:/data/db
     networks:
       - app_network
 
@@ -56,6 +54,4 @@ networks:
 
 volumes:
   mongodb_data:
-    driver: local
-  mongodb_config:
     driver: local
