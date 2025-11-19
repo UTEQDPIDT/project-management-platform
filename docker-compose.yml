@@ -7,6 +7,10 @@ services:
     restart: always
     ports:
       - 3000:3000
+    volumes:
+      - ./apps/web:/app/apps/web # Mount local WEB source code
+      - /app/apps/web/node_modules # Prevent overwriting node_modules
+      - ./packages:/app/packages # Mount shared packages (optional, for monorepo)
     depends_on:
       - api
     networks:
@@ -22,6 +26,10 @@ services:
       - 3001:3001
     env_file:
       - ./apps/api/.env
+    volumes:
+      - ./apps/api:/app/apps/api # Mount local API source code
+      - /app/apps/api/node_modules # Prevent overwriting node_modules
+      - ./packages:/app/packages # Mount shared packages (optional, for monorepo)
     depends_on:
       - mongodb
     networks:
@@ -36,9 +44,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=user
       - MONGO_INITDB_ROOT_PASSWORD=pass
     volumes:
-      - type: bind
-        source: ./data
-        target: /data/db
+      - mongodb_data:/data/db
     networks:
       - app_network
 
@@ -48,6 +54,4 @@ networks:
 
 volumes:
   mongodb_data:
-    driver: local
-  mongodb_config:
     driver: local

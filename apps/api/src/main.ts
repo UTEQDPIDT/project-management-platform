@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -8,6 +9,11 @@ async function bootstrap() {
   app.setGlobalPrefix('api', {
     exclude: ['docs', 'docs-json'],
   });
+
+  /**
+   * Cookie parser
+   */
+  app.use(cookieParser());
 
   /**
    * CORS configuration
@@ -23,7 +29,7 @@ async function bootstrap() {
    * API Swagger Documentation
    */
   const config = new DocumentBuilder()
-    .setTitle('Documentation API Plataforma de Gestión de Proyectos')
+    .setTitle('UTEQ API Plataforma de Gestión de Proyectos')
     .setDescription(
       'Está documentación busca detallar los endpoints disponibles en la API de la Plataforma de Gestión de Proyectos.',
     )
@@ -34,11 +40,8 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3001);
 
-  console.log(
-    `Application is running on: http://localhost:${process.env.PORT ?? 3001}/api`,
-  );
-  console.log(
-    `Swagger UI available at: http://localhost:${process.env.PORT ?? 3001}/docs`,
-  );
+  console.log(`Application is running on: ${await app.getUrl()}/api`);
+  console.log(`Swagger UI available at: ${await app.getUrl()}/docs`);
+  console.log(`Swagger JSON available at: ${await app.getUrl()}/docs-json`);
 }
 bootstrap();
