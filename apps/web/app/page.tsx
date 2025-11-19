@@ -1,6 +1,5 @@
 'use client';
-
-import styles from './page.module.css';
+import { Button } from '@repo/ui/components/base/button';
 
 export default function Home() {
   const handleGoogleLogin = () => {
@@ -8,9 +7,9 @@ export default function Home() {
   };
 
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <button onClick={handleGoogleLogin}>Log in with google</button>
+    <div>
+      <main>
+        <Button onClick={handleGoogleLogin}>Log in</Button>
       </main>
     </div>
   );
