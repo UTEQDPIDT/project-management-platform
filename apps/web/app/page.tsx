@@ -8,7 +8,7 @@ export default function Home() {
 
   return (
     <div>
-      <main>
+      <main className="flex justify-center items-center border border-blue-500 w-full h-full">
         <Button onClick={handleGoogleLogin}>Log in</Button>
       </main>
     </div>
