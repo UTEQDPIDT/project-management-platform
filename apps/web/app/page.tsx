@@ -1,5 +1,6 @@
 'use client';
-import { Button } from '@repo/ui/components/base/button';
+
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const handleGoogleLogin = () => {
@@ -9,7 +10,7 @@ export default function Home() {
   return (
     <div>
       <main className="flex justify-center items-center border border-blue-500 w-full h-full">
-        <Button onClick={handleGoogleLogin}>Log in</Button>
+        <Button variant={'destructive'}>Login</Button>
       </main>
     </div>
   );
