@@ -6,6 +6,7 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import refreshJwtConfig from './config/refresh-jwt.config';
 import { ConfigType } from '@nestjs/config';
 import * as argon2 from 'argon2';
+import { UserRole } from '../enums/user-role.enum';
 
 @Injectable()
 export class AuthService {
@@ -16,19 +17,22 @@ export class AuthService {
     private refreshTokenConfig: ConfigType<typeof refreshJwtConfig>,
   ) {}
 
-  async login(userId: string) {
-    const { accessToken, refreshToken } = await this.generateTokens(userId);
+  async login(userId: string, role: UserRole) {
+    const { accessToken, refreshToken } = await this.generateTokens(
+      userId,
+      role,
+    );
     const hashedRefreshToken = await argon2.hash(refreshToken);
     await this.userService.updateHashedRefreshToken(userId, hashedRefreshToken);
     return {
-      id: userId,
+      _id: userId,
       accessToken,
       refreshToken,
     };
   }
 
-  async generateTokens(userId: string) {
-    const payload: AuthJwtPayload = { sub: userId };
+  async generateTokens(userId: string, role: UserRole) {
+    const payload: AuthJwtPayload = { sub: userId, role };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtSevice.signAsync(payload),
       this.jwtSevice.signAsync(payload, this.refreshTokenConfig),
@@ -39,12 +43,15 @@ export class AuthService {
     };
   }
 
-  async refreshToken(userId: string) {
-    const { accessToken, refreshToken } = await this.generateTokens(userId);
+  async refreshToken(userId: string, role: UserRole) {
+    const { accessToken, refreshToken } = await this.generateTokens(
+      userId,
+      role,
+    );
     const hashedRefreshToken = await argon2.hash(refreshToken);
     await this.userService.updateHashedRefreshToken(userId, hashedRefreshToken);
     return {
-      id: userId,
+      _id: userId,
       accessToken,
       refreshToken,
     };
@@ -70,7 +77,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid Refresh Token');
     }
 
-    return { id: userId };
+    return { _id: userId, role: user.role };
   }
 
   async validateGoogleUser(googleUser: CreateUserDto) {

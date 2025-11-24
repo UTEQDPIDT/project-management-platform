@@ -5,6 +5,7 @@ import googleOauthConfig from '../config/google-oauth.config';
 import { ConfigType } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 import { UserRole } from '../../enums/user-role.enum';
+import { UserType } from '../../enums/user-type.enum';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
@@ -29,7 +30,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
   ) {
     console.log({ profile });
     const user = await this.authService.validateGoogleUser({
-      role: UserRole.STUDENT,
+      role: UserRole.USER,
+      type: UserType.STUDENT,
       email: profile.emails[0].value,
       givenName: profile.name.givenName,
       familyName: profile.name.familyName,
