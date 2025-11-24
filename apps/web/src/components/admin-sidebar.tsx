@@ -2,9 +2,11 @@ import { House, Users, Contact, Folders, Calendar } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -22,6 +24,7 @@ const items = [
 export function AdminSidebar() {
   return (
     <Sidebar collapsible="icon">
+      <SidebarHeader>Header</SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -41,6 +44,7 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>Footer</SidebarFooter>
     </Sidebar>
   );
 }
