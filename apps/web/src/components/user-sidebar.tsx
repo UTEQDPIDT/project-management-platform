@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
 } from './ui/sidebar';
 import Link from 'next/link';
+import { NavLogo } from './nav-logo';
 
 // Menu items
 const items = [
@@ -24,7 +25,9 @@ const items = [
 export function UserSidebar() {
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>Header</SidebarHeader>
+      <SidebarHeader>
+        <NavLogo />
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>

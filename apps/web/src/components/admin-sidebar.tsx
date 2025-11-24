@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
 } from './ui/sidebar';
 import Link from 'next/link';
+import { NavLogo } from './nav-logo';
 
 const items = [
   { title: 'Inicio', url: '/admin', icon: House },
@@ -24,7 +25,9 @@ const items = [
 export function AdminSidebar() {
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>Header</SidebarHeader>
+      <SidebarHeader>
+        <NavLogo />
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
