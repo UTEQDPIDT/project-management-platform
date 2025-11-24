@@ -11,7 +11,7 @@ export class AuthController {
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   refreshToken(@Req() req) {
-    return this.authService.refreshToken(req.user._id);
+    return this.authService.refreshToken(req.user._id, req.user.role);
   }
 
   @UseGuards(GoogleAuthGuard)
@@ -21,7 +21,7 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
-    const response = await this.authService.login(req.user._id);
+    const response = await this.authService.login(req.user._id, req.user.role);
 
     res.cookie('accessToken', response.accessToken, {
       httpOnly: true,
@@ -37,7 +37,11 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
     });
 
-    res.redirect(`http://localhost:3000`);
+    if (req.user.role == 'ADMIN') {
+      res.redirect(`http://localhost:3000/admin`);
+    } else {
+      res.redirect(`http://localhost:3000/user`);
+    }
   }
 
   @UseGuards(JwtAuthGuard)
