@@ -1,3 +1,5 @@
+'use client';
+
 import { House, Users, Contact, Folders, Calendar } from 'lucide-react';
 import {
   Sidebar,
