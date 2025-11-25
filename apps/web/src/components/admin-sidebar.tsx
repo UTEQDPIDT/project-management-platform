@@ -14,6 +14,7 @@ import {
 import Link from 'next/link';
 import { NavLogo } from './nav-logo';
 import { NavUser } from './nav-user';
+import { usePathname } from 'next/navigation';
 
 const items = [
   { title: 'Inicio', url: '/admin', icon: House },
@@ -24,6 +25,8 @@ const items = [
 ];
 
 export function AdminSidebar() {
+  const pathname = usePathname();
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -31,12 +34,14 @@ export function AdminSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname.startsWith(item.url)}
+                  >
                     <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
