@@ -38,9 +38,9 @@ export class AuthController {
     });
 
     if (req.user.role == 'ADMIN') {
-      res.redirect(`http://localhost:3000/admin`);
+      res.redirect(`http://localhost:3000/admin/inicio`);
     } else {
-      res.redirect(`http://localhost:3000/user`);
+      res.redirect(`http://localhost:3000/user/inicio`);
     }
   }
 
