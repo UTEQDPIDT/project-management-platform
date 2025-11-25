@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 export function NavLogo() {
   return (
-    <div className="w-full flex items-center justify-left gap-3">
+    <div className="w-full flex items-center justify-left gap-3 select-none">
       <Image
         width={40}
         height={40}

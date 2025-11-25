@@ -1,6 +1,11 @@
+import { Header } from '@/components/header';
 import React from 'react';
 
 const Page = () => {
-  return <div>Users Dashboard</div>;
+  return (
+    <div>
+      <Header />
+    </div>
+  );
 };
 export default Page;
