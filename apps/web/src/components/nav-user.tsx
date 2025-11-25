@@ -20,6 +20,7 @@ import {
 } from './ui/sidebar';
 
 import { User } from '@repo/types';
+import Link from 'next/link';
 
 export function NavUser({
   givenName,
@@ -74,13 +75,13 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <CircleUserRound />
-                Cuenta
+                Perfil
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <LogOut />
-              Salir
+              Cerrar Sesión
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
