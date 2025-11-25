@@ -20,7 +20,7 @@ import { usePathname } from 'next/navigation';
 
 // Menu items
 const items = [
-  { title: 'Inicio', url: '/user', icon: House },
+  { title: 'Inicio', url: '/user/inicio', icon: House },
   { title: 'Equipos', url: '/user/equipos', icon: Users },
   { title: 'Proyectos', url: '/user/proyectos', icon: Folders },
   { title: 'Eventos', url: '/user/eventos', icon: Calendar },

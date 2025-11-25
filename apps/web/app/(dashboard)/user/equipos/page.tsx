@@ -14,9 +14,9 @@ const Page = () => {
     <div>
       <Header>
         <HeaderHeading>
-          <HeaderTitle>Dashboard</HeaderTitle>
+          <HeaderTitle>Equipos</HeaderTitle>
           <HeaderDescription>
-            Bienvenido de vuelta Aeon Julien
+            Encuentra equipos y gestiona los equipos a los que perteneces.
           </HeaderDescription>
         </HeaderHeading>
       </Header>
