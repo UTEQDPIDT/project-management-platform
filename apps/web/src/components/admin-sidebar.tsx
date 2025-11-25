@@ -19,7 +19,7 @@ import { NavUser } from './nav-user';
 import { usePathname } from 'next/navigation';
 
 const items = [
-  { title: 'Inicio', url: '/admin', icon: House },
+  { title: 'Inicio', url: '/admin/inicio', icon: House },
   { title: 'Usuarios', url: '/admin/usuarios', icon: Contact },
   { title: 'Equipos', url: '/admin/equipos', icon: Users },
   { title: 'Proyectos', url: '/admin/proyectos', icon: Folders },
