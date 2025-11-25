@@ -13,7 +13,7 @@ const Page = () => {
         <HeaderHeading>
           <HeaderTitle>Dashboard Administrativo</HeaderTitle>
           <HeaderDescription>
-            Bienvenido de vuelta Aeon Julien
+            Bienvenido Aeon Julien. Esto es lo que esta sucediendo.
           </HeaderDescription>
         </HeaderHeading>
       </Header>
