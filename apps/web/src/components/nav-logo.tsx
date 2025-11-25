@@ -7,7 +7,7 @@ export function NavLogo() {
         width={40}
         height={40}
         className="shrink-0"
-        src="uteq-logo.svg"
+        src="/uteq-logo.svg"
         alt="Logo de la UTEQ"
       />
       <span className="text-sm font-semibold leading-tight truncate">
