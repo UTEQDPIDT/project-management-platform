@@ -13,6 +13,7 @@ import {
 } from './ui/sidebar';
 import Link from 'next/link';
 import { NavLogo } from './nav-logo';
+import { NavUser } from './nav-user';
 
 // Menu items
 const items = [
@@ -47,7 +48,9 @@ export function UserSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>Footer</SidebarFooter>
+      <SidebarFooter>
+        <NavUser name="Aeon Julien" email="aeonruiz@uteq.edu.mx" />
+      </SidebarFooter>
     </Sidebar>
   );
 }

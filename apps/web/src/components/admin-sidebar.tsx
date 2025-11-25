@@ -13,6 +13,7 @@ import {
 } from './ui/sidebar';
 import Link from 'next/link';
 import { NavLogo } from './nav-logo';
+import { NavUser } from './nav-user';
 
 const items = [
   { title: 'Inicio', url: '/admin', icon: House },
@@ -47,7 +48,9 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>Footer</SidebarFooter>
+      <SidebarFooter>
+        <NavUser name="Aeon Julien" email="aeonruiz@uteq.edu.mx" />
+      </SidebarFooter>
     </Sidebar>
   );
 }
