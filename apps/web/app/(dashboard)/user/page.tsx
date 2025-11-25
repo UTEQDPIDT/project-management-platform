@@ -19,14 +19,6 @@ const Page = () => {
             Bienvenido de vuelta Aeon Julien
           </HeaderDescription>
         </HeaderHeading>
-        <HeaderContent>
-          <Button>Button</Button>
-          <Button>Button</Button>
-        </HeaderContent>
-        <HeaderAction>
-          <Button>Button</Button>
-          <Button>Button</Button>
-        </HeaderAction>
       </Header>
     </div>
   );
