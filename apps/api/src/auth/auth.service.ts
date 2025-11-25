@@ -6,7 +6,7 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import refreshJwtConfig from './config/refresh-jwt.config';
 import { ConfigType } from '@nestjs/config';
 import * as argon2 from 'argon2';
-import { UserRole } from '../enums/user-role.enum';
+import { UserRole } from '@repo/types';
 
 @Injectable()
 export class AuthService {

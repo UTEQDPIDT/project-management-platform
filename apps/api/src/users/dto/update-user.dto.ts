@@ -5,8 +5,7 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-import { CareerLevel } from '../../enums/career-level.enum';
-import { UserRole } from '../../enums/user-role.enum';
+import { UserRole, CareerLevel } from '@repo/types';
 
 export class UpdateUserDto {
   @IsOptional()

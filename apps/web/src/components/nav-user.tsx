@@ -19,13 +19,13 @@ import {
   useSidebar,
 } from './ui/sidebar';
 
-type User = {
-  name: string;
-  email: string;
-  avatarUrl?: string;
-};
+import { User } from '@repo/types';
 
-export function NavUser({ name, email, avatarUrl }: User) {
+export function NavUser({
+  givenName,
+  email,
+  avatarUrl,
+}: Pick<User, 'givenName' | 'email' | 'avatarUrl'>) {
   const { isMobile } = useSidebar();
 
   return (
@@ -38,13 +38,13 @@ export function NavUser({ name, email, avatarUrl }: User) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar>
-                <AvatarImage src={avatarUrl} alt={name} />
+                <AvatarImage src={avatarUrl} alt={givenName} />
                 <AvatarFallback className="rounded-full flex items-center justify-center">
-                  {name.slice(0, 1).toUpperCase()}
+                  {givenName.slice(0, 1).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{name}</span>
+                <span className="truncate font-medium">{givenName}</span>
                 <span className="truncate text-xs">{email}</span>
               </div>
               <EllipsisVertical className="size-4 ml-auto" />
@@ -59,13 +59,13 @@ export function NavUser({ name, email, avatarUrl }: User) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={avatarUrl} alt={name} />
+                  <AvatarImage src={avatarUrl} alt={givenName} />
                   <AvatarFallback className="rounded-full flex items-center justify-center">
-                    {name.slice(0, 1).toUpperCase()}
+                    {givenName.slice(0, 1).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{name}</span>
+                  <span className="truncate font-medium">{givenName}</span>
                   <span className="truncate text-xs">{email}</span>
                 </div>
               </div>

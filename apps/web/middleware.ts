@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
-import { UserRole } from '@/types/user-roles.enum';
+import { UserRole } from '@repo/types';
 
 const SECRET = new TextEncoder().encode(process.env.NEXT_PRIVATE_JWT_SECRET!);
 
