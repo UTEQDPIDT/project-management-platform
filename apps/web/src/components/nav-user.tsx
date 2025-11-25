@@ -40,13 +40,15 @@ export function NavUser({
             >
               <Avatar>
                 <AvatarImage src={avatarUrl} alt={givenName} />
-                <AvatarFallback className="rounded-full flex items-center justify-center">
+                <AvatarFallback>
                   {givenName.slice(0, 1).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{givenName}</span>
-                <span className="truncate text-xs">{email}</span>
+                <span className="truncate text-xs text-muted-foreground">
+                  {email}
+                </span>
               </div>
               <EllipsisVertical className="size-4 ml-auto" />
             </SidebarMenuButton>
@@ -61,13 +63,15 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={avatarUrl} alt={givenName} />
-                  <AvatarFallback className="rounded-full flex items-center justify-center">
+                  <AvatarFallback>
                     {givenName.slice(0, 1).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{givenName}</span>
-                  <span className="truncate text-xs">{email}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {email}
+                  </span>
                 </div>
               </div>
             </DropdownMenuLabel>

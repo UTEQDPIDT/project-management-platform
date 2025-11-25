@@ -16,7 +16,7 @@ const Page = () => {
         <HeaderHeading>
           <HeaderTitle>Eventos</HeaderTitle>
           <HeaderDescription>
-            Encuentra equipos y gestiona los equipos a los que perteneces.
+            Encuentra y participa en eventos internos y externos.
           </HeaderDescription>
         </HeaderHeading>
       </Header>
