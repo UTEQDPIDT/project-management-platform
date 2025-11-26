@@ -45,11 +45,10 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('signout')
+  @Post('logout')
   async signOut(@Req() req, @Res() res) {
     await this.authService.signOut(req.user.id);
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
-    return res.json({ message: 'Signed out successfully' });
   }
 }
