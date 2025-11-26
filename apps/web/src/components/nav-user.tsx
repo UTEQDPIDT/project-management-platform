@@ -20,7 +20,7 @@ import {
 } from './ui/sidebar';
 
 import { User } from '@repo/types';
-import Link from 'next/link';
+import { logout } from '@/lib/auth/logout';
 
 export function NavUser({
   givenName,
@@ -83,7 +83,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={logout}>
               <LogOut />
               Cerrar Sesión
             </DropdownMenuItem>
