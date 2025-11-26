@@ -50,6 +50,5 @@ export class AuthController {
     await this.authService.signOut(req.user.id);
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
-    return res.json({ message: 'Logged out successfully' });
   }
 }
