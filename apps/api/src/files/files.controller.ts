@@ -32,15 +32,14 @@ export class FilesController {
     return savedFile;
   }
 
-  //   @Get()
-  //   findAll() {
-  //     return this.filesService.findAll();
-  //   }
+  @Get()
+  findAll() {
+    return this.filesService.findAll();
+  }
 
   @Get(':id')
   async getFile(@Param('id') id: string, @Res() res: Response) {
     const fileStream = await this.filesService.getFileStream(id);
-
     fileStream.on('error', () => res.status(404).send('File not found'));
     fileStream.pipe(res);
   }
@@ -75,8 +74,8 @@ export class FilesController {
     fileStream.pipe(res);
   }
 
-  //   @Delete(':id')
-  //   remove(@Param('id') id: string) {
-  //     return this.filesService.remove(id);
-  //   }
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.filesService.deleteFile(id);
+  }
 }

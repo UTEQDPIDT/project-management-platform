@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import mongoose, { Connection } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -49,11 +49,34 @@ export class FilesService {
     });
   }
 
+  async findAll() {
+    return this.fileModel.find().exec();
+  }
+
   async getFileStream(id: string) {
     return this.bucket.openDownloadStream(new mongoose.Types.ObjectId(id));
   }
 
   async getFileMetadata(id: string) {
     return this.fileModel.findOne({ gridFsId: id });
+  }
+
+  async deleteFile(id: string) {
+    // extract file metadata
+    const file = await this.fileModel.findById(id);
+
+    if (!file) {
+      throw new NotFoundException('File metadata not found');
+    }
+
+    const gridFsId = file.gridFsId;
+
+    // Delete file from GridFS
+    await this.bucket.delete(new mongoose.Types.ObjectId(gridFsId));
+
+    // Delete file metadata
+    await this.fileModel.findByIdAndDelete(id);
+
+    return { message: 'File deleted successfully' };
   }
 }
