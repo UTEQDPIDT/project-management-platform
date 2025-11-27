@@ -39,7 +39,18 @@ export class FilesController {
     return this.filesService.findAll();
   }
 
-  @Get(':id')
+  @Get('metadata/:id')
+  async getFileMetadata(@Param('id') id: string) {
+    const metadata = await this.filesService.getFileMetadata(id);
+
+    if (!metadata) {
+      throw new NotFoundException('File metadata not found');
+    }
+
+    return metadata;
+  }
+
+  @Get('stream/:id')
   async getFile(@Param('id') id: string, @Res() res: Response) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new NotFoundException('Invalid file ID');
