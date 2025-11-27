@@ -36,6 +36,13 @@ export class File extends Document {
     ref: 'User',
   })
   owner: mongoose.Types.ObjectId;
+
+  @ApiProperty({ description: 'ID del archivo almacenado en GridFS.' })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  })
+  gridFsId: mongoose.Types.ObjectId;
 }
 
 export const FileSchema = SchemaFactory.createForClass(File);

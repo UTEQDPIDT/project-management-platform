@@ -1,22 +1,55 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFileDto } from './dto/create-file.dto';
-import { UpdateFileDto } from './dto/update-file.dto';
+import { InjectConnection } from '@nestjs/mongoose';
+import mongoose, { Connection } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { File } from '../schemas/file.schema';
+import { mongo } from 'mongoose';
+const GridFSBucket = mongo.GridFSBucket;
 
 @Injectable()
 export class FilesService {
-  create(createFileDto: CreateFileDto) {
-    return 'This action adds a new file';
+  private bucket: mongo.GridFSBucket;
+
+  constructor(
+    @InjectConnection() private readonly connection: Connection,
+    @InjectModel(File.name) private readonly fileModel: Model<File>,
+  ) {
+    this.bucket = new mongo.GridFSBucket(this.connection.db, {
+      bucketName: 'uploads',
+    });
   }
 
-  findAll() {
-    return `This action returns all files`;
+  async uploadToGridFS(file: Express.Multer.File, ownerId: string) {
+    // 1. Upload buffer to GridFS
+    const uploadStream = this.bucket.openUploadStream(file.originalname, {
+      contentType: file.mimetype,
+    });
+
+    uploadStream.end(file.buffer);
+
+    const fileId = uploadStream.id;
+
+    return new Promise((res, rej) => {
+      uploadStream.on('close', async () => {
+        // 2. Save metadata to File collection
+        const savedFile = await this.fileModel.create({
+          name: file.originalname,
+          size: file.size,
+          mimetype: file.mimetype,
+          owner: ownerId,
+          url: `/files/${fileId}`,
+          gridFsId: fileId,
+        });
+
+        res(savedFile);
+      });
+
+      uploadStream.on('error', rej);
+    });
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} file`;
-  }
-
-  remove(id: string) {
-    return `This action removes a #${id} file`;
+  async getFileStream(id: string) {
+    return this.bucket.openDownloadStream(new mongoose.Types.ObjectId(id));
   }
 }

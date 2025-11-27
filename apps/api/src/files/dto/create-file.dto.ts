@@ -31,4 +31,7 @@ export class CreateFileDto {
   })
   @IsMongoId()
   owner: string;
+
+  @IsString()
+  gridFsId: string;
 }
