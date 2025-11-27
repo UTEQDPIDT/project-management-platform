@@ -10,7 +10,7 @@ import { Request } from 'express';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     @Inject(jwtConfig.KEY)
-    private jwtCofniguration: ConfigType<typeof jwtConfig>,
+    private jwtConfiguration: ConfigType<typeof jwtConfig>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
           return request?.cookies?.accessToken;
         },
       ]),
-      secretOrKey: jwtCofniguration.secret as string,
+      secretOrKey: jwtConfiguration.secret as string,
       ignoreExpiration: false,
     });
   }
