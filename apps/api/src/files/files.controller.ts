@@ -9,11 +9,13 @@ import {
   UseInterceptors,
   UploadedFile,
   Res,
+  NotFoundException,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { CreateFileDto } from './dto/create-file.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
+import mongoose from 'mongoose';
 
 @Controller('files')
 export class FilesController {
@@ -40,6 +42,36 @@ export class FilesController {
     const fileStream = await this.filesService.getFileStream(id);
 
     fileStream.on('error', () => res.status(404).send('File not found'));
+    fileStream.pipe(res);
+  }
+
+  @Get('download/:id')
+  async downloadFile(@Param('id') id: string, @Res() res: Response) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new NotFoundException('Invalid file ID');
+    }
+
+    // 1. get file metadata
+    const metadata = await this.filesService.getFileMetadata(id);
+
+    if (!metadata) {
+      throw new NotFoundException('File metadata not found');
+    }
+
+    // 2. get GridFS download stream
+    const fileStream = await this.filesService.getFileStream(id);
+
+    // 3. set headers
+    res.set({
+      'Content-Type': metadata.mimetype || 'application/octet-stream',
+      'Content-Disposition': `attachment; filename="${metadata.name}"`,
+    });
+
+    // 4. Pipe GridFS strem to the response
+    fileStream.on('error', () => {
+      return res.status(404).send('Could not read file');
+    });
+
     fileStream.pipe(res);
   }
 

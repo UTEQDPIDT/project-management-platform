@@ -52,4 +52,8 @@ export class FilesService {
   async getFileStream(id: string) {
     return this.bucket.openDownloadStream(new mongoose.Types.ObjectId(id));
   }
+
+  async getFileMetadata(id: string) {
+    return this.fileModel.findOne({ gridFsId: id });
+  }
 }
