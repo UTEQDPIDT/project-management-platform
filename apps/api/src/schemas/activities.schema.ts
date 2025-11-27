@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { User } from './user.schema';
 import { ApiProperty } from '@nestjs/swagger';
 import { Priority, Status } from '@repo/types';
+import { File } from './file.schema';
 
 @Schema({ timestamps: true })
 export class Activity {
@@ -35,6 +36,10 @@ export class Activity {
   @ApiProperty({ description: 'Usuario que actualizo la actividad' })
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   updatedBy?: User;
+
+  @ApiProperty({ description: 'Evidencias de la actividad.' })
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }] })
+  files: File[];
 
   @ApiProperty({
     description:

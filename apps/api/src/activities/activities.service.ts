@@ -12,15 +12,15 @@ export class ActivitiesService {
     return `This action returns all activities`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} activity`;
   }
 
-  update(id: number, updateActivityDto: UpdateActivityDto) {
+  update(id: string, updateActivityDto: UpdateActivityDto) {
     return `This action updates a #${id} activity`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} activity`;
   }
 }
