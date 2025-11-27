@@ -16,11 +16,16 @@ export class Activity {
   description?: string;
 
   @ApiProperty({ description: 'Prioridad de la actividad' })
-  @Prop({ type: Priority })
+  @Prop({ type: String, enum: Object.values(Status) })
   priority?: Priority;
 
   @ApiProperty({ description: 'Estado de la actividad' })
-  @Prop({ required: true, type: Status, default: Status.PENDING })
+  @Prop({
+    required: true,
+    type: String,
+    enum: Object.values(Status),
+    default: Status.PENDING,
+  })
   status: Status;
 
   @ApiProperty({
