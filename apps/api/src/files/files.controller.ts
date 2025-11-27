@@ -2,33 +2,35 @@ import {
   Controller,
   Get,
   Post,
-  Body,
-  Patch,
   Param,
   Delete,
   UseInterceptors,
   UploadedFile,
   Res,
   NotFoundException,
+  UseGuards,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
-import { CreateFileDto } from './dto/create-file.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import mongoose from 'mongoose';
-
+import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    console.log(file);
-    const savedFile = this.filesService.uploadToGridFS(
-      file,
-      '69286fe44f801bd12854f4f0',
-    );
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req) {
+    if (!file) {
+      throw new BadRequestException('No file provided');
+    }
+
+    const savedFile = await this.filesService.uploadToGridFS(file, req.user.id);
+
     return savedFile;
   }
 
