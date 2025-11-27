@@ -58,7 +58,7 @@ export class FilesService {
   }
 
   async getFileMetadata(id: string) {
-    return this.fileModel.findOne({ gridFsId: id });
+    return this.fileModel.findById(id);
   }
 
   async deleteFile(id: string) {

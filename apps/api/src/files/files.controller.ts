@@ -39,8 +39,22 @@ export class FilesController {
 
   @Get(':id')
   async getFile(@Param('id') id: string, @Res() res: Response) {
-    const fileStream = await this.filesService.getFileStream(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new NotFoundException('Invalid file ID');
+    }
+
+    const metadata = await this.filesService.getFileMetadata(id);
+
+    if (!metadata) {
+      throw new NotFoundException('File metadata not found');
+    }
+
+    const fileStream = await this.filesService.getFileStream(
+      metadata.gridFsId.toHexString(),
+    );
+
     fileStream.on('error', () => res.status(404).send('File not found'));
+
     fileStream.pipe(res);
   }
 
@@ -58,7 +72,9 @@ export class FilesController {
     }
 
     // 2. get GridFS download stream
-    const fileStream = await this.filesService.getFileStream(id);
+    const fileStream = await this.filesService.getFileStream(
+      metadata.gridFsId.toHexString(),
+    );
 
     // 3. set headers
     res.set({
