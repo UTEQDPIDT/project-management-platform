@@ -1,26 +1,67 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Product } from '../schemas/product.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class ProductsService {
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
+  constructor(
+    @InjectModel(Product.name) private productModel: Model<Product>,
+  ) {}
+
+  async create(createProductDto: CreateProductDto) {
+    try {
+      const createdProduct = new this.productModel(createProductDto);
+      return await createdProduct.save();
+    } catch (err: any) {
+      throw new BadRequestException(
+        'Error al crear el producto: ' + err.message,
+      );
+    }
   }
 
-  findAll() {
-    return `This action returns all products`;
+  async findAll() {
+    return this.productModel.find().exec();
   }
 
   findOne(id: string) {
-    return `This action returns a #${id} product`;
+    const product = this.productModel.findById(id).exec();
+    if (!product) {
+      throw new NotFoundException(`Product with ID: ${id} not found`);
+    }
+    return product;
   }
 
   update(id: string, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+    try {
+      const updatedProduct = this.productModel.findByIdAndUpdate(
+        id,
+        updateProductDto,
+        { new: true },
+      );
+
+      if (!updatedProduct) {
+        throw new NotFoundException(`Product with ID: ${id} not found`);
+      }
+
+      return updatedProduct;
+    } catch (err: any) {
+      throw new BadRequestException(err.message);
+    }
   }
 
   remove(id: string) {
-    return `This action removes a #${id} product`;
+    const deletedProduct = this.productModel.findByIdAndDelete(id).exec();
+
+    if (!deletedProduct)
+      throw new NotFoundException(`Product with ID: ${id} not found`);
+
+    return deletedProduct;
   }
 }
