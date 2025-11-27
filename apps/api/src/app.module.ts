@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TeamsModule } from './teams/teams.module';
 import { FilesModule } from './files/files.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -23,6 +24,8 @@ import { FilesModule } from './files/files.module';
     TeamsModule,
 
     FilesModule,
+
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
