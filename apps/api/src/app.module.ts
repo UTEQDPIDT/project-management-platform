@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { TeamsModule } from './teams/teams.module';
 import { FilesModule } from './files/files.module';
 import { ProductsModule } from './products/products.module';
+import { ActivitiesModule } from './activities/activities.module';
 
 @Module({
   imports: [
@@ -26,6 +27,8 @@ import { ProductsModule } from './products/products.module';
     FilesModule,
 
     ProductsModule,
+
+    ActivitiesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
