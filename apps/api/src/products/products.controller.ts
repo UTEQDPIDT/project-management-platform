@@ -17,6 +17,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 
@@ -29,6 +30,7 @@ export class ProductsController {
     description: 'Producto creado correctamente.',
     type: CreateProductDto,
   })
+  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createProductDto: CreateProductDto, @Req() req) {
