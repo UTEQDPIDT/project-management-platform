@@ -15,10 +15,13 @@ export class ProductsService {
     @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, ownerId: string) {
     try {
-      const createdProduct = new this.productModel(createProductDto);
-      return await createdProduct.save();
+      const createdProduct = await this.productModel.create({
+        ...createProductDto,
+        owner: ownerId,
+      });
+      return createdProduct;
     } catch (err: any) {
       throw new BadRequestException(
         'Error al crear el producto: ' + err.message,
