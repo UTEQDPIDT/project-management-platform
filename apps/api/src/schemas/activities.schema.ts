@@ -1,4 +1,4 @@
-import { Schema, Prop } from '@nestjs/mongoose';
+import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { User } from './user.schema';
 import { ApiProperty } from '@nestjs/swagger';
@@ -47,3 +47,5 @@ export class Activity {
   @Prop()
   dueDateEnd?: Date;
 }
+
+export const ActivitySchema = SchemaFactory.createForClass(Activity);
