@@ -42,6 +42,7 @@ export class Project extends Document {
     type: String,
     enum: Object.values(Status),
     default: Status.PENDING,
+    index: true,
   })
   status: Status;
 
@@ -49,7 +50,7 @@ export class Project extends Document {
     description:
       'Progreso general del proyecto, promedio de actividades completadas.',
   })
-  @Prop({ required: true, min: 0, max: 100 })
+  @Prop({ min: 0, max: 100, default: 0 })
   progress: number;
 
   @ApiProperty({
@@ -103,18 +104,18 @@ export class Project extends Document {
     enum: Object.values(ImpactLevel),
     default: ImpactLevel.LOCAL,
   })
-  impactLevel: string;
+  impactLevel: ImpactLevel;
 
   @ApiProperty({
     description: 'Dueño del proyecto.',
   })
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true })
   owner: User;
 
   @ApiProperty({
     description: 'Equipo que trabaja en el proyecto.',
   })
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Team' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Team', index: true })
   team: Team;
 
   @ApiProperty({
@@ -146,9 +147,9 @@ export class Project extends Document {
       'Fecha de vencimiento de la actividad. Al existir una fecha final de vencimiento, esta será el inicio del plazo.',
   })
   @Prop()
-  dueDate?: Date;
+  startDate?: Date;
 
   @ApiProperty({ description: 'Fecha final de vencimiento de la actividad' })
   @Prop()
-  dueDateEnd?: Date;
+  endDate?: Date;
 }
