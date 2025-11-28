@@ -16,7 +16,7 @@ export class Activity {
   description?: string;
 
   @ApiProperty({ description: 'Prioridad de la actividad' })
-  @Prop({ type: String, enum: Object.values(Status) })
+  @Prop({ type: String, enum: Object.values(Priority) })
   priority?: Priority;
 
   @ApiProperty({ description: 'Estado de la actividad' })
@@ -39,7 +39,7 @@ export class Activity {
   createdBy: User;
 
   @ApiProperty({ description: 'Usuario que actualizo la actividad' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   updatedBy?: User;
 
   @ApiProperty({ description: 'Evidencias de la actividad.' })
