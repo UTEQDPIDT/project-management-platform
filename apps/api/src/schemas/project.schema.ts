@@ -143,13 +143,12 @@ export class Project extends Document {
   files: File[];
 
   @ApiProperty({
-    description:
-      'Fecha de vencimiento de la actividad. Al existir una fecha final de vencimiento, esta será el inicio del plazo.',
+    description: 'Fecha de inicio del proyecto, esta será el inicio del plazo.',
   })
   @Prop()
   startDate?: Date;
 
-  @ApiProperty({ description: 'Fecha final de vencimiento de la actividad' })
+  @ApiProperty({ description: 'Fecha final de vencimiento del proyecto' })
   @Prop()
   endDate?: Date;
 }
