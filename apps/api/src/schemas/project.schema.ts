@@ -143,6 +143,12 @@ export class Project extends Document {
   files: File[];
 
   @ApiProperty({
+    description: 'Quien actualiza el proyecto por ultima ocasion.',
+  })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true })
+  updatedBy: User;
+
+  @ApiProperty({
     description: 'Fecha de inicio del proyecto, esta será el inicio del plazo.',
   })
   @Prop()
