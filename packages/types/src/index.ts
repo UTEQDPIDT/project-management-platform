@@ -5,5 +5,6 @@ export * from './enums/teams-grade.enum';
 export * from './enums/coauthor.enum';
 export * from './enums/status.enum';
 export * from './enums/priority.enum';
+export * from './enums/impact-level.enum';
 
 export * from './user.type';

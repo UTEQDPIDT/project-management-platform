@@ -9,6 +9,7 @@ import { TeamsModule } from './teams/teams.module';
 import { FilesModule } from './files/files.module';
 import { ProductsModule } from './products/products.module';
 import { ActivitiesModule } from './activities/activities.module';
+import { ProjectsModule } from './projects/projects.module';
 
 @Module({
   imports: [
@@ -29,6 +30,8 @@ import { ActivitiesModule } from './activities/activities.module';
     ProductsModule,
 
     ActivitiesModule,
+
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
