@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { UserType, UserRole, CareerLevel } from '@repo/types';
+import { UserType, UserRole, CareerLevel, Gender, State } from '@repo/types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Division } from './division.schema.seed';
 import { EducationalProgram } from './educational-program.schema.seed';
@@ -83,19 +83,23 @@ export class User extends Document {
   matricula: string;
 
   @ApiPropertyOptional({
-    description: 'La división a la que pertenece el usuario (referencia al catálogo)',
+    description:
+      'La división a la que pertenece el usuario (referencia al catálogo)',
   })
-  @Prop({ 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: Division.name })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Division.name,
+  })
   division: Division;
 
   @ApiPropertyOptional({
-    description: 'El programa educativo al que pertenece el usuario (referencia al catálogo)',
+    description:
+      'El programa educativo al que pertenece el usuario (referencia al catálogo)',
   })
-  @Prop({ 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: EducationalProgram.name })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: EducationalProgram.name,
+  })
   educationalProgram: EducationalProgram;
 
   @ApiPropertyOptional({

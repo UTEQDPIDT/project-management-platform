@@ -7,7 +7,6 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-import { UserRole, CareerLevel } from '@repo/types';
 import { ObjectId } from 'mongoose';
 import { UserRole, CareerLevel, Gender, State } from '@repo/types';
 
