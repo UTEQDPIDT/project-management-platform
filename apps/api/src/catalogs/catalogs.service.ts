@@ -2,15 +2,15 @@ import { BadRequestException, ConflictException, Injectable, InternalServerError
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 
-import { Division } from '../schemas/division.schema';
-import { EducationalProgram } from '../schemas/educational-program.schema';
-import { ProductCategory } from '../schemas/product-category.schema';
-import { ProductSubcategory } from '../schemas/product-subcategory.schema';
-import { KnowledgeArea } from '../schemas/knowledge-area.schema';
+import { Division } from '../schemas/division.schema.seed';
+import { EducationalProgram } from '../schemas/educational-program.schema.seed';
+import { ProductCategory } from '../schemas/product-category.schema.seed';
+import { ProductSubcategory } from '../schemas/product-subcategory.schema.seed';
+import { KnowledgeArea } from '../schemas/knowledge-area.schema.seed';
 import { ThemedImpactArea } from '../schemas/themed-impact-area.schema';
-import { PNDpriority } from '../schemas/pnd-priority.schema';
-import { DevelopmentLine } from '../schemas/development-line.schema';
-import { SustainabilityGoal } from '../schemas/sustainability-goal.schema';
+import { PNDpriority } from '../schemas/pnd-priority.schema.seed';
+import { DevelopmentLine } from '../schemas/development-line.schema.seed';
+import { SustainabilityGoal } from '../schemas/sustainability-goal.schema.seed';
 
 @Injectable()
 export class CatalogsService {
