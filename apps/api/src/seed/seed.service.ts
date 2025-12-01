@@ -1,0 +1,140 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+
+// Schemas
+import { Division } from '../schemas/division.schema';
+import { EducationalProgram } from '../schemas/educational-program.schema';
+import { ProductCategory } from '../schemas/product-category.schema';
+import { ProductSubcategory } from '../schemas/product-subcategory.schema';
+import { KnowledgeArea } from '../schemas/knowledge-area.schema';
+import { ThemedImpactArea } from '../schemas/themed-impact-area.schema';
+import { PNDpriority } from '../schemas/pnd-priority.schema';
+import { DevelopmentLine } from '../schemas/development-line.schema';
+import { SustainabilityGoal } from '../schemas/sustainability-goal.schema';
+
+// Static data
+import {
+  divisionsList,
+  educationalProgramsList,
+  productCategoryList,
+  productSubcategoryList,
+  knowledgeAreaList,
+  themedImpactAreaList,
+  PNDprioritiesList,
+  developmentLinesList,
+  sustainabilityGoalsList,
+} from './data/static-data';
+
+@Injectable()
+export class SeedService {
+  constructor(
+    @InjectModel(Division.name)
+    private readonly divisionModel: Model<Division>,
+
+    @InjectModel(EducationalProgram.name)
+    private readonly educationalProgramModel: Model<EducationalProgram>,
+
+    @InjectModel(ProductCategory.name)
+    private readonly productCategoryModel: Model<ProductCategory>,
+
+    @InjectModel(ProductSubcategory.name)
+    private readonly productSubcategoryModel: Model<ProductSubcategory>,
+
+    @InjectModel(KnowledgeArea.name)
+    private readonly knowledgeAreaModel: Model<KnowledgeArea>,
+
+    @InjectModel(ThemedImpactArea.name)
+    private readonly themedImpactAreaModel: Model<ThemedImpactArea>,
+
+    @InjectModel(PNDpriority.name)
+    private readonly pndPriorityModel: Model<PNDpriority>,
+
+    @InjectModel(DevelopmentLine.name)
+    private readonly developmentLineModel: Model<DevelopmentLine>,
+
+    @InjectModel(SustainabilityGoal.name)
+    private readonly sustainabilityGoalModel: Model<SustainabilityGoal>,
+  ) {}
+
+  private async seedCollection(
+    model: Model<any>,
+    list: Record<string, any>[],
+    key: string,
+  ) {
+    await Promise.all(
+      list.map(async (item) => {
+        try {
+          await model.updateOne(
+            { [key]: item[key] },
+            { $setOnInsert: item },
+            { upsert: true },
+          );
+        } catch (err: any) {
+          if (err.code !== 11000) throw err;
+        }
+      }),
+    );
+  }
+
+  async runSeed(password: string) {
+    if (password !== process.env.SEED_PASSWORD)
+      return { message: 'Invalid password' };
+
+    await this.seedCollection(
+      this.divisionModel, 
+      divisionsList, 
+      'division'
+    );
+
+    await this.seedCollection(
+      this.educationalProgramModel,
+      educationalProgramsList,
+      'educationalProgram',
+    );
+
+    await this.seedCollection(
+      this.productCategoryModel,
+      productCategoryList,
+      'productCategory',
+    );
+
+    await this.seedCollection(
+      this.productSubcategoryModel,
+      productSubcategoryList,
+      'productSubcategory',
+    );
+
+    await this.seedCollection(
+      this.knowledgeAreaModel,
+      knowledgeAreaList,
+      'knowledgeArea',
+    );
+
+    await this.seedCollection(
+      this.themedImpactAreaModel,
+      themedImpactAreaList,
+      'themedImpactArea',
+    );
+
+    await this.seedCollection(
+      this.pndPriorityModel,
+        PNDprioritiesList,
+      'PNDpriority',
+    );
+
+    await this.seedCollection(
+      this.developmentLineModel,
+      developmentLinesList,
+      'developmentLine',
+    );
+
+    await this.seedCollection(
+      this.sustainabilityGoalModel,
+      sustainabilityGoalsList,
+      'sustainabilityGoal',
+    );
+
+    return { message: 'All seeds executed successfully' };
+  }
+}
