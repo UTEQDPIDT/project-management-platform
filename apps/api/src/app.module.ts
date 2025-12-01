@@ -9,6 +9,10 @@ import { TeamsModule } from './teams/teams.module';
 import { SeedModule } from './seed/seed.module';
 import { CatalogsModule } from './catalogs/catalogs.module';
 import { SeedService } from './seed/seed.service';
+import { FilesModule } from './files/files.module';
+import { ProductsModule } from './products/products.module';
+import { ActivitiesModule } from './activities/activities.module';
+import { ProjectsModule } from './projects/projects.module';
 
 @Module({
   imports: [
@@ -27,6 +31,14 @@ import { SeedService } from './seed/seed.service';
     SeedModule,
 
     CatalogsModule,
+    
+    FilesModule,
+
+    ProductsModule,
+
+    ActivitiesModule,
+
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

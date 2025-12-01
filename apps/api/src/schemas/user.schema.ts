@@ -1,8 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { UserRole } from '../enums/user-role.enum';
-import { CareerLevel } from '../enums/career-level.enum';
-import { UserType } from '../enums/user-type.enum';
+import { UserType, UserRole, CareerLevel } from '@repo/types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 @Schema({ timestamps: true })

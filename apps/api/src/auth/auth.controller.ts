@@ -27,7 +27,7 @@ export class AuthController {
       httpOnly: true,
       secure: false,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 1000, // 1h
+      maxAge: 8 * 60 * 60 * 1000, // 8h
     });
 
     res.cookie('refreshToken', response.refreshToken, {
@@ -38,18 +38,17 @@ export class AuthController {
     });
 
     if (req.user.role == 'ADMIN') {
-      res.redirect(`http://localhost:3000/admin`);
+      res.redirect(`http://localhost:3000/admin/inicio`);
     } else {
-      res.redirect(`http://localhost:3000/user`);
+      res.redirect(`http://localhost:3000/user/inicio`);
     }
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('signout')
+  @Post('logout')
   async signOut(@Req() req, @Res() res) {
     await this.authService.signOut(req.user.id);
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
-    return res.json({ message: 'Signed out successfully' });
   }
 }
