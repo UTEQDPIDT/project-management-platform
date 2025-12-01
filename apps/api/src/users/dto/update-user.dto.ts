@@ -1,11 +1,13 @@
 import {
   IsEnum,
+  IsMongoId,
   IsNumberString,
   IsOptional,
   IsString,
   Length,
 } from 'class-validator';
 import { UserRole, CareerLevel } from '@repo/types';
+import { ObjectId } from 'mongoose';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -18,12 +20,12 @@ export class UpdateUserDto {
   matricula?: string;
 
   @IsOptional()
-  @IsString()
-  division?: string;
+  @IsMongoId()
+  division?: ObjectId;
 
   @IsOptional()
-  @IsString()
-  educationalProgram?: string;
+  @IsMongoId()
+  educationalProgram?: ObjectId;
 
   @IsOptional()
   @IsEnum(CareerLevel)
