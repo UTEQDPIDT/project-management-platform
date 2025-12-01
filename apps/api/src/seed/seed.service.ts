@@ -24,7 +24,7 @@ import {
   PNDprioritiesList,
   developmentLinesList,
   sustainabilityGoalsList,
-} from './data/static-data';
+} from './seed-data/static-data';
 
 @Injectable()
 export class SeedService {
