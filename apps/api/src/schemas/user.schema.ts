@@ -48,6 +48,28 @@ export class User extends Document {
   avatarUrl: string;
 
   @ApiPropertyOptional({
+    description: 'El genero del usuario.',
+    default: Gender.HOMBRE,
+    enum: Gender,
+  })
+  @Prop({ enum: Gender, default: Gender.HOMBRE })
+  gender: Gender;
+
+  @ApiPropertyOptional({
+    description: 'El estado de origen del usuario.',
+    default: State.QRO,
+    enum: State,
+  })
+  @Prop({ enum: State, default: State.QRO })
+  state: State;
+
+  @ApiProperty({
+    description: 'Fecha de nacimiento.',
+  })
+  @Prop({ type: Date })
+  dateOfBirth: Date;
+
+  @ApiPropertyOptional({
     description: 'La matrícula del usuario (si es estudiante).',
     maxLength: 10,
     minLength: 10,

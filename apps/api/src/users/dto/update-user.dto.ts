@@ -1,4 +1,5 @@
 import {
+  IsDate,
   IsEnum,
   IsMongoId,
   IsNumberString,
@@ -8,11 +9,21 @@ import {
 } from 'class-validator';
 import { UserRole, CareerLevel } from '@repo/types';
 import { ObjectId } from 'mongoose';
+import { UserRole, CareerLevel, Gender, State } from '@repo/types';
 
 export class UpdateUserDto {
   @IsOptional()
   @IsEnum(UserRole)
   role: UserRole;
+
+  @IsEnum(Gender)
+  gender: Gender;
+
+  @IsEnum(State)
+  state: State;
+
+  @IsDate()
+  dateOfBirth: Date;
 
   @IsOptional()
   @IsNumberString()
