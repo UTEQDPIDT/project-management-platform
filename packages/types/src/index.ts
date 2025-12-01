@@ -6,5 +6,7 @@ export * from './enums/coauthor.enum';
 export * from './enums/status.enum';
 export * from './enums/priority.enum';
 export * from './enums/impact-level.enum';
+export * from './enums/gender-enum';
+export * from './enums/state.enum';
 
 export * from './user.type';
