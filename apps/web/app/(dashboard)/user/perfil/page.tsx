@@ -16,7 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@radix-ui/react-avatar';
+import { ProfileInfo } from '@/components/profile-info';
 
 const Page = () => {
   return (
@@ -38,7 +38,9 @@ const Page = () => {
             <CardTitle>Información del perfil</CardTitle>
             <CardDescription>Description</CardDescription>
           </CardHeader>
-          <CardContent>Contenido</CardContent>
+          <CardContent>
+            <ProfileInfo givenName="Aeon Julien" email="example@mail.com" />
+          </CardContent>
           <CardFooter></CardFooter>
         </Card>
       </PageContent>
