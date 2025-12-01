@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 
 import { Division } from '../schemas/division.schema';
 import { EducationalProgram } from '../schemas/educational-program.schema';
@@ -48,11 +48,56 @@ export class CatalogsService {
     }
 
     private async create(model: Model<any>, fieldName: string, value: string) {
-        return model.create({ [fieldName]: value });
+        try {
+            if (!value || typeof value !== 'string') {
+                throw new BadRequestException('El valor enviado es inválido.');
+            }
+
+            const normalizedValue = value.trim();
+
+            const exists = await model.findOne({ [fieldName]: normalizedValue });
+            if (exists) {
+                throw new ConflictException(`El valor "${normalizedValue}" ya existe en ${model.modelName}.`);
+            }
+
+            const created = await model.create({ [fieldName]: normalizedValue });
+            return created;
+
+        } catch (error) {
+            if (error instanceof BadRequestException || error instanceof ConflictException) {
+                throw error;
+            }
+
+            console.error('Error al crear registro:', error);
+            throw new InternalServerErrorException('Error interno al crear el registro.');
+        }
     }
 
     private async remove(model: Model<any>, id: string) {
-        return model.findByIdAndDelete(id);
+        
+        try {
+            if (!isValidObjectId(id)) {
+                throw new BadRequestException(`Invalid ID format: "${id}"`);
+            }
+
+            const exists = await model.findById(id);
+            if (!exists) {
+                throw new NotFoundException(`Item with ID "${id}" not found.`);
+            }
+
+            const deleted = await model.findByIdAndDelete(id);
+
+            return {
+                message: `Item with ID "${id}" has been deleted successfully.`,
+                deleted,
+            }
+        } catch (error) {
+            if (error instanceof BadRequestException || error instanceof NotFoundException) {
+                throw error;
+            }
+            console.error('Error al eliminar registro:', error);
+            throw new InternalServerErrorException('Error interno al eliminar el registro.');
+        }
     }
 
     //GET methods

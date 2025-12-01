@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -79,7 +79,7 @@ export class SeedService {
 
   async runSeed(password: string) {
     if (password !== process.env.SEED_PASSWORD)
-      return { message: 'Invalid password' };
+      throw new UnauthorizedException("Contraseña incorrecta.");
 
     await this.seedCollection(
       this.divisionModel, 
@@ -135,6 +135,6 @@ export class SeedService {
       'sustainabilityGoal',
     );
 
-    return { message: 'All seeds executed successfully' };
+    console.log('Seed data has been populated successfully.');
   }
 }

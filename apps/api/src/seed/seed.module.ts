@@ -28,6 +28,6 @@ import { SustainabilityGoal, SustainabilityGoalSchema } from '../schemas/sustain
     ],
   controllers: [SeedController],
   providers: [SeedService],
-
+  exports: [SeedService],
 })
 export class SeedModule {}
