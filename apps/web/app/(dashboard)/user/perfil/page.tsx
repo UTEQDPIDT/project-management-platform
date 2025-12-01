@@ -17,31 +17,105 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { ProfileInfo } from '@/components/profile-info';
+import { Pencil } from 'lucide-react';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 
 const Page = () => {
   return (
     <div>
       <Header>
         <HeaderHeading>
-          <HeaderTitle>Perfil</HeaderTitle>
-          <HeaderDescription>
-            Una vista a los detalles de tu cuenta.
-          </HeaderDescription>
+          <ProfileInfo givenName="Aeon Julien" email="example@mail.com" />
         </HeaderHeading>
         <HeaderAction>
-          <Button variant={'outline'}>Editar</Button>
+          <Button variant={'outline'}>
+            <Pencil /> Editar
+          </Button>
         </HeaderAction>
       </Header>
-      <PageContent>
-        <Card>
+      <PageContent className="flex flex-col items-center gap-5 py-5">
+        <Card className="lg:max-w-lg w-full">
           <CardHeader>
-            <CardTitle>Información del perfil</CardTitle>
-            <CardDescription>Description</CardDescription>
+            <CardTitle>Información General</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ProfileInfo givenName="Aeon Julien" email="example@mail.com" />
+          <CardContent className="p-0">
+            <Table>
+              <TableBody>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">Nombre</TableCell>
+                  <TableCell>Aeon Julien</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    Fecha de Nacimiento
+                  </TableCell>
+                  <TableCell>Aeon Julien</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">Genero</TableCell>
+                  <TableCell>Aeon Julien</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    Estado de Recidencia
+                  </TableCell>
+                  <TableCell>Aeon Julien</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    Correo electrónico
+                  </TableCell>
+                  <TableCell>Aeon Julien</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </CardContent>
-          <CardFooter></CardFooter>
+        </Card>
+
+        <Card className="lg:max-w-lg w-full">
+          <CardHeader>
+            <CardTitle>Información Institucional</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableBody>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    Tipo de Usuario
+                  </TableCell>
+                  <TableCell>Estudiante</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    Matricula
+                  </TableCell>
+                  <TableCell>Estudiante</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    Número de Empleado
+                  </TableCell>
+                  <TableCell>Estudiante</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">Division</TableCell>
+                  <TableCell>Estudiante</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    Programa Educativo
+                  </TableCell>
+                  <TableCell>Aeon Julien</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    Nivel de Carrera
+                  </TableCell>
+                  <TableCell>Aeon Julien</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </CardContent>
         </Card>
       </PageContent>
     </div>

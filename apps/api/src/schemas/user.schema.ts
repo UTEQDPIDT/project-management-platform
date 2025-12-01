@@ -62,12 +62,10 @@ export class User extends Document {
   state: State;
 
   @ApiProperty({
-    description: 'La edad del usuario.',
-    minimum: 17,
-    maximum: 100,
+    description: 'Fecha de nacimiento.',
   })
-  @Prop({ type: Number, min: 17, max: 100 })
-  age: number;
+  @Prop({ type: Date })
+  DateOfBirth: Date;
 
   @ApiPropertyOptional({
     description: 'La matrícula del usuario (si es estudiante).',
