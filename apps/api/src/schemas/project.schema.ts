@@ -7,6 +7,11 @@ import { Activity } from './activities.schema';
 import { Product } from './product.schema';
 import { File } from './file.schema';
 import { ApiProperty } from '@nestjs/swagger';
+import { KnowledgeArea } from './knowledge-area.schema.seed';
+import { ThemedImpactArea } from './themed-impact-area.schema';
+import { PNDpriority } from './pnd-priority.schema.seed';
+import { SustainabilityGoal } from './sustainability-goal.schema.seed';
+import { DevelopmentLine } from './development-line.schema.seed';
 
 @Schema({ timestamps: true })
 export class Project extends Document {
@@ -60,34 +65,49 @@ export class Project extends Document {
   category: string;
 
   @ApiProperty({
-    description: 'Áreas de conocimiento que alude el proyecto.',
+    description: 'Áreas de conocimiento que alude el proyecto (referencia al catálogo).',
   })
-  @Prop({})
-  knowledgeAreas: string;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: KnowledgeArea.name,
+  })
+  knowledgeAreas: KnowledgeArea;
 
   @ApiProperty({
-    description: 'Áreas de impacto del proyecto.',
+    description: 'Áreas de impacto del proyecto (referencia al catálogo).',
   })
-  @Prop({})
-  impactAreas: string;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: ThemedImpactArea.name,
+  })
+  impactAreas: ThemedImpactArea;
 
   @ApiProperty({
-    description: 'Prioridades Nacionales.',
+    description: 'Prioridades Nacionales (referencia al catálogo).',
   })
-  @Prop({})
-  prioritiesPND: string;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: PNDpriority.name,
+  })
+  prioritiesPND: PNDpriority;
 
   @ApiProperty({
-    description: 'Objetivos sustentables a los que apunta el proyecto.',
+    description: 'Objetivos sustentables a los que apunta el proyecto (referencia al catálogo).',
   })
-  @Prop({})
-  sustainableObjectives: string;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: SustainabilityGoal.name,
+  })
+  sustainableObjectives: SustainabilityGoal;
 
   @ApiProperty({
-    description: 'Lineas de innovación a las que se alinea el proyecto.',
+    description: 'Lineas de innovación a las que se alinea el proyecto (referencia al catálogo).',
   })
-  @Prop({})
-  innovationLines: string;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: DevelopmentLine.name,
+  })
+  innovationLines: DevelopmentLine;
 
   @ApiProperty({
     description: 'Organización a la que le pertenece el proyecto.',
