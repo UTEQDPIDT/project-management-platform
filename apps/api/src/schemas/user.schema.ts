@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { UserType, UserRole, CareerLevel } from '@repo/types';
+import { UserType, UserRole, CareerLevel, Gender, State } from '@repo/types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 @Schema({ timestamps: true })
@@ -44,6 +44,28 @@ export class User extends Document {
   })
   @Prop()
   avatarUrl: string;
+
+  @ApiPropertyOptional({
+    description: 'El genero del usuario.',
+    default: Gender.HOMBRE,
+    enum: Gender,
+  })
+  @Prop({ enum: Gender, default: Gender.HOMBRE })
+  gender: Gender;
+
+  @ApiPropertyOptional({
+    description: 'El estado de origen del usuario.',
+    default: State.QRO,
+    enum: State,
+  })
+  @Prop({ enum: State, default: State.QRO })
+  state: State;
+
+  @ApiProperty({
+    description: 'Fecha de nacimiento.',
+  })
+  @Prop({ type: Date })
+  dateOfBirth: Date;
 
   @ApiPropertyOptional({
     description: 'La matrícula del usuario (si es estudiante).',
