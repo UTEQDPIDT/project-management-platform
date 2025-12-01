@@ -16,11 +16,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSubButton,
   useSidebar,
 } from './ui/sidebar';
 
 import { User } from '@repo/types';
 import { logout } from '@/lib/auth/logout';
+import Link from 'next/link';
 
 export function NavUser({
   givenName,
@@ -77,10 +79,12 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <CircleUserRound />
-                Perfil
-              </DropdownMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href={'/user/perfil'}>
+                  <CircleUserRound className="stroke-gray-500" />
+                  <span>Perfil</span>
+                </Link>
+              </SidebarMenuButton>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout}>
