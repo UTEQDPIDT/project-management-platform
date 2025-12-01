@@ -15,25 +15,29 @@ export class TeamsController {
     return this.teamsService.create(createTeamDto);
   }
 
-  @ApiOkResponse({ description: 'Colaborador agregado correctamente al equipo.'})
+  @ApiCreatedResponse({ description: 'Colaborador agregado correctamente al equipo.'})
+  @ApiNotFoundResponse({ description: 'No se encontró el usuario para agregar como colaborador.'})
   @Post(':id/collaborators')
   addCollaborator(@Param('id') id: string, @Body('userId') userId: string) {
     return this.teamsService.addCollaborator(id, userId); 
   }
 
-  @ApiOkResponse({ description: 'Miembro agregado correctamente al equipo.'})
+  @ApiCreatedResponse({ description: 'Miembro agregado correctamente al equipo.'})
+  @ApiNotFoundResponse({ description: 'No se encontró el usuario para agregar como miembro.'})
   @Post(':id/members')
   addMember(@Param('id') id: string, @Body('userId') userId: string) {
     return this.teamsService.addMember(id, userId); 
   }
 
-  @ApiOkResponse({ description: 'Solicitud enviada correctamente al equipo.'})
+  @ApiCreatedResponse({ description: 'Solicitud enviada correctamente al equipo.'})
+  @ApiNotFoundResponse({ description: 'No se encontró el usuario para enviar la solicitud.'})
   @Post(':id/requests')
   sendRequest(@Param('id') id: string, @Body('userId') userId: string) {
     return this.teamsService.sendTeamRequest(id, userId); 
   }
 
-  @ApiOkResponse({ description: 'Solicitud aceptada correctamente.'})
+  @ApiCreatedResponse({ description: 'Solicitud aceptada correctamente.'})
+  @ApiNotFoundResponse({ description: 'No se encontró la solicitud para aceptar.'})
   @Post(':id/requests/accept')
   acceptRequest(@Param('id') id: string, @Body('userId') userId: string) {
     return this.teamsService.acceptRequest(id, userId); 
@@ -46,12 +50,14 @@ export class TeamsController {
   }
 
   @ApiOkResponse({ description: 'Equipo obtenido correctamente.'})
+  @ApiNotFoundResponse({ description: 'No se encontró el equipo.'})
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.teamsService.findOne(id);
   }
 
   @ApiOkResponse({ description: 'Datos del equipo actualizado correctamente.'})
+  @ApiNotFoundResponse({ description: 'No se encontró el equipo.'})
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateTeamDto: UpdateTeamDto) {
     return this.teamsService.updateTeam(id, updateTeamDto);
