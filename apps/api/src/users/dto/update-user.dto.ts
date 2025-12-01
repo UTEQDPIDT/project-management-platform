@@ -1,12 +1,10 @@
 import {
+  IsDate,
   IsEnum,
-  IsInt,
   IsNumberString,
   IsOptional,
   IsString,
   Length,
-  Max,
-  Min,
 } from 'class-validator';
 import { UserRole, CareerLevel, Gender, State } from '@repo/types';
 
@@ -21,10 +19,8 @@ export class UpdateUserDto {
   @IsEnum(State)
   state: State;
 
-  @Min(17)
-  @Max(100)
-  @IsInt()
-  age: number;
+  @IsDate()
+  dateOfBirth: Date;
 
   @IsOptional()
   @IsNumberString()

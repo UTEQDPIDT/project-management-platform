@@ -65,7 +65,7 @@ export class User extends Document {
     description: 'Fecha de nacimiento.',
   })
   @Prop({ type: Date })
-  DateOfBirth: Date;
+  dateOfBirth: Date;
 
   @ApiPropertyOptional({
     description: 'La matrícula del usuario (si es estudiante).',
