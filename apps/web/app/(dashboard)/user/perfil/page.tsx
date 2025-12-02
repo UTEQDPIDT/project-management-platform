@@ -19,6 +19,7 @@ import {
 import { ProfileInfo } from '@/components/profile-info';
 import { Pencil } from 'lucide-react';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+import UserForm from '@/components/forms/user-form';
 
 const Page = () => {
   return (
@@ -34,7 +35,7 @@ const Page = () => {
         </HeaderAction>
       </Header>
       <PageContent className="flex flex-col items-center gap-5 py-5">
-        <Card className="lg:max-w-lg w-full">
+        {/* <Card className="lg:max-w-lg w-full">
           <CardHeader>
             <CardTitle>Información General</CardTitle>
           </CardHeader>
@@ -116,7 +117,9 @@ const Page = () => {
               </TableBody>
             </Table>
           </CardContent>
-        </Card>
+        </Card> */}
+
+        <UserForm />
       </PageContent>
     </div>
   );

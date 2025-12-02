@@ -17,10 +17,10 @@ export class User extends Document {
 
   @ApiPropertyOptional({
     description: 'El tipo de usuario.',
-    default: UserType.STUDENT,
+    default: UserType.ESTUDIANTE,
     enum: UserType,
   })
-  @Prop({ enum: UserType, default: UserType.STUDENT })
+  @Prop({ enum: UserType, default: UserType.ESTUDIANTE })
   type: UserType;
 
   @ApiProperty({
