@@ -11,3 +11,4 @@ export * from './enums/state.enum';
 
 export * from './user.type';
 export * from './division.type';
+export * from './programs.type';
