@@ -10,3 +10,4 @@ export * from './enums/sex-enum';
 export * from './enums/state.enum';
 
 export * from './user.type';
+export * from './division.type';

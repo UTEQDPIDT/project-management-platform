@@ -15,7 +15,7 @@ import {
 } from '../ui/field';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { CareerLevel, Sex, State, UserType } from '@repo/types';
+import { CareerLevel, Division, Sex, State, UserType } from '@repo/types';
 import {
   Select,
   SelectContent,
@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { DatePicker } from '../ui/date-picker';
+import { useDivisions } from '@/hooks/use-divisions';
 
 export default function UserForm() {
   const form = useForm({
@@ -45,6 +46,8 @@ export default function UserForm() {
     // handle user update
     console.log(data);
   };
+
+  const { data: divisions, isLoading } = useDivisions();
 
   return (
     <div className="w-full max-w-lg">
@@ -199,6 +202,36 @@ export default function UserForm() {
               </Field>
             )}
           />
+
+          <Controller
+            control={form.control}
+            name="division"
+            render={({ field: { onChange, onBlur, ...field }, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>División</FieldLabel>
+                <Select {...field} onValueChange={onChange}>
+                  <SelectTrigger
+                    id={field.name}
+                    onBlur={onBlur}
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Selecciona un papel" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {divisions.map((division: Division) => (
+                      <SelectItem key={division._id} value={division._id}>
+                        {division.division}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
           <Button type="submit">Submit</Button>
         </FieldGroup>
       </form>
