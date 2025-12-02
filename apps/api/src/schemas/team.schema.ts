@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { Document } from 'mongoose';
 import { TeamsGrade } from '@repo/types';
+import { User } from './user.schema';
 
 @Schema({ timestamps: true })
 export class Team extends Document {
@@ -40,7 +41,7 @@ export class Team extends Document {
   @ApiProperty({
     description: 'El propietario del equipo.',
   })
-  owner: mongoose.Types.ObjectId;
+  owner: User;
 
   @Prop({
     type: [
@@ -54,7 +55,7 @@ export class Team extends Document {
     description: 'Lista de colaboradores del equipo.',
     isArray: true,
   })
-  collaborators: mongoose.Types.ObjectId[];
+  collaborators: User[];
 
   @Prop({
     type: [
@@ -68,7 +69,7 @@ export class Team extends Document {
     description: 'Lista de miembros del equipo.',
     isArray: true,
   })
-  members: mongoose.Types.ObjectId[];
+  members: User[];
 
   @Prop({
     type: [
@@ -82,7 +83,11 @@ export class Team extends Document {
     description: 'Lista de solicitantes para unirse al equipo.',
     isArray: true,
   })
-  userRequests: mongoose.Types.ObjectId[];
+  userRequests: User[];
+
+  @ApiProperty({ description: 'Indica si el equipo es privado' })
+  @Prop({ default: false })
+  isPrivate: boolean;
 }
 
 export const TeamSchema = SchemaFactory.createForClass(Team);

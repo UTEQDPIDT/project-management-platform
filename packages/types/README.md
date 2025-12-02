@@ -1,6 +1,6 @@
 # Types Package
 
-Este es un paquete interno donde se centralizan los `enums`, `intrafece` y `type` para el resto de las aplicaciones. A continuación se detallan los pasos a seguir para agregar dichos tipados correctamente y generar el `/dist` para poder importarlos a cualquier aplicación dentro del repo.
+Este es un paquete interno donde se centralizan los `enums`, `interface` y `type` para el resto de las aplicaciones. A continuación se detallan los pasos a seguir para agregar dichos tipados correctamente y generar el `/dist` para poder importarlos a cualquier aplicación dentro del repo.
 
 La estructura del paquete es la siguiente
 ```bash

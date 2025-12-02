@@ -8,5 +8,6 @@ export * from './enums/priority.enum';
 export * from './enums/impact-level.enum';
 export * from './enums/gender-enum';
 export * from './enums/state.enum';
+export * from './enums/event-type.enum';
 
 export * from './user.type';
