@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import { DatePicker } from '../ui/date-picker';
 
 export default function UserForm() {
   const form = useForm({
@@ -102,6 +103,22 @@ export default function UserForm() {
                     ))}
                   </SelectContent>
                 </Select>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={form.control}
+            name="dateOfBirth"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>
+                  Fecha de Nacimiento
+                </FieldLabel>
+                <DatePicker date={field.value} onChange={field.onChange} />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}

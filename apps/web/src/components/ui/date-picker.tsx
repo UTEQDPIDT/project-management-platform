@@ -11,9 +11,14 @@ import {
 } from '@/components/ui/popover';
 import { useState } from 'react';
 
-export function Calendar22() {
+export function DatePicker({
+  date,
+  onChange,
+}: {
+  date?: Date;
+  onChange: (date?: Date) => void;
+}) {
   const [open, setOpen] = useState(false);
-  const [date, setDate] = useState<Date | undefined>(undefined);
 
   return (
     <div className="flex flex-col gap-3">
@@ -24,7 +29,7 @@ export function Calendar22() {
             id="date"
             className="w-48 justify-between font-normal"
           >
-            {date ? date.toLocaleDateString() : 'Select date'}
+            {date ? date.toLocaleDateString() : 'Selecciona una fecha'}
             <ChevronDownIcon />
           </Button>
         </PopoverTrigger>
@@ -34,7 +39,7 @@ export function Calendar22() {
             selected={date}
             captionLayout="dropdown"
             onSelect={(date) => {
-              setDate(date);
+              onChange(date);
               setOpen(false);
             }}
           />
