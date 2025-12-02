@@ -1,10 +1,10 @@
-import { CareerLevel, Gender, State, UserType } from '@repo/types';
+import { CareerLevel, Sex, State, UserType } from '@repo/types';
 import { z } from 'zod';
 import { mongoId } from '@/lib/utils';
 
 export const updateUserSchema = z.object({
   type: z.enum(UserType).optional(),
-  gender: z.enum(Gender),
+  sex: z.enum(Sex),
   state: z.enum(State),
   dateOfBirth: z.date(),
   matricula: z

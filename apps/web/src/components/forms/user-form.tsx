@@ -5,10 +5,17 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { UpdateUser, updateUserSchema } from '@/schemas/update-user.schema';
 
-import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '../ui/field';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { Gender, State, UserType } from '@repo/types';
+import { Sex, State, UserType } from '@repo/types';
 import {
   Select,
   SelectContent,
@@ -21,18 +28,18 @@ export default function UserForm() {
   const form = useForm({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
-      matricula: '',
-      employeeNumber: '',
-      gender: Gender.HOMBRE,
-      state: State.AGS,
+      type: UserType.ESTUDIANTE,
+      sex: Sex.HOMBRE,
+      state: State.QRO,
       dateOfBirth: new Date(),
+      matricula: undefined,
+      employeeNumber: undefined,
     },
   });
 
   const onSubmit = (data: UpdateUser) => {
     // handle user update
     console.log(data);
-    alert('Updating user');
   };
 
   return (
@@ -41,15 +48,86 @@ export default function UserForm() {
         <FieldGroup>
           <Controller
             control={form.control}
-            name="type"
-            render={({ field, fieldState }) => (
+            name="sex"
+            render={({ field: { onChange, onBlur, ...field }, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>
-                  Tú rol dentro de la plataforma
-                </FieldLabel>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona un rol" />
+                <FieldLabel htmlFor={field.name}>Sexo</FieldLabel>
+                <Select {...field} onValueChange={onChange}>
+                  <SelectTrigger
+                    id={field.name}
+                    onBlur={onBlur}
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(Sex).map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={form.control}
+            name="state"
+            render={({ field: { onChange, onBlur, ...field }, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldContent>
+                  <FieldLabel htmlFor={field.name}>Estado</FieldLabel>
+                  <FieldDescription>
+                    El estado en el que recides actualmente.
+                  </FieldDescription>
+                </FieldContent>
+                <Select {...field} onValueChange={onChange}>
+                  <SelectTrigger
+                    id={field.name}
+                    onBlur={onBlur}
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Selecciona un estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(State).map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={form.control}
+            name="type"
+            render={({ field: { onChange, onBlur, ...field }, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldContent>
+                  <FieldLabel htmlFor={field.name}>Tipo de Usuario</FieldLabel>
+                  <FieldDescription>
+                    Tu papel dentro de la plataforma. Esto tendrá efecto en tus
+                    funciones.
+                  </FieldDescription>
+                </FieldContent>
+                <Select {...field} onValueChange={onChange}>
+                  <SelectTrigger
+                    id={field.name}
+                    onBlur={onBlur}
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Selecciona un papel" />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.values(UserType).map((type) => (
