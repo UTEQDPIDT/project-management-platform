@@ -13,6 +13,7 @@ import { FilesModule } from './files/files.module';
 import { ProductsModule } from './products/products.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { ProjectsModule } from './projects/projects.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -39,6 +40,8 @@ import { ProjectsModule } from './projects/projects.module';
     ActivitiesModule,
 
     ProjectsModule,
+
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
