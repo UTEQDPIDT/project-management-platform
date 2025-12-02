@@ -8,12 +8,16 @@ import {
   Length,
 } from 'class-validator';
 import { ObjectId } from 'mongoose';
-import { UserRole, CareerLevel, Gender, State } from '@repo/types';
+import { UserRole, CareerLevel, Gender, State, UserType } from '@repo/types';
 
 export class UpdateUserDto {
   @IsOptional()
   @IsEnum(UserRole)
   role: UserRole;
+
+  @IsOptional()
+  @IsEnum(UserType)
+  type: UserType;
 
   @IsEnum(Gender)
   gender: Gender;
