@@ -15,7 +15,7 @@ import {
 } from '../ui/field';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { Sex, State, UserType } from '@repo/types';
+import { CareerLevel, Sex, State, UserType } from '@repo/types';
 import {
   Select,
   SelectContent,
@@ -29,11 +29,14 @@ export default function UserForm() {
   const form = useForm({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
-      type: UserType.ESTUDIANTE,
       sex: Sex.HOMBRE,
       state: State.QRO,
       dateOfBirth: new Date(),
+      type: UserType.ESTUDIANTE,
       matricula: undefined,
+      careerLevel: CareerLevel.LICENCIATURA,
+      educationalProgram: undefined,
+      division: undefined,
       employeeNumber: undefined,
     },
   });
