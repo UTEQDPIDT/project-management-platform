@@ -62,9 +62,11 @@ export class UsersController {
 
   @ApiOkResponse({ description: 'Usuario actualizado correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontro al usuario.' })
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  @ApiUnauthorizedResponse({ description: 'Las credenciales son incorrectas.' })
+  @UseGuards(JwtAuthGuard)
+  @Patch()
+  update(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(req.user.id, updateUserDto);
   }
 
   @ApiNotFoundResponse({ description: 'No se encontro al usuario.' })
