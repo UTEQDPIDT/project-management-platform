@@ -15,7 +15,14 @@ import {
 } from '../ui/field';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { CareerLevel, Division, Sex, State, UserType } from '@repo/types';
+import {
+  CareerLevel,
+  Division,
+  Sex,
+  State,
+  UserType,
+  Program,
+} from '@repo/types';
 import {
   Select,
   SelectContent,
@@ -25,6 +32,7 @@ import {
 } from '../ui/select';
 import { DatePicker } from '../ui/date-picker';
 import { useDivisions } from '@/hooks/use-divisions';
+import { usePrograms } from '@/hooks/use-programs';
 
 export default function UserForm() {
   const form = useForm({
@@ -47,7 +55,11 @@ export default function UserForm() {
     console.log(data);
   };
 
-  const { data: divisions, isLoading } = useDivisions();
+  const { data: divisions, isLoading: loadingDivisions } = useDivisions();
+  const { data: programs, isLoading: loadingPrograms } = usePrograms();
+
+  console.log(divisions);
+  console.log(programs);
 
   return (
     <div className="w-full max-w-lg">
@@ -215,14 +227,55 @@ export default function UserForm() {
                     onBlur={onBlur}
                     aria-invalid={fieldState.invalid}
                   >
-                    <SelectValue placeholder="Selecciona un papel" />
+                    <SelectValue placeholder="Selecciona una división" />
                   </SelectTrigger>
                   <SelectContent>
-                    {divisions.map((division: Division) => (
-                      <SelectItem key={division._id} value={division._id}>
-                        {division.division}
-                      </SelectItem>
-                    ))}
+                    {true ? (
+                      <div>
+                        <span className="text-muted-foreground text-sm">
+                          Cargando divisiones
+                        </span>
+                      </div>
+                    ) : (
+                      divisions.map((division: Division) => (
+                        <SelectItem key={division._id} value={division._id}>
+                          {division.division}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={form.control}
+            name="educationalProgram"
+            render={({ field: { onChange, onBlur, ...field }, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>Programa Educativo</FieldLabel>
+                <Select {...field} onValueChange={onChange}>
+                  <SelectTrigger
+                    id={field.name}
+                    onBlur={onBlur}
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Selecciona un programa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {loadingPrograms ? (
+                      <span>Cargando programas</span>
+                    ) : (
+                      programs.map((program: Program) => (
+                        <SelectItem key={program._id} value={program._id}>
+                          {program.educationalProgram}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
                 {fieldState.invalid && (
