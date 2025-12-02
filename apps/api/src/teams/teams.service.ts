@@ -54,163 +54,113 @@ export class TeamsService {
     }
   }
 
-async addCollaborator(teamId: string, userId: string): Promise<Team> {
-    const team = await this.teamModel.findById(teamId).exec();
-    if (!team)
-      throw new NotFoundException(`Team with ID: ${teamId} not found`);
+async addCollaborators(teamId: string, userIds: string[]): Promise<Team> {
+  const team = await this.teamModel.findById(teamId).exec();
+  if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
 
-    const isAlreadyCollaborator = team.collaborators.some(
-      (collaboratorId: Types.ObjectId) => collaboratorId.equals(userId)
-    );
+  if (!Array.isArray(userIds) || userIds.length === 0)
+    throw new BadRequestException("userIds must be a non-empty array");
 
-    if (isAlreadyCollaborator) {
-      throw new BadRequestException(`User ID: ${userId} is already a collaborator in Team ID: ${teamId}`);
-    }
-    
-    const updatedTeam = await this.teamModel.findByIdAndUpdate(
-      teamId,
-      { $addToSet: { collaborators: userId } },
-      { new: true },
-    );
-    
-    return updatedTeam;
-  }
+  // Convert collaborators to string IDs (populated or raw ObjectId)
+  const existingIds = team.collaborators.map((c: any) =>
+    c._id ? c._id.toString() : c.toString()
+  );
 
-async addMember(teamId: string, userId: string): Promise<Team> {
-    const team = await this.teamModel.findById(teamId).exec();
-    if (!team)
-      throw new NotFoundException(`Team with ID: ${teamId} not found`);
+  // Filter IDs that are not already in the team
+  const newIds = userIds.filter(id => !existingIds.includes(id));
 
-    const isAlreadyMember = team.members.some(
-      (memberId: Types.ObjectId) => memberId.equals(userId)
-    );
+  if (newIds.length === 0)
+    throw new BadRequestException("All users are already collaborators");
 
-    if (isAlreadyMember) {
-      throw new BadRequestException(`User ID: ${userId} is already a member in Team ID: ${teamId}`);
-    }
-    
-    const updatedTeam = await this.teamModel.findByIdAndUpdate(
-      teamId,
-      { $addToSet: { members: userId } },
-      { new: true },
-    );
-    
-    return updatedTeam;
-  }
+  return await this.teamModel.findByIdAndUpdate(
+    teamId,
+    { $addToSet: { collaborators: { $each: newIds } } },
+    { new: true }
+  );
+}
+
+
+async addMembers(teamId: string, userIds: string[]): Promise<Team> {
+  const team = await this.teamModel.findById(teamId).exec();
+  if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
+
+  if (!Array.isArray(userIds) || userIds.length === 0)
+    throw new BadRequestException("userIds must be a non-empty array");
+
+  const existingIds = team.members.map((m: any) =>
+    m._id ? m._id.toString() : m.toString()
+  );
+
+  const newIds = userIds.filter(id => !existingIds.includes(id));
+
+  if (newIds.length === 0)
+    throw new BadRequestException("All users are already members");
+
+  return await this.teamModel.findByIdAndUpdate(
+    teamId,
+    { $addToSet: { members: { $each: newIds } } },
+    { new: true }
+  );
+}
+
 
 async sendTeamRequest(teamId: string, userId: string): Promise<Team> {
-    const team = await this.teamModel.findById(teamId).exec();
-    if (!team)
-      throw new NotFoundException(`Team with ID: ${teamId} not found`);
+  const team = await this.teamModel.findById(teamId).exec();
+  if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
 
-    const requestExists = team.userRequests.some(
-      (requestId: Types.ObjectId) => requestId.equals(userId)
-    );
+  const existingRequests = team.userRequests.map((r: any) =>
+    r._id ? r._id.toString() : r.toString()
+  );
 
-    if (requestExists) {
-      throw new BadRequestException(`Request from User ID: ${userId} already exists for Team ID: ${teamId}`);
-    }
-    
+  if (existingRequests.includes(userId))
+    throw new BadRequestException(`Request already exists for user ${userId}`);
 
-    const updatedTeam = await this.teamModel.findByIdAndUpdate(
-      teamId,
-      { $addToSet: { requests: userId } },
-      { new: true },
-    );
-    
-    return updatedTeam;
-  }
+  return await this.teamModel.findByIdAndUpdate(
+    teamId,
+    { $addToSet: { requests: userId } },
+    { new: true }
+  );
+}
+
 
 async acceptRequest(teamId: string, userId: string): Promise<Team> {
-    const team = await this.teamModel.findById(teamId).exec();
-    if (!team)
-      throw new NotFoundException(`Team with ID: ${teamId} not found`);
+  const team = await this.teamModel.findById(teamId).exec();
+  if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
 
-    const requestExists = team.userRequests.some(
-      (requestId: Types.ObjectId) => requestId.equals(userId)
-    );
+  return await this.teamModel.findByIdAndUpdate(
+    teamId,
+    {
+      $pull: { userRequests: userId },
+      $addToSet: { members: userId }
+    },
+    { new: true }
+  );
+}
 
-    if (!requestExists) {
-      throw new NotFoundException(`Request from User ID: ${userId} not found in Team ID: ${teamId}`);
-    }
-
-    const updatedTeam = await this.teamModel.findByIdAndUpdate(
-        teamId,
-        {
-            $pull: { userRequests: userId }, // Eliminar de solicitudes
-            $addToSet: { members: userId }, // Agregar a miembros
-        },
-        { new: true },
-    ).exec();
-        
-    return updatedTeam;
-  }
 
 async removeCollaborator(teamId: string, userId: string): Promise<Team> {
-    const team = await this.teamModel.findById(teamId).exec();
-    if (!team)
-      throw new NotFoundException(`Team with ID: ${teamId} not found`);
-
-    const collaboratorExists = team.collaborators.some(
-      (collaboratorId: Types.ObjectId) => collaboratorId.equals(userId)
-    );
-
-    if (!collaboratorExists) {
-      throw new NotFoundException(`Collaborator User ID: ${userId} not found in Team ID: ${teamId}`);
-    }
-
-    const updatedTeam = await this.teamModel.findByIdAndUpdate(
-      teamId,
-      { $pull: { collaborators: userId } },
-      { new: true },
-    );
-    
-    return updatedTeam;
-  }
+  return this.teamModel.findByIdAndUpdate(
+    teamId,
+    { $pull: { collaborators: userId } },
+    { new: true }
+  );
+}
 
 async removeMember(teamId: string, userId: string): Promise<Team> {
-    const team = await this.teamModel.findById(teamId).exec();
-    if (!team)
-      throw new NotFoundException(`Team with ID: ${teamId} not found`);
-
-    const memberExists = team.members.some(
-      (memberId: Types.ObjectId) => memberId.equals(userId)
-    );
-
-    if (!memberExists) {
-      throw new NotFoundException(`Member User ID: ${userId} not found in Team ID: ${teamId}`);
-    }
-
-    const updatedTeam = await this.teamModel.findByIdAndUpdate(
-      teamId,
-      { $pull: { members: userId } },
-      { new: true },
-    );
-
-    return updatedTeam;
-  }
+  return this.teamModel.findByIdAndUpdate(
+    teamId,
+    { $pull: { members: userId } },
+    { new: true }
+  );
+}
 
 async removeRequest(teamId: string, userId: string): Promise<Team> {
-    const team = await this.teamModel.findById(teamId).exec();
-    if (!team)
-        throw new NotFoundException(`Team with ID: ${teamId} not found`);
-
-    const requestExists = team.userRequests.some(
-        (requestId: Types.ObjectId) => requestId.equals(userId)
-    );
-
-    if (!requestExists) {
-        throw new NotFoundException(`Request from User ID: ${userId} not found in Team ID: ${teamId}`);
-    }
-
-    const updatedTeam = await this.teamModel.findByIdAndUpdate(
-        teamId,
-        { $pull: { userRequests: userId } },
-        { new: true },
-    );
-    
-    return updatedTeam;
-  }
+  return this.teamModel.findByIdAndUpdate(
+    teamId,
+    { $pull: { requests: userId } },
+    { new: true }
+  );
+}
 
   async deleteTeam(id: string): Promise<Team> {
       const deletedTeam = await this.teamModel.findByIdAndDelete(id).exec();
