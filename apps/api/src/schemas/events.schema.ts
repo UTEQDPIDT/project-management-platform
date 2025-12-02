@@ -1,5 +1,5 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { ObjectId } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { ApiProperty } from '@nestjs/swagger';
 import { Activity } from './activities.schema';
@@ -7,7 +7,7 @@ import { Product } from './product.schema';
 import { EventType } from '@repo/types';
 
 @Schema({ timestamps: true })
-export class Event {
+export class Event extends Document{
 
     @ApiProperty({ description: 'Nombre del evento' })
     @Prop({ required: true })
