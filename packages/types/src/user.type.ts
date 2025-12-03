@@ -3,6 +3,8 @@ import { CareerLevel } from './enums/career-level.enum';
 import { UserType } from './enums/user-type.enum';
 import { Sex } from './enums/sex-enum';
 import { State } from './enums/state.enum';
+import { Division } from './division.type';
+import { Program } from './programs.type';
 
 export interface IUser {
   _id: string;
@@ -16,8 +18,8 @@ export interface IUser {
   state: State;
   dateOfBirth: Date;
   matricula?: string;
-  division?: string;
-  educationalProgram?: string;
+  division?: Division;
+  educationalProgram?: Program;
   careerLevel?: CareerLevel;
   employeeNumber?: string;
   hashedRefreshToken?: string | null;

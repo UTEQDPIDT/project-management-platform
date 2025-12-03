@@ -34,7 +34,10 @@ const Page = () => {
     <div>
       <Header>
         <HeaderHeading>
-          <ProfileInfo givenName="Aeon Julien" email="example@mail.com" />
+          <HeaderTitle>Perfil</HeaderTitle>
+          <HeaderDescription>
+            Visualiza y gestiona la Información de tu perfil.
+          </HeaderDescription>
         </HeaderHeading>
         <HeaderAction>
           <Dialog>

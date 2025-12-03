@@ -60,8 +60,8 @@ export default function UserForm({ profile }: { profile: IUser }) {
       type: profile.type || UserType.ESTUDIANTE,
       matricula: profile.matricula || '',
       careerLevel: profile.careerLevel || CareerLevel.LICENCIATURA,
-      educationalProgram: profile.educationalProgram || '',
-      division: profile.division || '',
+      educationalProgram: profile.educationalProgram?._id || '',
+      division: profile.division?._id || '',
       employeeNumber: profile.employeeNumber || '',
     },
   });

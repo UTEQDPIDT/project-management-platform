@@ -98,7 +98,9 @@ export default function CardUserInfo({ profile }: { profile: IUser }) {
                   <TableCell className="text-gray-500 px-4">
                     Programa educativo
                   </TableCell>
-                  <TableCell>{educationalProgram}</TableCell>
+                  <TableCell>
+                    {educationalProgram?.educationalProgram}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="text-gray-500 px-4">
@@ -118,7 +120,7 @@ export default function CardUserInfo({ profile }: { profile: IUser }) {
             )}
             <TableRow>
               <TableCell className="text-gray-500 px-4">Division</TableCell>
-              <TableCell>{division}</TableCell>
+              <TableCell>{division?.division}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
