@@ -131,7 +131,7 @@ export class CatalogsService {
 
     //POST methods (agregar nuevos)
     addDivision(value: string) { 
-        return this.create(this.divisionModel, 'division', value); 
+        return this.create(this.divisionModel, 'name', value); 
     }
     addEducationalProgram(value: string) { 
         return this.create(this.educationalProgramModel, 'educationalProgram', value); 

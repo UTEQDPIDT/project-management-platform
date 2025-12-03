@@ -19,7 +19,7 @@ export class FilesService {
     });
   }
 
-  async uploadToGridFS(file: Express.Multer.File, ownerId: string) {
+  async uploadToGridFS(file: Express.Multer.File, ownerId: string): Promise<File> {
     // 1. Upload buffer to GridFS
     const uploadStream = this.bucket.openUploadStream(file.originalname, {
       contentType: file.mimetype,

@@ -11,6 +11,7 @@ export class TeamsController {
 
   @ApiCreatedResponse({ description: 'Equipo creado correctamente.'})
   @Post()
+  //@AuthGuard(JwtAuthGuard)
   create(@Body() createTeamDto: CreateTeamDto) {
     return this.teamsService.create(createTeamDto);
   }
@@ -31,6 +32,7 @@ export class TeamsController {
 
   @ApiCreatedResponse({ description: 'Solicitud enviada correctamente al equipo.'})
   @ApiNotFoundResponse({ description: 'No se encontró el usuario para enviar la solicitud.'})
+  //@UseGuards(JwtAuthGuard)
   @Post(':id/requests')
   sendRequest(@Param('id') id: string, @Body('userId') userId: string) {
     return this.teamsService.sendTeamRequest(id, userId); 

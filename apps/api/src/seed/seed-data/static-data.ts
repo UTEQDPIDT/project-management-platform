@@ -7,17 +7,17 @@ import { ProductCategory } from "../../schemas/product-category.schema.seed";
 import { ProductSubcategory } from "../../schemas/product-subcategory.schema.seed";
 import { SustainabilityGoal } from "../../schemas/sustainability-goal.schema.seed";
 import { ThemedImpactArea } from "../../schemas/themed-impact-area.schema";
-import { User } from "../../schemas/user.schema";
+//import { User } from "../../schemas/user.schema";
 //import { CreateUserDto } from "../../users/dto/create-user.dto";
 
 //Users
 export const divisionsList: Partial<Division>[] = [ 
-    { division: 'Division de Tecnología Ambiental' },
-    { division: 'Division de Idiomas' },
-    { division: 'Division Económico-Administrativa' },
-    { division: 'Division Industrial' },
-    { division: 'Division de tecnologías de la Automatización e Información' },
-    { division: 'Division de Innovación y Desarrollo Tecnológico' }
+    { name: 'Division de Tecnología Ambiental' },
+    { name: 'Division de Idiomas' },
+    { name: 'Division Económico-Administrativa' },
+    { name: 'Division Industrial' },
+    { name: 'Division de tecnologías de la Automatización e Información' },
+    { name: 'Division de Innovación y Desarrollo Tecnológico' }
 ];
 
 //Users

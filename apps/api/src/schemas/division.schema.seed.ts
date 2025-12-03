@@ -8,7 +8,7 @@ export class Division extends Document {
         description: 'Nombre de la división.',
     })
     @Prop({ required: true })
-    division: string;
+    name: string;
 }
 
 export const DivisionSchema = SchemaFactory.createForClass(Division);

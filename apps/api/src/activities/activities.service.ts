@@ -23,15 +23,15 @@ export class ActivitiesService {
       });
       return createdActivity;
     } catch (err: any) {
-      throw new BadRequestException('Error al crear el producto' + err.message);
+      throw new BadRequestException('Error al crear la actividad' + err.message);
     }
   }
 
-  findAll() {
+  async findAll() {
     return this.activityModel.find().exec();
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     const activity = this.activityModel.findById(id);
     if (!activity) {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
@@ -60,7 +60,7 @@ export class ActivitiesService {
     }
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     const deletedActivity = this.activityModel.findByIdAndDelete(id);
 
     if (!deletedActivity) {
