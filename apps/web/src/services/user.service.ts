@@ -1,0 +1,22 @@
+import { api } from '@/lib/axios';
+import { UpdateUser } from '@/schemas/update-user.schema';
+
+const updateUser = async (data: UpdateUser) => {
+  try {
+    console.log('Updating user');
+    await api.patch('/users', data);
+  } catch (err) {
+    console.error('Error when updating user', err);
+  }
+};
+
+const getUserProfile = async () => {
+  try {
+    const { data } = await api.get('/users/profile');
+    return data;
+  } catch (err) {
+    console.error('Error when fetching user profile', err);
+  }
+};
+
+export { updateUser, getUserProfile };

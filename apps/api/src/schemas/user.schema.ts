@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { UserType, UserRole, CareerLevel, Gender, State } from '@repo/types';
+import { UserType, UserRole, CareerLevel, Sex, State } from '@repo/types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Division } from './division.schema.seed';
 import { EducationalProgram } from './educational-program.schema.seed';
@@ -17,10 +17,10 @@ export class User extends Document {
 
   @ApiPropertyOptional({
     description: 'El tipo de usuario.',
-    default: UserType.STUDENT,
+    default: UserType.ESTUDIANTE,
     enum: UserType,
   })
-  @Prop({ enum: UserType, default: UserType.STUDENT })
+  @Prop({ enum: UserType, default: UserType.ESTUDIANTE })
   type: UserType;
 
   @ApiProperty({
@@ -49,11 +49,11 @@ export class User extends Document {
 
   @ApiPropertyOptional({
     description: 'El genero del usuario.',
-    default: Gender.HOMBRE,
-    enum: Gender,
+    default: Sex.HOMBRE,
+    enum: Sex,
   })
-  @Prop({ enum: Gender, default: Gender.HOMBRE })
-  gender: Gender;
+  @Prop({ enum: Sex, default: Sex.HOMBRE })
+  sex: Sex;
 
   @ApiPropertyOptional({
     description: 'El estado de origen del usuario.',
