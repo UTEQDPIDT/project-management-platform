@@ -47,9 +47,9 @@ export class CreateUserDto {
 
   @ApiProperty({
     description: 'El tipo de usuario.',
-    example: UserType.TEACHER,
+    example: UserType.MAESTRO,
     enum: UserType,
-    default: UserType.TEACHER,
+    default: UserType.MAESTRO,
   })
   @IsOptional()
   @IsEnum(UserType)
