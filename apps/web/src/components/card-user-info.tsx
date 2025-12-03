@@ -11,7 +11,6 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Separator } from './ui/separator';
-import { CircleUser } from 'lucide-react';
 
 export default function CardUserInfo({ profile }: { profile: User }) {
   const {
@@ -34,7 +33,7 @@ export default function CardUserInfo({ profile }: { profile: User }) {
   return (
     <Card className="lg:max-w-lg w-full">
       <CardHeader>
-        <CardTitle>Información General</CardTitle>
+        <CardTitle>Información Personal</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <Table>
