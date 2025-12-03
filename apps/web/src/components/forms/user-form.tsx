@@ -47,11 +47,11 @@ export default function UserForm() {
       state: State.QRO,
       dateOfBirth: new Date(),
       type: UserType.ESTUDIANTE,
-      matricula: undefined,
+      matricula: '',
       careerLevel: CareerLevel.LICENCIATURA,
-      educationalProgram: undefined,
-      division: undefined,
-      employeeNumber: undefined,
+      educationalProgram: '',
+      division: '',
+      employeeNumber: '',
     },
   });
 
@@ -67,12 +67,13 @@ export default function UserForm() {
   const userType = form.watch('type');
 
   // Reset values when user type changes
+  const { setValue } = form;
   useEffect(() => {
     if (userType === UserType.ESTUDIANTE) {
-      form.setValue('employeeNumber', undefined);
+      setValue('employeeNumber', '');
     } else if (userType === UserType.MAESTRO) {
-      form.setValue('matricula', undefined);
-      form.setValue('educationalProgram', undefined);
+      setValue('matricula', '');
+      setValue('educationalProgram', '');
     }
   }, [userType, form]);
 
