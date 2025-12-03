@@ -1,4 +1,4 @@
-import { User, UserType } from '@repo/types';
+import { IUser, UserType } from '@repo/types';
 import {
   Card,
   CardContent,
@@ -12,7 +12,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Separator } from './ui/separator';
 
-export default function CardUserInfo({ profile }: { profile: User }) {
+export default function CardUserInfo({ profile }: { profile: IUser }) {
   const {
     givenName,
     familyName,

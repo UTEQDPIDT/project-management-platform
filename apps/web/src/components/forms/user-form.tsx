@@ -25,7 +25,7 @@ import {
   State,
   UserType,
   Program,
-  User,
+  IUser,
 } from '@repo/types';
 import {
   Select,
@@ -41,7 +41,7 @@ import LoadingMessage from '../loading-message';
 import { useEffect } from 'react';
 import { useUpdateUser } from '@/hooks/use-update-user';
 
-export default function UserForm({ profile }: { profile: User }) {
+export default function UserForm({ profile }: { profile: IUser }) {
   /**
    * React Query Hooks
    */

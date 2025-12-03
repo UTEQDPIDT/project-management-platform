@@ -4,7 +4,7 @@ import { UserType } from './enums/user-type.enum';
 import { Sex } from './enums/sex-enum';
 import { State } from './enums/state.enum';
 
-export interface User {
+export interface IUser {
   _id: string;
   role: UserRole;
   type: UserType;
