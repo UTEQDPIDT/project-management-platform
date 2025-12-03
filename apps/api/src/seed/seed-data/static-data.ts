@@ -1,3 +1,4 @@
+// import { UserRole } from "@repo/types";
 import { DevelopmentLine } from "../../schemas/development-line.schema.seed";
 import { Division } from "../../schemas/division.schema.seed";
 import { EducationalProgram } from "../../schemas/educational-program.schema.seed";
@@ -7,8 +8,7 @@ import { ProductCategory } from "../../schemas/product-category.schema.seed";
 import { ProductSubcategory } from "../../schemas/product-subcategory.schema.seed";
 import { SustainabilityGoal } from "../../schemas/sustainability-goal.schema.seed";
 import { ThemedImpactArea } from "../../schemas/themed-impact-area.schema";
-//import { User } from "../../schemas/user.schema";
-//import { CreateUserDto } from "../../users/dto/create-user.dto";
+// import { CreateUserDto } from "../../users/dto/create-user.dto";
 
 //Users
 export const divisionsList: Partial<Division>[] = [ 
@@ -196,13 +196,14 @@ export const sustainabilityGoalsList: Partial<SustainabilityGoal>[] = [
 //         givenName: 'Gabriela',
 //         familyName: 'Juárez',
 //         email: 'jsuarez@uteq.edu.mx',
-//         //role: 'ADMIN',
+//         matricula: '2018210103',
+//         role: UserRole.ADMIN,
 //     },
 //     {
 //         givenName: 'Leticia',
 //         familyName: 'Vera',
 //         email: 'leticia.vera@uteq.edu.mx',
-//         //role: 'ADMIN',
+//         role: UserRole.ADMIN,
 //     }
 // ];
 

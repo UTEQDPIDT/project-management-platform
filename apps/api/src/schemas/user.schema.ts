@@ -77,8 +77,10 @@ export class User extends Document {
   @Prop({
     unique: true,
     required: false,
+    //sparse: true, // permite múltiples null
     maxLength: 10,
     minLength: 10,
+    
   })
   matricula: string;
 

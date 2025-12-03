@@ -11,6 +11,7 @@ import { ThemedImpactArea, ThemedImpactAreaSchema } from '../schemas/themed-impa
 import { KnowledgeArea, KnowledgeAreaSchema } from '../schemas/knowledge-area.schema.seed';
 import { DevelopmentLine, DevelopmentLineSchema } from '../schemas/development-line.schema.seed';
 import { SustainabilityGoal, SustainabilityGoalSchema } from '../schemas/sustainability-goal.schema.seed';
+import { User, UserSchema } from '../schemas/user.schema';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SustainabilityGoal, SustainabilityGoalSchema } from '../schemas/sustain
         { name: PNDpriority.name, schema: PNDprioritySchema },
         { name: DevelopmentLine.name, schema: DevelopmentLineSchema },
         { name: SustainabilityGoal.name, schema: SustainabilityGoalSchema },
+        { name: User.name, schema: UserSchema },
       ]),
     ],
   controllers: [SeedController],

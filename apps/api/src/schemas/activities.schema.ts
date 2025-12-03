@@ -44,7 +44,7 @@ export class Activity extends Document {
 
   @ApiProperty({ description: 'Evidencias de la actividad.' })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }] })
-  files: File[];
+  files: string[];
 
   @ApiProperty({
     description:
