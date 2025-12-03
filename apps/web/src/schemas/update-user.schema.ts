@@ -3,9 +3,9 @@ import { z } from 'zod';
 import { mongoId } from '@/lib/utils';
 
 export const updateUserSchema = z.object({
-  type: z.enum(UserType).optional(),
-  sex: z.enum(Sex),
-  state: z.enum(State),
+  type: z.enum(UserType, 'No es una opción válida').optional(),
+  sex: z.enum(Sex, 'No es una opción válida'),
+  state: z.enum(State, 'No es una opción válida'),
   dateOfBirth: z
     .date()
     .max(new Date('2009-1-1'), 'Debes tener por lo menos 17 años.')
@@ -25,7 +25,7 @@ export const updateUserSchema = z.object({
     .trim()
     .optional()
     .or(z.literal('')),
-  careerLevel: z.enum(CareerLevel).optional(),
+  careerLevel: z.enum(CareerLevel, 'No es una opción válida').optional(),
   division: mongoId.optional().or(z.literal('')),
   educationalProgram: mongoId.optional().or(z.literal('')),
 });
