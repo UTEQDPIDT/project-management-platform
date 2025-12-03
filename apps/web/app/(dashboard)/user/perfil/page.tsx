@@ -43,7 +43,7 @@ const Page = () => {
                 <Pencil /> Editar
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[800px] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Editar Perfil</DialogTitle>
                 <DialogDescription>
