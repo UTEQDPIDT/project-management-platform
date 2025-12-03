@@ -57,7 +57,16 @@ export default function UserForm() {
 
   const onSubmit = (data: UpdateUser) => {
     // handle user update
-    console.log(data);
+    const cleanedData = {
+      ...data,
+      matricula: data.matricula === '' ? undefined : data.matricula,
+      employeeNumber:
+        data.employeeNumber === '' ? undefined : data.employeeNumber,
+      educationalProgram:
+        data.educationalProgram === '' ? undefined : data.educationalProgram,
+      division: data.division === '' ? undefined : data.division,
+    };
+    console.log(cleanedData);
   };
 
   const onError = (errors: any) => {
