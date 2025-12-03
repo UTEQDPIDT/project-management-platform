@@ -11,6 +11,7 @@ export class TeamsController {
 
   @ApiCreatedResponse({ description: 'Equipo creado correctamente.'})
   @Post()
+  //@AuthGuard(JwtAuthGuard)
   create(@Body() createTeamDto: CreateTeamDto) {
     return this.teamsService.create(createTeamDto);
   }
@@ -18,23 +19,24 @@ export class TeamsController {
   @ApiCreatedResponse({ description: 'Colaborador agregado correctamente al equipo.'})
   @ApiNotFoundResponse({ description: 'No se encontró el usuario para agregar como colaborador.'})
   @Post(':id/collaborators')
-  addCollaborator(@Param('id') id: string, @Body('userId') userId: string) {
-    return this.teamsService.addCollaborator(id, userId); 
+  addCollaborator(@Param('id') id: string, @Body('userIds') userIds: string[]) {
+    return this.teamsService.addCollaborators(id, userIds); 
   }
 
   @ApiCreatedResponse({ description: 'Miembro agregado correctamente al equipo.'})
   @ApiNotFoundResponse({ description: 'No se encontró el usuario para agregar como miembro.'})
   @Post(':id/members')
-  addMember(@Param('id') id: string, @Body('userId') userId: string) {
-    return this.teamsService.addMember(id, userId); 
+  addMember(@Param('id') id: string, @Body('userIds') userIds: string[]) {
+    return this.teamsService.addMembers(id, userIds); 
   }
 
   @ApiCreatedResponse({ description: 'Solicitud enviada correctamente al equipo.'})
   @ApiNotFoundResponse({ description: 'No se encontró el usuario para enviar la solicitud.'})
+  //@UseGuards(JwtAuthGuard)
   @Post(':id/requests')
   sendRequest(@Param('id') id: string, @Body('userId') userId: string) {
     return this.teamsService.sendTeamRequest(id, userId); 
-  }
+  } //Cambiar userId por req.user.id cuando se implemente el jwt guard
 
   @ApiCreatedResponse({ description: 'Solicitud aceptada correctamente.'})
   @ApiNotFoundResponse({ description: 'No se encontró la solicitud para aceptar.'})
