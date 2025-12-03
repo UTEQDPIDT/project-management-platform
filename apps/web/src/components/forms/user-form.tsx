@@ -25,6 +25,7 @@ import {
   State,
   UserType,
   Program,
+  User,
 } from '@repo/types';
 import {
   Select,
@@ -38,30 +39,30 @@ import { useDivisions } from '@/hooks/use-divisions';
 import { usePrograms } from '@/hooks/use-programs';
 import LoadingMessage from '../loading-message';
 import { useEffect } from 'react';
-import { useUser } from '@/hooks/use-user';
 import { useUpdateUser } from '@/hooks/use-update-user';
 
-export default function UserForm() {
+export default function UserForm({ profile }: { profile: User }) {
   /**
    * React Query Hooks
    */
   const { data: divisions, isLoading: loadingDivisions } = useDivisions();
   const { data: programs, isLoading: loadingPrograms } = usePrograms();
-  const { data: profile, isLoading: loadingProfile } = useUser();
   const updateUserMutation = useUpdateUser();
 
   const form = useForm({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
-      sex: Sex.HOMBRE,
-      state: State.QRO,
-      dateOfBirth: new Date(),
-      type: UserType.ESTUDIANTE,
-      matricula: '',
-      careerLevel: CareerLevel.LICENCIATURA,
-      educationalProgram: '',
-      division: '',
-      employeeNumber: '',
+      sex: profile.sex || Sex.HOMBRE,
+      state: profile.state || State.QRO,
+      dateOfBirth: profile.dateOfBirth
+        ? new Date(profile.dateOfBirth)
+        : new Date(),
+      type: profile.type || UserType.ESTUDIANTE,
+      matricula: profile.matricula || '',
+      careerLevel: profile.careerLevel || CareerLevel.LICENCIATURA,
+      educationalProgram: profile.educationalProgram || '',
+      division: profile.division || '',
+      employeeNumber: profile.employeeNumber || '',
     },
   });
 
@@ -98,35 +99,9 @@ export default function UserForm() {
     }
   }, [userType, form]);
 
-  /**
-   * Reset fields to profile values once loaded
-   */
-  useEffect(() => {
-    console.log('resetting fields to profile info');
-
-    if (profile) {
-      form.reset({
-        sex: profile.sex,
-        state: profile.state,
-        dateOfBirth: profile.dateOfBirth
-          ? new Date(profile.dateOfBirth)
-          : new Date(),
-        type: profile.type,
-        matricula: profile.matricula ?? '',
-        careerLevel: profile.careerLevel,
-        educationalProgram: profile.educationalProgram ?? '',
-        division: profile.division ?? '',
-        employeeNumber: profile.employeeNumber ?? '',
-      });
-    }
-  }, [profile, form]);
-
   return (
     <div className="w-full max-w-lg">
-      <form
-        id="form-update-profile"
-        onSubmit={form.handleSubmit(onSubmit, onError)}
-      >
+      <form onSubmit={form.handleSubmit(onSubmit, onError)}>
         <FieldGroup>
           <FieldSet>
             <FieldLegend>Información Personal</FieldLegend>
@@ -307,7 +282,7 @@ export default function UserForm() {
                             onBlur={onBlur}
                             aria-invalid={fieldState.invalid}
                           >
-                            <SelectValue placeholder="Selecciona un papel" />
+                            <SelectValue placeholder="Selecciona tu nivel" />
                           </SelectTrigger>
                           <SelectContent>
                             {Object.values(CareerLevel).map((level) => (
@@ -426,7 +401,7 @@ export default function UserForm() {
               />
             </FieldGroup>
           </FieldSet>
-          <div className="flex flex-col md:flex-row gap-2">
+          <div className="flex flex-col md:flex-row gap-2 justify-end">
             <Button
               onClick={() => form.reset()}
               type="button"
@@ -434,11 +409,7 @@ export default function UserForm() {
             >
               Cancelar
             </Button>
-            <Button
-              disabled={updateUserMutation.isPending}
-              form="form-update-profile"
-              type="submit"
-            >
+            <Button disabled={updateUserMutation.isPending} type="submit">
               {updateUserMutation.isPending ? (
                 <LoadingMessage message="Guardando" />
               ) : (

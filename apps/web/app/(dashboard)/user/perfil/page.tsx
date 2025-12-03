@@ -50,7 +50,7 @@ const Page = () => {
                   Edita tu perfil aquí. Haz click en guardar cuando termines.
                 </DialogDescription>
               </DialogHeader>
-              <UserForm />
+              <UserForm profile={profile} />
             </DialogContent>
           </Dialog>
         </HeaderAction>
