@@ -50,8 +50,6 @@ export default function UserForm() {
   const { data: profile, isLoading: loadingProfile } = useUser();
   const updateUserMutation = useUpdateUser();
 
-  console.log('USER PROFILE', profile);
-
   const form = useForm({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
