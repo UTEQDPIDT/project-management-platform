@@ -15,5 +15,6 @@ import { File, FileSchema } from '../schemas/file.schema';
   ],
   controllers: [FilesController],
   providers: [FilesService],
+  exports: [FilesService],
 })
 export class FilesModule {}

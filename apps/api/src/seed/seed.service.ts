@@ -1,6 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+// import { User } from '../schemas/user.schema';
+// import { CreateUserDto } from '../users/dto/create-user.dto';
+// import * as bcrypt from 'bcrypt';
 
 // Schemas
 import { Division } from '../schemas/division.schema.seed';
@@ -24,7 +27,9 @@ import {
   PNDprioritiesList,
   developmentLinesList,
   sustainabilityGoalsList,
+  //initialUsers,
 } from './seed-data/static-data';
+
 
 @Injectable()
 export class SeedService {
@@ -55,6 +60,9 @@ export class SeedService {
 
     @InjectModel(SustainabilityGoal.name)
     private readonly sustainabilityGoalModel: Model<SustainabilityGoal>,
+
+    // @InjectModel(User.name) 
+    // private readonly userModel: Model<User>,
   ) {}
 
   private async seedCollection(
@@ -77,6 +85,23 @@ export class SeedService {
     );
   }
 
+//   private async seedUsers(users: Partial<CreateUserDto>[]) {
+//   for (const user of users) {
+
+//     const exists = await this.userModel.findOne({ email: user.email });
+
+//     if (exists) continue; // ya existe, lo ignoramos
+
+//     const hashedPassword = await bcrypt.hash('Cambiar123*', 10);
+
+//     await this.userModel.create({
+//       ...user,
+//       password: hashedPassword,
+//       verified: true, // opcional
+//     });
+//   }
+// }
+
   async runSeed(password: string) {
     if (password !== process.env.SEED_PASSWORD)
       throw new UnauthorizedException("Contraseña incorrecta.");
@@ -84,7 +109,7 @@ export class SeedService {
     await this.seedCollection(
       this.divisionModel, 
       divisionsList, 
-      'division'
+      'name'
     );
 
     await this.seedCollection(
@@ -134,6 +159,8 @@ export class SeedService {
       sustainabilityGoalsList,
       'sustainabilityGoal',
     );
+
+    //await this.seedUsers(initialUsers);
 
     console.log('Seed data has been populated successfully.');
   }
