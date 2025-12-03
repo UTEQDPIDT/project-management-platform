@@ -11,7 +11,10 @@ export default function LoadingMessage({
 }) {
   return (
     <div
-      className={cn('flex gap-2 items-center justify-center w-full', className)}
+      className={cn(
+        'flex gap-2 items-center select-none justify-center w-full',
+        className,
+      )}
     >
       <Spinner />
       <span className="text-muted-foreground text-sm">{message}</span>

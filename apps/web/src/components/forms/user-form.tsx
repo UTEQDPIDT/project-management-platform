@@ -39,6 +39,7 @@ import { usePrograms } from '@/hooks/use-programs';
 import LoadingMessage from '../loading-message';
 import { useEffect } from 'react';
 import { useUser } from '@/hooks/use-user';
+import { useUpdateUser } from '@/hooks/use-update-user';
 
 export default function UserForm() {
   /**
@@ -47,6 +48,7 @@ export default function UserForm() {
   const { data: divisions, isLoading: loadingDivisions } = useDivisions();
   const { data: programs, isLoading: loadingPrograms } = usePrograms();
   const { data: profile, isLoading: loadingProfile } = useUser();
+  const updateUserMutation = useUpdateUser();
 
   console.log('USER PROFILE', profile);
 
@@ -76,6 +78,7 @@ export default function UserForm() {
       division: data.division === '' ? undefined : data.division,
     };
     console.log(cleanedData);
+    updateUserMutation.mutate(cleanedData);
   };
 
   const onError = (errors: any) => {
@@ -122,7 +125,10 @@ export default function UserForm() {
 
   return (
     <div className="w-full max-w-lg">
-      <form onSubmit={form.handleSubmit(onSubmit, onError)}>
+      <form
+        id="form-update-profile"
+        onSubmit={form.handleSubmit(onSubmit, onError)}
+      >
         <FieldGroup>
           <FieldSet>
             <FieldLegend>Información Personal</FieldLegend>
@@ -422,7 +428,26 @@ export default function UserForm() {
               />
             </FieldGroup>
           </FieldSet>
-          <Button type="submit">Guardar Cambios</Button>
+          <div className="flex flex-col md:flex-row gap-2">
+            <Button
+              onClick={() => form.reset()}
+              type="button"
+              variant={'outline'}
+            >
+              Cancelar
+            </Button>
+            <Button
+              disabled={updateUserMutation.isPending}
+              form="form-update-profile"
+              type="submit"
+            >
+              {updateUserMutation.isPending ? (
+                <LoadingMessage message="Guardando" />
+              ) : (
+                'Guardar'
+              )}
+            </Button>
+          </div>
         </FieldGroup>
       </form>
     </div>
