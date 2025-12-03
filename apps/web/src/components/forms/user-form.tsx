@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 
 import { UpdateUser, updateUserSchema } from '@/schemas/update-user.schema';
-import { User } from '@repo/types';
 
 import {
   Field,
@@ -54,15 +53,15 @@ export default function UserForm() {
   const form = useForm({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
-      sex: profile.sex || Sex.HOMBRE,
-      state: profile.state || State.QRO,
-      dateOfBirth: profile.dateOfBirth || new Date(),
-      type: profile.type || UserType.ESTUDIANTE,
-      matricula: profile.matricula || '',
-      careerLevel: profile.careerLevel || CareerLevel.LICENCIATURA,
-      educationalProgram: profile.educationalProgram || '',
-      division: profile.division || '',
-      employeeNumber: profile.employeeNumber || '',
+      sex: Sex.HOMBRE,
+      state: State.QRO,
+      dateOfBirth: new Date(),
+      type: UserType.ESTUDIANTE,
+      matricula: '',
+      careerLevel: CareerLevel.LICENCIATURA,
+      educationalProgram: '',
+      division: '',
+      employeeNumber: '',
     },
   });
 
@@ -83,10 +82,12 @@ export default function UserForm() {
     console.log('FORM ERRORS:', errors);
   };
 
+  /**
+   * Reset values when user type changes
+   */
   const userType = form.watch('type');
-
-  // Reset values when user type changes
   const { setValue } = form;
+
   useEffect(() => {
     if (userType === UserType.ESTUDIANTE) {
       setValue('employeeNumber', '');
@@ -95,6 +96,29 @@ export default function UserForm() {
       setValue('educationalProgram', '');
     }
   }, [userType, form]);
+
+  /**
+   * Reset fields to profile values once loaded
+   */
+  useEffect(() => {
+    console.log('resetting fields to profile info');
+
+    if (profile) {
+      form.reset({
+        sex: profile.sex,
+        state: profile.state,
+        dateOfBirth: profile.dateOfBirth
+          ? new Date(profile.dateOfBirth)
+          : new Date(),
+        type: profile.type,
+        matricula: profile.matricula ?? '',
+        careerLevel: profile.careerLevel,
+        educationalProgram: profile.educationalProgram ?? '',
+        division: profile.division ?? '',
+        employeeNumber: profile.employeeNumber ?? '',
+      });
+    }
+  }, [profile, form]);
 
   return (
     <div className="w-full max-w-lg">
