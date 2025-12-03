@@ -16,6 +16,14 @@ import UserForm from '@/components/forms/user-form';
 import { useUser } from '@/hooks/use-user';
 import LoadingMessage from '@/components/loading-message';
 import CardUserInfo from '@/components/card-user-info';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 const Page = () => {
   const { data: profile, isLoading: loadingProfile } = useUser();
@@ -29,9 +37,22 @@ const Page = () => {
           <ProfileInfo givenName="Aeon Julien" email="example@mail.com" />
         </HeaderHeading>
         <HeaderAction>
-          <Button variant={'outline'}>
-            <Pencil /> Editar
-          </Button>
+          <Dialog>
+            <DialogTrigger>
+              <Button variant={'outline'}>
+                <Pencil /> Editar
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Editar Perfil</DialogTitle>
+                <DialogDescription>
+                  Edita tu perfil aquí. Haz click en guardar cuando termines.
+                </DialogDescription>
+              </DialogHeader>
+              <UserForm />
+            </DialogContent>
+          </Dialog>
         </HeaderAction>
       </Header>
       <PageContent className="flex flex-col items-center gap-5 py-5">
@@ -40,8 +61,6 @@ const Page = () => {
         ) : (
           <CardUserInfo profile={profile} />
         )}
-
-        {/* <UserForm /> */}
       </PageContent>
     </div>
   );
