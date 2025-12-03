@@ -1,6 +1,6 @@
 export interface Division {
   _id: string;
-  division: string;
+  name: string;
   createdAt: string;
   updatedAt: string;
 }
