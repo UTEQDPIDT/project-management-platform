@@ -38,8 +38,18 @@ import { useDivisions } from '@/hooks/use-divisions';
 import { usePrograms } from '@/hooks/use-programs';
 import LoadingMessage from '../loading-message';
 import { useEffect } from 'react';
+import { useUser } from '@/hooks/use-user';
 
 export default function UserForm() {
+  /**
+   * React Query Hooks
+   */
+  const { data: divisions, isLoading: loadingDivisions } = useDivisions();
+  const { data: programs, isLoading: loadingPrograms } = usePrograms();
+  const { data: profile, isLoading: loadingProfile } = useUser();
+
+  console.log('USER PROFILE', profile);
+
   const form = useForm({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
@@ -56,7 +66,6 @@ export default function UserForm() {
   });
 
   const onSubmit = (data: UpdateUser) => {
-    // handle user update
     const cleanedData = {
       ...data,
       matricula: data.matricula === '' ? undefined : data.matricula,
@@ -85,12 +94,6 @@ export default function UserForm() {
       setValue('educationalProgram', '');
     }
   }, [userType, form]);
-
-  /**
-   * React Query Hooks
-   */
-  const { data: divisions, isLoading: loadingDivisions } = useDivisions();
-  const { data: programs, isLoading: loadingPrograms } = usePrograms();
 
   return (
     <div className="w-full max-w-lg">

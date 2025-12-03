@@ -10,4 +10,13 @@ const updateUser = async (data: UpdateUser) => {
   }
 };
 
-export { updateUser };
+const getUserProfile = async () => {
+  try {
+    const { data } = await api.get('/users/profile');
+    return data;
+  } catch (err) {
+    console.error('Error when fetching user profile', err);
+  }
+};
+
+export { updateUser, getUserProfile };

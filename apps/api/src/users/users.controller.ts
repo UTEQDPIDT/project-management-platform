@@ -50,7 +50,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Req() req) {
-    return this.usersService.findOne(req.user._id);
+    return this.usersService.findOne(req.user.id);
   }
 
   @ApiOkResponse({ description: 'Usario obtenido correctamente.' })
