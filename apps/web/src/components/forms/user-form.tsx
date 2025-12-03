@@ -62,6 +62,8 @@ export default function UserForm() {
   const { data: divisions, isLoading: loadingDivisions } = useDivisions();
   const { data: programs, isLoading: loadingPrograms } = usePrograms();
 
+  const userType = form.watch('type');
+
   return (
     <div className="w-full max-w-lg">
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -206,79 +208,126 @@ export default function UserForm() {
                 )}
               />
 
-              <Controller
-                control={form.control}
-                name="matricula"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Matricula</FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
+              {userType === UserType.ESTUDIANTE && (
+                <FieldGroup>
+                  <Controller
+                    control={form.control}
+                    name="matricula"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>Matricula</FieldLabel>
+                        <Input
+                          {...field}
+                          id={field.name}
+                          aria-invalid={fieldState.invalid}
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
                     )}
-                  </Field>
-                )}
-              />
+                  />
 
-              <Controller
-                control={form.control}
-                name="careerLevel"
-                render={({
-                  field: { onChange, onBlur, ...field },
-                  fieldState,
-                }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldContent>
+                  <Controller
+                    control={form.control}
+                    name="careerLevel"
+                    render={({
+                      field: { onChange, onBlur, ...field },
+                      fieldState,
+                    }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldContent>
+                          <FieldLabel htmlFor={field.name}>
+                            Nivel de Carrera
+                          </FieldLabel>
+                        </FieldContent>
+                        <Select {...field} onValueChange={onChange}>
+                          <SelectTrigger
+                            id={field.name}
+                            onBlur={onBlur}
+                            aria-invalid={fieldState.invalid}
+                          >
+                            <SelectValue placeholder="Selecciona un papel" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.values(CareerLevel).map((level) => (
+                              <SelectItem key={level} value={level}>
+                                {level}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+
+                  <Controller
+                    control={form.control}
+                    name="educationalProgram"
+                    render={({
+                      field: { onChange, onBlur, ...field },
+                      fieldState,
+                    }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>
+                          Programa Educativo
+                        </FieldLabel>
+                        <Select {...field} onValueChange={onChange}>
+                          <SelectTrigger
+                            id={field.name}
+                            onBlur={onBlur}
+                            aria-invalid={fieldState.invalid}
+                          >
+                            <SelectValue placeholder="Selecciona un programa" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {loadingPrograms ? (
+                              <LoadingMessage message="Cargando Programas" />
+                            ) : (
+                              programs.map((program: Program) => (
+                                <SelectItem
+                                  key={program._id}
+                                  value={program._id}
+                                >
+                                  {program.educationalProgram}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+                </FieldGroup>
+              )}
+
+              {userType === UserType.MAESTRO && (
+                <Controller
+                  control={form.control}
+                  name="employeeNumber"
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor={field.name}>
-                        Nivel de Carrera
+                        Número de Empleado
                       </FieldLabel>
-                    </FieldContent>
-                    <Select {...field} onValueChange={onChange}>
-                      <SelectTrigger
+                      <Input
+                        {...field}
                         id={field.name}
-                        onBlur={onBlur}
                         aria-invalid={fieldState.invalid}
-                      >
-                        <SelectValue placeholder="Selecciona un papel" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.values(CareerLevel).map((level) => (
-                          <SelectItem key={level} value={level}>
-                            {level}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                control={form.control}
-                name="employeeNumber"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Número de Empleado
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+              )}
 
               <Controller
                 control={form.control}
@@ -315,48 +364,9 @@ export default function UserForm() {
                   </Field>
                 )}
               />
-
-              <Controller
-                control={form.control}
-                name="educationalProgram"
-                render={({
-                  field: { onChange, onBlur, ...field },
-                  fieldState,
-                }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Programa Educativo
-                    </FieldLabel>
-                    <Select {...field} onValueChange={onChange}>
-                      <SelectTrigger
-                        id={field.name}
-                        onBlur={onBlur}
-                        aria-invalid={fieldState.invalid}
-                      >
-                        <SelectValue placeholder="Selecciona un programa" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {loadingPrograms ? (
-                          <LoadingMessage message="Cargando Programas" />
-                        ) : (
-                          programs.map((program: Program) => (
-                            <SelectItem key={program._id} value={program._id}>
-                              {program.educationalProgram}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Button type="submit">Submit</Button>
             </FieldGroup>
           </FieldSet>
+          <Button type="submit">Guardar Cambios</Button>
         </FieldGroup>
       </form>
     </div>
