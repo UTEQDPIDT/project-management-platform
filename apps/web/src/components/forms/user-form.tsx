@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 
 import { UpdateUser, updateUserSchema } from '@/schemas/update-user.schema';
+import { User } from '@repo/types';
 
 import {
   Field,
@@ -53,15 +54,15 @@ export default function UserForm() {
   const form = useForm({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
-      sex: Sex.HOMBRE,
-      state: State.QRO,
-      dateOfBirth: new Date(),
-      type: UserType.ESTUDIANTE,
-      matricula: '',
-      careerLevel: CareerLevel.LICENCIATURA,
-      educationalProgram: '',
-      division: '',
-      employeeNumber: '',
+      sex: profile.sex || Sex.HOMBRE,
+      state: profile.state || State.QRO,
+      dateOfBirth: profile.dateOfBirth || new Date(),
+      type: profile.type || UserType.ESTUDIANTE,
+      matricula: profile.matricula || '',
+      careerLevel: profile.careerLevel || CareerLevel.LICENCIATURA,
+      educationalProgram: profile.educationalProgram || '',
+      division: profile.division || '',
+      employeeNumber: profile.employeeNumber || '',
     },
   });
 
