@@ -38,11 +38,11 @@ const Page = () => {
         </HeaderHeading>
         <HeaderAction>
           <Dialog>
-            <DialogTrigger>
-              <Button variant={'outline'}>
+            {!loadingProfile && (
+              <DialogTrigger>
                 <Pencil /> Editar
-              </Button>
-            </DialogTrigger>
+              </DialogTrigger>
+            )}
             <DialogContent className="max-h-[800px] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Editar Perfil</DialogTitle>
