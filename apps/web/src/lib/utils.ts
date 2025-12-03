@@ -10,4 +10,4 @@ export function cn(...inputs: ClassValue[]) {
 // MongoID regex
 export const mongoId = z
   .string()
-  .regex(/^[0-9a-fA-F]{24}$/, 'ID de mongo inválido');
+  .regex(/^[0-9a-fA-F]{24}$/, 'No es una opción válida');

@@ -37,6 +37,7 @@ import { DatePicker } from '../ui/date-picker';
 import { useDivisions } from '@/hooks/use-divisions';
 import { usePrograms } from '@/hooks/use-programs';
 import LoadingMessage from '../loading-message';
+import { useEffect } from 'react';
 
 export default function UserForm() {
   const form = useForm({
@@ -59,14 +60,31 @@ export default function UserForm() {
     console.log(data);
   };
 
-  const { data: divisions, isLoading: loadingDivisions } = useDivisions();
-  const { data: programs, isLoading: loadingPrograms } = usePrograms();
+  const onError = (errors: any) => {
+    console.log('FORM ERRORS:', errors);
+  };
 
   const userType = form.watch('type');
 
+  // Reset values when user type changes
+  useEffect(() => {
+    if (userType === UserType.ESTUDIANTE) {
+      form.setValue('employeeNumber', undefined);
+    } else if (userType === UserType.MAESTRO) {
+      form.setValue('matricula', undefined);
+      form.setValue('educationalProgram', undefined);
+    }
+  }, [userType, form]);
+
+  /**
+   * React Query Hooks
+   */
+  const { data: divisions, isLoading: loadingDivisions } = useDivisions();
+  const { data: programs, isLoading: loadingPrograms } = usePrograms();
+
   return (
     <div className="w-full max-w-lg">
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit, onError)}>
         <FieldGroup>
           <FieldSet>
             <FieldLegend>Información Personal</FieldLegend>
