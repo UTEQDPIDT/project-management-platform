@@ -33,6 +33,7 @@ import {
 import { DatePicker } from '../ui/date-picker';
 import { useDivisions } from '@/hooks/use-divisions';
 import { usePrograms } from '@/hooks/use-programs';
+import LoadingMessage from '../loading-message';
 
 export default function UserForm() {
   const form = useForm({
@@ -230,12 +231,8 @@ export default function UserForm() {
                     <SelectValue placeholder="Selecciona una división" />
                   </SelectTrigger>
                   <SelectContent>
-                    {true ? (
-                      <div>
-                        <span className="text-muted-foreground text-sm">
-                          Cargando divisiones
-                        </span>
-                      </div>
+                    {loadingDivisions ? (
+                      <LoadingMessage message="Cargando divisiones" />
                     ) : (
                       divisions.map((division: Division) => (
                         <SelectItem key={division._id} value={division._id}>
@@ -268,7 +265,7 @@ export default function UserForm() {
                   </SelectTrigger>
                   <SelectContent>
                     {loadingPrograms ? (
-                      <span>Cargando programas</span>
+                      <LoadingMessage message="Cargando Programas" />
                     ) : (
                       programs.map((program: Program) => (
                         <SelectItem key={program._id} value={program._id}>
