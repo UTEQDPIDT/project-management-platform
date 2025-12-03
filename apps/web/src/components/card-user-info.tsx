@@ -50,14 +50,16 @@ export default function CardUserInfo({ profile }: { profile: IUser }) {
               </TableCell>
               <TableCell>{email}</TableCell>
             </TableRow>
-            <TableRow>
-              <TableCell className="text-gray-500 px-4">
-                Fecha de nacimiento
-              </TableCell>
-              <TableCell>
-                {format(dateOfBirth, "d 'de' MMMM 'de' yyyy", { locale: es })}
-              </TableCell>
-            </TableRow>
+            {dateOfBirth && (
+              <TableRow>
+                <TableCell className="text-gray-500 px-4">
+                  Fecha de nacimiento
+                </TableCell>
+                <TableCell>
+                  {format(dateOfBirth, "d 'de' MMMM 'de' yyyy", { locale: es })}
+                </TableCell>
+              </TableRow>
+            )}
             <TableRow>
               <TableCell className="text-gray-500 px-4">Sexo</TableCell>
               <TableCell>{sex}</TableCell>
