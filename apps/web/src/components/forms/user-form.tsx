@@ -49,6 +49,8 @@ export default function UserForm({ profile }: { profile: IUser }) {
   const { data: programs, isLoading: loadingPrograms } = usePrograms();
   const updateUserMutation = useUpdateUser();
 
+  console.log('DIVISIONS', divisions);
+
   const form = useForm({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
@@ -387,7 +389,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
                         ) : (
                           divisions.map((division: Division) => (
                             <SelectItem key={division._id} value={division._id}>
-                              {division.division}
+                              {division.name}
                             </SelectItem>
                           ))
                         )}

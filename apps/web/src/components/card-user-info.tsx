@@ -122,7 +122,7 @@ export default function CardUserInfo({ profile }: { profile: IUser }) {
             )}
             <TableRow>
               <TableCell className="text-gray-500 px-4">Division</TableCell>
-              <TableCell>{division?.division}</TableCell>
+              <TableCell>{division?.name}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
