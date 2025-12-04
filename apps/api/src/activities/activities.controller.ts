@@ -39,9 +39,19 @@ export class ActivitiesController {
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FilesInterceptor('files'))
   update(@Param('id') id: string, @Body() updateActivityDto: UpdateActivityDto, @Req() req, @UploadedFiles() files: Express.Multer.File[]) {
     return this.activitiesService.update(id, updateActivityDto, req.user.id, files);
+  }
+
+  @ApiAcceptedResponse({ description: 'Archivo eliminado de la actividad correctamente.' })
+  @ApiNotFoundResponse({ description: 'No se encontro la actividad o el archivo.' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/activityFiles')
+  removeFileFromActivity(@Param('id') id: string, @Body('fileId') fileId: string, @Req() req) {
+    return this.activitiesService.removeFile(id, fileId, req.user.id);
   }
 
   @ApiAcceptedResponse({ description: 'Actividad eliminada correctamente.' })
