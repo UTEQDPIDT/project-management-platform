@@ -5,6 +5,21 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { UpdateUser, updateUserSchema } from '@/schemas/update-user.schema';
 
+import { useDivisions, usePrograms } from '@/hooks/catalogs';
+import { useUpdateUser } from '@/hooks/user';
+import {
+  CareerLevel,
+  Division,
+  IUser,
+  Program,
+  Sex,
+  State,
+  UserType,
+} from '@repo/types';
+import { useEffect } from 'react';
+import LoadingMessage from '../loading-message';
+import { Button } from '../ui/button';
+import { DatePicker } from '../ui/date-picker';
 import {
   Field,
   FieldContent,
@@ -17,16 +32,6 @@ import {
   FieldSet,
 } from '../ui/field';
 import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import {
-  CareerLevel,
-  Division,
-  Sex,
-  State,
-  UserType,
-  Program,
-  IUser,
-} from '@repo/types';
 import {
   Select,
   SelectContent,
@@ -34,12 +39,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { DatePicker } from '../ui/date-picker';
-import { useDivisions } from '@/hooks/use-divisions';
-import { usePrograms } from '@/hooks/use-programs';
-import LoadingMessage from '../loading-message';
-import { useEffect } from 'react';
-import { useUpdateUser } from '@/hooks/use-update-user';
 
 export default function UserForm({ profile }: { profile: IUser }) {
   /**

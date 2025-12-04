@@ -1,21 +1,16 @@
 'use client';
 
+import CardUserInfo from '@/components/card-user-info';
+import UserForm from '@/components/forms/user-form';
 import {
   Header,
   HeaderAction,
-  HeaderContent,
   HeaderDescription,
   HeaderHeading,
   HeaderTitle,
 } from '@/components/header';
-import { Button } from '@/components/ui/button';
-import { PageContent } from '@/components/page-content';
-import { ProfileInfo } from '@/components/profile-info';
-import { Pencil } from 'lucide-react';
-import UserForm from '@/components/forms/user-form';
-import { useUser } from '@/hooks/use-user';
 import LoadingMessage from '@/components/loading-message';
-import CardUserInfo from '@/components/card-user-info';
+import { PageContent } from '@/components/page-content';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +19,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { useUser } from '@/hooks/user';
+import { Pencil } from 'lucide-react';
 
 const Page = () => {
   const { data: profile, isLoading: loadingProfile } = useUser();
