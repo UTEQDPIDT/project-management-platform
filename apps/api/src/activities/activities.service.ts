@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -126,7 +122,7 @@ export class ActivitiesService {
     );
 
     return updated;
-}
+  }
 
   async remove(id: string) {
     const activity = await this.activityModel.findById(id);

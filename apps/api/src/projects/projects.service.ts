@@ -8,18 +8,31 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Project } from '../schemas/project.schema';
 import { Model } from 'mongoose';
+import { FilesService } from '../files/files.service';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectModel(Project.name) private projectModel: Model<Project>,
+    private readonly filesService: FilesService,
   ) {}
 
-  async create(createProjectDto: CreateProjectDto, userId: string) {
+  async create(createProjectDto: CreateProjectDto, userId: string, files?: Express.Multer.File[]): Promise<Project> {
     try {
+
+      let uploadedFiles: string[] = [];
+
+      if (files && files.length > 0) {
+        for (const file of files) {
+          const savedFile = await this.filesService.uploadToGridFS(file, userId);
+          uploadedFiles.push(savedFile.id);
+        }
+      }
+
       const newProject = await this.projectModel.create({
         ...createProjectDto,
         owner: userId,
+        files: uploadedFiles,
       });
       return newProject;
     } catch (err: any) {
@@ -27,44 +40,108 @@ export class ProjectsService {
     }
   }
 
-  findAll() {
-    return this.projectModel.find().exec();
+  async findAll() {
+    return await this.projectModel.find().exec();
   }
 
-  findOne(id: string) {
-    const project = this.projectModel.findById(id);
+  async findOne(id: string) {
+    const project = await this.projectModel.findById(id);
     if (!project) {
       throw new NotFoundException(`Proyecto con el ID ${id} no encontrado.`);
     }
     return project;
   }
 
-  update(id: string, updateProjectDto: UpdateProjectDto, userId: string) {
-    try {
-      const updatedProject = this.projectModel.findByIdAndUpdate(
-        id,
-        {
-          ...updateProjectDto,
-          updatedBy: userId,
-        },
-        { new: true },
-      );
+  async update(id: string, updateProjectDto: UpdateProjectDto, userId: string, newFiles?: Express.Multer.File[]): Promise<Project> {
 
-      if (!updatedProject) {
-        throw new BadRequestException('Error al editar el proyecto');
+    const project = await this.projectModel.findById(id);
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${id} not found`);
+    }
+
+    let updatedFiles: string[] = [...(project.files ?? [])];
+
+    // Obtener metadata de los archivos existentes
+    const existingFilesMetadata = await Promise.all(
+      updatedFiles.map(fileId => this.filesService.getFileMetadata(fileId)),
+    );
+
+    // Validar duplicados por nombre
+    if (newFiles && newFiles.length > 0) {
+
+      for (const file of newFiles) {
+        const duplicate = existingFilesMetadata.find(
+          meta => meta.name === file.originalname,
+        );
+
+        if (duplicate) {
+          throw new BadRequestException(
+            `Ya existe un archivo con el nombre "${file.originalname}" en esta actividad.`,
+          );
+        }
       }
 
-      return updatedProject;
-    } catch (err: any) {
-      throw new NotFoundException(`Proyecto con el ID ${id} no encontrado.`);
+      // Agregar archivos nuevos si pasaron la validación
+      for (const file of newFiles) {
+        const savedFile = await this.filesService.uploadToGridFS(file, userId);
+        updatedFiles.push(savedFile.id.toString());
+      }
     }
+
+    const updatedProject = await this.projectModel.findByIdAndUpdate(
+      id,
+      {
+        ...updateProjectDto,
+        updatedBy: userId,
+        files: updatedFiles,
+      },
+      { new: true },
+    );
+
+    return updatedProject;
   }
 
-  remove(id: string) {
-    const project = this.projectModel.findByIdAndDelete(id);
+  async removeFile(projectId: string, fileId: string, userId: string) {
+
+    const project = await this.projectModel.findById(projectId);
     if (!project) {
-      throw new NotFoundException(`Proyecto con el ID ${id} no encontrado.`);
+      throw new NotFoundException(`Project with ID ${projectId} not found`);
     }
-    return project;
+
+    if (!project.files.includes(fileId)) {
+      throw new BadRequestException('File does not belong to this activity');
+    }
+
+    await this.filesService.deleteFile(fileId);
+
+    const updated = await this.projectModel.findByIdAndUpdate(
+      projectId,
+      {
+        $pull: { files: fileId },
+        updatedBy: userId,
+      },
+      { new: true },
+    );
+
+    return updated;
+  }
+
+  async remove(id: string) {
+    const project = await this.projectModel.findById(id);
+  
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${id} not found`);
+    }
+  
+    if(project.files && project.files.length > 0){
+      for (const fileId of project.files){
+        await this.filesService.deleteFile(fileId.toString());
+      }
+    }
+  
+    const deletedActivity = await this.projectModel.findByIdAndDelete(id);
+  
+    return deletedActivity;
   }
 }
