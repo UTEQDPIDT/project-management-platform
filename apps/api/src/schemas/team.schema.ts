@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import mongoose, { Document } from 'mongoose';
 import { TeamsGrade } from '@repo/types';
 import { User } from './user.schema';
+import { Division } from './division.schema.seed';
 
 @Schema({ timestamps: true })
 export class Team extends Document {
@@ -24,6 +25,16 @@ export class Team extends Document {
     maxLength: 255,
   })
   summary: string;
+
+  @ApiPropertyOptional({
+    description:
+      'La división a la que pertenece el equipo (referencia al catálogo)',
+  })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Division.name,
+  })
+  division: Division;
 
   @Prop({
     enum: TeamsGrade,
