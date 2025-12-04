@@ -101,7 +101,7 @@ const removeCollaborator = async (teamId: string, userId: string) => {
   }
 };
 
-const sendRequest = async (teamId: string) => {
+const sendJoinRequest = async (teamId: string) => {
   try {
     const { data } = await api.post(`/teams/${teamId}/requests`);
     return data;
@@ -129,6 +129,6 @@ export {
   removeMember,
   addCollaborators,
   removeCollaborator,
-  sendRequest,
+  sendJoinRequest,
   acceptRequest,
 };
