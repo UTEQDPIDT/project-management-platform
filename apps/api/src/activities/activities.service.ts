@@ -17,11 +17,7 @@ export class ActivitiesService {
     private readonly filesService: FilesService,
   ) {}
 
-  async create(
-    createActivityDto: CreateActivityDto,
-    userId: string,
-    files?: Express.Multer.File[],
-  ): Promise<Activity> {
+  async create(createActivityDto: CreateActivityDto, userId: string, files?: Express.Multer.File[]): Promise<Activity> {
     try {
       let uploadedFiles: string[] = [];
 
