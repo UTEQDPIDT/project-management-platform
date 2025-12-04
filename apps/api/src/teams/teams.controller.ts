@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { TeamsService } from './teams.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 
 @ApiTags('Teams')
 @Controller('teams')
@@ -11,9 +12,9 @@ export class TeamsController {
 
   @ApiCreatedResponse({ description: 'Equipo creado correctamente.'})
   @Post()
-  //@AuthGuard(JwtAuthGuard)
-  create(@Body() createTeamDto: CreateTeamDto) {
-    return this.teamsService.create(createTeamDto);
+  @UseGuards(JwtAuthGuard)
+  create( @Req() req, @Body() createTeamDto: CreateTeamDto) {
+    return this.teamsService.create(req.user.id,createTeamDto);
   }
 
   @ApiCreatedResponse({ description: 'Colaborador agregado correctamente al equipo.'})
@@ -32,11 +33,11 @@ export class TeamsController {
 
   @ApiCreatedResponse({ description: 'Solicitud enviada correctamente al equipo.'})
   @ApiNotFoundResponse({ description: 'No se encontró el usuario para enviar la solicitud.'})
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post(':id/requests')
-  sendRequest(@Param('id') id: string, @Body('userId') userId: string) {
-    return this.teamsService.sendTeamRequest(id, userId); 
-  } //Cambiar userId por req.user.id cuando se implemente el jwt guard
+  sendRequest(@Param('id') id: string, @Req() req) {
+    return this.teamsService.sendTeamRequest(id, req.user.id); 
+  }
 
   @ApiCreatedResponse({ description: 'Solicitud aceptada correctamente.'})
   @ApiNotFoundResponse({ description: 'No se encontró la solicitud para aceptar.'})

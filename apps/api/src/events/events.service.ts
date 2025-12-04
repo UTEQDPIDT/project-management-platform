@@ -14,19 +14,30 @@ export class EventsService {
     private readonly filesService: FilesService,
   ) {}
 
-  async create(createEventDto: CreateEventDto, userId: string) {
+  async create(createEventDto: CreateEventDto, userId: string, file?: Express.Multer.File): Promise<Event> {
     try {
+
+      let uploadedFileId: string | null = null;
+
+      if (file) {
+        const savedFile = await this.filesService.uploadToGridFS(file, userId);
+        uploadedFileId = savedFile.id.toString();
+      } 
+
       const createdEvent = await this.eventModel.create({
         ...createEventDto,
         createdBy: userId,
+        file: uploadedFileId
       });
+
       return createdEvent;
+
     } catch (err: any) {
       throw new BadRequestException('Error al crear el evento: ' + err.message);
     }
   }
 
-  async addParticipants(eventId: string, userIds: string[]): Promise<Event> {
+  async addParticipants(eventId: string, userIds: string[], updater: string): Promise<Event> {
     const event = await this.eventModel.findById(eventId).exec();
     if (!event) throw new NotFoundException(`Event with ID: ${eventId} not found`);
   
@@ -44,7 +55,10 @@ export class EventsService {
   
     return await this.eventModel.findByIdAndUpdate(
       eventId,
-      { $addToSet: { participants: { $each: newIds } } },
+      { 
+        $addToSet: { participants: { $each: newIds } },
+        updatedBy: updater,
+      },
       { new: true }
     );
   }
@@ -63,14 +77,16 @@ export class EventsService {
 
     const updatedEvent = await this.eventModel.findByIdAndUpdate(
       eventId,
-      { report: savedFile.id },
+      { 
+        report: savedFile.id,
+        updatedBy: userId,},
       { new: true },
     );
 
     return updatedEvent;
   }
 
-  async addActivities(eventId: string, activityIds: string[]): Promise<Event> {
+  async addActivities(eventId: string, activityIds: string[], updater: string): Promise<Event> {
     const event = await this.eventModel.findById(eventId);
     if (!event) throw new NotFoundException(`Event with ID: ${eventId} not found`);
 
@@ -79,12 +95,15 @@ export class EventsService {
 
     return this.eventModel.findByIdAndUpdate(
       eventId,
-      { $addToSet: { activities: { $each: activityIds } } },
+      { 
+        $addToSet: { activities: { $each: activityIds } },
+        updatedBy: updater,
+      },
       { new: true }
     );
   }
 
-  async addProducts(eventId: string, productIds: string[]): Promise<Event> {
+  async addProducts(eventId: string, productIds: string[], updater: string): Promise<Event> {
     const event = await this.eventModel.findById(eventId);
     if (!event) throw new NotFoundException(`Event with ID: ${eventId} not found`);
 
@@ -93,7 +112,10 @@ export class EventsService {
 
     return this.eventModel.findByIdAndUpdate(
       eventId,
-      { $addToSet: { products: { $each: productIds } } },
+      { 
+        $addToSet: { products: { $each: productIds } },
+        updatedBy: updater,
+      },
       { new: true }
     );
   }
@@ -110,11 +132,11 @@ export class EventsService {
     return event;
   }
 
-  async update(id: string, updateEventDto: UpdateEventDto, userId: string) {
+  async update(id: string, updateEventDto: UpdateEventDto, updater: string) {
     try {
       const updatedEvent = this.eventModel.findByIdAndUpdate(id, {
         ...updateEventDto,
-        updatedBy: userId,
+        updatedBy: updater,
       });
       if (!updatedEvent) {
         throw new NotFoundException(`Event with ID: ${id} not found`);
@@ -126,41 +148,53 @@ export class EventsService {
   }
 
   async remove(id: string) {
-    const deletedEvent = this.eventModel.findByIdAndDelete(id);
-    if (!deletedEvent) {
+
+    const event = await this.eventModel.findById(id);
+
+    if (!event) {
       throw new NotFoundException(`Event with ID: ${id} not found`);
     }
+
+    const reportFile = event.report;
+
+    if (reportFile)
+      await this.filesService.deleteFile(reportFile.toString());
+
+    const deletedEvent = await this.eventModel.findByIdAndDelete(id);
     return deletedEvent;
   }
 
-  async removeParticipant(eventId: string, userId: string): Promise<Event> {
+  async removeParticipant(eventId: string, userId: string, updater: string): Promise<Event> {
     return this.eventModel.findByIdAndUpdate(
       eventId,
-      { $pull: { participants: userId } },
+      { 
+        $pull: { participants: userId },
+        updatedBy: updater,
+      },
       { new: true }
     );
   }
 
-  async removeReportFile(eventId: string): Promise<Event> {
-  // 1. Buscar evento
+  async removeReportFile(eventId: string, updater: string): Promise<Event> {
+
   const event = await this.eventModel.findById(eventId);
   if (!event) {
     throw new NotFoundException(`Event with ID ${eventId} not found`);
   }
 
-  // 2. Validar que el evento tenga un archivo asignado
   const isFile = event.report;
   if (!isFile) {
     throw new BadRequestException('This event has no report file assigned');
   }
 
-  // 3. Eliminar archivo de GridFS + colección File
   await this.filesService.deleteFile(isFile.toString());
 
-  // 4. Eliminar referencia en el evento
   const updatedEvent = await this.eventModel.findByIdAndUpdate(
     eventId,
-    { $unset: { report: '' } }, // elimina el campo
+    { 
+      $unset: { report: '' },
+      updatedBy: updater,
+    }, 
     { new: true }
   );
 
@@ -168,18 +202,24 @@ export class EventsService {
 }
 
 
-  async removeActivity(eventId: string, activityId: string): Promise<Event> {
+  async removeActivity(eventId: string, activityId: string, updater: string): Promise<Event> {
     return this.eventModel.findByIdAndUpdate(
       eventId,
-      { $pull: { activities: activityId } },
+      { 
+        $pull: { activities: activityId },
+        updatedBy: updater,
+      },
       { new: true }
     );
   }
 
-  async removeProduct(eventId: string, productId: string): Promise<Event> {
+  async removeProduct(eventId: string, productId: string, updater: string): Promise<Event> {
     return this.eventModel.findByIdAndUpdate(
       eventId,
-      { $pull: { products: productId } },
+      { 
+        $pull: { products: productId },
+        updatedBy: updater,
+      },
       { new: true }
     );
   }

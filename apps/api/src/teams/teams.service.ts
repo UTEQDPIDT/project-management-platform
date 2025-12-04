@@ -10,7 +10,7 @@ export class TeamsService {
 
   constructor(@InjectModel(Team.name) private teamModel: Model<Team>) {}
 
-  async create(createTeamDto: CreateTeamDto): Promise<Team> {
+  async create(userId:string, createTeamDto: CreateTeamDto): Promise<Team> {
     try{
       const createdTeam = new this.teamModel(createTeamDto);
       return await createdTeam.save();
