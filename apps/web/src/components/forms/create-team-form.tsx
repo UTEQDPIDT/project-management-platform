@@ -1,0 +1,287 @@
+'use client';
+
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { teamSchema } from '@/schemas/team.schema';
+
+import { useDivisions } from '@/hooks/catalogs';
+import { useCreateTeam } from '@/hooks/team';
+import { useResolveEmails } from '@/hooks/user';
+
+import LoadingMessage from '../loading-message';
+import { Button } from '../ui/button';
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSeparator,
+  FieldSet,
+} from '../ui/field';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import { Division, TeamsGrade } from '@repo/types';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/card';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupTextarea,
+} from '../ui/input-group';
+import { Switch } from '../ui/switch';
+
+export function CreateTeamForm() {
+  /**
+   * React Query Hooks
+   */
+  const { data: divisions, isLoading: loadingDivisions } = useDivisions();
+  const createTeamMutation = useCreateTeam();
+
+  const form = useForm({
+    resolver: zodResolver(teamSchema),
+    defaultValues: {
+      teamName: '',
+      summary: '',
+      division: '',
+      grade: TeamsGrade.FORMACION,
+      members: [],
+      collaborators: [],
+      isPrivate: true,
+    },
+  });
+
+  //   const {
+  //     fields: members,
+  //     append: addMember,
+  //     remove: removeMember,
+  //   } = useFieldArray({
+  //     control: form.control,
+  //     name: 'members',
+  //   });
+
+  const onSubmit = (data: z.infer<typeof teamSchema>) => {
+    console.log(data);
+  };
+
+  const onError = (errors: any) => {
+    console.log('FORM ERRORS', errors);
+  };
+
+  return (
+    <div>
+      <form
+        className="flex flex-col gap-6"
+        onSubmit={form.handleSubmit(onSubmit, onError)}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Datos del Equipo</CardTitle>
+            <CardDescription>
+              Los campos obligatorios están marcados con asterisco.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FieldGroup>
+              <Controller
+                control={form.control}
+                name="teamName"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Nombre *</FieldLabel>
+                    <InputGroup>
+                      <InputGroupInput
+                        {...field}
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        placeholder="e.g. Nuevos Talentos"
+                      />
+                      <InputGroupAddon align="inline-end">
+                        {field.value?.length}/50
+                      </InputGroupAddon>
+                    </InputGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={form.control}
+                name="summary"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldContent>
+                      <FieldLabel htmlFor={field.name}>Descripción</FieldLabel>
+                      <FieldDescription>
+                        Describe brevemente el propósito del equipo, áreas de
+                        innovación, metas, responsabilidades...
+                      </FieldDescription>
+                    </FieldContent>
+                    <InputGroup>
+                      <InputGroupTextarea
+                        {...field}
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        placeholder="e.g. Equipo centrado en fortalecer las habilidades de los estudiantes por medio de proyectos de alto impácto..."
+                      />
+                      <InputGroupAddon align="block-end">
+                        {field.value?.length}/255
+                      </InputGroupAddon>
+                    </InputGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={form.control}
+                name="division"
+                render={({
+                  field: { onChange, onBlur, ...field },
+                  fieldState,
+                }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>División *</FieldLabel>
+                    <Select {...field} onValueChange={onChange}>
+                      <SelectTrigger
+                        id={field.name}
+                        onBlur={onBlur}
+                        aria-invalid={fieldState.invalid}
+                      >
+                        <SelectValue placeholder="Selecciona una división" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {loadingDivisions ? (
+                          <LoadingMessage message="Cargando divisiones" />
+                        ) : (
+                          divisions.map((division: Division) => (
+                            <SelectItem key={division._id} value={division._id}>
+                              {division.name}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Integrantes</CardTitle>
+            <CardDescription>
+              Invita a personas a formar parte de tu equipo.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <FieldSet>
+              <FieldGroup>
+                <Controller
+                  control={form.control}
+                  name="members"
+                  render={({
+                    field: { onChange, onBlur, ...field },
+                    fieldState,
+                  }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldContent>
+                        <FieldLabel htmlFor={field.name}>Miembros</FieldLabel>
+                        <FieldDescription>
+                          Los miembros tienen acceso completo a los proyectos
+                          del equipo.
+                        </FieldDescription>
+                      </FieldContent>
+
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+              </FieldGroup>
+            </FieldSet>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Ajustes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FieldGroup>
+              <Controller
+                control={form.control}
+                name="isPrivate"
+                render={({
+                  field: { onChange, onBlur, ...field },
+                  fieldState,
+                }) => (
+                  <Field
+                    orientation={'horizontal'}
+                    data-invalid={fieldState.invalid}
+                  >
+                    <FieldContent>
+                      <FieldLabel htmlFor={field.name}>
+                        Equipo Privado
+                      </FieldLabel>
+                      <FieldDescription>
+                        Las personas sólo podrán ingresar al equipo por medio de
+                        invitación directa.
+                      </FieldDescription>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </FieldContent>
+                    <Switch
+                      id={field.name}
+                      name={field.name}
+                      checked={field.value}
+                      onCheckedChange={onChange}
+                      aria-invalid={fieldState.invalid}
+                    />
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+          </CardContent>
+        </Card>
+
+        <div className="flex gap-2">
+          <Button
+            variant={'outline'}
+            type="button"
+            onClick={() => form.reset()}
+          >
+            Cancelar
+          </Button>
+          <Button type="submit">Crear Equipo</Button>
+        </div>
+      </form>
+    </div>
+  );
+}

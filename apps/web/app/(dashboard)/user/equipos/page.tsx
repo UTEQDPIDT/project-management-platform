@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Header,
   HeaderAction,
@@ -10,8 +12,14 @@ import { PageContent } from '@/components/page-content';
 import { Button } from '@/components/ui/button';
 import React from 'react';
 import { Plus } from 'lucide-react';
+import { useAllTeams } from '@/hooks/team';
+import LoadingMessage from '@/components/loading-message';
+import { CreateTeamForm } from '@/components/forms/create-team-form';
 
 const Page = () => {
+  const { data: teams, isLoading: loadingTeams } = useAllTeams();
+  console.log('TEAMS', teams);
+
   return (
     <div>
       <Header>
@@ -29,7 +37,11 @@ const Page = () => {
         </HeaderAction>
       </Header>
       <PageContent>
-        <div>Equipos</div>
+        {loadingTeams ? (
+          <LoadingMessage message="Cargando equipos" />
+        ) : (
+          <CreateTeamForm />
+        )}
       </PageContent>
     </div>
   );
