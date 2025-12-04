@@ -13,3 +13,4 @@ export * from './enums/event-type.enum';
 export * from './user.type';
 export * from './division.type';
 export * from './programs.type';
+export * from './team.type';
