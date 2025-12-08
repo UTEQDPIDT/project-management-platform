@@ -473,7 +473,13 @@ export function CreateTeamForm() {
           >
             Restablecer
           </Button>
-          <Button type="submit">Crear equipo</Button>
+          <Button type="submit" disabled={createTeamMutation.isPending}>
+            {createTeamMutation.isPending ? (
+              <LoadingMessage message="Creando equipo" />
+            ) : (
+              'Crear equipo'
+            )}
+          </Button>
         </div>
       </form>
     </div>
