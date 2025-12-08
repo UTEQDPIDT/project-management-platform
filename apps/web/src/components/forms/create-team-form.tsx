@@ -1,17 +1,26 @@
 'use client';
 
-import { z } from 'zod';
+import { teamSchema } from '@/schemas/team.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { teamSchema } from '@/schemas/team.schema';
+import { z } from 'zod';
 
 import { useDivisions } from '@/hooks/catalogs';
 import { useCreateTeam } from '@/hooks/team';
 
 import { resolveEmails } from '@/services/user.service';
 
+import { Division, IResolvedEmail, TeamsGrade } from '@repo/types';
+import { PlusIcon, XIcon } from 'lucide-react';
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/card';
 import {
   Field,
   FieldContent,
@@ -24,29 +33,20 @@ import {
   FieldSet,
 } from '../ui/field';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
-import { Division, IResolvedEmail, TeamsGrade } from '@repo/types';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '../ui/card';
-import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
   InputGroupTextarea,
 } from '../ui/input-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 import { Switch } from '../ui/switch';
-import { PlusIcon, XIcon } from 'lucide-react';
 
 export function CreateTeamForm() {
   /**

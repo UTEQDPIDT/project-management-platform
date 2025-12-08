@@ -1,20 +1,18 @@
 'use client';
 
+import { CreateTeamForm } from '@/components/forms/create-team-form';
 import {
   Header,
   HeaderAction,
-  HeaderContent,
   HeaderDescription,
   HeaderHeading,
   HeaderTitle,
 } from '@/components/header';
 import { PageContent } from '@/components/page-content';
 import { Button } from '@/components/ui/button';
-import React from 'react';
-import { Plus } from 'lucide-react';
-import { useAllTeams } from '@/hooks/team';
-import { CreateTeamForm } from '@/components/forms/create-team-form';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import React from 'react';
 
 const Page = () => {
   return (
@@ -28,7 +26,10 @@ const Page = () => {
         </HeaderHeading>
         <HeaderAction>
           <Button asChild variant="outline">
-            <Link href={'/user/equipos'}>Cancelar</Link>
+            <Link href={'/user/equipos'}>
+              <ArrowLeft />
+              Cancelar
+            </Link>
           </Button>
         </HeaderAction>
       </Header>
