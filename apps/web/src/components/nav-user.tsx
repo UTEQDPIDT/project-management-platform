@@ -2,7 +2,6 @@
 
 import { LogOut, CircleUserRound, EllipsisVertical } from 'lucide-react';
 
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +19,7 @@ import {
   useSidebar,
 } from './ui/sidebar';
 
-import { User } from '@repo/types';
+import { IUser } from '@repo/types';
 import { logout } from '@/lib/auth/logout';
 import Link from 'next/link';
 import { ProfileInfo } from './profile-info';
@@ -29,7 +28,7 @@ export function NavUser({
   givenName,
   email,
   avatarUrl,
-}: Pick<User, 'givenName' | 'email' | 'avatarUrl'>) {
+}: Pick<IUser, 'givenName' | 'email' | 'avatarUrl'>) {
   const { isMobile } = useSidebar();
 
   return (
