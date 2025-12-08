@@ -103,7 +103,7 @@ export function CreateTeamForm() {
   return (
     <div>
       <form
-        className="flex flex-col gap-6"
+        className="flex flex-col gap-6 lg:max-w-2xl"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
         <Card>
@@ -177,7 +177,7 @@ export function CreateTeamForm() {
                   fieldState,
                 }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>División *</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>División</FieldLabel>
                     <Select {...field} onValueChange={onChange}>
                       <SelectTrigger
                         id={field.name}
@@ -399,9 +399,9 @@ export function CreateTeamForm() {
             type="button"
             onClick={() => form.reset()}
           >
-            Cancelar
+            Restablecer
           </Button>
-          <Button type="submit">Crear Equipo</Button>
+          <Button type="submit">Crear equipo</Button>
         </div>
       </form>
     </div>

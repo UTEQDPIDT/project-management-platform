@@ -15,7 +15,6 @@ import { Plus } from 'lucide-react';
 import { useAllTeams } from '@/hooks/team';
 import LoadingMessage from '@/components/loading-message';
 import { CreateTeamForm } from '@/components/forms/create-team-form';
-import Link from 'next/link';
 
 const Page = () => {
   const { data: teams, isLoading: loadingTeams } = useAllTeams();
@@ -25,26 +24,14 @@ const Page = () => {
     <div>
       <Header>
         <HeaderHeading>
-          <HeaderTitle>Equipos</HeaderTitle>
+          <HeaderTitle>Crear Equipo</HeaderTitle>
           <HeaderDescription>
             Encuentra equipos y gestiona los equipos a los que perteneces.
           </HeaderDescription>
         </HeaderHeading>
-        <HeaderAction>
-          <Button asChild>
-            <Link href={'/user/equipos/crear'}>
-              <Plus />
-              Crear Equipo
-            </Link>
-          </Button>
-        </HeaderAction>
       </Header>
-      <PageContent>
-        {loadingTeams ? (
-          <LoadingMessage message="Cargando equipos" />
-        ) : (
-          <div>Equipos</div>
-        )}
+      <PageContent className="items-center">
+        <CreateTeamForm />
       </PageContent>
     </div>
   );
