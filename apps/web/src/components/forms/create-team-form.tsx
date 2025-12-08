@@ -9,6 +9,8 @@ import { useDivisions } from '@/hooks/catalogs';
 import { useCreateTeam } from '@/hooks/team';
 import { useResolveEmails } from '@/hooks/user';
 
+import { resolveEmails } from '@/services/user.service';
+
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
 import {
@@ -29,7 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { Division, TeamsGrade } from '@repo/types';
+import { Division, IResolvedEmail, TeamsGrade } from '@repo/types';
 import {
   Card,
   CardContent,
@@ -91,9 +93,42 @@ export function CreateTeamForm() {
   /**
    * Handlers
    */
+  const onSubmit = async (data: z.infer<typeof teamSchema>) => {
+    try {
+      let resolvedMembersEmails;
+      let membersIds;
+      let resolvedCollaboratorsEmails;
+      let collaboratorsIds;
 
-  const onSubmit = (data: z.infer<typeof teamSchema>) => {
-    console.log(data);
+      if (data.members.length > 0) {
+        // resolve all emails -> userIds for members
+        resolvedMembersEmails = await resolveEmails(data.members);
+        // filter valid ids
+        membersIds = resolvedMembersEmails
+          .filter((m: IResolvedEmail) => m._id !== null)
+          .map((m: IResolvedEmail) => m._id);
+      }
+
+      if (data.collaborators.length > 0) {
+        resolvedCollaboratorsEmails = await resolveEmails(data.collaborators);
+
+        collaboratorsIds = resolvedCollaboratorsEmails
+          .filter((c: IResolvedEmail) => c._id !== null)
+          .map((c: IResolvedEmail) => c._id);
+      }
+
+      const cleanedData = {
+        ...data,
+        teamName: data.teamName === '' ? undefined : data.teamName,
+        summary: data.summary === '' ? undefined : data.summary,
+        division: data.division === '' ? undefined : data.division,
+        members: data.members.length > 0 ? membersIds : [],
+        collaborators: data.collaborators.length > 0 ? collaboratorsIds : [],
+      };
+      console.log('CLEANED DATA', cleanedData);
+    } catch (err) {
+      console.error('Error cleaning data', err);
+    }
   };
 
   const onError = (errors: any) => {

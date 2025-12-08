@@ -14,3 +14,4 @@ export * from './user.type';
 export * from './division.type';
 export * from './programs.type';
 export * from './team.type';
+export * from './resolved-email.type';

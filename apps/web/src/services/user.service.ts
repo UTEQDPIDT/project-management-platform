@@ -21,7 +21,7 @@ const getUserProfile = async () => {
 
 const resolveEmails = async (emails: string[]) => {
   try {
-    const { data } = await api.post('/users/resolve-emails', emails);
+    const { data } = await api.post('/users/resolve-emails', { emails });
     return data;
   } catch (err) {
     console.error('Error resolving user emails', err);
