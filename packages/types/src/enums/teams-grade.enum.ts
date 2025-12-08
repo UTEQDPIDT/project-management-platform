@@ -1,4 +1,4 @@
 export enum TeamsGrade {
-    FORMACION = 'FORMACION',
-    CONSOLIDADO = 'CONSOLIDADO'
+  FORMACION = 'En Formación',
+  CONSOLIDADO = 'Consolidado',
 }

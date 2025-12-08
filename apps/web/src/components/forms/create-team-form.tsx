@@ -239,6 +239,43 @@ export function CreateTeamForm() {
                   </Field>
                 )}
               />
+
+              <Controller
+                control={form.control}
+                name="grade"
+                render={({
+                  field: { onChange, onBlur, ...field },
+                  fieldState,
+                }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldContent>
+                      <FieldLabel htmlFor={field.name}>Grado</FieldLabel>
+                      <FieldDescription>
+                        Refiere al nivel de maduración del equipo.
+                      </FieldDescription>
+                    </FieldContent>
+                    <Select {...field} onValueChange={onChange}>
+                      <SelectTrigger
+                        id={field.name}
+                        onBlur={onBlur}
+                        aria-invalid={fieldState.invalid}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(TeamsGrade).map((grade) => (
+                          <SelectItem key={grade} value={grade}>
+                            {grade}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
             </FieldGroup>
           </CardContent>
         </Card>
