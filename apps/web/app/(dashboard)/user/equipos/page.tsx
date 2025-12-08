@@ -16,6 +16,8 @@ import { useAllTeams } from '@/hooks/team';
 import LoadingMessage from '@/components/loading-message';
 import { CreateTeamForm } from '@/components/forms/create-team-form';
 import Link from 'next/link';
+import { ITeam } from '@repo/types';
+import CardTeam from '@/components/card-team';
 
 const Page = () => {
   const { data: teams, isLoading: loadingTeams } = useAllTeams();
@@ -43,7 +45,19 @@ const Page = () => {
         {loadingTeams ? (
           <LoadingMessage message="Cargando equipos" />
         ) : (
-          <div>Equipos</div>
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+            {teams.map((team: ITeam) => (
+              <CardTeam
+                key={team._id}
+                teamName={team.teamName}
+                summary={team.summary}
+                grade={team.grade}
+                division={team.division}
+                members={team.members}
+                collaborators={team.collaborators}
+              />
+            ))}
+          </div>
         )}
       </PageContent>
     </div>
