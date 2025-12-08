@@ -47,8 +47,10 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Switch } from '../ui/switch';
+import { useRouter } from 'next/navigation';
 
 export function CreateTeamForm() {
+  const router = useRouter();
   /**
    * React Query Hooks
    */
@@ -126,6 +128,7 @@ export function CreateTeamForm() {
       };
       createTeamMutation.mutate(cleanedData);
       form.reset();
+      router.push('/user/equipos');
     } catch (err) {
       console.error('Error cleaning data', err);
     }
