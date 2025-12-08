@@ -5,7 +5,10 @@ import { z } from 'zod';
 const uteqEmail = /^[A-Za-z0-9._%+-]+@uteq\.edu\.mx$/i;
 
 export const teamSchema = z.object({
-  teamName: z.string().max(50, 'Excede el máximo de 50 carecteres'),
+  teamName: z
+    .string()
+    .min(1, 'El equipo debe tener un nombre')
+    .max(50, 'Excede el máximo de 50 carecteres'),
   division: mongoId.or(z.literal('')),
   summary: z.string().max(255, 'Excede el máximo de 255 carecteres').optional(),
   grade: z.enum(TeamsGrade),
