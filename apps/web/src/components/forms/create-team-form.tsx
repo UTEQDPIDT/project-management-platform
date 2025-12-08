@@ -124,8 +124,8 @@ export function CreateTeamForm() {
         members: data.members.length > 0 ? membersIds : [],
         collaborators: data.collaborators.length > 0 ? collaboratorsIds : [],
       };
-      console.log('CLEANED DATA', cleanedData);
       createTeamMutation.mutate(cleanedData);
+      form.reset();
     } catch (err) {
       console.error('Error cleaning data', err);
     }
