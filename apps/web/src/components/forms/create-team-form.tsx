@@ -40,10 +40,12 @@ import {
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput,
   InputGroupTextarea,
 } from '../ui/input-group';
 import { Switch } from '../ui/switch';
+import { PlusIcon, XIcon } from 'lucide-react';
 
 export function CreateTeamForm() {
   /**
@@ -52,7 +54,7 @@ export function CreateTeamForm() {
   const { data: divisions, isLoading: loadingDivisions } = useDivisions();
   const createTeamMutation = useCreateTeam();
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof teamSchema>>({
     resolver: zodResolver(teamSchema),
     defaultValues: {
       teamName: '',
@@ -65,14 +67,30 @@ export function CreateTeamForm() {
     },
   });
 
-  //   const {
-  //     fields: members,
-  //     append: addMember,
-  //     remove: removeMember,
-  //   } = useFieldArray({
-  //     control: form.control,
-  //     name: 'members',
-  //   });
+  /**
+   * Array Fields
+   */
+  const {
+    fields: members,
+    append: addMember,
+    remove: removeMember,
+  } = useFieldArray({
+    control: form.control,
+    name: 'members',
+  });
+
+  const {
+    fields: collaborators,
+    append: addCollaborator,
+    remove: removeCollaborator,
+  } = useFieldArray({
+    control: form.control,
+    name: 'collaborators',
+  });
+
+  /**
+   * Handlers
+   */
 
   const onSubmit = (data: z.infer<typeof teamSchema>) => {
     console.log(data);
@@ -198,32 +216,136 @@ export function CreateTeamForm() {
             </CardDescription>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="flex flex-col gap-6">
             <FieldSet>
-              <FieldGroup>
-                <Controller
-                  control={form.control}
-                  name="members"
-                  render={({
-                    field: { onChange, onBlur, ...field },
-                    fieldState,
-                  }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldContent>
-                        <FieldLabel htmlFor={field.name}>Miembros</FieldLabel>
-                        <FieldDescription>
-                          Los miembros tienen acceso completo a los proyectos
-                          del equipo.
-                        </FieldDescription>
-                      </FieldContent>
-
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
-                    </Field>
-                  )}
-                />
+              <FieldLegend variant="label" className="mb-2">
+                Miembros
+              </FieldLegend>
+              <FieldDescription>
+                Los miembros tienen acceso completo a los proyectos del equipo.
+              </FieldDescription>
+              <FieldGroup className="gap-4">
+                {members.map((member, idx) => (
+                  <Controller
+                    key={member.id}
+                    control={form.control}
+                    name={`members.${idx}`}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldContent>
+                          <InputGroup>
+                            <InputGroupInput
+                              {...field}
+                              id={`member-${idx}`}
+                              aria-label={`Member ${idx + 1}`}
+                              aria-invalid={fieldState.invalid}
+                              placeholder="nombre@uteq.edu.mx"
+                              type="email"
+                              autoComplete="email"
+                            />
+                            <InputGroupAddon align="inline-end">
+                              <InputGroupButton
+                                type="button"
+                                variant="ghost"
+                                size="icon-xs"
+                                onClick={() => removeMember(idx)}
+                                aria-label={`Remove member ${idx + 1}`}
+                              >
+                                <XIcon />
+                              </InputGroupButton>
+                            </InputGroupAddon>
+                          </InputGroup>
+                          {/* {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )} */}
+                        </FieldContent>
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addMember('')}
+                >
+                  <PlusIcon />
+                  Añadir miembro
+                </Button>
               </FieldGroup>
+              {form.formState.errors.members?.root && (
+                <FieldError errors={[form.formState.errors.members.root]} />
+              )}
+            </FieldSet>
+
+            <FieldSeparator />
+
+            <FieldSet>
+              <FieldLegend variant="label" className="mb-2">
+                Colaboradores
+              </FieldLegend>
+              <FieldDescription>
+                Los colaboradores tienen acceso límitado a los contenidos del
+                equipo, solo podrán visualizar y descargar contenidos.
+              </FieldDescription>
+              <FieldGroup className="gap-4">
+                {collaborators.map((collaborator, idx) => (
+                  <Controller
+                    key={collaborator.id}
+                    control={form.control}
+                    name={`collaborators.${idx}`}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldContent>
+                          <InputGroup>
+                            <InputGroupInput
+                              {...field}
+                              id={`collaborator-${idx}`}
+                              aria-label={`Colaborador ${idx + 1}`}
+                              aria-invalid={fieldState.invalid}
+                              placeholder="nombre@uteq.edu.mx"
+                              type="email"
+                              autoComplete="email"
+                            />
+                            <InputGroupAddon align="inline-end">
+                              <InputGroupButton
+                                type="button"
+                                variant="ghost"
+                                size="icon-xs"
+                                onClick={() => removeCollaborator(idx)}
+                                aria-label={`Remove collaborator ${idx + 1}`}
+                              >
+                                <XIcon />
+                              </InputGroupButton>
+                            </InputGroupAddon>
+                          </InputGroup>
+                          {/* {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )} */}
+                        </FieldContent>
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addCollaborator('')}
+                >
+                  <PlusIcon />
+                  Añadir colaborador
+                </Button>
+              </FieldGroup>
+              {form.formState.errors.members?.root && (
+                <FieldError errors={[form.formState.errors.members.root]} />
+              )}
             </FieldSet>
           </CardContent>
         </Card>

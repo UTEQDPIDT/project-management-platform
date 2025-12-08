@@ -7,7 +7,7 @@ export const teamSchema = z.object({
   division: mongoId.or(z.literal('')),
   summary: z.string().max(255, 'Excede el máximo de 255 carecteres').optional(),
   grade: z.enum(TeamsGrade),
-  collaborators: z.array(z.string().email('Correo inválido')).optional(),
-  members: z.array(z.string().email('Correo inválido')).optional(),
+  collaborators: z.array(z.string().email('Correo inválido')),
+  members: z.array(z.string().email('Correo inválido')),
   isPrivate: z.boolean(),
 });
