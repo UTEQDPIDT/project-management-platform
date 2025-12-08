@@ -7,7 +7,6 @@ import { teamSchema } from '@/schemas/team.schema';
 
 import { useDivisions } from '@/hooks/catalogs';
 import { useCreateTeam } from '@/hooks/team';
-import { useResolveEmails } from '@/hooks/user';
 
 import { resolveEmails } from '@/services/user.service';
 
@@ -119,13 +118,14 @@ export function CreateTeamForm() {
 
       const cleanedData = {
         ...data,
-        teamName: data.teamName === '' ? undefined : data.teamName,
+        teamName: data.teamName,
         summary: data.summary === '' ? undefined : data.summary,
         division: data.division === '' ? undefined : data.division,
         members: data.members.length > 0 ? membersIds : [],
         collaborators: data.collaborators.length > 0 ? collaboratorsIds : [],
       };
       console.log('CLEANED DATA', cleanedData);
+      createTeamMutation.mutate(cleanedData);
     } catch (err) {
       console.error('Error cleaning data', err);
     }

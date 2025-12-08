@@ -4,12 +4,13 @@ import { IUser } from './user.type';
 export interface ITeam {
   _id: string;
   teamName: string;
-  summary: string;
+  summary?: string;
+  division?: string;
   grade: TeamsGrade;
   owner: string | IUser;
   collaborators: string[] | IUser[];
   members: string[] | IUser[];
-  userRequests: IUser[];
+  userRequests: string[] | IUser[];
   isPrivate: boolean;
   createdAt: Date;
   updatedAt: Date;
