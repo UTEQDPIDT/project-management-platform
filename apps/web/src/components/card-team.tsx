@@ -16,9 +16,10 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
+import Link from 'next/link';
 
 export default function CardTeam({
-  _id,
+  _id: teamId,
   teamName,
   summary,
   division,
@@ -61,18 +62,20 @@ export default function CardTeam({
   const renderActionButton = () => {
     if (isOwner || isMember || isCollaborator) {
       return (
-        <Button variant="outline" size="sm">
-          <span className="flex gap-1 items-center">
-            <ExternalLink />
-            Visitar
-          </span>
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/user/equipos/${teamId}`}>
+            <span className="flex gap-1 items-center">
+              <ExternalLink />
+              Visitar
+            </span>
+          </Link>
         </Button>
       );
     }
     if (!hasRequested) {
       return (
         <Button
-          onClick={() => sendJoinRequestMutation.mutate(_id)}
+          onClick={() => sendJoinRequestMutation.mutate(teamId)}
           variant="outline"
           size="sm"
           disabled={sendJoinRequestMutation.isPending}

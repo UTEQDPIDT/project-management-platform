@@ -3,7 +3,6 @@
 import {
   Header,
   HeaderAction,
-  HeaderContent,
   HeaderDescription,
   HeaderHeading,
   HeaderTitle,
@@ -14,14 +13,12 @@ import React from 'react';
 import { Plus } from 'lucide-react';
 import { useAllTeams } from '@/hooks/team';
 import LoadingMessage from '@/components/loading-message';
-import { CreateTeamForm } from '@/components/forms/create-team-form';
 import Link from 'next/link';
 import { ITeam } from '@repo/types';
 import CardTeam from '@/components/card-team';
 
 const Page = () => {
   const { data: teams, isLoading: loadingTeams } = useAllTeams();
-  console.log('TEAMS', teams);
 
   return (
     <div>
