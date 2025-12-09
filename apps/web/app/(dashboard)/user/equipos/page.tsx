@@ -56,6 +56,8 @@ const Page = () => {
                 division={team.division}
                 members={team.members}
                 collaborators={team.collaborators}
+                owner={team.owner}
+                userRequests={team.userRequests}
               />
             ))}
           </div>

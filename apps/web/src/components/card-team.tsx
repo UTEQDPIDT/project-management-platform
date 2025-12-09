@@ -1,7 +1,10 @@
+import { useSendJoinRequest } from '@/hooks/team';
 import { BadgeVariants, ITeam, TeamsGrade } from '@repo/types';
-import { User, UserPlus, Users } from 'lucide-react';
+import { userProfile } from 'context/profile-provider';
+import { User, UserPlus, Users, ExternalLink } from 'lucide-react';
 import AvatarRow from './avatar-row';
 import IconSquare from './icon-square';
+import LoadingMessage from './loading-message';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import {
@@ -13,8 +16,6 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
-import { useSendJoinRequest } from '@/hooks/team';
-import LoadingMessage from './loading-message';
 
 export default function CardTeam({
   _id,
@@ -24,6 +25,8 @@ export default function CardTeam({
   grade,
   collaborators,
   members,
+  owner,
+  userRequests,
 }: Pick<
   ITeam,
   | '_id'
@@ -33,8 +36,64 @@ export default function CardTeam({
   | 'grade'
   | 'collaborators'
   | 'members'
+  | 'owner'
+  | 'userRequests'
 >) {
+  /**
+   * React Query
+   */
   const sendJoinRequestMutation = useSendJoinRequest();
+
+  /**
+   * Context
+   */
+  const { user } = userProfile();
+
+  /**
+   * Conditionally render buttons
+   */
+  const currentUserId = user._id;
+  const isOwner = owner?._id === currentUserId;
+  const isMember = members.some((m) => m._id === currentUserId);
+  const isCollaborator = collaborators.some((c) => c._id === currentUserId);
+  const hasRequested = userRequests.some((c) => c._id === currentUserId);
+
+  const renderActionButton = () => {
+    if (isOwner || isMember || isCollaborator) {
+      return (
+        <Button variant="outline" size="sm">
+          <span className="flex gap-1 items-center">
+            <ExternalLink />
+            Visitar
+          </span>
+        </Button>
+      );
+    }
+    if (!hasRequested) {
+      return (
+        <Button
+          onClick={() => sendJoinRequestMutation.mutate(_id)}
+          variant="outline"
+          size="sm"
+          disabled={sendJoinRequestMutation.isPending}
+        >
+          {sendJoinRequestMutation.isPending ? (
+            <LoadingMessage message="Enviando" />
+          ) : (
+            <span className="flex gap-1 items-center">
+              <UserPlus />
+              Unirse
+            </span>
+          )}
+        </Button>
+      );
+    }
+    return (
+      <Button variant="outline" size="sm" disabled>
+        Solicitud enviada
+      </Button>
+    );
+  };
 
   let badgeVariant:
     | 'default'
@@ -56,6 +115,9 @@ export default function CardTeam({
       break;
   }
 
+  /**
+   * Team member count
+   */
   // 1. Deduplicate using user._id BEFORE mapping
   const uniqueUsers = Array.from(
     new Map([...members, ...collaborators].map((u) => [u._id, u])).values(),
@@ -69,7 +131,7 @@ export default function CardTeam({
   }));
 
   return (
-    <Card className="max-w-md gap-6">
+    <Card className="w-full gap-6">
       <CardHeader>
         <div className="flex justify-between">
           <div className="flex gap-2 items-start">
@@ -103,23 +165,7 @@ export default function CardTeam({
             {uniqueUsers.length}
           </span>
         </div>
-        <CardAction>
-          <Button
-            onClick={() => sendJoinRequestMutation.mutate(_id)}
-            variant="outline"
-            size="sm"
-            disabled={sendJoinRequestMutation.isPending}
-          >
-            {sendJoinRequestMutation.isPending ? (
-              <LoadingMessage message="Enviando" />
-            ) : (
-              <span className="flex gap-1 items-center">
-                <UserPlus />
-                Unirse
-              </span>
-            )}
-          </Button>
-        </CardAction>
+        <CardAction>{renderActionButton()}</CardAction>
       </CardFooter>
     </Card>
   );
