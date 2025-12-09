@@ -35,13 +35,27 @@ export class TeamsService {
   }
 
   async findOne(id: string): Promise<Team> {
-    const team = await this.teamModel.findById(id).exec();
+    const team = await this.teamModel
+      .findById(id)
+      .populate('owner')
+      .populate('members')
+      .populate('collaborators')
+      .populate('division')
+      .populate('userRequests')
+      .exec();
     if (!team) throw new NotFoundException(`Team with ID: ${id} not found`);
     return team;
   }
 
   async findByOwner(ownerId: string): Promise<Team | null> {
-    const team = await this.teamModel.findOne({ owner: ownerId }).exec();
+    const team = await this.teamModel
+      .findOne({ owner: ownerId })
+      .populate('owner')
+      .populate('members')
+      .populate('collaborators')
+      .populate('division')
+      .populate('userRequests')
+      .exec();
     return team || null;
   }
 
