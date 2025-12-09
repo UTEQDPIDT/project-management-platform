@@ -23,13 +23,11 @@ import { IUser } from '@repo/types';
 import { logout } from '@/lib/auth/logout';
 import Link from 'next/link';
 import { ProfileInfo } from './profile-info';
+import { userProfile } from 'context/profile-provider';
 
-export function NavUser({
-  givenName,
-  email,
-  avatarUrl,
-}: Pick<IUser, 'givenName' | 'email' | 'avatarUrl'>) {
+export function NavUser() {
   const { isMobile } = useSidebar();
+  const { user } = userProfile();
 
   return (
     <SidebarMenu>
@@ -41,9 +39,9 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <ProfileInfo
-                givenName={givenName}
-                email={email}
-                avatarUrl={avatarUrl}
+                givenName={user.givenName}
+                email={user.email}
+                avatarUrl={user.avatarUrl}
               />
               <EllipsisVertical className="size-4 ml-auto" />
             </SidebarMenuButton>
@@ -56,9 +54,9 @@ export function NavUser({
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <ProfileInfo
-                givenName={givenName}
-                email={email}
-                avatarUrl={avatarUrl}
+                givenName={user.givenName}
+                email={user.email}
+                avatarUrl={user.avatarUrl}
               />
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
