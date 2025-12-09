@@ -8,10 +8,10 @@ export interface ITeam {
   summary?: string;
   division?: Division;
   grade: TeamsGrade;
-  owner: string | IUser;
-  collaborators: string[] | IUser[];
-  members: string[] | IUser[];
-  userRequests: string[] | IUser[];
+  owner: IUser;
+  collaborators: IUser[];
+  members: IUser[];
+  userRequests: IUser[];
   isPrivate: boolean;
   createdAt: Date;
   updatedAt: Date;
