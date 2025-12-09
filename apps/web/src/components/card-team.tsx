@@ -13,8 +13,11 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
+import { useSendJoinRequest } from '@/hooks/team';
+import LoadingMessage from './loading-message';
 
 export default function CardTeam({
+  _id,
   teamName,
   summary,
   division,
@@ -23,8 +26,16 @@ export default function CardTeam({
   members,
 }: Pick<
   ITeam,
-  'teamName' | 'summary' | 'division' | 'grade' | 'collaborators' | 'members'
+  | '_id'
+  | 'teamName'
+  | 'summary'
+  | 'division'
+  | 'grade'
+  | 'collaborators'
+  | 'members'
 >) {
+  const sendJoinRequestMutation = useSendJoinRequest();
+
   let badgeVariant:
     | 'default'
     | 'secondary'
@@ -93,9 +104,20 @@ export default function CardTeam({
           </span>
         </div>
         <CardAction>
-          <Button variant="outline" size="sm">
-            <UserPlus />
-            Unirse
+          <Button
+            onClick={() => sendJoinRequestMutation.mutate(_id)}
+            variant="outline"
+            size="sm"
+            disabled={sendJoinRequestMutation.isPending}
+          >
+            {sendJoinRequestMutation.isPending ? (
+              <LoadingMessage message="Enviando" />
+            ) : (
+              <span className="flex gap-1 items-center">
+                <UserPlus />
+                Unirse
+              </span>
+            )}
           </Button>
         </CardAction>
       </CardFooter>

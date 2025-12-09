@@ -49,6 +49,7 @@ const Page = () => {
             {teams.map((team: ITeam) => (
               <CardTeam
                 key={team._id}
+                _id={team._id}
                 teamName={team.teamName}
                 summary={team.summary}
                 grade={team.grade}

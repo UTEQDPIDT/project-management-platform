@@ -125,7 +125,7 @@ export class TeamsService {
 
     return await this.teamModel.findByIdAndUpdate(
       teamId,
-      { $addToSet: { requests: userId } },
+      { $addToSet: { userRequests: userId } },
       { new: true },
     );
   }
