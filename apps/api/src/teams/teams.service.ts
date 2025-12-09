@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,11 +11,10 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class TeamsService {
-
   constructor(@InjectModel(Team.name) private teamModel: Model<Team>) {}
 
   async create(createTeamDto: CreateTeamDto): Promise<Team> {
-    try{
+    try {
       const createdTeam = new this.teamModel(createTeamDto);
       return await createdTeam.save();
     } catch (err: any) {
@@ -21,10 +24,17 @@ export class TeamsService {
   }
 
   async findAll(): Promise<Team[]> {
-    return this.teamModel.find().exec();
+    return this.teamModel
+      .find()
+      .populate('owner')
+      .populate('members')
+      .populate('collaborators')
+      .populate('division')
+      .populate('userRequests')
+      .exec();
   }
 
-  async findOne(id: string): Promise<Team> { 
+  async findOne(id: string): Promise<Team> {
     const team = await this.teamModel.findById(id).exec();
     if (!team) throw new NotFoundException(`Team with ID: ${id} not found`);
     return team;
@@ -46,9 +56,7 @@ export class TeamsService {
       return updatedTeam;
     } catch (err: any) {
       if (err.code === 11000) {
-        throw new BadRequestException(
-          'Team with this name already exists',
-        );
+        throw new BadRequestException('Team with this name already exists');
       }
       throw new BadRequestException(err.message);
     }
@@ -59,23 +67,23 @@ export class TeamsService {
     if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
 
     if (!Array.isArray(userIds) || userIds.length === 0)
-      throw new BadRequestException("userIds must be a non-empty array");
+      throw new BadRequestException('userIds must be a non-empty array');
 
     // Convert collaborators to string IDs (populated or raw ObjectId)
     const existingIds = team.collaborators.map((c: any) =>
-      c._id ? c._id.toString() : c.toString()
+      c._id ? c._id.toString() : c.toString(),
     );
 
     // Filter IDs that are not already in the team
-    const newIds = userIds.filter(id => !existingIds.includes(id));
+    const newIds = userIds.filter((id) => !existingIds.includes(id));
 
     if (newIds.length === 0)
-      throw new BadRequestException("All users are already collaborators");
+      throw new BadRequestException('All users are already collaborators');
 
     return await this.teamModel.findByIdAndUpdate(
       teamId,
       { $addToSet: { collaborators: { $each: newIds } } },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -84,21 +92,21 @@ export class TeamsService {
     if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
 
     if (!Array.isArray(userIds) || userIds.length === 0)
-      throw new BadRequestException("userIds must be a non-empty array");
+      throw new BadRequestException('userIds must be a non-empty array');
 
     const existingIds = team.members.map((m: any) =>
-      m._id ? m._id.toString() : m.toString()
+      m._id ? m._id.toString() : m.toString(),
     );
 
-    const newIds = userIds.filter(id => !existingIds.includes(id));
+    const newIds = userIds.filter((id) => !existingIds.includes(id));
 
     if (newIds.length === 0)
-      throw new BadRequestException("All users are already members");
+      throw new BadRequestException('All users are already members');
 
     return await this.teamModel.findByIdAndUpdate(
       teamId,
       { $addToSet: { members: { $each: newIds } } },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -107,16 +115,18 @@ export class TeamsService {
     if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
 
     const existingRequests = team.userRequests.map((r: any) =>
-      r._id ? r._id.toString() : r.toString()
+      r._id ? r._id.toString() : r.toString(),
     );
 
     if (existingRequests.includes(userId))
-      throw new BadRequestException(`Request already exists for user ${userId}`);
+      throw new BadRequestException(
+        `Request already exists for user ${userId}`,
+      );
 
     return await this.teamModel.findByIdAndUpdate(
       teamId,
       { $addToSet: { requests: userId } },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -128,9 +138,9 @@ export class TeamsService {
       teamId,
       {
         $pull: { userRequests: userId },
-        $addToSet: { members: userId }
+        $addToSet: { members: userId },
       },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -138,7 +148,7 @@ export class TeamsService {
     return this.teamModel.findByIdAndUpdate(
       teamId,
       { $pull: { collaborators: userId } },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -146,7 +156,7 @@ export class TeamsService {
     return this.teamModel.findByIdAndUpdate(
       teamId,
       { $pull: { members: userId } },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -154,16 +164,16 @@ export class TeamsService {
     return this.teamModel.findByIdAndUpdate(
       teamId,
       { $pull: { requests: userId } },
-      { new: true }
+      { new: true },
     );
   }
 
   async deleteTeam(id: string): Promise<Team> {
-      const deletedTeam = await this.teamModel.findByIdAndDelete(id).exec();
+    const deletedTeam = await this.teamModel.findByIdAndDelete(id).exec();
 
-      if (!deletedTeam)
-          throw new NotFoundException(`Team with ID: ${id} not found`);
-        
-      return deletedTeam;
+    if (!deletedTeam)
+      throw new NotFoundException(`Team with ID: ${id} not found`);
+
+    return deletedTeam;
   }
 }

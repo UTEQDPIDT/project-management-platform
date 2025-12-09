@@ -9,7 +9,7 @@ import {
   CardAction,
 } from './ui/card';
 import { Button } from './ui/button';
-import { ITeam, TeamsGrade } from '@repo/types';
+import { BadgeVariants, ITeam, TeamsGrade } from '@repo/types';
 import { User, UserPlus, Users } from 'lucide-react';
 import IconSquare from './icon-square';
 import AvatarRow from './avatar-row';
@@ -26,35 +26,54 @@ export default function CardTeam({
   ITeam,
   'teamName' | 'summary' | 'division' | 'grade' | 'collaborators' | 'members'
 >) {
-  let badgeStyle;
+  let badgeVariant:
+    | 'default'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
+    | 'green'
+    | 'gray'
+    | 'pruple'
+    | 'orange'
+    | null
+    | undefined;
   switch (grade) {
     case TeamsGrade.FORMACION:
-      badgeStyle = 'bg-gray-200 text-gray-800 ';
+      badgeVariant = BadgeVariants.GREEN;
       break;
     case TeamsGrade.CONSOLIDADO:
-      badgeStyle = 'bg-green-100 text-green-800';
+      badgeVariant = BadgeVariants.GRAY;
       break;
   }
+
+  const profiles = [...members, ...collaborators];
+  console.log('Profiles', profiles);
 
   return (
     <Card className="max-w-md">
       <CardHeader>
         <div className="flex justify-between">
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-start">
             <IconSquare>
               <Users />
             </IconSquare>
             <div className="flex flex-col gap-1">
-              <CardTitle>{teamName}</CardTitle>
-              <CardDescription className="text-xs">{division}</CardDescription>
+              <CardTitle className="line-clamp-1 leading-5">
+                {teamName}
+              </CardTitle>
+              <CardDescription className="text-xs line-clamp-1">
+                {division?.name}
+              </CardDescription>
             </div>
           </div>
-          <Badge className={`${badgeStyle} h-6`}>{grade}</Badge>
+          <Badge variant={badgeVariant} className="h-6">
+            {grade}
+          </Badge>
         </div>
       </CardHeader>
       <CardContent>
         <CardDescription className="h-24">{summary}</CardDescription>
-        {/* <AvatarRow profiles={} /> */}
+        {/* <AvatarRow profiles={profiles} /> */}
       </CardContent>
       <CardFooter className="flex gap-2 justify-between items-end">
         <div>

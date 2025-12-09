@@ -9,6 +9,7 @@ export * from './enums/impact-level.enum';
 export * from './enums/sex-enum';
 export * from './enums/state.enum';
 export * from './enums/event-type.enum';
+export * from './enums/bagde-variants.enum';
 
 export * from './user.type';
 export * from './division.type';
