@@ -1,5 +1,6 @@
 'use client';
 
+import { CardMembers } from '@/components/card-members';
 import {
   Header,
   HeaderAction,
@@ -10,7 +11,7 @@ import {
 } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
-import TeamUserRequests from '@/components/team-user-requests';
+import { TeamUserRequests } from '@/components/team-user-requests';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -104,9 +105,12 @@ const Page = () => {
           </Header>
 
           <PageContent>
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
-              pagina de equipo cool
-            </div>
+            <CardMembers
+              teamId={teamId}
+              owner={team.owner}
+              members={team.members}
+              collaborators={team.collaborators}
+            />
           </PageContent>
         </div>
       )}

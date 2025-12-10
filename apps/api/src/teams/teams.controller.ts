@@ -110,7 +110,7 @@ export class TeamsController {
   @ApiNotFoundResponse({
     description: 'No se encontró el colaborador en el equipo.',
   })
-  @Delete(':id/collaborators/:userId/remove')
+  @Delete(':id/collaborators/:userId')
   removeCollaborator(@Param('id') id: string, @Param('userId') userId: string) {
     return this.teamsService.removeCollaborator(id, userId);
   }
@@ -119,7 +119,7 @@ export class TeamsController {
   @ApiNotFoundResponse({
     description: 'No se encontró el miembro en el equipo.',
   })
-  @Delete(':id/members/:userId/remove')
+  @Delete(':id/members/:userId')
   removeMember(@Param('id') id: string, @Param('userId') userId: string) {
     return this.teamsService.removeMember(id, userId);
   }

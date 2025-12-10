@@ -70,9 +70,7 @@ const addMembers = async (teamId: string, collaborators: string[]) => {
 
 const removeMember = async (teamId: string, userId: string) => {
   try {
-    const { data } = await api.delete(
-      `/teams/${teamId}/collaborators/${userId}`,
-    );
+    const { data } = await api.delete(`/teams/${teamId}/members/${userId}`);
     return data;
   } catch (err) {
     console.error('Error removing collaborator', err);

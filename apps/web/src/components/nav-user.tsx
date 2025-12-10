@@ -15,11 +15,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSubButton,
   useSidebar,
 } from './ui/sidebar';
 
-import { IUser } from '@repo/types';
 import { logout } from '@/lib/auth/logout';
 import Link from 'next/link';
 import { ProfileInfo } from './profile-info';
@@ -40,6 +38,7 @@ export function NavUser() {
             >
               <ProfileInfo
                 givenName={user.givenName}
+                familyName={user.familyName}
                 email={user.email}
                 avatarUrl={user.avatarUrl}
               />
@@ -55,6 +54,7 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <ProfileInfo
                 givenName={user.givenName}
+                familyName={user.familyName}
                 email={user.email}
                 avatarUrl={user.avatarUrl}
               />

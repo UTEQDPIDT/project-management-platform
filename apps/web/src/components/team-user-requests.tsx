@@ -4,7 +4,7 @@ import React from 'react';
 import { ProfileInfo } from './profile-info';
 import { Button } from './ui/button';
 
-export default function TeamUserRequests({
+export function TeamUserRequests({
   teamId,
   request,
 }: {
@@ -24,6 +24,7 @@ export default function TeamUserRequests({
           <div className="flex justify-between gap-4 items-center">
             <ProfileInfo
               givenName={user.givenName}
+              familyName={user.familyName}
               email={user.email}
               avatarUrl={user.avatarUrl}
             />
