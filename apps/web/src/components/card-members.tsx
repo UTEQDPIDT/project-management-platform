@@ -45,8 +45,10 @@ export function CardMembers({
             <Users />
           </IconSquare>
           <div className="flex flex-col gap-1">
-            <CardTitle>Integrantes del Equipo</CardTitle>
-            <CardDescription>Quienes componen tu equipo</CardDescription>
+            <CardTitle>{name ? name : 'Integrantes del Equipo'}</CardTitle>
+            <CardDescription>
+              {division ? division.name : 'Quienes componen tu equipo'}
+            </CardDescription>
           </div>
         </div>
 
