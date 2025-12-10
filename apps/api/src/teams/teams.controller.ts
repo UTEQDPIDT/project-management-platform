@@ -27,9 +27,9 @@ export class TeamsController {
 
   @ApiCreatedResponse({ description: 'Equipo creado correctamente.' })
   @Post()
-  //@AuthGuard(JwtAuthGuard)
-  create(@Body() createTeamDto: CreateTeamDto) {
-    return this.teamsService.create(createTeamDto);
+  @UseGuards(JwtAuthGuard)
+  create(@Body() createTeamDto: CreateTeamDto, @Req() req) {
+    return this.teamsService.create(createTeamDto, req.user.id);
   }
 
   @ApiCreatedResponse({

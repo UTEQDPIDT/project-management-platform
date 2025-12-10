@@ -13,10 +13,13 @@ import { Model } from 'mongoose';
 export class TeamsService {
   constructor(@InjectModel(Team.name) private teamModel: Model<Team>) {}
 
-  async create(createTeamDto: CreateTeamDto): Promise<Team> {
+  async create(createTeamDto: CreateTeamDto, userId: string): Promise<Team> {
     try {
-      const createdTeam = new this.teamModel(createTeamDto);
-      return await createdTeam.save();
+      const createdTeam = await this.teamModel.create({
+        ...createTeamDto,
+        owner: userId,
+      });
+      return createdTeam;
     } catch (err: any) {
       console.error('Error creating team:', err);
       throw new BadRequestException('Error al crear el equipo.');

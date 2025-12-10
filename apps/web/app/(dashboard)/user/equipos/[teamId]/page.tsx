@@ -10,7 +10,6 @@ import {
 } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
-import { ProfileInfo } from '@/components/profile-info';
 import TeamUserRequests from '@/components/team-user-requests';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,8 +20,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
-import { useAcceptRequest, useRejectRequest, useTeam } from '@/hooks/team';
-import { BadgeVariants, IUser, TeamsGrade } from '@repo/types';
+import { useTeam } from '@/hooks/team';
+import { BadgeVariants, TeamsGrade } from '@repo/types';
 import { Bell, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
