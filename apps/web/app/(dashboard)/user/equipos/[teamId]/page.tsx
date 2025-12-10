@@ -14,15 +14,32 @@ import React from 'react';
 import { Pencil, Bell } from 'lucide-react';
 import LoadingMessage from '@/components/loading-message';
 import Link from 'next/link';
-import { BadgeVariants, ITeam, TeamsGrade } from '@repo/types';
-import { useTeam } from '@/hooks/team';
+import { BadgeVariants, ITeam, IUser, TeamsGrade } from '@repo/types';
+import { useAcceptRequest, useTeam } from '@/hooks/team';
 import { useParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ProfileInfo } from '@/components/profile-info';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 const Page = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const { data: team, isLoading: loadingTeam } = useTeam(teamId);
   console.log('TEAM DATA', team);
+  const acceptRequestMutation = useAcceptRequest();
 
   let badgeVariant:
     | 'default'
@@ -63,9 +80,61 @@ const Page = () => {
             </HeaderContent>
 
             <HeaderAction>
-              <Button variant="outline" size="icon">
-                <Bell />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Bell />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
+                  <Separator />
+                  {team.userRequests.length > 0 ? (
+                    <div className="flex flex-col px-2 pb-3 gap-3 overflow-y-auto max-h-96 snap-y">
+                      <span className="text-muted-foreground text-xs snap-start pt-4">
+                        Solicitudes de acceso
+                      </span>
+                      {team.userRequests.map((user: IUser) => (
+                        <div
+                          key={user._id}
+                          className="flex flex-col snap-start"
+                        >
+                          <div className="flex justify-between gap-4 items-center">
+                            <ProfileInfo
+                              givenName={user.givenName}
+                              email={user.email}
+                              avatarUrl={user.avatarUrl}
+                            />
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline">
+                                Rechazar
+                              </Button>
+                              <Button
+                                disabled={acceptRequestMutation.isPending}
+                                size="sm"
+                                onClick={() =>
+                                  acceptRequestMutation.mutate({
+                                    teamId: teamId,
+                                    userId: user._id,
+                                  })
+                                }
+                              >
+                                Aceptar
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="px-2 py-3">
+                      <span className="text-muted-foreground text-sm">
+                        No hay notificaciones
+                      </span>
+                    </div>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <Button variant="outline" asChild>
                 <Link href={'/user/equipos/editar'}>

@@ -112,7 +112,9 @@ const sendJoinRequest = async (teamId: string) => {
 
 const acceptRequest = async (teamId: string, userId: string) => {
   try {
-    const { data } = await api.post(`/teams/${teamId}/requests/accept`, userId);
+    const { data } = await api.post(`/teams/${teamId}/requests/accept`, {
+      userId: userId,
+    });
     return data;
   } catch (err) {
     console.error('Error accepting user request', err);
