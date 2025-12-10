@@ -1,0 +1,59 @@
+'use client';
+
+import { UpdateTeamForm } from '@/components/forms/update-team-form';
+import {
+  Header,
+  HeaderAction,
+  HeaderHeading,
+  HeaderTitle,
+} from '@/components/header';
+import LoadingMessage from '@/components/loading-message';
+import { PageContent } from '@/components/page-content';
+import { Button } from '@/components/ui/button';
+import { useTeam } from '@/hooks/team';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+
+const Page = () => {
+  const { teamId } = useParams<{ teamId: string }>();
+  const { data: team, isLoading: loadingTeam } = useTeam(teamId);
+  console.log('TEAM DATA', team);
+
+  return (
+    <div>
+      <Header>
+        <HeaderHeading>
+          <HeaderTitle>Editar Equipo</HeaderTitle>
+        </HeaderHeading>
+        <HeaderAction>
+          <Button asChild variant="outline">
+            <Link href={`/user/equipos/${teamId}`}>
+              <ArrowLeft />
+              Cancelar
+            </Link>
+          </Button>
+        </HeaderAction>
+      </Header>
+      <PageContent className="items-center">
+        {loadingTeam ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <LoadingMessage />
+          </div>
+        ) : (
+          <UpdateTeamForm
+            _id={team._id}
+            teamName={team.teamName}
+            summary={team.summary}
+            division={team.division}
+            grade={team.grade}
+            members={team.members}
+            collaborators={team.collaborators}
+            isPrivate={team.isPrivate}
+          />
+        )}
+      </PageContent>
+    </div>
+  );
+};
+export default Page;

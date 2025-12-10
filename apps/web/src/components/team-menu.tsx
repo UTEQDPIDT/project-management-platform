@@ -41,7 +41,7 @@ export function TeamMenu({ teamId, name }: { teamId: string; name: string }) {
             variant="ghost"
             asChild
           >
-            <Link href={'/user/equipos/editar'}>
+            <Link href={`/user/equipos/${teamId}/editar`}>
               <Pencil />
               Editar
             </Link>

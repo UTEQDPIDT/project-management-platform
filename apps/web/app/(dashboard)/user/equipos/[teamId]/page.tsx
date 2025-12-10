@@ -24,14 +24,12 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { useTeam } from '@/hooks/team';
 import { BadgeVariants, TeamsGrade } from '@repo/types';
-import { Bell, Pencil } from 'lucide-react';
-import Link from 'next/link';
+import { Bell } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 const Page = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const { data: team, isLoading: loadingTeam } = useTeam(teamId);
-  console.log('TEAM DATA', team);
 
   let badgeVariant:
     | 'default'

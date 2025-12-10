@@ -5,7 +5,8 @@ export function useUpdateTeam() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ teamId, teamData }: any) => updateTeam(teamId, teamData),
+    mutationFn: ({ teamId, teamData }: { teamId: string; teamData: any }) =>
+      updateTeam(teamId, teamData),
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: ['team', teamId] });
       queryClient.invalidateQueries({ queryKey: ['teams'] });
