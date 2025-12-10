@@ -15,7 +15,7 @@ import { useAllTeams } from '@/hooks/team';
 import LoadingMessage from '@/components/loading-message';
 import Link from 'next/link';
 import { ITeam } from '@repo/types';
-import CardTeam from '@/components/card-team';
+import TeamCard from '@/components/team-card';
 
 const Page = () => {
   const { data: teams, isLoading: loadingTeams } = useAllTeams();
@@ -44,7 +44,7 @@ const Page = () => {
         ) : (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
             {teams.map((team: ITeam) => (
-              <CardTeam
+              <TeamCard
                 key={team._id}
                 _id={team._id}
                 teamName={team.teamName}

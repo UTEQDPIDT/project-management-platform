@@ -18,7 +18,7 @@ import {
 } from './ui/card';
 import Link from 'next/link';
 
-export default function CardTeam({
+export default function TeamCard({
   _id: teamId,
   teamName,
   summary,
