@@ -18,7 +18,6 @@ import { useParams } from 'next/navigation';
 const Page = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const { data: team, isLoading: loadingTeam } = useTeam(teamId);
-  console.log('TEAM DATA', team);
 
   return (
     <div>

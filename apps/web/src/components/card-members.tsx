@@ -89,7 +89,7 @@ export function CardMembers({
               <DropdownMenuContent>
                 <Button
                   size="sm"
-                  className="w-full justify-start font-normal"
+                  className="w-full justify-start font-normal bg-transparent hover:bg-accent"
                   variant="destructive"
                   disabled={removeMember.isPending}
                   onClick={() => removeMember.mutate({ teamId, userId: m._id })}
@@ -119,7 +119,7 @@ export function CardMembers({
               <DropdownMenuContent>
                 <Button
                   size="sm"
-                  className="w-full justify-start font-normal"
+                  className="w-full justify-start font-normal bg-transparent hover:bg-accent"
                   variant="destructive"
                   disabled={removeCollaborator.isPending}
                   onClick={() =>

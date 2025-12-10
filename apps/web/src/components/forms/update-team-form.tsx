@@ -7,7 +7,7 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { useDivisions } from '@/hooks/catalogs';
-import { useCreateTeam, useUpdateTeam } from '@/hooks/team';
+import { useUpdateTeam } from '@/hooks/team';
 
 import { resolveEmails } from '@/services/user.service';
 
