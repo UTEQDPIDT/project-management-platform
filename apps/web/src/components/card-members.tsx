@@ -26,6 +26,7 @@ export function CardMembers({
   owner,
   members,
   collaborators,
+  redirect = false,
 }: {
   teamId: string;
   name?: string;
@@ -33,6 +34,7 @@ export function CardMembers({
   owner: IUser;
   members?: IUser[];
   collaborators?: IUser[];
+  redirect?: boolean;
 }) {
   const removeMember = useRemoveMember();
   const removeCollaborator = useRemoveCollaborator();
@@ -52,11 +54,13 @@ export function CardMembers({
           </div>
         </div>
 
-        <Button variant="link" title="Visitar">
-          <Link href={`/user/equipos/${teamId}`}>
-            <ExternalLink />
-          </Link>
-        </Button>
+        {redirect && (
+          <Button variant="link" title="Visitar">
+            <Link href={`/user/equipos/${teamId}`}>
+              <ExternalLink />
+            </Link>
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <span className="text-muted-foreground text-sm">Dueño</span>
