@@ -11,6 +11,7 @@ import {
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
 import { ProfileInfo } from '@/components/profile-info';
+import TeamUserRequests from '@/components/team-user-requests';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,8 +31,6 @@ const Page = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const { data: team, isLoading: loadingTeam } = useTeam(teamId);
   console.log('TEAM DATA', team);
-  const acceptRequestMutation = useAcceptRequest();
-  const rejectRequestMutation = useRejectRequest();
 
   let badgeVariant:
     | 'default'
@@ -82,52 +81,10 @@ const Page = () => {
                   <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
                   <Separator />
                   {team.userRequests.length > 0 ? (
-                    <div className="flex flex-col px-2 pb-3 gap-3 overflow-y-auto max-h-96 snap-y">
-                      <span className="text-muted-foreground text-xs snap-start pt-4">
-                        Solicitudes de acceso
-                      </span>
-                      {team.userRequests.map((user: IUser) => (
-                        <div
-                          key={user._id}
-                          className="flex flex-col snap-start"
-                        >
-                          <div className="flex justify-between gap-4 items-center">
-                            <ProfileInfo
-                              givenName={user.givenName}
-                              email={user.email}
-                              avatarUrl={user.avatarUrl}
-                            />
-                            <div className="flex gap-2">
-                              <Button
-                                disabled={rejectRequestMutation.isPending}
-                                size="sm"
-                                variant="outline"
-                                onClick={() =>
-                                  rejectRequestMutation.mutate({
-                                    teamId: teamId,
-                                    userId: user._id,
-                                  })
-                                }
-                              >
-                                Rechazar
-                              </Button>
-                              <Button
-                                disabled={acceptRequestMutation.isPending}
-                                size="sm"
-                                onClick={() =>
-                                  acceptRequestMutation.mutate({
-                                    teamId: teamId,
-                                    userId: user._id,
-                                  })
-                                }
-                              >
-                                Aceptar
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    <TeamUserRequests
+                      teamId={teamId}
+                      request={team.userRequests}
+                    />
                   ) : (
                     <div className="px-2 py-3">
                       <span className="text-muted-foreground text-sm">
