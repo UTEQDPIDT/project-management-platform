@@ -1,4 +1,11 @@
+import { useRemoveCollaborator, useRemoveMember } from '@/hooks/team';
+import { Division, IUser } from '@repo/types';
+import { Ellipsis, ExternalLink, UserMinus, Users } from 'lucide-react';
+import Link from 'next/link';
 import React from 'react';
+import IconSquare from './icon-square';
+import { ProfileInfo } from './profile-info';
+import { Button } from './ui/button';
 import {
   Card,
   CardContent,
@@ -6,18 +13,11 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
-import { ProfileInfo } from './profile-info';
-import { Division, IUser } from '@repo/types';
-import { Button } from './ui/button';
-import Link from 'next/link';
-import { Ellipsis, ExternalLink, Trash, UserMinus, Users } from 'lucide-react';
-import IconSquare from './icon-square';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { useRemoveCollaborator, useRemoveMember } from '@/hooks/team';
 
 export function CardMembers({
   teamId,
