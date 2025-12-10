@@ -8,38 +8,30 @@ import {
   HeaderHeading,
   HeaderTitle,
 } from '@/components/header';
-import { PageContent } from '@/components/page-content';
-import { Button } from '@/components/ui/button';
-import React from 'react';
-import { Pencil, Bell } from 'lucide-react';
 import LoadingMessage from '@/components/loading-message';
-import Link from 'next/link';
-import { BadgeVariants, ITeam, IUser, TeamsGrade } from '@repo/types';
-import { useAcceptRequest, useTeam } from '@/hooks/team';
-import { useParams } from 'next/navigation';
+import { PageContent } from '@/components/page-content';
+import { ProfileInfo } from '@/components/profile-info';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ProfileInfo } from '@/components/profile-info';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-} from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useAcceptRequest, useRejectRequest, useTeam } from '@/hooks/team';
+import { BadgeVariants, IUser, TeamsGrade } from '@repo/types';
+import { Bell, Pencil } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 const Page = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const { data: team, isLoading: loadingTeam } = useTeam(teamId);
   console.log('TEAM DATA', team);
   const acceptRequestMutation = useAcceptRequest();
+  const rejectRequestMutation = useRejectRequest();
 
   let badgeVariant:
     | 'default'
@@ -106,7 +98,17 @@ const Page = () => {
                               avatarUrl={user.avatarUrl}
                             />
                             <div className="flex gap-2">
-                              <Button size="sm" variant="outline">
+                              <Button
+                                disabled={rejectRequestMutation.isPending}
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  rejectRequestMutation.mutate({
+                                    teamId: teamId,
+                                    userId: user._id,
+                                  })
+                                }
+                              >
                                 Rechazar
                               </Button>
                               <Button

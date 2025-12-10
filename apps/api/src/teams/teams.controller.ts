@@ -68,11 +68,20 @@ export class TeamsController {
 
   @ApiCreatedResponse({ description: 'Solicitud aceptada correctamente.' })
   @ApiNotFoundResponse({
-    description: 'No se encontró la solicitud para aceptar.',
+    description: 'No se encontró la solicitud.',
   })
   @Post(':id/requests/accept')
   acceptRequest(@Param('id') id: string, @Body('userId') userId: string) {
     return this.teamsService.acceptRequest(id, userId);
+  }
+
+  @ApiCreatedResponse({ description: 'Solicitud rechazada correctamente.' })
+  @ApiNotFoundResponse({
+    description: 'No se encontró la solicitud.',
+  })
+  @Post(':id/requests/reject')
+  rejectRequest(@Param('id') id: string, @Body('userId') userId: string) {
+    return this.teamsService.rejectRequest(id, userId);
   }
 
   @ApiOkResponse({ description: 'Lista de equipos obtenida correctamente.' })
@@ -113,13 +122,6 @@ export class TeamsController {
   @Delete(':id/members/:userId/remove')
   removeMember(@Param('id') id: string, @Param('userId') userId: string) {
     return this.teamsService.removeMember(id, userId);
-  }
-
-  @ApiOkResponse({ description: 'Solicitud eliminada correctamente.' })
-  @ApiNotFoundResponse({ description: 'No se encontró la solicitud.' })
-  @Delete(':id/requests/:userId/remove')
-  removeRequest(@Param('id') id: string, @Param('userId') userId: string) {
-    return this.teamsService.removeRequest(id, userId);
   }
 
   @ApiOkResponse({ description: 'Equipo eliminado correctamente.' })

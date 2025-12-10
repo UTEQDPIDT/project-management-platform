@@ -9,3 +9,4 @@ export * from './use-add-collaborators';
 export * from './use-remove-collaborator';
 export * from './use-send-join-request';
 export * from './use-accept-request';
+export * from './use-reject-request';

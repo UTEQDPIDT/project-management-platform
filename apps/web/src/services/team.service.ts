@@ -121,6 +121,17 @@ const acceptRequest = async (teamId: string, userId: string) => {
   }
 };
 
+const rejectRequest = async (teamId: string, userId: string) => {
+  try {
+    const { data } = await api.post(`/teams/${teamId}/requests/reject`, {
+      userId: userId,
+    });
+    return data;
+  } catch (err) {
+    console.error('Error rejecting user request', err);
+  }
+};
+
 export {
   getAllTeams,
   getTeam,
@@ -133,4 +144,5 @@ export {
   removeCollaborator,
   sendJoinRequest,
   acceptRequest,
+  rejectRequest,
 };

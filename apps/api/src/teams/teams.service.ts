@@ -158,6 +158,19 @@ export class TeamsService {
     );
   }
 
+  async rejectRequest(teamId: string, userId: string): Promise<Team> {
+    const team = await this.teamModel.findById(teamId).exec();
+    if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
+
+    return await this.teamModel.findByIdAndUpdate(
+      teamId,
+      {
+        $pull: { userRequests: userId },
+      },
+      { new: true },
+    );
+  }
+
   async removeCollaborator(teamId: string, userId: string): Promise<Team> {
     return this.teamModel.findByIdAndUpdate(
       teamId,
@@ -170,14 +183,6 @@ export class TeamsService {
     return this.teamModel.findByIdAndUpdate(
       teamId,
       { $pull: { members: userId } },
-      { new: true },
-    );
-  }
-
-  async removeRequest(teamId: string, userId: string): Promise<Team> {
-    return this.teamModel.findByIdAndUpdate(
-      teamId,
-      { $pull: { requests: userId } },
       { new: true },
     );
   }
