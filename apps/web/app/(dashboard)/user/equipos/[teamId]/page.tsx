@@ -11,6 +11,7 @@ import {
 } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
+import { TeamMenu } from '@/components/team-menu';
 import { TeamUserRequests } from '@/components/team-user-requests';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -95,12 +96,7 @@ const Page = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Button variant="outline" asChild>
-                <Link href={'/user/equipos/editar'}>
-                  <Pencil />
-                  Editar
-                </Link>
-              </Button>
+              <TeamMenu teamId={teamId} name={team.teamName} />
             </HeaderAction>
           </Header>
 
