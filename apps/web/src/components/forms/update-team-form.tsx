@@ -49,6 +49,7 @@ import {
 } from '../ui/select';
 import { Switch } from '../ui/switch';
 import { useRouter } from 'next/navigation';
+import { userProfile } from 'context/profile-provider';
 
 export function UpdateTeamForm({
   _id: teamId,
@@ -71,14 +72,18 @@ export function UpdateTeamForm({
   | 'isPrivate'
 >) {
   const router = useRouter();
+
+  const { user } = userProfile();
+
   /**
    * React Query Hooks
    */
   const { data: divisions, isLoading: loadingDivisions } = useDivisions();
   const updateTeam = useUpdateTeam();
 
-  const form = useForm<z.infer<typeof teamSchema>>({
-    resolver: zodResolver(teamSchema),
+  const form = useForm<z.infer<ReturnType<typeof teamSchema>>>({
+    resolver: zodResolver(teamSchema(user.email)),
+    mode: 'onChange',
     defaultValues: {
       teamName: teamName || '',
       summary: summary || '',
@@ -114,7 +119,7 @@ export function UpdateTeamForm({
   /**
    * Handlers
    */
-  const onSubmit = async (data: z.infer<typeof teamSchema>) => {
+  const onSubmit = async (data: z.infer<ReturnType<typeof teamSchema>>) => {
     try {
       let resolvedMembersEmails;
       let membersIds;
@@ -350,17 +355,23 @@ export function UpdateTeamForm({
                               </InputGroupButton>
                             </InputGroupAddon>
                           </InputGroup>
-                          {/* {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
-                            )} */}
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
                         </FieldContent>
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
                       </Field>
                     )}
                   />
                 ))}
+                {form.formState.errors.members?.root?.message && (
+                  <FieldError
+                    errors={[
+                      {
+                        message: form.formState.errors.members.root.message,
+                      },
+                    ]}
+                  />
+                )}
                 <Button
                   type="button"
                   variant="outline"
@@ -371,9 +382,6 @@ export function UpdateTeamForm({
                   Añadir miembro
                 </Button>
               </FieldGroup>
-              {form.formState.errors.members?.root && (
-                <FieldError errors={[form.formState.errors.members.root]} />
-              )}
             </FieldSet>
 
             <FieldSeparator />
@@ -417,17 +425,24 @@ export function UpdateTeamForm({
                               </InputGroupButton>
                             </InputGroupAddon>
                           </InputGroup>
-                          {/* {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
-                            )} */}
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
                         </FieldContent>
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
                       </Field>
                     )}
                   />
                 ))}
+                {form.formState.errors.collaborators?.root?.message && (
+                  <FieldError
+                    errors={[
+                      {
+                        message:
+                          form.formState.errors.collaborators.root.message,
+                      },
+                    ]}
+                  />
+                )}
                 <Button
                   type="button"
                   variant="outline"
@@ -438,9 +453,6 @@ export function UpdateTeamForm({
                   Añadir colaborador
                 </Button>
               </FieldGroup>
-              {form.formState.errors.members?.root && (
-                <FieldError errors={[form.formState.errors.members.root]} />
-              )}
             </FieldSet>
           </CardContent>
         </Card>

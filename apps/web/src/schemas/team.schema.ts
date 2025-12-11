@@ -4,25 +4,39 @@ import { z } from 'zod';
 
 const uteqEmail = /^[A-Za-z0-9._%+-]+@uteq\.edu\.mx$/i;
 
-export const teamSchema = z.object({
-  teamName: z
-    .string()
-    .min(1, 'El equipo debe tener un nombre')
-    .max(50, 'Excede el máximo de 50 carecteres'),
-  division: mongoId.or(z.literal('')),
-  summary: z.string().max(255, 'Excede el máximo de 255 carecteres').optional(),
-  grade: z.enum(TeamsGrade),
-  collaborators: z.array(
-    z
+export const teamSchema = (ownerEmail: string) =>
+  z.object({
+    teamName: z
       .string()
-      .email('Correo inválido')
-      .regex(uteqEmail, 'El correo debe ser institucional'),
-  ),
-  members: z.array(
-    z
+      .min(1, 'El equipo debe tener un nombre')
+      .max(50, 'Excede el máximo de 50 carecteres'),
+    division: mongoId.or(z.literal('')),
+    summary: z
       .string()
-      .email('Correo inválido')
-      .regex(uteqEmail, 'El correo debe ser institucional'),
-  ),
-  isPrivate: z.boolean(),
-});
+      .max(255, 'Excede el máximo de 255 carecteres')
+      .optional(),
+    grade: z.enum(TeamsGrade),
+    collaborators: z
+      .array(
+        z
+          .string()
+          .email('Correo inválido')
+          .regex(uteqEmail, 'El correo debe ser institucional'),
+      )
+      .refine(
+        (values) => !values.includes(ownerEmail),
+        'No puedes agregarte a ti como colaborador.',
+      ),
+    members: z
+      .array(
+        z
+          .string()
+          .email('Correo inválido')
+          .regex(uteqEmail, 'El correo debe ser institucional'),
+      )
+      .refine(
+        (values) => !values.includes(ownerEmail),
+        'No puedes agregarte a ti como miembro.',
+      ),
+    isPrivate: z.boolean(),
+  });
