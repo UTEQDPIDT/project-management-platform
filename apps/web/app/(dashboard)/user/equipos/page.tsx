@@ -18,7 +18,7 @@ import { ITeam } from '@repo/types';
 import TeamCard from '@/components/team-card';
 
 const Page = () => {
-  const { data: teams, isLoading: loadingTeams } = useAllTeams();
+  const { data: teams, isLoading: loadingTeams } = useAllTeams(false);
 
   return (
     <div>

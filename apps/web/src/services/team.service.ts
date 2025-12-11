@@ -1,9 +1,17 @@
 import { api } from '@/lib/axios';
-import { ITeam, IUser } from '@repo/types';
+import { ITeam } from '@repo/types';
 
-const getAllTeams = async () => {
+const getAllTeams = async (isPrivate?: boolean) => {
+  let url;
+
+  if (isPrivate !== undefined) {
+    url = `/teams?isPrivate=${isPrivate}`;
+  } else {
+    url = '/teams';
+  }
+
   try {
-    const { data } = await api.get('/teams?isPrivate=false');
+    const { data } = await api.get(url);
     return data;
   } catch (err) {
     console.error('Error fetching teams', err);
