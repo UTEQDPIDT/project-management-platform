@@ -3,7 +3,6 @@ import mongoose, { Document} from 'mongoose';
 import { User } from './user.schema';
 import { ApiProperty } from '@nestjs/swagger';
 import { Priority, Status } from '@repo/types';
-import { File } from './file.schema';
 
 @Schema({ timestamps: true })
 export class Activity extends Document {

@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -17,11 +13,7 @@ export class ActivitiesService {
     private readonly filesService: FilesService,
   ) {}
 
-  async create(
-    createActivityDto: CreateActivityDto,
-    userId: string,
-    files?: Express.Multer.File[],
-  ): Promise<Activity> {
+  async create(createActivityDto: CreateActivityDto, userId: string, files?: Express.Multer.File[]): Promise<Activity> {
     try {
       let uploadedFiles: string[] = [];
 
@@ -57,7 +49,7 @@ export class ActivitiesService {
     return activity;
   }
 
-  async update(id: string, updateActivityDto: UpdateActivityDto, userId: string, newFiles?: Express.Multer.File[] ): Promise<Activity> {
+  async update(id: string, updateActivityDto: UpdateActivityDto, userId: string, newFiles?: Express.Multer.File[]): Promise<Activity> {
 
     const activity = await this.activityModel.findById(id);
 
@@ -67,27 +59,31 @@ export class ActivitiesService {
 
     let updatedFiles: string[] = [...(activity.files ?? [])];
 
-    // Agregar archivos nuevos
+    // Obtener metadata de los archivos existentes
+    const existingFilesMetadata = await Promise.all(
+      updatedFiles.map(fileId => this.filesService.getFileMetadata(fileId)),
+    );
+
+    // Validar duplicados por nombre
     if (newFiles && newFiles.length > 0) {
+
+      for (const file of newFiles) {
+        const duplicate = existingFilesMetadata.find(
+          meta => meta.name === file.originalname,
+        );
+
+        if (duplicate) {
+          throw new BadRequestException(
+            `Ya existe un archivo con el nombre "${file.originalname}" en esta actividad.`,
+          );
+        }
+      }
+
+      // Agregar archivos nuevos si pasaron la validación
       for (const file of newFiles) {
         const savedFile = await this.filesService.uploadToGridFS(file, userId);
         updatedFiles.push(savedFile.id.toString());
       }
-    }
-
-    // Eliminar archivos
-    if (updateActivityDto.files) {
-      const incomingIds = updateActivityDto.files;
-
-      const filesToRemove = updatedFiles.filter(
-        existingId => !incomingIds.includes(existingId.toString()),
-      );
-
-      for (const fileId of filesToRemove) {
-        await this.filesService.deleteFile(fileId.toString());
-      }
-
-      updatedFiles = incomingIds;
     }
 
     const updatedActivity = await this.activityModel.findByIdAndUpdate(
@@ -103,12 +99,45 @@ export class ActivitiesService {
     return updatedActivity;
   }
 
-  async remove(id: string) {
-    const deletedActivity = this.activityModel.findByIdAndDelete(id);
+  async removeFile(activityId: string, fileId: string, userId: string) {
 
-    if (!deletedActivity) {
+    const activity = await this.activityModel.findById(activityId);
+    if (!activity) {
+      throw new NotFoundException(`Activity with ID ${activityId} not found`);
+    }
+
+    if (!activity.files.includes(fileId)) {
+      throw new BadRequestException('File does not belong to this activity');
+    }
+
+    await this.filesService.deleteFile(fileId);
+
+    const updated = await this.activityModel.findByIdAndUpdate(
+      activityId,
+      {
+        $pull: { files: fileId },
+        updatedBy: userId,
+      },
+      { new: true },
+    );
+
+    return updated;
+  }
+
+  async remove(id: string) {
+    const activity = await this.activityModel.findById(id);
+
+    if (!activity) {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
     }
+
+    if(activity.files && activity.files.length > 0){
+      for (const fileId of activity.files){
+        await this.filesService.deleteFile(fileId.toString());
+      }
+    }
+
+    const deletedActivity = await this.activityModel.findByIdAndDelete(id);
 
     return deletedActivity;
   }

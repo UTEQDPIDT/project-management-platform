@@ -47,7 +47,7 @@ export class Event extends Document{
 
     @ApiProperty({ description: 'Reporte del evento' })
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'File' })
-    report: File;
+    report: string;
 
     @ApiProperty({ description: 'Indica si el evento es privado' })
     @Prop({ default: false })
