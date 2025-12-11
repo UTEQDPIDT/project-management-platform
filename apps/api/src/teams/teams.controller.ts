@@ -79,8 +79,8 @@ export class TeamsController {
   @ApiNotFoundResponse({
     description: 'No se encontró la solicitud.',
   })
-  @Post(':id/requests/reject')
-  rejectRequest(@Param('id') id: string, @Body('userId') userId: string) {
+  @Delete(':id/requests/:userId')
+  rejectRequest(@Param('id') id: string, @Param('userId') userId: string) {
     return this.teamsService.rejectRequest(id, userId);
   }
 
