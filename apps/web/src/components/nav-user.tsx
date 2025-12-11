@@ -2,7 +2,6 @@
 
 import { LogOut, CircleUserRound, EllipsisVertical } from 'lucide-react';
 
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,21 +15,17 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSubButton,
   useSidebar,
 } from './ui/sidebar';
 
-import { User } from '@repo/types';
 import { logout } from '@/lib/auth/logout';
 import Link from 'next/link';
 import { ProfileInfo } from './profile-info';
+import { userProfile } from 'context/profile-provider';
 
-export function NavUser({
-  givenName,
-  email,
-  avatarUrl,
-}: Pick<User, 'givenName' | 'email' | 'avatarUrl'>) {
+export function NavUser() {
   const { isMobile } = useSidebar();
+  const { user } = userProfile();
 
   return (
     <SidebarMenu>
@@ -42,9 +37,10 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <ProfileInfo
-                givenName={givenName}
-                email={email}
-                avatarUrl={avatarUrl}
+                givenName={user.givenName}
+                familyName={user.familyName}
+                email={user.email}
+                avatarUrl={user.avatarUrl}
               />
               <EllipsisVertical className="size-4 ml-auto" />
             </SidebarMenuButton>
@@ -57,9 +53,10 @@ export function NavUser({
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <ProfileInfo
-                givenName={givenName}
-                email={email}
-                avatarUrl={avatarUrl}
+                givenName={user.givenName}
+                familyName={user.familyName}
+                email={user.email}
+                avatarUrl={user.avatarUrl}
               />
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

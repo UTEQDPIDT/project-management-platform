@@ -47,6 +47,14 @@ export class UsersController {
     return this.usersService.findByEmail(email);
   }
 
+  @ApiOkResponse({
+    description: 'Regresa un objeto con los ids de usuario, correos y usuarios',
+  })
+  @Post('resolve-emails')
+  async resolveEmails(@Body('emails') emails: string[]) {
+    return this.usersService.resolveEmails(emails);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Req() req) {

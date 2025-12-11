@@ -1,6 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsEnum,
+  IsMongoId,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import { TeamsGrade } from '@repo/types';
+import { ObjectId } from 'mongoose';
 
 export class CreateTeamDto {
   @ApiProperty({
@@ -12,7 +19,7 @@ export class CreateTeamDto {
   @MaxLength(50)
   teamName: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Una breve descripción del equipo.',
     example: 'Equipo enfocado en el desarrollo de modelos CAD.',
     maxLength: 255,
@@ -22,7 +29,15 @@ export class CreateTeamDto {
   @MaxLength(255)
   summary?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
+    description:
+      'La división a la que pertenece el equipo (referencia al catálogo)',
+  })
+  @IsOptional()
+  @IsMongoId()
+  division?: ObjectId;
+
+  @ApiPropertyOptional({
     description: 'El grado del equipo.',
     default: TeamsGrade.FORMACION,
     enum: TeamsGrade,

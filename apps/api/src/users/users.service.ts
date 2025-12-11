@@ -52,6 +52,17 @@ export class UsersService {
     return user || null;
   }
 
+  async resolveEmails(emails: string[]) {
+    const results = await Promise.all(
+      emails.map(async (email) => {
+        const user = await this.findByEmail(email);
+        return { email, _id: user ? user._id.toString() : null, user };
+      }),
+    );
+
+    return results;
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     try {
       const updatedUser = await this.userModel
