@@ -165,7 +165,7 @@ export default function TeamCard({
         <div>
           <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
             <User size={14} />
-            {uniqueUsers.length}
+            {uniqueUsers.length + 1}
           </span>
         </div>
         <CardAction>{renderActionButton()}</CardAction>
