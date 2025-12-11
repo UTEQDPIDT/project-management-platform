@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
+  ParseBoolPipe,
 } from '@nestjs/common';
 import { TeamsService } from './teams.service';
 import { CreateTeamDto } from './dto/create-team.dto';
@@ -86,8 +88,11 @@ export class TeamsController {
 
   @ApiOkResponse({ description: 'Lista de equipos obtenida correctamente.' })
   @Get()
-  findAll() {
-    return this.teamsService.findAll();
+  findAll(
+    @Query('isPrivate', new ParseBoolPipe({ optional: true }))
+    isPrivate?: boolean,
+  ) {
+    return this.teamsService.findAll({ isPrivate });
   }
 
   @ApiOkResponse({ description: 'Equipo obtenido correctamente.' })

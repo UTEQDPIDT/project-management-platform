@@ -26,9 +26,15 @@ export class TeamsService {
     }
   }
 
-  async findAll(): Promise<Team[]> {
+  async findAll(filter: { isPrivate?: boolean }): Promise<Team[]> {
+    const query: Record<string, any> = {};
+
+    if (filter.isPrivate !== undefined) {
+      query.isPrivate = filter.isPrivate;
+    }
+
     return this.teamModel
-      .find()
+      .find(query)
       .populate('owner')
       .populate('members')
       .populate('collaborators')

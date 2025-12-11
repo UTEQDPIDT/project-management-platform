@@ -3,7 +3,7 @@ import { ITeam, IUser } from '@repo/types';
 
 const getAllTeams = async () => {
   try {
-    const { data } = await api.get('/teams');
+    const { data } = await api.get('/teams?isPrivate=false');
     return data;
   } catch (err) {
     console.error('Error fetching teams', err);
