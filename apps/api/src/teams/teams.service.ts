@@ -26,11 +26,23 @@ export class TeamsService {
     }
   }
 
-  async findAll(filter: { isPrivate?: boolean }): Promise<Team[]> {
-    const query: Record<string, any> = {};
+  async findAll(filter: {
+    userId: string;
+    isPrivate?: boolean;
+  }): Promise<Team[]> {
+    const { userId, isPrivate } = filter;
+
+    let query: any = {};
 
     if (filter.isPrivate !== undefined) {
-      query.isPrivate = filter.isPrivate;
+      query = {
+        $or: [
+          { isPrivate: isPrivate },
+          { owner: userId },
+          { members: userId },
+          { collaborators: userId },
+        ],
+      };
     }
 
     return this.teamModel

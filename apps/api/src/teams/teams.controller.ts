@@ -87,12 +87,14 @@ export class TeamsController {
   }
 
   @ApiOkResponse({ description: 'Lista de equipos obtenida correctamente.' })
+  @UseGuards(JwtAuthGuard)
   @Get()
   findAll(
+    @Req() req,
     @Query('isPrivate', new ParseBoolPipe({ optional: true }))
     isPrivate?: boolean,
   ) {
-    return this.teamsService.findAll({ isPrivate });
+    return this.teamsService.findAll({ userId: req.user.id, isPrivate });
   }
 
   @ApiOkResponse({ description: 'Equipo obtenido correctamente.' })
