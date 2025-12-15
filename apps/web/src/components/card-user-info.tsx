@@ -100,9 +100,7 @@ export default function CardUserInfo({ profile }: { profile: IUser }) {
                   <TableCell className="text-gray-500 px-4">
                     Programa educativo
                   </TableCell>
-                  <TableCell>
-                    {educationalProgram?.educationalProgram}
-                  </TableCell>
+                  <TableCell>{educationalProgram?.name}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="text-gray-500 px-4">
