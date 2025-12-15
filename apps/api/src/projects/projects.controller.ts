@@ -48,6 +48,15 @@ export class ProjectsController {
     return this.projectsService.findAll();
   }
 
+  @ApiAcceptedResponse({ description: 'Proyectos encontrados por dueño.' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
+  @UseGuards(JwtAuthGuard)
+  @Get('/by-owner')
+  findByOwner(@Req() req) {
+    console.log('Searching for projects with owner id', req.user.id);
+    return this.projectsService.findByOwner(req.user.id);
+  }
+
   @ApiAcceptedResponse({
     description: 'Proyecto obtenido correctamente.',
     type: CreateProjectDto,

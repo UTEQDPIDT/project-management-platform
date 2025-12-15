@@ -44,6 +44,10 @@ export class ProjectsService {
     return project;
   }
 
+  async findByOwner(ownerId: string) {
+    return await this.projectModel.find({ owner: ownerId });
+  }
+
   async update(
     id: string,
     updateProjectDto: UpdateProjectDto,
