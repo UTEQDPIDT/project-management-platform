@@ -17,22 +17,14 @@ export class ProjectsService {
     private readonly filesService: FilesService,
   ) {}
 
-  async create(createProjectDto: CreateProjectDto, userId: string, files?: Express.Multer.File[]): Promise<Project> {
+  async create(
+    createProjectDto: CreateProjectDto,
+    userId: string,
+  ): Promise<Project> {
     try {
-
-      let uploadedFiles: string[] = [];
-
-      if (files && files.length > 0) {
-        for (const file of files) {
-          const savedFile = await this.filesService.uploadToGridFS(file, userId);
-          uploadedFiles.push(savedFile.id);
-        }
-      }
-
       const newProject = await this.projectModel.create({
         ...createProjectDto,
         owner: userId,
-        files: uploadedFiles,
       });
       return newProject;
     } catch (err: any) {
@@ -52,41 +44,15 @@ export class ProjectsService {
     return project;
   }
 
-  async update(id: string, updateProjectDto: UpdateProjectDto, userId: string, newFiles?: Express.Multer.File[]): Promise<Project> {
-
+  async update(
+    id: string,
+    updateProjectDto: UpdateProjectDto,
+    userId: string,
+  ): Promise<Project> {
     const project = await this.projectModel.findById(id);
 
     if (!project) {
       throw new NotFoundException(`Project with ID: ${id} not found`);
-    }
-
-    let updatedFiles: string[] = [...(project.files ?? [])];
-
-    // Obtener metadata de los archivos existentes
-    const existingFilesMetadata = await Promise.all(
-      updatedFiles.map(fileId => this.filesService.getFileMetadata(fileId)),
-    );
-
-    // Validar duplicados por nombre
-    if (newFiles && newFiles.length > 0) {
-
-      for (const file of newFiles) {
-        const duplicate = existingFilesMetadata.find(
-          meta => meta.name === file.originalname,
-        );
-
-        if (duplicate) {
-          throw new BadRequestException(
-            `Ya existe un archivo con el nombre "${file.originalname}" en esta actividad.`,
-          );
-        }
-      }
-
-      // Agregar archivos nuevos si pasaron la validación
-      for (const file of newFiles) {
-        const savedFile = await this.filesService.uploadToGridFS(file, userId);
-        updatedFiles.push(savedFile.id.toString());
-      }
     }
 
     const updatedProject = await this.projectModel.findByIdAndUpdate(
@@ -94,7 +60,6 @@ export class ProjectsService {
       {
         ...updateProjectDto,
         updatedBy: userId,
-        files: updatedFiles,
       },
       { new: true },
     );
@@ -102,46 +67,21 @@ export class ProjectsService {
     return updatedProject;
   }
 
-  async removeFile(projectId: string, fileId: string, userId: string) {
-
-    const project = await this.projectModel.findById(projectId);
-    if (!project) {
-      throw new NotFoundException(`Project with ID ${projectId} not found`);
-    }
-
-    if (!project.files.includes(fileId)) {
-      throw new BadRequestException('File does not belong to this activity');
-    }
-
-    await this.filesService.deleteFile(fileId);
-
-    const updated = await this.projectModel.findByIdAndUpdate(
-      projectId,
-      {
-        $pull: { files: fileId },
-        updatedBy: userId,
-      },
-      { new: true },
-    );
-
-    return updated;
-  }
-
   async remove(id: string) {
     const project = await this.projectModel.findById(id);
-  
+
     if (!project) {
       throw new NotFoundException(`Project with ID: ${id} not found`);
     }
-  
-    if(project.files && project.files.length > 0){
-      for (const fileId of project.files){
+
+    if (project.files && project.files.length > 0) {
+      for (const fileId of project.files) {
         await this.filesService.deleteFile(fileId.toString());
       }
     }
-  
-    const deletedActivity = await this.projectModel.findByIdAndDelete(id);
-  
-    return deletedActivity;
+
+    const deletedProject = await this.projectModel.findByIdAndDelete(id);
+
+    return deletedProject;
   }
 }

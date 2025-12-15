@@ -65,7 +65,8 @@ export class Project extends Document {
   category: string;
 
   @ApiProperty({
-    description: 'Áreas de conocimiento que alude el proyecto (referencia al catálogo).',
+    description:
+      'Áreas de conocimiento que alude el proyecto (referencia al catálogo).',
   })
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -92,7 +93,8 @@ export class Project extends Document {
   prioritiesPND: PNDpriority;
 
   @ApiProperty({
-    description: 'Objetivos sustentables a los que apunta el proyecto (referencia al catálogo).',
+    description:
+      'Objetivos sustentables a los que apunta el proyecto (referencia al catálogo).',
   })
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -101,7 +103,8 @@ export class Project extends Document {
   sustainableObjectives: SustainabilityGoal;
 
   @ApiProperty({
-    description: 'Lineas de innovación a las que se alinea el proyecto (referencia al catálogo).',
+    description:
+      'Lineas de innovación a las que se alinea el proyecto (referencia al catálogo).',
   })
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -160,7 +163,7 @@ export class Project extends Document {
     description: 'Archivos relacionados al proyecto',
   })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }] })
-  files: string[];
+  files: File[];
 
   @ApiProperty({
     description: 'Quien actualiza el proyecto por ultima ocasion.',
