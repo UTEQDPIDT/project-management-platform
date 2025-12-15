@@ -12,5 +12,6 @@ import { FilesModule } from '../files/files.module';
   ],
   controllers: [ActivitiesController],
   providers: [ActivitiesService],
+  exports: [ActivitiesService],
 })
 export class ActivitiesModule {}

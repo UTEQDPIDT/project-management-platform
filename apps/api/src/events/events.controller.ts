@@ -15,10 +15,10 @@ export class EventsController {
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @UseGuards(JwtAuthGuard)
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('report'))
   @ApiConsumes('multipart/form-data')
-  create(@Body() createEventDto: CreateEventDto, @Req() req, @UploadedFile() file: Express.Multer.File) {
-    return this.eventsService.create(createEventDto, req.user.id, file);
+  create(@Body() createEventDto: CreateEventDto, @Req() req, @UploadedFile() report: Express.Multer.File) {
+    return this.eventsService.create(createEventDto, req.user.id, report);
   }
 
   @ApiCreatedResponse({ description: 'Participantes agregados correctamente al evento.' })
@@ -26,7 +26,7 @@ export class EventsController {
   @ApiBadRequestResponse({ description: 'Usuario no encontrado / ya es participante' })
   @UseGuards(JwtAuthGuard)
   @Post(':id/participants')
-  addParticipants(@Param('id') id: string, @Body('userIds') userIds: string[], @Req() req) {
+  addParticipants(@Param('id') id: string, @Body('participants') userIds: string[], @Req() req) {
     return this.eventsService.addParticipants(id, userIds, req.user.id);
   }
 
@@ -34,10 +34,10 @@ export class EventsController {
   @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
   @UseGuards(JwtAuthGuard)
   @Post(':id/report-file')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('report'))
   @ApiConsumes('multipart/form-data')
-  uploadReportFile(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Req() req) {
-    return this.eventsService.uploadReportFile(id, file, req.user.id);
+  uploadReportFile(@Param('id') id: string, @UploadedFile() report: Express.Multer.File, @Req() req) {
+    return this.eventsService.uploadReportFile(id, report, req.user.id);
   }
 
   @ApiCreatedResponse({ description: 'Actividades agregadas correctamente al evento.' })
@@ -45,7 +45,7 @@ export class EventsController {
   @ApiBadRequestResponse({ description: 'Actividad no encontrada o no es válida.' })
   @UseGuards(JwtAuthGuard)
   @Post(':id/activities')
-  addActivities(@Param('id') id: string, @Body('activityIds') activityIds: string[], @Req() req) {
+  addActivities(@Param('id') id: string, @Body('activities') activityIds: string[], @Req() req) {
     return this.eventsService.addActivities(id, activityIds, req.user.id);
   }
 
@@ -54,7 +54,7 @@ export class EventsController {
   @ApiBadRequestResponse({ description: 'Producto no encontrado o no es válido.' })
   @UseGuards(JwtAuthGuard)
   @Post(':id/products')
-  addProducts(@Param('id') id: string, @Body('productIds') productIds: string[], @Req() req) {
+  addProducts(@Param('id') id: string, @Body('products') productIds: string[], @Req() req) {
     return this.eventsService.addProducts(id, productIds, req.user.id);
   }
 

@@ -15,13 +15,16 @@ export class ProductsService {
     @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
 
-  async create(createProductDto: CreateProductDto, ownerId: string) {
+  async create(createProductDto: CreateProductDto, ownerId: string): Promise<{id: string, message: string}> {
     try {
       const createdProduct = await this.productModel.create({
         ...createProductDto,
         owner: ownerId,
       });
-      return createdProduct;
+      return {
+        id: createdProduct._id.toString(),
+        message: 'Product created successfully',
+      };
     } catch (err: any) {
       throw new BadRequestException(
         'Error al crear el producto: ' + err.message,
@@ -29,21 +32,34 @@ export class ProductsService {
     }
   }
 
-  async findAll() {
-    return this.productModel.find().exec();
+  async findAll(): Promise<Product[]> {
+    return await this.productModel.find().exec();
   }
 
-  findOne(id: string) {
-    const product = this.productModel.findById(id).exec();
+  async findOne(id: string): Promise<Product> {
+    const product = await this.productModel.findById(id).exec();
     if (!product) {
       throw new NotFoundException(`Product with ID: ${id} not found`);
     }
     return product;
   }
 
-  update(id: string, updateProductDto: UpdateProductDto) {
+  async findManyByIds(ids: string[]): Promise<string[]> {
+  const products = await this.productModel.find({
+    _id: { $in: ids },
+  }).select('_id');
+
+  if (products.length !== ids.length) {
+    throw new NotFoundException('One or more products were not found');
+  }
+
+  return products.map(p => p._id.toString());
+}
+
+
+  async update(id: string, updateProductDto: UpdateProductDto): Promise<{ id: string, message: string }> {
     try {
-      const updatedProduct = this.productModel.findByIdAndUpdate(
+      const updatedProduct = await this.productModel.findByIdAndUpdate(
         id,
         updateProductDto,
         { new: true },
@@ -53,18 +69,18 @@ export class ProductsService {
         throw new NotFoundException(`Product with ID: ${id} not found`);
       }
 
-      return updatedProduct;
+      return { id, message: 'Product updated successfully' };
     } catch (err: any) {
       throw new BadRequestException(err.message);
     }
   }
 
-  remove(id: string) {
-    const deletedProduct = this.productModel.findByIdAndDelete(id).exec();
+  async remove(id: string): Promise<{ id: string; message: string }> {
+    const deletedProduct = await this.productModel.findByIdAndDelete(id).exec();
 
     if (!deletedProduct)
       throw new NotFoundException(`Product with ID: ${id} not found`);
 
-    return deletedProduct;
+    return { id, message: 'Product deleted successfully' };
   }
 }

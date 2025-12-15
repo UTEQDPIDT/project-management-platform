@@ -17,7 +17,7 @@ export class ProjectsService {
     private readonly filesService: FilesService,
   ) {}
 
-  async create(createProjectDto: CreateProjectDto, userId: string, files?: Express.Multer.File[]): Promise<Project> {
+  async create(createProjectDto: CreateProjectDto, userId: string, files?: Express.Multer.File[]): Promise<{ id: string, message: string }> {
     try {
 
       let uploadedFiles: string[] = [];
@@ -34,17 +34,20 @@ export class ProjectsService {
         owner: userId,
         files: uploadedFiles,
       });
-      return newProject;
+      return {
+        id: newProject._id.toString(),
+        message: 'Proyecto creado exitosamente',
+      };
     } catch (err: any) {
       throw new BadRequestException('Error al crear el proyecto' + err.message);
     }
   }
 
-  async findAll() {
+  async findAll(): Promise<Project[]> {
     return await this.projectModel.find().exec();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Project> {
     const project = await this.projectModel.findById(id);
     if (!project) {
       throw new NotFoundException(`Proyecto con el ID ${id} no encontrado.`);
@@ -52,7 +55,7 @@ export class ProjectsService {
     return project;
   }
 
-  async update(id: string, updateProjectDto: UpdateProjectDto, userId: string, newFiles?: Express.Multer.File[]): Promise<Project> {
+  async update(id: string, updateProjectDto: UpdateProjectDto, userId: string, newFiles?: Express.Multer.File[]): Promise<{ id: string, message: string }> {
 
     const project = await this.projectModel.findById(id);
 
@@ -89,7 +92,7 @@ export class ProjectsService {
       }
     }
 
-    const updatedProject = await this.projectModel.findByIdAndUpdate(
+    await this.projectModel.findByIdAndUpdate(
       id,
       {
         ...updateProjectDto,
@@ -99,10 +102,10 @@ export class ProjectsService {
       { new: true },
     );
 
-    return updatedProject;
+    return { id, message: 'Project updated successfully' };
   }
 
-  async removeFile(projectId: string, fileId: string, userId: string) {
+  async removeFile(projectId: string, fileId: string, userId: string): Promise<{ id: string, message: string }> {
 
     const project = await this.projectModel.findById(projectId);
     if (!project) {
@@ -115,7 +118,7 @@ export class ProjectsService {
 
     await this.filesService.deleteFile(fileId);
 
-    const updated = await this.projectModel.findByIdAndUpdate(
+    await this.projectModel.findByIdAndUpdate(
       projectId,
       {
         $pull: { files: fileId },
@@ -124,10 +127,10 @@ export class ProjectsService {
       { new: true },
     );
 
-    return updated;
+    return { id: projectId, message: 'File removed successfully' };
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<{ id: string, message: string }> {
     const project = await this.projectModel.findById(id);
   
     if (!project) {
@@ -140,8 +143,8 @@ export class ProjectsService {
       }
     }
   
-    const deletedActivity = await this.projectModel.findByIdAndDelete(id);
+    await this.projectModel.findByIdAndDelete(id);
   
-    return deletedActivity;
+    return { id, message: 'Project deleted successfully' };
   }
 }
