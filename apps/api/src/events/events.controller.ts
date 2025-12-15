@@ -15,10 +15,10 @@ export class EventsController {
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @UseGuards(JwtAuthGuard)
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('report'))
   @ApiConsumes('multipart/form-data')
-  create(@Body() createEventDto: CreateEventDto, @Req() req, @UploadedFile() file: Express.Multer.File) {
-    return this.eventsService.create(createEventDto, req.user.id, file);
+  create(@Body() createEventDto: CreateEventDto, @Req() req, @UploadedFile() report: Express.Multer.File) {
+    return this.eventsService.create(createEventDto, req.user.id, report);
   }
 
   @ApiCreatedResponse({ description: 'Participantes agregados correctamente al evento.' })

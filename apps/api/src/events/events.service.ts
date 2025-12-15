@@ -14,20 +14,20 @@ export class EventsService {
     private readonly filesService: FilesService,
   ) {}
 
-  async create(createEventDto: CreateEventDto, userId: string, file?: Express.Multer.File): Promise<Event> {
+  async create(createEventDto: CreateEventDto, userId: string, report?: Express.Multer.File): Promise<Event> {
     try {
 
       let uploadedFileId: string | null = null;
 
-      if (file) {
-        const savedFile = await this.filesService.uploadToGridFS(file, userId);
+      if (report) {
+        const savedFile = await this.filesService.uploadToGridFS(report, userId);
         uploadedFileId = savedFile.id.toString();
       } 
 
       const createdEvent = await this.eventModel.create({
         ...createEventDto,
         createdBy: userId,
-        file: uploadedFileId
+        report: uploadedFileId
       });
 
       return createdEvent;
