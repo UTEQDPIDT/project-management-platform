@@ -4,11 +4,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true })
 export class SustainabilityGoal extends Document {
-    @ApiProperty({
-        description: 'Objetivo de sostenibilidad.',
-    })
-    @Prop({ required: true })
-    sustainabilityGoal: string;
+  @ApiProperty({
+    description: 'Objetivo de sostenibilidad.',
+  })
+  @Prop({ required: true })
+  name: string;
 }
 
-export const SustainabilityGoalSchema = SchemaFactory.createForClass(SustainabilityGoal);
+export const SustainabilityGoalSchema =
+  SchemaFactory.createForClass(SustainabilityGoal);

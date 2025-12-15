@@ -1,194 +1,266 @@
 // import { UserRole } from "@repo/types";
-import { DevelopmentLine } from "../../schemas/development-line.schema.seed";
-import { Division } from "../../schemas/division.schema.seed";
-import { EducationalProgram } from "../../schemas/educational-program.schema.seed";
-import { KnowledgeArea } from "../../schemas/knowledge-area.schema.seed";
-import { PNDpriority } from "../../schemas/pnd-priority.schema.seed";
-import { ProductCategory } from "../../schemas/product-category.schema.seed";
-import { ProductSubcategory } from "../../schemas/product-subcategory.schema.seed";
-import { SustainabilityGoal } from "../../schemas/sustainability-goal.schema.seed";
-import { ThemedImpactArea } from "../../schemas/themed-impact-area.schema";
+import { DevelopmentLine } from '../../schemas/development-line.schema.seed';
+import { Division } from '../../schemas/division.schema.seed';
+import { EducationalProgram } from '../../schemas/educational-program.schema.seed';
+import { KnowledgeArea } from '../../schemas/knowledge-area.schema.seed';
+import { PNDpriority } from '../../schemas/pnd-priority.schema.seed';
+import { ProductCategory } from '../../schemas/product-category.schema.seed';
+import { ProductSubcategory } from '../../schemas/product-subcategory.schema.seed';
+import { SustainabilityGoal } from '../../schemas/sustainability-goal.schema.seed';
+import { ThemedImpactArea } from '../../schemas/themed-impact-area.schema';
 // import { CreateUserDto } from "../../users/dto/create-user.dto";
 
 //Users
-export const divisionsList: Partial<Division>[] = [ 
-    { name: 'Division de Tecnología Ambiental' },
-    { name: 'Division de Idiomas' },
-    { name: 'Division Económico-Administrativa' },
-    { name: 'Division Industrial' },
-    { name: 'Division de tecnologías de la Automatización e Información' },
-    { name: 'Division de Innovación y Desarrollo Tecnológico' }
+export const divisionsList: Partial<Division>[] = [
+  { name: 'Division de Tecnología Ambiental' },
+  { name: 'Division de Idiomas' },
+  { name: 'Division Económico-Administrativa' },
+  { name: 'Division Industrial' },
+  { name: 'Division de tecnologías de la Automatización e Información' },
+  { name: 'Division de Innovación y Desarrollo Tecnológico' },
 ];
 
 //Users
 export const educationalProgramsList: Partial<EducationalProgram>[] = [
-    { educationalProgram: 'Licenciatura en Administración' },
-    { educationalProgram: 'Licenciatura en Negocios y Mercadotecnia' },
-    { educationalProgram: 'Ingeniería en Logística' },
-    { educationalProgram: 'Licenciatura en Contaduría' },
-    { educationalProgram: 'Licenciatura en Educación' },
-    { educationalProgram: 'Ingeniería Ambiental y Sustentabilidad' },
-    { educationalProgram: 'Ingeniería en Energía y Desarrollo Sostenible' },
-    { educationalProgram: 'Ingeniería en Tecnologías de la Información e Innovación Digital' },
-    { educationalProgram: 'Ingeniería Mecatrónica' },
-    { educationalProgram: 'Ingeniería en Mantenimiento Industrial' },
-    { educationalProgram: 'Ingeniería en Nanotecnología' },
-    { educationalProgram: 'Ingeniería Industrial' },
-    { educationalProgram: 'Ingeniería Mecánica' },
-    { educationalProgram: 'Ingeniería en Semiconductores' },
-    { educationalProgram: 'Ingeniería Mecánica Automotriz' },
-    { educationalProgram: 'Maestría en Ingeniería para la Manufactura Inteligente' },
-    { educationalProgram: 'Maestría en Economía Circular con especialidad en Proyectos Sustentables' },
-    { educationalProgram: 'Maestría en Dirección Logística y Cadena de Suministro Sostenible' }
+  { name: 'Licenciatura en Administración' },
+  { name: 'Licenciatura en Negocios y Mercadotecnia' },
+  { name: 'Ingeniería en Logística' },
+  { name: 'Licenciatura en Contaduría' },
+  { name: 'Licenciatura en Educación' },
+  { name: 'Ingeniería Ambiental y Sustentabilidad' },
+  { name: 'Ingeniería en Energía y Desarrollo Sostenible' },
+  {
+    name: 'Ingeniería en Tecnologías de la Información e Innovación Digital',
+  },
+  { name: 'Ingeniería Mecatrónica' },
+  { name: 'Ingeniería en Mantenimiento Industrial' },
+  { name: 'Ingeniería en Nanotecnología' },
+  { name: 'Ingeniería Industrial' },
+  { name: 'Ingeniería Mecánica' },
+  { name: 'Ingeniería en Semiconductores' },
+  { name: 'Ingeniería Mecánica Automotriz' },
+  {
+    name: 'Maestría en Ingeniería para la Manufactura Inteligente',
+  },
+  {
+    name: 'Maestría en Economía Circular con especialidad en Proyectos Sustentables',
+  },
+  {
+    name: 'Maestría en Dirección Logística y Cadena de Suministro Sostenible',
+  },
 ];
 
 //Products
 export const productCategoryList: Partial<ProductCategory>[] = [
-    { productCategory: 'Artículo' },
-    { productCategory: 'Capítulo de Libro' },
-    { productCategory: 'Cartel' },
-    { productCategory: 'Derecho de Autor' },
-    { productCategory: 'Diseño Industrial' },
-    { productCategory: 'Informe Técnico' },
-    { productCategory: 'Libro con ISBN' },
-    { productCategory: 'Licenciamientos' },
-    { productCategory: 'Marca' },
-    { productCategory: 'Modelo de Utilidad' },
-    { productCategory: 'Patente' },
-    { productCategory: 'Ponencia' },
-    { productCategory: 'Prototipo Funcional' },
-    { productCategory: 'Proyecto Tecnológico' },
-    { productCategory: 'Reconocimiento' },
+  { name: 'Artículo' },
+  { name: 'Capítulo de Libro' },
+  { name: 'Cartel' },
+  { name: 'Derecho de Autor' },
+  { name: 'Diseño Industrial' },
+  { name: 'Informe Técnico' },
+  { name: 'Libro con ISBN' },
+  { name: 'Licenciamientos' },
+  { name: 'Marca' },
+  { name: 'Modelo de Utilidad' },
+  { name: 'Patente' },
+  { name: 'Ponencia' },
+  { name: 'Prototipo Funcional' },
+  { name: 'Proyecto Tecnológico' },
+  { name: 'Reconocimiento' },
 ];
 
 //Products
 export const productSubcategoryList: Partial<ProductSubcategory>[] = [
-    { productSubcategory: 'Artículo Arbitrado Internacional' },
-    { productSubcategory: 'Artículo Arbitrado Nacional' },
-    { productSubcategory: 'Artículo de Difusión' },
-    { productSubcategory: 'Artículo Indizado Internacional' },
-    { productSubcategory: 'Artículo Indizado Nacional' },
-    { productSubcategory: 'Capítulo de Libro con ISBN' },
-    { productSubcategory: 'Cartel' },
-    { productSubcategory: 'Registro de Derecho de autor (ante INDAUTOR)' },
-    { productSubcategory: 'Registro de Diseño industrial (ante IMPI)' },
-    { productSubcategory: 'Informe Técnico' },
-    { productSubcategory: 'Libro con ISBN' },
-    { productSubcategory: 'Licenciamiento de Modelo de Utilidad (contrato para comercialización)' },
-    { productSubcategory: 'Licenciamiento de Patente (contrato para comercialización)' },
-    { productSubcategory: 'Registro de Marca' },
-    { productSubcategory: 'Otorgamiento de Modelo de Utilidad por parte del IMPI' },
-    { productSubcategory: 'Registro de Solicitud de Modelo de Utilidad (ante IMPI)' },
-    { productSubcategory: 'Otorgamiento de Patente por parte del IMPI' },
-    { productSubcategory: 'Registro de Solicitud de Patente (ante IMPI)' },
-    { productSubcategory: 'Ponencia' },
-    { productSubcategory: 'Prototipo funcional (nuevo o con mejora incremental)' },
-    { productSubcategory: 'Proyecto tecnológico' },
-    { productSubcategory: 'Distinción o Reconocimiento de Investigador SNII o de Cuerpo Académico' }
+  { name: 'Artículo Arbitrado Internacional' },
+  { name: 'Artículo Arbitrado Nacional' },
+  { name: 'Artículo de Difusión' },
+  { name: 'Artículo Indizado Internacional' },
+  { name: 'Artículo Indizado Nacional' },
+  { name: 'Capítulo de Libro con ISBN' },
+  { name: 'Cartel' },
+  { name: 'Registro de Derecho de autor (ante INDAUTOR)' },
+  { name: 'Registro de Diseño industrial (ante IMPI)' },
+  { name: 'Informe Técnico' },
+  { name: 'Libro con ISBN' },
+  {
+    name: 'Licenciamiento de Modelo de Utilidad (contrato para comercialización)',
+  },
+  {
+    name: 'Licenciamiento de Patente (contrato para comercialización)',
+  },
+  { name: 'Registro de Marca' },
+  {
+    name: 'Otorgamiento de Modelo de Utilidad por parte del IMPI',
+  },
+  {
+    name: 'Registro de Solicitud de Modelo de Utilidad (ante IMPI)',
+  },
+  { name: 'Otorgamiento de Patente por parte del IMPI' },
+  { name: 'Registro de Solicitud de Patente (ante IMPI)' },
+  { name: 'Ponencia' },
+  {
+    name: 'Prototipo funcional (nuevo o con mejora incremental)',
+  },
+  { name: 'Proyecto tecnológico' },
+  {
+    name: 'Distinción o Reconocimiento de Investigador SNII o de Cuerpo Académico',
+  },
 ];
 
 //Projects
 export const knowledgeAreaList: Partial<KnowledgeArea>[] = [
-    { knowledgeArea: 'Ciencias Agropecuarias' },
-    { knowledgeArea: 'Ciencias Naturales y Exactas' },
-    { knowledgeArea: 'Ciencias de la Salud' },
-    { knowledgeArea: 'Ciencias Sociales y Administrativas' },
-    { knowledgeArea: 'Educación, Humanidades y Arte' },
-    { knowledgeArea: 'Ingeniería y Tecnología' },
+  { name: 'Ciencias Agropecuarias' },
+  { name: 'Ciencias Naturales y Exactas' },
+  { name: 'Ciencias de la Salud' },
+  { name: 'Ciencias Sociales y Administrativas' },
+  { name: 'Educación, Humanidades y Arte' },
+  { name: 'Ingeniería y Tecnología' },
 ];
 
 //Projects
 export const themedImpactAreaList: Partial<ThemedImpactArea>[] = [
-    { themedImpactArea: 'Actividades de Economía Social y Solidaria' },
-    { themedImpactArea: 'Divulgación científica para el fortalecimiento de la comunidad científica y acceso universal al conocimiento' },
-    { themedImpactArea: 'Bien Común' },
-    { themedImpactArea: 'Objetivos de Desarrollo Sustentable' },
-    { themedImpactArea: 'Prioridades Nacionales del PND Sección SEHCITI' },
+  { name: 'Actividades de Economía Social y Solidaria' },
+  {
+    name: 'Divulgación científica para el fortalecimiento de la comunidad científica y acceso universal al conocimiento',
+  },
+  { name: 'Bien Común' },
+  { name: 'Objetivos de Desarrollo Sustentable' },
+  { name: 'Prioridades Nacionales del PND Sección SEHCITI' },
 ];
 
 //Projects
 export const PNDprioritiesList: Partial<PNDpriority>[] = [
-    { PNDpriority: 'Soberanía Alimentaria' },
-    { PNDpriority: 'Soberanía Energética' },
-    { PNDpriority: 'Soberanía Petrolera' },
-    { PNDpriority: 'Soberanía en Materia de Salud' },
-    { PNDpriority: 'Soberanía en Telecomunicaciones' },
-    { PNDpriority: 'Soberanía de la Industria Nacional' },
-    { PNDpriority: 'Desarrollo Tecnológico' },
-    { PNDpriority: 'Sustentabilidad' }
+  { name: 'Soberanía Alimentaria' },
+  { name: 'Soberanía Energética' },
+  { name: 'Soberanía Petrolera' },
+  { name: 'Soberanía en Materia de Salud' },
+  { name: 'Soberanía en Telecomunicaciones' },
+  { name: 'Soberanía de la Industria Nacional' },
+  { name: 'Desarrollo Tecnológico' },
+  { name: 'Sustentabilidad' },
 ];
 
 //Projects
 export const developmentLinesList: Partial<DevelopmentLine>[] = [
-    { developmentLine: "Desarrollo de equipamiento didáctico industrial." },
-    { developmentLine: "Prototipos en eficiencia energética." },
-    { developmentLine: "Habilitación de maquinaria industrial para realización de prácticas a pie de máquina." },
-    { developmentLine: "Generación de nuevos materiales poliméricos." },
-    { developmentLine: "Desarrollo de equipamiento didáctico industrial para la formación profesional en inyección de plásticos y hule." },
-    { developmentLine: "Desarrollo de las habilidades y competencias profesionales requeridas por el sector de inyección de plásticos y hule en la zona de influencia de la UTEQ, en los estudiantes, egresados y trabajadores de estas empresas." },
-    { developmentLine: "Diseño y desarrollo de nuevos productos hechos con plástico." },
-    { developmentLine: "Desarrollo de competencias profesionales." },
-    { developmentLine: "Desarrollo estratégico académico-empresarial." },
-    { developmentLine: "Innovación e investigación académica-empresarial." },
-    { developmentLine: "Investigación aplicada de energías alternativas promoviendo la sostenibilidad y economía circular." },
-    { developmentLine: "Seguridad e higiene." },
-    { developmentLine: "Desarrollo de materiales nanoestructurados aplicados a la sustentabilidad." },
-    { developmentLine: "Caracterización de materiales mediante técnicas ópticas, metalúrgicas y fototérmicas aplicables en materiales avanzados, nanoestructurados, metálicos y semiconductores." },
-    { developmentLine: "Innovación educativa." },
-    { developmentLine: "Desarrollo de aplicaciones de TIC mediante esquemas de la triple hélice." },
-    { developmentLine: "Fortalecer el proceso de formación y la innovación de los procesos de la gestión de recursos en las organizaciones." },
-    { developmentLine: "Estudios en educación aplicada a las Licenciaturas en Gestión del Capital Humano e Innovación y Desarrollo de Negocios y la Ingeniería en Logística, de la División Económica Administrativa de la UTEQ." },
-    { developmentLine: "Innovación Tecnológica en las organizaciones y en las licenciaturas e ingeniería de la División Económica Administrativa de la UTEQ." },
-    { developmentLine: "Estudio de competencias para identificar, evaluar y desarrollar competencias." },
-    { developmentLine: "Manufactura inteligente e industria 4.0." },
-    { developmentLine: "Adquisición, procesamiento y análisis de datos." },
-    { developmentLine: "Desarrollo de herramientas tecnológicas para la eficiencia energética y sustentabilidad." },
-    { developmentLine: "Desarrollo y aplicación de sistemas embebidos." },
-    { developmentLine: "Desarrollo y aplicación de sistemas mecatrónicos." },
-    { developmentLine: "Estrategias para la sustentabilidad y el bien común." },
-    { developmentLine: "Investigación de mercados e instrumentos comerciales para el fomento del desarrollo comercial y social de empresas e instituciones de la región." },
-    { developmentLine: "Monitoreo, control y visualización." },
-    { developmentLine: "Diseño y desarrollo de materiales inteligentes sustentables." },
-    { developmentLine: "Diseño mecánico, experimental y aplicaciones de FEM." },
-    { developmentLine: "Procesos inteligentes & KPI’s." },
-    { developmentLine: "Higiene y seguridad industrial." },
-    { developmentLine: "Economía circular aplicada en instituciones educativas, micro y pequeñas empresas." },
-    { developmentLine: "Economía circular y competencias clave para el aprendizaje permanente." },
-    { developmentLine: "Administración, negocios y emprendimiento." },
-    { developmentLine: "Gestión de la innovación, la tecnología y el conocimiento en temáticas de innovación multidisciplinares que favorecen las competencias de la comunidad universitaria y la competitividad de la región." },
-    { developmentLine: "Gestión de la vinculación para la colaboración de la universidad con actores estratégicos de los ecosistemas de innovación." },
-    { developmentLine: "Aplicaciones biotecnológicas para la síntesis de biomateriales y nanomateriales." },
-    { developmentLine: "Inteligencia artificial aplicada en la educación." },
-    { developmentLine: "Producción de metabolitos bacterianos de interés." },
-    { developmentLine: "Biofísica molecular." },
-    { developmentLine: "Biología molecular." },
-    { developmentLine: "Bioinformática." },
-    { developmentLine: "Gestión del conocimiento e innovación en las organizaciones/industria de la región orientados a la mejora continua de los procesos." },
-    { developmentLine: "Innovación educativa de calidad." },
-    { developmentLine: "Transformación digital y tecnológica en las organizaciones." },
-    { developmentLine: "Sostenibilidad e innovación empresarial." },
-    { developmentLine: "Teoría Administrativa, Organizacional y Económica." },
-    { developmentLine: "Teoría Educativa y Tecnológica." },
-    { developmentLine: "Logística." },
-    { developmentLine: "Responsabilidad Social." },
-    { developmentLine: "Fortalecimiento de las competencias profesionales en educación." },
-    { developmentLine: "Investigación y desarrollo académico en el proceso de enseñanza-aprendizaje." },
-    { developmentLine: "Desarrollo humano en el proceso de aprendizaje." },
-    { developmentLine: "Metodología y materiales tecnológicos innovadores para el proceso enseñanza-aprendizaje." },
+  { name: 'Desarrollo de equipamiento didáctico industrial.' },
+  { name: 'Prototipos en eficiencia energética.' },
+  {
+    name: 'Habilitación de maquinaria industrial para realización de prácticas a pie de máquina.',
+  },
+  { name: 'Generación de nuevos materiales poliméricos.' },
+  {
+    name: 'Desarrollo de equipamiento didáctico industrial para la formación profesional en inyección de plásticos y hule.',
+  },
+  {
+    name: 'Desarrollo de las habilidades y competencias profesionales requeridas por el sector de inyección de plásticos y hule en la zona de influencia de la UTEQ, en los estudiantes, egresados y trabajadores de estas empresas.',
+  },
+  {
+    name: 'Diseño y desarrollo de nuevos productos hechos con plástico.',
+  },
+  { name: 'Desarrollo de competencias profesionales.' },
+  { name: 'Desarrollo estratégico académico-empresarial.' },
+  { name: 'Innovación e investigación académica-empresarial.' },
+  {
+    name: 'Investigación aplicada de energías alternativas promoviendo la sostenibilidad y economía circular.',
+  },
+  { name: 'Seguridad e higiene.' },
+  {
+    name: 'Desarrollo de materiales nanoestructurados aplicados a la sustentabilidad.',
+  },
+  {
+    name: 'Caracterización de materiales mediante técnicas ópticas, metalúrgicas y fototérmicas aplicables en materiales avanzados, nanoestructurados, metálicos y semiconductores.',
+  },
+  { name: 'Innovación educativa.' },
+  {
+    name: 'Desarrollo de aplicaciones de TIC mediante esquemas de la triple hélice.',
+  },
+  {
+    name: 'Fortalecer el proceso de formación y la innovación de los procesos de la gestión de recursos en las organizaciones.',
+  },
+  {
+    name: 'Estudios en educación aplicada a las Licenciaturas en Gestión del Capital Humano e Innovación y Desarrollo de Negocios y la Ingeniería en Logística, de la División Económica Administrativa de la UTEQ.',
+  },
+  {
+    name: 'Innovación Tecnológica en las organizaciones y en las licenciaturas e ingeniería de la División Económica Administrativa de la UTEQ.',
+  },
+  {
+    name: 'Estudio de competencias para identificar, evaluar y desarrollar competencias.',
+  },
+  { name: 'Manufactura inteligente e industria 4.0.' },
+  { name: 'Adquisición, procesamiento y análisis de datos.' },
+  {
+    name: 'Desarrollo de herramientas tecnológicas para la eficiencia energética y sustentabilidad.',
+  },
+  { name: 'Desarrollo y aplicación de sistemas embebidos.' },
+  { name: 'Desarrollo y aplicación de sistemas mecatrónicos.' },
+  { name: 'Estrategias para la sustentabilidad y el bien común.' },
+  {
+    name: 'Investigación de mercados e instrumentos comerciales para el fomento del desarrollo comercial y social de empresas e instituciones de la región.',
+  },
+  { name: 'Monitoreo, control y visualización.' },
+  {
+    name: 'Diseño y desarrollo de materiales inteligentes sustentables.',
+  },
+  { name: 'Diseño mecánico, experimental y aplicaciones de FEM.' },
+  { name: 'Procesos inteligentes & KPI’s.' },
+  { name: 'Higiene y seguridad industrial.' },
+  {
+    name: 'Economía circular aplicada en instituciones educativas, micro y pequeñas empresas.',
+  },
+  {
+    name: 'Economía circular y competencias clave para el aprendizaje permanente.',
+  },
+  { name: 'Administración, negocios y emprendimiento.' },
+  {
+    name: 'Gestión de la innovación, la tecnología y el conocimiento en temáticas de innovación multidisciplinares que favorecen las competencias de la comunidad universitaria y la competitividad de la región.',
+  },
+  {
+    name: 'Gestión de la vinculación para la colaboración de la universidad con actores estratégicos de los ecosistemas de innovación.',
+  },
+  {
+    name: 'Aplicaciones biotecnológicas para la síntesis de biomateriales y nanomateriales.',
+  },
+  { name: 'Inteligencia artificial aplicada en la educación.' },
+  { name: 'Producción de metabolitos bacterianos de interés.' },
+  { name: 'Biofísica molecular.' },
+  { name: 'Biología molecular.' },
+  { name: 'Bioinformática.' },
+  {
+    name: 'Gestión del conocimiento e innovación en las organizaciones/industria de la región orientados a la mejora continua de los procesos.',
+  },
+  { name: 'Innovación educativa de calidad.' },
+  {
+    name: 'Transformación digital y tecnológica en las organizaciones.',
+  },
+  { name: 'Sostenibilidad e innovación empresarial.' },
+  { name: 'Teoría Administrativa, Organizacional y Económica.' },
+  { name: 'Teoría Educativa y Tecnológica.' },
+  { name: 'Logística.' },
+  { name: 'Responsabilidad Social.' },
+  {
+    name: 'Fortalecimiento de las competencias profesionales en educación.',
+  },
+  {
+    name: 'Investigación y desarrollo académico en el proceso de enseñanza-aprendizaje.',
+  },
+  { name: 'Desarrollo humano en el proceso de aprendizaje.' },
+  {
+    name: 'Metodología y materiales tecnológicos innovadores para el proceso enseñanza-aprendizaje.',
+  },
 ];
 
 //Projects
 export const sustainabilityGoalsList: Partial<SustainabilityGoal>[] = [
-    { sustainabilityGoal: 'Reducción de Desperdicios' },
-    { sustainabilityGoal: 'Reuso de Materiales' },
-    { sustainabilityGoal: 'Reciclado de Materiales' },
-    { sustainabilityGoal: 'Responsabilidad Social' },
-    { sustainabilityGoal: 'Concientización sobre Problemas Ambientales' },
-    { sustainabilityGoal: 'Gestión de Recursos Naturales' },
-    { sustainabilityGoal: 'Equidad' },
-    { sustainabilityGoal: 'Inclusión' },
-    { sustainabilityGoal: 'Economía Circular' },
-    { sustainabilityGoal: 'Ninguno' }
+  { name: 'Reducción de Desperdicios' },
+  { name: 'Reuso de Materiales' },
+  { name: 'Reciclado de Materiales' },
+  { name: 'Responsabilidad Social' },
+  { name: 'Concientización sobre Problemas Ambientales' },
+  { name: 'Gestión de Recursos Naturales' },
+  { name: 'Equidad' },
+  { name: 'Inclusión' },
+  { name: 'Economía Circular' },
+  { name: 'Ninguno' },
 ];
 
 // export const initialUsers: Partial<CreateUserDto>[] = [
@@ -206,4 +278,3 @@ export const sustainabilityGoalsList: Partial<SustainabilityGoal>[] = [
 //         role: UserRole.ADMIN,
 //     }
 // ];
-

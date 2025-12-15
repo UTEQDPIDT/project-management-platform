@@ -1,4 +1,4 @@
-import { Division } from './division.type';
+import { SeedCategory } from './seed-category.type';
 import { TeamsGrade } from './enums/teams-grade.enum';
 import { IUser } from './user.type';
 
@@ -6,7 +6,7 @@ export interface ITeam {
   _id: string;
   teamName: string;
   summary?: string;
-  division?: Division;
+  division?: SeedCategory;
   grade: TeamsGrade;
   owner: IUser;
   collaborators: IUser[];

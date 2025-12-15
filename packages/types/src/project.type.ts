@@ -3,6 +3,7 @@ import { ImpactLevel } from './enums/impact-level.enum';
 import { Status } from './enums/status.enum';
 import { IFile } from './file.type';
 import { IProduct } from './product.type';
+import { SeedCategory } from './seed-category.type';
 import { ITeam } from './team.type';
 import { IUser } from './user.type';
 
@@ -14,12 +15,12 @@ export interface IProject {
   trlRating: number;
   status: Status;
   progress: number;
-  category: number;
-  knowledgeAreas: string;
-  impactAreas: string;
-  prioritiesPND: string;
-  sustainableObjectives: string;
-  innovationLines: string;
+  category: string;
+  knowledgeAreas: SeedCategory;
+  impactAreas: SeedCategory;
+  prioritiesPND: SeedCategory;
+  sustainableObjectives: SeedCategory;
+  innovationLines: SeedCategory;
   organization: string;
   impactLevel: ImpactLevel;
   owner: IUser;

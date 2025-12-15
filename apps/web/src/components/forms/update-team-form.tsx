@@ -11,7 +11,7 @@ import { useUpdateTeam } from '@/hooks/team';
 
 import { resolveEmails } from '@/services/user.service';
 
-import { Division, IResolvedEmail, TeamsGrade } from '@repo/types';
+import { SeedCategory, IResolvedEmail, TeamsGrade } from '@repo/types';
 import { PlusIcon, XIcon } from 'lucide-react';
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
@@ -253,7 +253,7 @@ export function UpdateTeamForm({
                         {loadingDivisions ? (
                           <LoadingMessage message="Cargando divisiones" />
                         ) : (
-                          divisions.map((division: Division) => (
+                          divisions.map((division: SeedCategory) => (
                             <SelectItem key={division._id} value={division._id}>
                               {division.name}
                             </SelectItem>

@@ -4,11 +4,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true })
 export class EducationalProgram extends Document {
-    @ApiProperty({
-        description: 'Nombre del programa educativo.',
-    })
-    @Prop({ required: true })
-    educationalProgram: string;
+  @ApiProperty({
+    description: 'Nombre del programa educativo.',
+  })
+  @Prop({ required: true })
+  name: string;
 }
 
-export const EducationalProgramSchema = SchemaFactory.createForClass(EducationalProgram);
+export const EducationalProgramSchema =
+  SchemaFactory.createForClass(EducationalProgram);

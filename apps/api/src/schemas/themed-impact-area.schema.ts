@@ -4,11 +4,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true })
 export class ThemedImpactArea extends Document {
-    @ApiProperty({
-        description: 'Área temática de impacto.',
-    })
-    @Prop({ required: true })
-    themedImpactArea: string;
+  @ApiProperty({
+    description: 'Área temática de impacto.',
+  })
+  @Prop({ required: true })
+  name: string;
 }
 
-export const ThemedImpactAreaSchema = SchemaFactory.createForClass(ThemedImpactArea);
+export const ThemedImpactAreaSchema =
+  SchemaFactory.createForClass(ThemedImpactArea);

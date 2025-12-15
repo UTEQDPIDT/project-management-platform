@@ -4,11 +4,11 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true })
 export class PNDpriority extends Document {
-    @ApiProperty({
-        description: 'Prioridad del PND.',
-    })
-    @Prop({ required: true })
-    PNDpriority: string;
+  @ApiProperty({
+    description: 'Prioridad del PND.',
+  })
+  @Prop({ required: true })
+  name: string;
 }
 
 export const PNDprioritySchema = SchemaFactory.createForClass(PNDpriority);

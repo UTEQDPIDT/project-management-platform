@@ -9,12 +9,11 @@ import { useDivisions, usePrograms } from '@/hooks/catalogs';
 import { useUpdateUser } from '@/hooks/user';
 import {
   CareerLevel,
-  Division,
   IUser,
-  Program,
   Sex,
   State,
   UserType,
+  SeedCategory,
 } from '@repo/types';
 import { useEffect } from 'react';
 import LoadingMessage from '../loading-message';
@@ -323,12 +322,12 @@ export default function UserForm({ profile }: { profile: IUser }) {
                             {loadingPrograms ? (
                               <LoadingMessage message="Cargando Programas" />
                             ) : (
-                              programs.map((program: Program) => (
+                              programs.map((program: SeedCategory) => (
                                 <SelectItem
                                   key={program._id}
                                   value={program._id}
                                 >
-                                  {program.educationalProgram}
+                                  {program.name}
                                 </SelectItem>
                               ))
                             )}
@@ -386,7 +385,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
                         {loadingDivisions ? (
                           <LoadingMessage message="Cargando divisiones" />
                         ) : (
-                          divisions.map((division: Division) => (
+                          divisions.map((division: SeedCategory) => (
                             <SelectItem key={division._id} value={division._id}>
                               {division.name}
                             </SelectItem>
