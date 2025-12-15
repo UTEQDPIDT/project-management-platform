@@ -29,7 +29,7 @@ export class FilesService {
 
     const fileId = uploadStream.id;
 
-    return new Promise((res, rej) => {
+    new Promise((res, rej) => {
       uploadStream.on('close', async () => {
         // 2. Save metadata to File collection
         const savedFile = await this.fileModel.create({
@@ -46,21 +46,23 @@ export class FilesService {
 
       uploadStream.on('error', rej);
     });
+
+    return this.fileModel.findById(fileId);
   }
 
-  async findAll() {
+  async findAll(): Promise<File[]> {
     return this.fileModel.find().exec();
   }
 
-  async getFileStream(id: string) {
+  async getFileStream(id: string): Promise<mongoose.mongo.GridFSBucketReadStream> {
     return this.bucket.openDownloadStream(new mongoose.Types.ObjectId(id));
   }
 
-  async getFileMetadata(id: string) {
+  async getFileMetadata(id: string): Promise<File> {
     return this.fileModel.findById(id);
   }
 
-  async deleteFile(id: string) {
+  async deleteFile(id: string): Promise<{ id: string, message: string }> {
     // extract file metadata
     const file = await this.fileModel.findById(id);
 
@@ -76,6 +78,6 @@ export class FilesService {
     // Delete file metadata
     await this.fileModel.findByIdAndDelete(id);
 
-    return { message: 'File deleted successfully' };
+    return { id, message: 'File deleted successfully' };
   }
 }

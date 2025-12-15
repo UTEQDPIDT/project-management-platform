@@ -13,7 +13,7 @@ export class ActivitiesService {
     private readonly filesService: FilesService,
   ) {}
 
-  async create(createActivityDto: CreateActivityDto, userId: string, files?: Express.Multer.File[]): Promise<Activity> {
+  async create(createActivityDto: CreateActivityDto, userId: string, files?: Express.Multer.File[]): Promise<{ id: string, message: string }> {
     try {
       let uploadedFiles: string[] = [];
 
@@ -30,18 +30,21 @@ export class ActivitiesService {
         files: uploadedFiles,
       });
 
-      return createdActivity;
+      return {
+        id: createdActivity._id.toString(),
+        message: 'Activity created successfully',
+      };
     } catch (err: any) {
       throw new BadRequestException('Error al crear la actividad: ' + err.message);
     }
   }
 
 
-  async findAll() {
+  async findAll(): Promise<Activity[]> {
     return this.activityModel.find().exec();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Activity> {
     const activity = this.activityModel.findById(id);
     if (!activity) {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
@@ -61,8 +64,7 @@ export class ActivitiesService {
   return activities.map(a => a._id.toString());
 }
 
-
-  async update(id: string, updateActivityDto: UpdateActivityDto, userId: string, newFiles?: Express.Multer.File[]): Promise<Activity> {
+  async update(id: string, updateActivityDto: UpdateActivityDto, userId: string, newFiles?: Express.Multer.File[]): Promise<{ id: string, message: string }> {
 
     const activity = await this.activityModel.findById(id);
 
@@ -99,7 +101,7 @@ export class ActivitiesService {
       }
     }
 
-    const updatedActivity = await this.activityModel.findByIdAndUpdate(
+    await this.activityModel.findByIdAndUpdate(
       id,
       {
         ...updateActivityDto,
@@ -109,10 +111,10 @@ export class ActivitiesService {
       { new: true },
     );
 
-    return updatedActivity;
+    return { id, message: 'Activity updated successfully' };
   }
 
-  async removeFile(activityId: string, fileId: string, userId: string) {
+  async removeFile(activityId: string, fileId: string, userId: string): Promise<{ id: string, message: string }> {
 
     const activity = await this.activityModel.findById(activityId);
     if (!activity) {
@@ -125,7 +127,7 @@ export class ActivitiesService {
 
     await this.filesService.deleteFile(fileId);
 
-    const updated = await this.activityModel.findByIdAndUpdate(
+    await this.activityModel.findByIdAndUpdate(
       activityId,
       {
         $pull: { files: fileId },
@@ -134,10 +136,10 @@ export class ActivitiesService {
       { new: true },
     );
 
-    return updated;
+    return { id: activityId, message: 'File removed successfully from activity' };
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<{ id: string, message: string }> {
     const activity = await this.activityModel.findById(id);
 
     if (!activity) {
@@ -150,8 +152,8 @@ export class ActivitiesService {
       }
     }
 
-    const deletedActivity = await this.activityModel.findByIdAndDelete(id);
+    await this.activityModel.findByIdAndDelete(id);
 
-    return deletedActivity;
+    return { id, message: 'Activity deleted successfully' };
   }
 }

@@ -14,10 +14,11 @@ import { Model } from 'mongoose';
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<{ id: string; message: string }> {
     try {
       const createdUser = new this.userModel(createUserDto);
-      return await createdUser.save();
+      await createdUser.save();
+      return { id: createdUser._id.toString(), message: 'User created successfully' };
     } catch (err: any) {
       // Handle duplicate key or validation errors
       if (err.code === 11000) {
@@ -63,7 +64,7 @@ export class UsersService {
     return results;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<{ id: string; message: string }> {
     try {
       const updatedUser = await this.userModel
         .findByIdAndUpdate(id, updateUserDto, { new: true })
@@ -72,7 +73,7 @@ export class UsersService {
       if (!updatedUser)
         throw new NotFoundException(`User with ID: ${id} not found`);
 
-      return updatedUser;
+      return { id, message: 'User updated successfully' };
     } catch (err: any) {
       if (err.code === 11000) {
         throw new BadRequestException(
@@ -95,12 +96,12 @@ export class UsersService {
       .exec();
   }
 
-  async remove(id: string): Promise<User> {
+  async remove(id: string): Promise<{ id: string; message: string }> {
     const deletedUser = await this.userModel.findByIdAndDelete(id).exec();
 
     if (!deletedUser)
       throw new NotFoundException(`User with ID: ${id} not found`);
 
-    return deletedUser;
+    return { id, message: 'User removed successfully' };
   }
 }
