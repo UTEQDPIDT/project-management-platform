@@ -26,7 +26,7 @@ export class EventsController {
   @ApiBadRequestResponse({ description: 'Usuario no encontrado / ya es participante' })
   @UseGuards(JwtAuthGuard)
   @Post(':id/participants')
-  addParticipants(@Param('id') id: string, @Body('userIds') userIds: string[], @Req() req) {
+  addParticipants(@Param('id') id: string, @Body('participants') userIds: string[], @Req() req) {
     return this.eventsService.addParticipants(id, userIds, req.user.id);
   }
 
@@ -45,7 +45,7 @@ export class EventsController {
   @ApiBadRequestResponse({ description: 'Actividad no encontrada o no es válida.' })
   @UseGuards(JwtAuthGuard)
   @Post(':id/activities')
-  addActivities(@Param('id') id: string, @Body('activityIds') activityIds: string[], @Req() req) {
+  addActivities(@Param('id') id: string, @Body('activities') activityIds: string[], @Req() req) {
     return this.eventsService.addActivities(id, activityIds, req.user.id);
   }
 
@@ -54,7 +54,7 @@ export class EventsController {
   @ApiBadRequestResponse({ description: 'Producto no encontrado o no es válido.' })
   @UseGuards(JwtAuthGuard)
   @Post(':id/products')
-  addProducts(@Param('id') id: string, @Body('productIds') productIds: string[], @Req() req) {
+  addProducts(@Param('id') id: string, @Body('products') productIds: string[], @Req() req) {
     return this.eventsService.addProducts(id, productIds, req.user.id);
   }
 
