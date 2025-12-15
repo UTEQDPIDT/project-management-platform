@@ -63,7 +63,7 @@ export class EventsService {
     );
   }
 
-  async uploadReportFile(eventId: string, file: Express.Multer.File, userId: string): Promise<Event> {
+  async uploadReportFile(eventId: string, file: Express.Multer.File, userId: string): Promise<{ report: string, message: string }> {
     if (!file) {
       throw new BadRequestException('No file provided');
     }
@@ -73,17 +73,22 @@ export class EventsService {
       throw new NotFoundException(`Event with ID ${eventId} not found`);
     }
 
+    if (event.report) {
+      throw new BadRequestException('This event already has a report file. Please delete it before uploading a new one.');
+    }
+
     const savedFile = await this.filesService.uploadToGridFS(file, userId);
 
     const updatedEvent = await this.eventModel.findByIdAndUpdate(
       eventId,
       { 
         report: savedFile.id,
-        updatedBy: userId,},
+        updatedBy: userId,
+      },
       { new: true },
     );
 
-    return updatedEvent;
+    return { report: updatedEvent.report, message: 'Report file uploaded successfully' };
   }
 
   async addActivities(eventId: string, activityIds: string[], updater: string): Promise<Event> {
@@ -182,19 +187,18 @@ export class EventsService {
     throw new NotFoundException(`Event with ID ${eventId} not found`);
   }
 
-  const isFile = event.report;
-  if (!isFile) {
+  if (!event.report) {
     throw new BadRequestException('This event has no report file assigned');
   }
 
-  await this.filesService.deleteFile(isFile.toString());
+  await this.filesService.deleteFile(event.report.toString());
 
   const updatedEvent = await this.eventModel.findByIdAndUpdate(
     eventId,
     { 
-      $unset: { report: '' },
+      report: null,
       updatedBy: updater,
-    }, 
+    },
     { new: true }
   );
 

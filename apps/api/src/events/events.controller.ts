@@ -34,10 +34,10 @@ export class EventsController {
   @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
   @UseGuards(JwtAuthGuard)
   @Post(':id/report-file')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('report'))
   @ApiConsumes('multipart/form-data')
-  uploadReportFile(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Req() req) {
-    return this.eventsService.uploadReportFile(id, file, req.user.id);
+  uploadReportFile(@Param('id') id: string, @UploadedFile() report: Express.Multer.File, @Req() req) {
+    return this.eventsService.uploadReportFile(id, report, req.user.id);
   }
 
   @ApiCreatedResponse({ description: 'Actividades agregadas correctamente al evento.' })
