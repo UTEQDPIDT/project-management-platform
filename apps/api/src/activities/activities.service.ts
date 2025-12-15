@@ -49,6 +49,19 @@ export class ActivitiesService {
     return activity;
   }
 
+  async findManyByIds(ids: string[]): Promise<string[]> {
+  const activities = await this.activityModel.find({
+    _id: { $in: ids },
+  }).select('_id');
+
+  if (activities.length !== ids.length) {
+    throw new NotFoundException('One or more activities were not found');
+  }
+
+  return activities.map(a => a._id.toString());
+}
+
+
   async update(id: string, updateActivityDto: UpdateActivityDto, userId: string, newFiles?: Express.Multer.File[]): Promise<Activity> {
 
     const activity = await this.activityModel.findById(id);

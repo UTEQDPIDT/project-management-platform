@@ -30,20 +30,33 @@ export class ProductsService {
   }
 
   async findAll() {
-    return this.productModel.find().exec();
+    return await this.productModel.find().exec();
   }
 
-  findOne(id: string) {
-    const product = this.productModel.findById(id).exec();
+  async findOne(id: string) {
+    const product = await this.productModel.findById(id).exec();
     if (!product) {
       throw new NotFoundException(`Product with ID: ${id} not found`);
     }
     return product;
   }
 
-  update(id: string, updateProductDto: UpdateProductDto) {
+  async findManyByIds(ids: string[]): Promise<string[]> {
+  const products = await this.productModel.find({
+    _id: { $in: ids },
+  }).select('_id');
+
+  if (products.length !== ids.length) {
+    throw new NotFoundException('One or more products were not found');
+  }
+
+  return products.map(p => p._id.toString());
+}
+
+
+  async update(id: string, updateProductDto: UpdateProductDto) {
     try {
-      const updatedProduct = this.productModel.findByIdAndUpdate(
+      const updatedProduct = await this.productModel.findByIdAndUpdate(
         id,
         updateProductDto,
         { new: true },
@@ -59,8 +72,8 @@ export class ProductsService {
     }
   }
 
-  remove(id: string) {
-    const deletedProduct = this.productModel.findByIdAndDelete(id).exec();
+  async remove(id: string) {
+    const deletedProduct = await this.productModel.findByIdAndDelete(id).exec();
 
     if (!deletedProduct)
       throw new NotFoundException(`Product with ID: ${id} not found`);

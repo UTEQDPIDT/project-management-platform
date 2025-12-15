@@ -5,6 +5,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Event } from '../schemas/events.schema';
 import { FilesService } from '../files/files.service';
+import { ProductsService } from '../products/products.service';
+import { ActivitiesService } from '../activities/activities.service';
 
 @Injectable()
 export class EventsService {
@@ -12,6 +14,8 @@ export class EventsService {
   constructor(
     @InjectModel(Event.name) private eventModel: Model<Event>,
     private readonly filesService: FilesService,
+    private readonly activitiesService: ActivitiesService,
+    private readonly productsService: ProductsService,
   ) {}
 
   async create(createEventDto: CreateEventDto, userId: string, report?: Express.Multer.File): Promise<{ id: string, message: string }> {
@@ -62,7 +66,6 @@ export class EventsService {
         $addToSet: { participants: { $each: newIds } },
         updatedBy: updater,
       },
-      //{ new: true }
     );
 
     return {
@@ -93,7 +96,6 @@ export class EventsService {
         report: savedFile.id,
         updatedBy: userId,
       },
-      { new: true },
     );
 
     return { 
@@ -103,18 +105,30 @@ export class EventsService {
   }
 
   async addActivities(eventId: string, activityIds: string[], updater: string): Promise<{ activitiesAdded: string[], message: string }> {
+
     const event = await this.eventModel.findById(eventId);
-    if (!event) throw new NotFoundException(`Event with ID: ${eventId} not found`);
+
+    if (!event) 
+      throw new NotFoundException(`Event with ID: ${eventId} not found`);
 
     if (!Array.isArray(activityIds) || activityIds.length === 0)
       throw new BadRequestException('activityIds must be a non-empty array');
 
+    const existingIds = event.activities.map((a: any) =>
+      a._id ? a._id.toString() : a.toString()
+    );
+    const newIds = activityIds.filter(id => !existingIds.includes(id));
+
+    if (newIds.length === 0)
+      throw new BadRequestException('All activities are already added to the event');
+
+    const validActivities = await this.activitiesService.findManyByIds(newIds);
+
     await this.eventModel.findByIdAndUpdate(eventId,
       { 
-        $addToSet: { activities: { $each: activityIds } },
+        $addToSet: { activities: { $each: validActivities } },
         updatedBy: updater,
       },
-      //{ new: true }
     );
 
     return { 
@@ -130,13 +144,19 @@ export class EventsService {
     if (!Array.isArray(productIds) || productIds.length === 0)
       throw new BadRequestException('productIds must be a non-empty array');
 
+    const existingIds = event.products?.map((p: any) =>
+      p._id ? p._id.toString() : p.toString()
+    ) || [];
+    const newIds = productIds.filter(id => !existingIds.includes(id));
+
+    const validProducts = await this.productsService.findManyByIds(newIds);
+
     await this.eventModel.findByIdAndUpdate(
       eventId,
       { 
-        $addToSet: { products: { $each: productIds } },
+        $addToSet: { products: { $each: validProducts } },
         updatedBy: updater,
       },
-      { new: true }
     );
 
     return { 
@@ -197,7 +217,6 @@ export class EventsService {
         $pull: { participants: userId },
         updatedBy: updater,
       },
-      //{ new: true }
     );
 
     return { 
@@ -224,8 +243,7 @@ export class EventsService {
     { 
       report: null,
       updatedBy: updater,
-    },
-    { new: true }
+    }
   );
 
   return {
@@ -234,7 +252,6 @@ export class EventsService {
   };
 }
 
-
   async removeActivity(eventId: string, activityId: string, updater: string): Promise<{ removedActivity: string, message: string }> {
     await this.eventModel.findByIdAndUpdate(
       eventId,
@@ -242,7 +259,6 @@ export class EventsService {
         $pull: { activities: activityId },
         updatedBy: updater,
       },
-      //{ new: true }
     );
 
     return { 
@@ -257,8 +273,7 @@ export class EventsService {
       { 
         $pull: { products: productId },
         updatedBy: updater,
-      },
-      { new: true }
+      }
     );
 
     return { 
