@@ -1,5 +1,4 @@
-'use client';
-
+import { CreateProjectForm } from '@/components/forms/create-project-form';
 import {
   Header,
   HeaderAction,
@@ -32,7 +31,9 @@ const Page = () => {
           </Button>
         </HeaderAction>
       </Header>
-      <PageContent className="items-center">Form</PageContent>
+      <PageContent className="items-center">
+        <CreateProjectForm />
+      </PageContent>
     </div>
   );
 };
