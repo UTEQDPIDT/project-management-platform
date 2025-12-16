@@ -77,7 +77,7 @@ export class User extends Document {
   @Prop({
     unique: true,
     required: false,
-    //sparse: true, // permite múltiples null
+    sparse: true, // permite múltiples null
     maxLength: 10,
     minLength: 10,
     
@@ -118,7 +118,7 @@ export class User extends Document {
     maxLength: 10,
     minLength: 5,
   })
-  @Prop({ unique: true, required: false })
+  @Prop({ unique: true, sparse: true, required: false })
   employeeNumber: string;
 
   @ApiPropertyOptional({
