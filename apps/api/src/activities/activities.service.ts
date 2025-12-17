@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,13 +17,20 @@ export class ActivitiesService {
     private readonly filesService: FilesService,
   ) {}
 
-  async create(createActivityDto: CreateActivityDto, userId: string, files?: Express.Multer.File[]): Promise<Activity> {
+  async create(
+    createActivityDto: CreateActivityDto,
+    userId: string,
+    files?: Express.Multer.File[],
+  ): Promise<Activity> {
     try {
       let uploadedFiles: string[] = [];
 
       if (files && files.length > 0) {
         for (const file of files) {
-          const savedFile = await this.filesService.uploadToGridFS(file, userId);
+          const savedFile = await this.filesService.uploadToGridFS(
+            file,
+            userId,
+          );
           uploadedFiles.push(savedFile.id);
         }
       }
@@ -32,10 +43,26 @@ export class ActivitiesService {
 
       return createdActivity;
     } catch (err: any) {
-      throw new BadRequestException('Error al crear la actividad: ' + err.message);
+      throw new BadRequestException(
+        'Error al crear la actividad: ' + err.message,
+      );
     }
   }
 
+  async createOnBulk(createActivityDto: CreateActivityDto[], userId: string) {
+    try {
+      const activities = await this.activityModel.insertMany(
+        createActivityDto.map((dto) => ({
+          ...dto,
+          createdBy: userId,
+        })),
+      );
+
+      return activities;
+    } catch (err: any) {
+      throw new BadRequestException('Error al crear actividades', err.message);
+    }
+  }
 
   async findAll() {
     return this.activityModel.find().exec();
@@ -49,8 +76,12 @@ export class ActivitiesService {
     return activity;
   }
 
-  async update(id: string, updateActivityDto: UpdateActivityDto, userId: string, newFiles?: Express.Multer.File[]): Promise<Activity> {
-
+  async update(
+    id: string,
+    updateActivityDto: UpdateActivityDto,
+    userId: string,
+    newFiles?: Express.Multer.File[],
+  ): Promise<Activity> {
     const activity = await this.activityModel.findById(id);
 
     if (!activity) {
@@ -61,15 +92,14 @@ export class ActivitiesService {
 
     // Obtener metadata de los archivos existentes
     const existingFilesMetadata = await Promise.all(
-      updatedFiles.map(fileId => this.filesService.getFileMetadata(fileId)),
+      updatedFiles.map((fileId) => this.filesService.getFileMetadata(fileId)),
     );
 
     // Validar duplicados por nombre
     if (newFiles && newFiles.length > 0) {
-
       for (const file of newFiles) {
         const duplicate = existingFilesMetadata.find(
-          meta => meta.name === file.originalname,
+          (meta) => meta.name === file.originalname,
         );
 
         if (duplicate) {
@@ -100,7 +130,6 @@ export class ActivitiesService {
   }
 
   async removeFile(activityId: string, fileId: string, userId: string) {
-
     const activity = await this.activityModel.findById(activityId);
     if (!activity) {
       throw new NotFoundException(`Activity with ID ${activityId} not found`);
@@ -131,8 +160,8 @@ export class ActivitiesService {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
     }
 
-    if(activity.files && activity.files.length > 0){
-      for (const fileId of activity.files){
+    if (activity.files && activity.files.length > 0) {
+      for (const fileId of activity.files) {
         await this.filesService.deleteFile(fileId.toString());
       }
     }
