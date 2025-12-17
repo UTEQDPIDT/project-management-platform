@@ -331,8 +331,8 @@ export function CreateProjectForm() {
                       <FieldContent>
                         <FieldLabel>Áreas del Conocimiento</FieldLabel>
                         <FieldDescription>
-                          Selecciona al menos un área del conocimiento asociada
-                          al proyecto.
+                          Selecciona las áreas del conocimiento asociadas al
+                          proyecto.
                         </FieldDescription>
                       </FieldContent>
                       <Popover>
@@ -342,9 +342,13 @@ export function CreateProjectForm() {
                             role="combobox"
                             className="w-full justify-between"
                           >
-                            {value.length
-                              ? `${value.length} seleccionados`
-                              : 'Selecciona alguna opicón'}
+                            {value.length ? (
+                              `${value.length} seleccionados`
+                            ) : (
+                              <span className="text-muted-foreground font-normal">
+                                Sin selección
+                              </span>
+                            )}
                             <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
@@ -403,7 +407,7 @@ export function CreateProjectForm() {
                           Impactos temáticos transversales
                         </FieldLabel>
                         <FieldDescription>
-                          Elige los Impactos temáticos transversales que
+                          Selecciona los impactos temáticos transversales que
                           apliquen al proyecto.
                         </FieldDescription>
                       </FieldContent>
@@ -414,9 +418,13 @@ export function CreateProjectForm() {
                             role="combobox"
                             className="w-full justify-between"
                           >
-                            {value.length
-                              ? `${value.length} seleccionados`
-                              : 'Selecciona alguna opicón'}
+                            {value.length ? (
+                              `${value.length} seleccionados`
+                            ) : (
+                              <span className="text-muted-foreground font-normal">
+                                Sin selección
+                              </span>
+                            )}
                             <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
@@ -475,7 +483,7 @@ export function CreateProjectForm() {
                           Prioridades Nacionales del PND Sección SEHCITI
                         </FieldLabel>
                         <FieldDescription>
-                          Elige las Prioridades Nacionales del PND Sección
+                          Selecciona las Prioridades Nacionales del PND Sección
                           SEHCITI que aplican al proyecto.
                         </FieldDescription>
                       </FieldContent>
@@ -486,9 +494,13 @@ export function CreateProjectForm() {
                             role="combobox"
                             className="w-full justify-between"
                           >
-                            {value.length
-                              ? `${value.length} seleccionados`
-                              : 'Selecciona alguna opicón'}
+                            {value.length ? (
+                              `${value.length} seleccionados`
+                            ) : (
+                              <span className="text-muted-foreground font-normal">
+                                Sin selección
+                              </span>
+                            )}
                             <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
@@ -558,9 +570,13 @@ export function CreateProjectForm() {
                             role="combobox"
                             className="w-full justify-between"
                           >
-                            {value.length
-                              ? `${value.length} seleccionados`
-                              : 'Selecciona alguna opción'}
+                            {value.length ? (
+                              `${value.length} seleccionados`
+                            ) : (
+                              <span className="text-muted-foreground font-normal">
+                                Sin selección
+                              </span>
+                            )}
                             <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
@@ -620,10 +636,10 @@ export function CreateProjectForm() {
                           Desarrollo Tecnológico (LIIADT's){' '}
                         </FieldLabel>
                         <FieldDescription>
-                          Selecciona al menos una LIIADT's estratégica de la
-                          UTEQ con nichos tecnológicos prioritarios de
-                          desarrollo en temas de Industria 4.0 con los que se
-                          relaciona el proyecto.
+                          Selecciona las LIIADT's estratégicas de la UTEQ con
+                          nichos tecnológicos prioritarios de desarrollo en
+                          temas de Industria 4.0 con las que se relaciona el
+                          proyecto.
                         </FieldDescription>
                       </FieldContent>
                       <Popover>
@@ -633,9 +649,13 @@ export function CreateProjectForm() {
                             role="combobox"
                             className="w-full justify-between"
                           >
-                            {value.length
-                              ? `${value.length} seleccionados`
-                              : 'Selecciona alguna opción'}
+                            {value.length ? (
+                              `${value.length} seleccionados`
+                            ) : (
+                              <span className="text-muted-foreground font-normal">
+                                Sin selección
+                              </span>
+                            )}
                             <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
