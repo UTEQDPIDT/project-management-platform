@@ -23,7 +23,7 @@ import {
   TeamsGrade,
   ImpactLevel,
 } from '@repo/types';
-import { PlusIcon, XIcon } from 'lucide-react';
+import { Check, ChevronsUpDown, PlusIcon, XIcon } from 'lucide-react';
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
 import {
@@ -61,6 +61,8 @@ import {
 import { Switch } from '../ui/switch';
 import { useRouter } from 'next/navigation';
 import { projectSchema } from '@/schemas/project.schema';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Command, CommandGroup, CommandItem } from '../ui/command';
 
 export function CreateProjectForm() {
   const router = useRouter();
@@ -79,7 +81,7 @@ export function CreateProjectForm() {
   const { data: knowledgeAreas, isLoading: loadingKnowledgeAreas } =
     useKnowledgeAreas();
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
     mode: 'onChange',
     defaultValues: {
@@ -277,7 +279,7 @@ export function CreateProjectForm() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Áreas de Impacto e Innovación</CardTitle>
+            <CardTitle>Impacto del proyecto</CardTitle>
             <CardDescription>
               Las áreas y nivel en las que impacta el proyecto.
             </CardDescription>
@@ -293,7 +295,7 @@ export function CreateProjectForm() {
                 }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>
-                      Nivel de Impacto
+                      Nivel de impacto
                     </FieldLabel>
                     <Select {...field} onValueChange={onChange}>
                       <SelectTrigger
@@ -320,21 +322,363 @@ export function CreateProjectForm() {
 
               <Controller
                 control={form.control}
-                name="impactAreas"
-                render={({
-                  field: { onChange, onBlur, ...field },
-                  fieldState,
-                }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Área de conocimiento asociada
-                    </FieldLabel>
+                name="knowledgeAreas"
+                render={({ field }) => {
+                  const value = field.value ?? []; // ✅ FIX
 
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
+                  return (
+                    <FieldGroup>
+                      <FieldContent>
+                        <FieldLabel>Áreas del Conocimiento</FieldLabel>
+                        <FieldDescription>
+                          Selecciona al menos un área del conocimiento asociada
+                          al proyecto.
+                        </FieldDescription>
+                      </FieldContent>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between"
+                          >
+                            {value.length
+                              ? `${value.length} seleccionados`
+                              : 'Selecciona alguna opicón'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandGroup>
+                              {loadingKnowledgeAreas ? (
+                                <CommandItem disabled>Cargando</CommandItem>
+                              ) : (
+                                knowledgeAreas.map((area: SeedCategory) => {
+                                  const selected = value.includes(area._id);
+
+                                  return (
+                                    <CommandItem
+                                      key={area._id}
+                                      onSelect={() => {
+                                        field.onChange(
+                                          selected
+                                            ? value.filter(
+                                                (v) => v !== area._id,
+                                              )
+                                            : [...value, area._id],
+                                        );
+                                      }}
+                                    >
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${
+                                          selected ? 'opacity-100' : 'opacity-0'
+                                        }`}
+                                      />
+                                      {area.name}
+                                    </CommandItem>
+                                  );
+                                })
+                              )}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FieldGroup>
+                  );
+                }}
+              />
+
+              <Controller
+                control={form.control}
+                name="impactAreas"
+                render={({ field }) => {
+                  const value = field.value ?? [];
+
+                  return (
+                    <FieldGroup>
+                      <FieldContent>
+                        <FieldLabel>
+                          Impactos temáticos transversales
+                        </FieldLabel>
+                        <FieldDescription>
+                          Elige los Impactos temáticos transversales que
+                          apliquen al proyecto.
+                        </FieldDescription>
+                      </FieldContent>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between"
+                          >
+                            {value.length
+                              ? `${value.length} seleccionados`
+                              : 'Selecciona alguna opicón'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandGroup>
+                              {loadingImpactAreas ? (
+                                <CommandItem disabled>Cargando</CommandItem>
+                              ) : (
+                                impactAreas.map((area: SeedCategory) => {
+                                  const selected = value.includes(area._id);
+
+                                  return (
+                                    <CommandItem
+                                      key={area._id}
+                                      onSelect={() => {
+                                        field.onChange(
+                                          selected
+                                            ? value.filter(
+                                                (v) => v !== area._id,
+                                              )
+                                            : [...value, area._id],
+                                        );
+                                      }}
+                                    >
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${
+                                          selected ? 'opacity-100' : 'opacity-0'
+                                        }`}
+                                      />
+                                      {area.name}
+                                    </CommandItem>
+                                  );
+                                })
+                              )}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FieldGroup>
+                  );
+                }}
+              />
+
+              <Controller
+                control={form.control}
+                name="prioritiesPND"
+                render={({ field }) => {
+                  const value = field.value ?? [];
+
+                  return (
+                    <FieldGroup>
+                      <FieldContent>
+                        <FieldLabel>
+                          Prioridades Nacionales del PND Sección SEHCITI
+                        </FieldLabel>
+                        <FieldDescription>
+                          Elige las Prioridades Nacionales del PND Sección
+                          SEHCITI que aplican al proyecto.
+                        </FieldDescription>
+                      </FieldContent>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between"
+                          >
+                            {value.length
+                              ? `${value.length} seleccionados`
+                              : 'Selecciona alguna opicón'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandGroup>
+                              {loadingPndPriorities ? (
+                                <CommandItem disabled>Cargando</CommandItem>
+                              ) : (
+                                pndPriorities.map((priority: SeedCategory) => {
+                                  const selected = value.includes(priority._id);
+
+                                  return (
+                                    <CommandItem
+                                      key={priority._id}
+                                      onSelect={() => {
+                                        field.onChange(
+                                          selected
+                                            ? value.filter(
+                                                (v) => v !== priority._id,
+                                              )
+                                            : [...value, priority._id],
+                                        );
+                                      }}
+                                    >
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${
+                                          selected ? 'opacity-100' : 'opacity-0'
+                                        }`}
+                                      />
+                                      {priority.name}
+                                    </CommandItem>
+                                  );
+                                })
+                              )}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FieldGroup>
+                  );
+                }}
+              />
+
+              <Controller
+                control={form.control}
+                name="sustainableObjectives"
+                render={({ field }) => {
+                  const value = field.value ?? [];
+
+                  return (
+                    <FieldGroup>
+                      <FieldContent>
+                        <FieldLabel>
+                          Objetivos de Desarrollo Sustentable
+                        </FieldLabel>
+                        <FieldDescription>
+                          Selecciona, si aplica, los objetivos de desarrollo
+                          sustentable que apliquen al proyecto.
+                        </FieldDescription>
+                      </FieldContent>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between"
+                          >
+                            {value.length
+                              ? `${value.length} seleccionados`
+                              : 'Selecciona alguna opción'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandGroup>
+                              {loadingSustainableGoals ? (
+                                <CommandItem disabled>Cargando</CommandItem>
+                              ) : (
+                                sustainableGoals.map((goal: SeedCategory) => {
+                                  const selected = value.includes(goal._id);
+
+                                  return (
+                                    <CommandItem
+                                      key={goal._id}
+                                      onSelect={() => {
+                                        field.onChange(
+                                          selected
+                                            ? value.filter(
+                                                (v) => v !== goal._id,
+                                              )
+                                            : [...value, goal._id],
+                                        );
+                                      }}
+                                    >
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${
+                                          selected ? 'opacity-100' : 'opacity-0'
+                                        }`}
+                                      />
+                                      {goal.name}
+                                    </CommandItem>
+                                  );
+                                })
+                              )}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FieldGroup>
+                  );
+                }}
+              />
+
+              <Controller
+                control={form.control}
+                name="innovationLines"
+                render={({ field }) => {
+                  const value = field.value ?? [];
+
+                  return (
+                    <FieldGroup>
+                      <FieldContent>
+                        <FieldLabel>
+                          Líneas Innovadoras de Investigación Aplicada y
+                          Desarrollo Tecnológico (LIIADT's){' '}
+                        </FieldLabel>
+                        <FieldDescription>
+                          Selecciona al menos una LIIADT's estratégica de la
+                          UTEQ con nichos tecnológicos prioritarios de
+                          desarrollo en temas de Industria 4.0 con los que se
+                          relaciona el proyecto.
+                        </FieldDescription>
+                      </FieldContent>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between"
+                          >
+                            {value.length
+                              ? `${value.length} seleccionados`
+                              : 'Selecciona alguna opción'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="w-full lg:max-w-2xl max-h-96 overflow-y-auto p-0">
+                          <Command>
+                            <CommandGroup>
+                              {loadingDevelopmentLines ? (
+                                <CommandItem disabled>Cargando</CommandItem>
+                              ) : (
+                                developmentLines.map((line: SeedCategory) => {
+                                  const selected = value.includes(line._id);
+
+                                  return (
+                                    <CommandItem
+                                      key={line._id}
+                                      onSelect={() => {
+                                        field.onChange(
+                                          selected
+                                            ? value.filter(
+                                                (v) => v !== line._id,
+                                              )
+                                            : [...value, line._id],
+                                        );
+                                      }}
+                                    >
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${
+                                          selected ? 'opacity-100' : 'opacity-0'
+                                        }`}
+                                      />
+                                      {line.name}
+                                    </CommandItem>
+                                  );
+                                })
+                              )}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FieldGroup>
+                  );
+                }}
               />
             </FieldGroup>
           </CardContent>
@@ -347,9 +691,7 @@ export function CreateProjectForm() {
               El proyecto debe tener por lo menos 5 actividades clave.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <FieldGroup></FieldGroup>
-          </CardContent>
+          <CardContent></CardContent>
         </Card>
 
         <Card>
@@ -393,45 +735,6 @@ export function CreateProjectForm() {
                   </Field>
                 )}
               />
-
-              {/* <Controller
-                control={form.control}
-                name="relatedProjects"
-                render={({
-                  field: { onChange, onBlur, ...field },
-                  fieldState,
-                }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>División</FieldLabel>
-                    <FieldDescription>
-                      Proyectos antecesores o relaconados al proyecto.
-                    </FieldDescription>
-                    <Select {...field} onValueChange={onChange}>
-                      <SelectTrigger
-                        id={field.name}
-                        onBlur={onBlur}
-                        aria-invalid={fieldState.invalid}
-                      >
-                        <SelectValue placeholder="Selecciona una división" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {loadingDivisions ? (
-                          <LoadingMessage message="Cargando divisiones" />
-                        ) : (
-                          divisions.map((division: SeedCategory) => (
-                            <SelectItem key={division._id} value={division._id}>
-                              {division.name}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              /> */}
             </FieldGroup>
           </CardContent>
         </Card>
