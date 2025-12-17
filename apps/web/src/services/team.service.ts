@@ -27,6 +27,15 @@ const getTeam = async (teamId: string) => {
   }
 };
 
+const getByUser = async () => {
+  try {
+    const { data } = await api.get('/teams/by-user');
+    return data;
+  } catch (err) {
+    console.error('Error fetching team by user', err);
+  }
+};
+
 const createTeam = async (
   teamData: Pick<
     ITeam,
@@ -139,6 +148,7 @@ const rejectRequest = async (teamId: string, userId: string) => {
 export {
   getAllTeams,
   getTeam,
+  getByUser,
   createTeam,
   updateTeam,
   deleteTeam,
