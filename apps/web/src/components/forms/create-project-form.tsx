@@ -22,6 +22,7 @@ import {
   IResolvedEmail,
   TeamsGrade,
   ImpactLevel,
+  IProject,
 } from '@repo/types';
 import { Check, ChevronsUpDown, PlusIcon, XIcon } from 'lucide-react';
 import LoadingMessage from '../loading-message';
@@ -63,6 +64,7 @@ import { useRouter } from 'next/navigation';
 import { projectSchema } from '@/schemas/project.schema';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Command, CommandGroup, CommandItem } from '../ui/command';
+import { useProjectsByOwner } from '@/hooks/projects';
 
 export function CreateProjectForm() {
   const router = useRouter();
@@ -80,6 +82,7 @@ export function CreateProjectForm() {
     useDevelopmentLines();
   const { data: knowledgeAreas, isLoading: loadingKnowledgeAreas } =
     useKnowledgeAreas();
+  const { data: projects, isLoading: loadingProjects } = useProjectsByOwner();
 
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
@@ -729,17 +732,19 @@ export function CreateProjectForm() {
                   fieldState,
                 }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Equipo</FieldLabel>
-                    <FieldDescription>
-                      El equipo que trabajará en el proyecto.
-                    </FieldDescription>
+                    <FieldContent>
+                      <FieldLabel htmlFor={field.name}>Equipo</FieldLabel>
+                      <FieldDescription>
+                        El equipo que trabajará en el proyecto.{' '}
+                      </FieldDescription>
+                    </FieldContent>
                     <Select {...field} onValueChange={onChange}>
                       <SelectTrigger
                         id={field.name}
                         onBlur={onBlur}
                         aria-invalid={fieldState.invalid}
                       >
-                        <SelectValue placeholder="Selecciona un nivel" />
+                        <SelectValue placeholder="Sin selección" />
                       </SelectTrigger>
                       <SelectContent>
                         {Object.values(ImpactLevel).map((level) => (
@@ -754,6 +759,85 @@ export function CreateProjectForm() {
                     )}
                   </Field>
                 )}
+              />
+
+              <Controller
+                control={form.control}
+                name="relatedProjects"
+                render={({ field }) => {
+                  const value = field.value ?? [];
+
+                  return (
+                    <FieldGroup>
+                      <FieldContent>
+                        <FieldLabel>Proyectos Relacionados</FieldLabel>
+                        <FieldDescription>
+                          Proyectos antecesores a este nuevo proyecto.
+                        </FieldDescription>
+                      </FieldContent>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between"
+                          >
+                            {value.length ? (
+                              `${value.length} seleccionados`
+                            ) : (
+                              <span className="text-muted-foreground font-normal">
+                                Sin selección
+                              </span>
+                            )}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="w-full lg:max-w-2xl max-h-96 overflow-y-auto p-0">
+                          <Command>
+                            <CommandGroup>
+                              {loadingProjects ? (
+                                <CommandItem disabled>Cargando</CommandItem>
+                              ) : projects.lenght > 0 ? (
+                                projects.map((project: IProject) => {
+                                  const selected = value.includes(project._id);
+
+                                  return (
+                                    <CommandItem
+                                      key={project._id}
+                                      onSelect={() => {
+                                        field.onChange(
+                                          selected
+                                            ? value.filter(
+                                                (v) => v !== project._id,
+                                              )
+                                            : [...value, project._id],
+                                        );
+                                      }}
+                                    >
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${
+                                          selected ? 'opacity-100' : 'opacity-0'
+                                        }`}
+                                      />
+                                      {project.name}
+                                    </CommandItem>
+                                  );
+                                })
+                              ) : (
+                                <div className="w-full select-none p-2 flex items-center justify-center">
+                                  <span className="text-muted-foreground text-sm">
+                                    No tienes otros proyectos
+                                  </span>
+                                </div>
+                              )}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FieldGroup>
+                  );
+                }}
               />
             </FieldGroup>
           </CardContent>
