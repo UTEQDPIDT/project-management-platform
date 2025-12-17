@@ -13,7 +13,7 @@ import {
   useSustainableGoals,
   useThemedImpactAreas,
 } from '@/hooks/catalogs';
-import { useCreateTeam, useTeam } from '@/hooks/team';
+import { useCreateTeam, useTeam, useTeamsByUser } from '@/hooks/team';
 
 import { resolveEmails } from '@/services/user.service';
 
@@ -23,6 +23,7 @@ import {
   TeamsGrade,
   ImpactLevel,
   IProject,
+  ITeam,
 } from '@repo/types';
 import { Check, ChevronsUpDown, PlusIcon, XIcon } from 'lucide-react';
 import LoadingMessage from '../loading-message';
@@ -82,6 +83,7 @@ export function CreateProjectForm() {
     useDevelopmentLines();
   const { data: knowledgeAreas, isLoading: loadingKnowledgeAreas } =
     useKnowledgeAreas();
+  const { data: teams, isLoading: loadingTeams } = useTeamsByUser();
   const { data: projects, isLoading: loadingProjects } = useProjectsByOwner();
 
   const form = useForm<z.infer<typeof projectSchema>>({
@@ -735,7 +737,7 @@ export function CreateProjectForm() {
                     <FieldContent>
                       <FieldLabel htmlFor={field.name}>Equipo</FieldLabel>
                       <FieldDescription>
-                        El equipo que trabajará en el proyecto.{' '}
+                        El equipo que trabajará en el proyecto.
                       </FieldDescription>
                     </FieldContent>
                     <Select {...field} onValueChange={onChange}>
@@ -747,11 +749,15 @@ export function CreateProjectForm() {
                         <SelectValue placeholder="Sin selección" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.values(ImpactLevel).map((level) => (
-                          <SelectItem key={level} value={level}>
-                            {level}
-                          </SelectItem>
-                        ))}
+                        {loadingTeams ? (
+                          <LoadingMessage message="Cargando equipos" />
+                        ) : (
+                          teams.map((team: ITeam) => (
+                            <SelectItem key={team._id} value={team._id}>
+                              {team.teamName}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     {fieldState.invalid && (
