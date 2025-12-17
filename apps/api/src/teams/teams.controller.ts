@@ -19,6 +19,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 
@@ -95,6 +96,14 @@ export class TeamsController {
     isPrivate?: boolean,
   ) {
     return this.teamsService.findAll({ userId: req.user.id, isPrivate });
+  }
+
+  @ApiOkResponse({ description: 'Lista de equipos obtenida correctamente.' })
+  @ApiUnauthorizedResponse({ description: 'Cookie expirada' })
+  @UseGuards(JwtAuthGuard)
+  @Get('by-user')
+  findByUser(@Req() req) {
+    return this.teamsService.findByUser(req.user.id);
   }
 
   @ApiOkResponse({ description: 'Equipo obtenido correctamente.' })
