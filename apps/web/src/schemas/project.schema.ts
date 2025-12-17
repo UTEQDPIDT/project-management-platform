@@ -24,7 +24,11 @@ export const projectSchema = z.object({
   impactLevel: z.enum(ImpactLevel),
   organization: z.string().optional(),
   activities: z
-    .array(z.string())
+    .array(
+      z.object({
+        name: z.string(),
+      }),
+    )
     .min(5, 'El proyecto debe tener un mínimo de 5 actividades.'),
   team: mongoId.or(z.literal('')),
   relatedProjects: z.array(mongoId),

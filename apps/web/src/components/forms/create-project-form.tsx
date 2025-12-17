@@ -24,8 +24,9 @@ import {
   ImpactLevel,
   IProject,
   ITeam,
+  IActivity,
 } from '@repo/types';
-import { Check, ChevronsUpDown, PlusIcon, XIcon } from 'lucide-react';
+import { Check, ChevronsUpDown, Logs, PlusIcon, XIcon } from 'lucide-react';
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
 import {
@@ -66,6 +67,7 @@ import { projectSchema } from '@/schemas/project.schema';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Command, CommandGroup, CommandItem } from '../ui/command';
 import { useProjectsByOwner } from '@/hooks/projects';
+import { createOnBulk } from '@/services/activity.service';
 
 export function CreateProjectForm() {
   const router = useRouter();
@@ -123,12 +125,17 @@ export function CreateProjectForm() {
    */
   const onSubmit = async (data: z.infer<typeof projectSchema>) => {
     try {
-      console.log(data);
+      console.log('RAW DATA', data);
+      //   const newActivities = await createOnBulk(data.activities);
+      //   console.log('NEW ACTIVITIES', newActivities);
 
-      //   const cleanedData = {
-      //     ...data,
-      //   };
-      //   createTeamMutation.mutate(cleanedData);
+      const cleanedData = {
+        ...data,
+        // activities: newActivities.map((activity: IActivity) => activity._id),
+      };
+      console.log('CLEANED DATA', cleanedData);
+
+      //   TODO mutation
       //   form.reset();
       //   router.push('/user/proyectos');
     } catch (err) {
@@ -732,7 +739,7 @@ export function CreateProjectForm() {
                 {activities.map((field, index) => (
                   <Controller
                     key={field.id}
-                    name={`activities.${index}`}
+                    name={`activities.${index}.name`}
                     control={form.control}
                     render={({ field: controllerField, fieldState }) => (
                       <Field
@@ -773,7 +780,7 @@ export function CreateProjectForm() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => addActivity('')}
+                  onClick={() => addActivity({ name: '' })}
                 >
                   Añadir Actividad
                 </Button>
