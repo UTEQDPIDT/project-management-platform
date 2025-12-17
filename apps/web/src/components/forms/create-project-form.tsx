@@ -101,11 +101,21 @@ export function CreateProjectForm() {
       innovationLines: [],
       impactLevel: ImpactLevel.LOCAL,
       organization: '',
+      activities: [],
       team: '',
       relatedProjects: [],
       startDate: undefined,
       endDate: undefined,
     },
+  });
+
+  const {
+    fields: activities,
+    append: addActivity,
+    remove: removeActivity,
+  } = useFieldArray({
+    control: form.control,
+    name: 'activities',
   });
 
   /**
@@ -345,12 +355,12 @@ export function CreateProjectForm() {
                           <Button
                             variant="outline"
                             role="combobox"
-                            className="w-full justify-between"
+                            className="w-full justify-between font-normal"
                           >
                             {value.length ? (
                               `${value.length} seleccionados`
                             ) : (
-                              <span className="text-muted-foreground font-normal">
+                              <span className="text-muted-foreground">
                                 Sin selección
                               </span>
                             )}
@@ -421,12 +431,12 @@ export function CreateProjectForm() {
                           <Button
                             variant="outline"
                             role="combobox"
-                            className="w-full justify-between"
+                            className="w-full justify-between font-normal"
                           >
                             {value.length ? (
                               `${value.length} seleccionados`
                             ) : (
-                              <span className="text-muted-foreground font-normal">
+                              <span className="text-muted-foreground">
                                 Sin selección
                               </span>
                             )}
@@ -497,12 +507,12 @@ export function CreateProjectForm() {
                           <Button
                             variant="outline"
                             role="combobox"
-                            className="w-full justify-between"
+                            className="w-full justify-between font-normal"
                           >
                             {value.length ? (
                               `${value.length} seleccionados`
                             ) : (
-                              <span className="text-muted-foreground font-normal">
+                              <span className="text-muted-foreground">
                                 Sin selección
                               </span>
                             )}
@@ -573,12 +583,12 @@ export function CreateProjectForm() {
                           <Button
                             variant="outline"
                             role="combobox"
-                            className="w-full justify-between"
+                            className="w-full justify-between font-normal"
                           >
                             {value.length ? (
                               `${value.length} seleccionados`
                             ) : (
-                              <span className="text-muted-foreground font-normal">
+                              <span className="text-muted-foreground">
                                 Sin selección
                               </span>
                             )}
@@ -652,12 +662,12 @@ export function CreateProjectForm() {
                           <Button
                             variant="outline"
                             role="combobox"
-                            className="w-full justify-between"
+                            className="w-full justify-between font-normal"
                           >
                             {value.length ? (
                               `${value.length} seleccionados`
                             ) : (
-                              <span className="text-muted-foreground font-normal">
+                              <span className="text-muted-foreground">
                                 Sin selección
                               </span>
                             )}
@@ -716,7 +726,63 @@ export function CreateProjectForm() {
               El proyecto debe tener por lo menos 5 actividades clave.
             </CardDescription>
           </CardHeader>
-          <CardContent></CardContent>
+          <CardContent>
+            <FieldSet>
+              <FieldGroup className="gap-4">
+                {activities.map((field, index) => (
+                  <Controller
+                    key={field.id}
+                    name={`activities.${index}`}
+                    control={form.control}
+                    render={({ field: controllerField, fieldState }) => (
+                      <Field
+                        orientation="horizontal"
+                        data-invalid={fieldState.invalid}
+                      >
+                        <FieldContent>
+                          <InputGroup>
+                            <InputGroupInput
+                              {...controllerField}
+                              id={`activity.${index}`}
+                              aria-invalid={fieldState.invalid}
+                              placeholder="e.g. Investigación bibliográfica sobre los neuromitos actuales en la educación. "
+                            />
+                            {activities.length > 5 && (
+                              <InputGroupAddon align="inline-end">
+                                <InputGroupButton
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon-xs"
+                                  onClick={() => removeActivity(index)}
+                                  aria-label={`Eliminar actividad ${index + 1}`}
+                                >
+                                  <XIcon />
+                                </InputGroupButton>
+                              </InputGroupAddon>
+                            )}
+                          </InputGroup>
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </FieldContent>
+                      </Field>
+                    )}
+                  />
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addActivity('')}
+                >
+                  Añadir Actividad
+                </Button>
+              </FieldGroup>
+              {form.formState.errors.activities?.root && (
+                <FieldError errors={[form.formState.errors.activities.root]} />
+              )}
+            </FieldSet>
+          </CardContent>
         </Card>
 
         <Card>
@@ -786,7 +852,7 @@ export function CreateProjectForm() {
                           <Button
                             variant="outline"
                             role="combobox"
-                            className="w-full justify-between"
+                            className="w-full justify-between font-normal"
                           >
                             {value.length ? (
                               `${value.length} seleccionados`
