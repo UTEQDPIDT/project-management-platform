@@ -1,5 +1,5 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document} from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { ApiProperty } from '@nestjs/swagger';
 import { Priority, Status } from '@repo/types';
@@ -20,12 +20,11 @@ export class Activity extends Document {
 
   @ApiProperty({ description: 'Estado de la actividad' })
   @Prop({
-    required: true,
     type: String,
     enum: Object.values(Status),
     default: Status.PENDING,
   })
-  status: Status;
+  status?: Status;
 
   @ApiProperty({
     description: 'Sirve para filtrar las actividades completadas',
@@ -43,7 +42,7 @@ export class Activity extends Document {
 
   @ApiProperty({ description: 'Evidencias de la actividad.' })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }] })
-  files: string[];
+  files?: string[];
 
   @ApiProperty({
     description:

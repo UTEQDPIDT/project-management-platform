@@ -1,72 +1,82 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Priority, Status } from '@repo/types';
-import { IsBoolean, IsDate, IsEnum, IsMongoId, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsMongoId,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateActivityDto {
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Nombre de la actividad',
-    example: 'Entrega del proyecto final'
+    example: 'Entrega del proyecto final',
   })
   @IsString()
   name: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Descripcion de la actividad',
     maxLength: 500,
-    example: 'Descripción detallada de la actividad a realizar.'
+    example: 'Descripción detallada de la actividad a realizar.',
   })
   @IsOptional()
   @IsString()
   @MaxLength(500)
   description?: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Prioridad de la actividad',
     enum: Priority,
-    example: Priority.HIGH
+    example: Priority.HIGH,
   })
   @IsOptional()
   @IsEnum(Priority)
   priority?: Priority;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Estado de la actividad',
     enum: Status,
-    example: Status.PENDING
+    example: Status.PENDING,
   })
+  @IsOptional()
   @IsEnum(Status)
-  status: Status;
+  status?: Status;
 
   @ApiProperty({
-    description: 'Sirve para filtrar las actividades completadas', 
+    description: 'Sirve para filtrar las actividades completadas',
     example: false,
   })
   @IsOptional()
   @IsBoolean()
   checked?: boolean;
 
-  @ApiProperty({ 
+  @ApiProperty({
     type: 'string',
     format: 'binary',
     required: false,
     isArray: true,
-    description: 'Evidencias de la actividad.'
+    description: 'Evidencias de la actividad.',
   })
   @IsOptional()
   @IsMongoId({ each: true })
   files?: any[];
 
-  @ApiProperty({ 
-    description: 'Fecha de vencimiento de la actividad. Al existir una fecha final de vencimiento, esta será el inicio del plazo.',
-    example: '2024-12-30T23:59:59.999Z'
+  @ApiProperty({
+    description:
+      'Fecha de vencimiento de la actividad. Al existir una fecha final de vencimiento, esta será el inicio del plazo.',
+    example: '2024-12-30T23:59:59.999Z',
   })
   @IsOptional()
   @IsDate()
   dueDate?: Date;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Fecha final de vencimiento de la actividad',
-    example: '2024-12-31T23:59:59.999Z'
+    example: '2024-12-31T23:59:59.999Z',
   })
   @IsOptional()
   @IsDate()
