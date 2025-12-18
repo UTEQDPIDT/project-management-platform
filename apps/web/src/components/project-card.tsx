@@ -36,7 +36,7 @@ export function ProjectCard({
   startDate,
   endDate,
   team,
-  relatedProject,
+  relatedProjects,
   activities,
   files,
 }: Pick<
@@ -50,7 +50,7 @@ export function ProjectCard({
   | 'startDate'
   | 'endDate'
   | 'team'
-  | 'relatedProject'
+  | 'relatedProjects'
   | 'activities'
   | 'files'
 >) {
@@ -172,7 +172,7 @@ export function ProjectCard({
           </span>
           <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
             <Folder size={14} />
-            {relatedProject ? relatedProject.length : 0}
+            {relatedProjects ? relatedProjects.length : 0}
           </span>
         </CardFooter>
       </Card>

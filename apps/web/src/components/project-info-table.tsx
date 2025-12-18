@@ -1,0 +1,216 @@
+import { BadgeVariants, IProject, Status } from '@repo/types';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import {
+  ArrowUp10,
+  Calendar,
+  CircleDashed,
+  Folder,
+  MapPinned,
+  MoveRight,
+  Target,
+  UserCircle,
+  Users,
+} from 'lucide-react';
+import Link from 'next/link';
+import { ProfileInfo } from './profile-info';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+
+export default function ProjectInfoTable({
+  status,
+  startDate,
+  endDate,
+  trlRating,
+  objective,
+  impactLevel,
+  team,
+  relatedProjects,
+  owner,
+  createdAt,
+  updatedBy,
+  updatedAt,
+}: Pick<
+  IProject,
+  | 'status'
+  | 'startDate'
+  | 'endDate'
+  | 'trlRating'
+  | 'objective'
+  | 'impactLevel'
+  | 'team'
+  | 'relatedProjects'
+  | 'owner'
+  | 'createdAt'
+  | 'updatedBy'
+  | 'updatedAt'
+>) {
+  let badgeVariant:
+    | 'default'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
+    | 'blue'
+    | 'green'
+    | 'gray'
+    | 'pruple'
+    | 'orange'
+    | null
+    | undefined;
+  switch (status) {
+    case Status.PENDING:
+      badgeVariant = BadgeVariants.GRAY;
+      break;
+    case Status.PROGRESS:
+      badgeVariant = BadgeVariants.BLUE;
+      break;
+    case Status.COMPLETED:
+      badgeVariant = BadgeVariants.GREEN;
+      break;
+    default:
+      badgeVariant = BadgeVariants.DEFAULT;
+      break;
+  }
+
+  return (
+    <div className="text-sm">
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <CircleDashed size={14} /> Estado
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          <Badge variant={badgeVariant}>{status}</Badge>
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <Calendar size={14} /> Fecha
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          {startDate && (
+            <div className="flex gap-2">
+              <span>
+                {format(startDate, "d 'de' MMMM 'de' yyyy", {
+                  locale: es,
+                })}
+              </span>
+              {endDate && (
+                <span className="flex gap-2 items-center justify-center">
+                  <MoveRight size={10} />
+                  {format(endDate, "d 'de' MMMM 'de' yyyy", {
+                    locale: es,
+                  })}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <ArrowUp10 size={14} /> Nivel de TRL
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">{trlRating}</div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <Target size={14} /> Objetivo
+        </span>
+
+        <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md">
+          {objective ? objective : <span className="text-gray-400">Vacío</span>}
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <MapPinned size={14} /> Nivel de impacto
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">{impactLevel}</div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 h-11 items-center hover:bg-secondary rounded-md">
+          <Users size={14} /> Equipo
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          {team ? (
+            <Button size="xs" asChild variant="ghost">
+              <Link href={`/user/equipos/${team._id}`}>{team.teamName}</Link>
+            </Button>
+          ) : (
+            <span className="text-gray-400">Vacío</span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 h-11 items-center hover:bg-secondary rounded-md">
+          <Folder size={14} /> Proyectos
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          {relatedProjects ? (
+            relatedProjects.map((p: IProject) => (
+              <Button key={p._id} size="xs" asChild variant="ghost">
+                <Link href={`/user/proyectos/${p._id}`}>{p.name}</Link>
+              </Button>
+            ))
+          ) : (
+            <span className="text-gray-400">Vacío</span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <UserCircle size={14} /> Creado por
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          <ProfileInfo
+            givenName={owner.givenName}
+            familyName={owner.familyName}
+          />
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <Calendar size={14} /> Creado el
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          {format(createdAt, "d 'de' MMMM 'de' yyyy k':'mm", {
+            locale: es,
+          })}
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <UserCircle size={14} /> Modificado por
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          {updatedBy && (
+            <ProfileInfo
+              givenName={updatedBy.givenName}
+              familyName={updatedBy.familyName}
+            />
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <Calendar size={14} /> Modificado el
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          {format(updatedAt, "d 'de' MMMM 'de' yyyy k':'mm", {
+            locale: es,
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

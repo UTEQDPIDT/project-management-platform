@@ -41,7 +41,7 @@ const Page = () => {
         {loadingProjects ? (
           <LoadingMessage message="Cargando Proyectos" />
         ) : (
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((p: IProject) => (
               <ProjectCard
                 key={p._id}
@@ -53,7 +53,7 @@ const Page = () => {
                 trlRating={p.trlRating}
                 activities={p.activities}
                 files={p.files}
-                relatedProject={p.relatedProject}
+                relatedProjects={p.relatedProjects}
                 team={p.team}
                 startDate={p.startDate}
                 endDate={p.endDate}

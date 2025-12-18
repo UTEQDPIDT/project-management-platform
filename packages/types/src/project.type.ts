@@ -23,7 +23,7 @@ export interface IProject {
   impactLevel: ImpactLevel;
   owner: IUser;
   team?: ITeam;
-  relatedProject?: IProject[];
+  relatedProjects?: IProject[];
   activities: IActivity[];
   product?: IProduct[];
   files?: IFile[];

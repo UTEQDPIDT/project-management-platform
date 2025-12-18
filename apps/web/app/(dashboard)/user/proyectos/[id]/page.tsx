@@ -1,18 +1,15 @@
 'use client';
 
-import { CardMembers } from '@/components/card-members';
 import {
   Header,
   HeaderAction,
-  HeaderContent,
-  HeaderDescription,
   HeaderHeading,
   HeaderTitle,
 } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
+import ProjectInfoTable from '@/components/project-info-table';
 import { ProjectMenu } from '@/components/project-menu';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -21,37 +18,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
-import { BadgeVariants, TeamsGrade } from '@repo/types';
+import { useProject } from '@/hooks/projects';
 import { Bell } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 const Page = () => {
   const { id } = useParams<{ id: string }>();
-  //   const { data: team, isLoading: loadingTeam } = useTeam(teamId);
-
-  let badgeVariant:
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'green'
-    | 'gray'
-    | 'pruple'
-    | 'orange'
-    | null
-    | undefined;
-  switch (team?.grade) {
-    case TeamsGrade.FORMACION:
-      badgeVariant = BadgeVariants.GRAY;
-      break;
-    case TeamsGrade.CONSOLIDADO:
-      badgeVariant = BadgeVariants.GREEN;
-      break;
-  }
+  const { data: project, isLoading: loadingProject } = useProject(id);
 
   return (
     <div className="w-full h-full">
-      {loadingTeam ? (
+      {loadingProject ? (
         <div className="w-full h-full flex items-center justify-center">
           <LoadingMessage />
         </div>
@@ -59,13 +36,8 @@ const Page = () => {
         <div>
           <Header>
             <HeaderHeading>
-              <HeaderTitle>{team.teamName}</HeaderTitle>
-              <HeaderDescription>{team.division?.name}</HeaderDescription>
+              <HeaderTitle>{project.name}</HeaderTitle>
             </HeaderHeading>
-
-            <HeaderContent>
-              <Badge variant={badgeVariant}>{team.grade}</Badge>
-            </HeaderContent>
 
             <HeaderAction>
               <DropdownMenu>
@@ -90,7 +62,22 @@ const Page = () => {
             </HeaderAction>
           </Header>
 
-          <PageContent>Proyecto</PageContent>
+          <PageContent>
+            <ProjectInfoTable
+              status={project.status}
+              trlRating={project.trlRating}
+              objective={project.objective}
+              impactLevel={project.impactLevel}
+              startDate={project.startDate}
+              endDate={project.endDate}
+              team={project.team}
+              relatedProjects={project.relatedProjects}
+              owner={project.owner}
+              createdAt={project.createdAt}
+              updatedBy={project.updatedBy}
+              updatedAt={project.updatedAt}
+            />
+          </PageContent>
         </div>
       )}
     </div>
