@@ -33,19 +33,55 @@ export class ProjectsService {
   }
 
   async findAll() {
-    return await this.projectModel.find().exec();
+    return await this.projectModel
+      .find()
+      .populate('knowledgeAreas')
+      .populate('prioritiesPND')
+      .populate('sustainableObjectives')
+      .populate('innovationLines')
+      .populate('team')
+      .populate('relatedProjects')
+      .populate('activities')
+      .populate('products')
+      .populate('files')
+      .populate('owner')
+      .exec();
   }
 
   async findOne(id: string) {
-    const project = await this.projectModel.findById(id);
+    const project = await this.projectModel
+      .findById(id)
+      .populate('knowledgeAreas')
+      .populate('prioritiesPND')
+      .populate('sustainableObjectives')
+      .populate('innovationLines')
+      .populate('team')
+      .populate('relatedProjects')
+      .populate('activities')
+      .populate('products')
+      .populate('files')
+      .populate('owner');
+
     if (!project) {
       throw new NotFoundException(`Proyecto con el ID ${id} no encontrado.`);
     }
+
     return project;
   }
 
   async findByOwner(ownerId: string) {
-    return await this.projectModel.find({ owner: ownerId });
+    return await this.projectModel
+      .find({ owner: ownerId })
+      .populate('knowledgeAreas')
+      .populate('prioritiesPND')
+      .populate('sustainableObjectives')
+      .populate('innovationLines')
+      .populate('team')
+      .populate('relatedProjects')
+      .populate('activities')
+      .populate('products')
+      .populate('files')
+      .populate('owner');
   }
 
   async update(
