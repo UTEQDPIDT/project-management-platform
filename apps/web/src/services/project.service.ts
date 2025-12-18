@@ -1,28 +1,9 @@
 import { api } from '@/lib/axios';
-import { IProject } from '@repo/types';
+import { ProjectCleanedData, IProject } from '@repo/types';
 
-const createProject = async (
-  projectData: Pick<
-    IProject,
-    | 'name'
-    | 'summary'
-    | 'objective'
-    | 'trlRating'
-    | 'organization'
-    | 'startDate'
-    | 'endDate'
-    | 'impactLevel'
-    | 'impactAreas'
-    | 'knowledgeAreas'
-    | 'prioritiesPND'
-    | 'innovationLines'
-    | 'sustainableObjectives'
-    | 'activities'
-    | 'team'
-    | 'relatedProject'
-  >,
-) => {
+const createProject = async (projectData: ProjectCleanedData) => {
   try {
+    console.log('PROJECT CLEANED DATA', projectData);
     const { data } = await api.post('/projects', projectData);
     return data;
   } catch (err) {

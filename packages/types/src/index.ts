@@ -11,6 +11,8 @@ export * from './enums/state.enum';
 export * from './enums/event-type.enum';
 export * from './enums/bagde-variants.enum';
 
+export * from './dtos/project-cleaned-data';
+
 export * from './user.type';
 export * from './team.type';
 export * from './resolved-email.type';
