@@ -68,6 +68,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Command, CommandGroup, CommandItem } from '../ui/command';
 import { useProjectsByOwner } from '@/hooks/projects';
 import { createOnBulk } from '@/services/activity.service';
+import Link from 'next/link';
 
 export function CreateProjectForm() {
   const router = useRouter();
@@ -126,14 +127,14 @@ export function CreateProjectForm() {
   const onSubmit = async (data: z.infer<typeof projectSchema>) => {
     try {
       console.log('RAW DATA', data);
-      const newActivities = await createOnBulk(data.activities);
-      console.log('NEW ACTIVITIES', newActivities);
+      //   const newActivities = await createOnBulk(data.activities);
+      //   console.log('NEW ACTIVITIES', newActivities);
 
       const cleanedData = {
         ...data,
         organization: data.organization === '' ? undefined : data.organization,
         team: data.team === '' ? undefined : data.team,
-        activities: newActivities.map((activity: IActivity) => activity._id),
+        // activities: newActivities.map((activity: IActivity) => activity._id),
       };
       console.log('CLEANED DATA', cleanedData);
 
@@ -925,12 +926,8 @@ export function CreateProjectForm() {
         </Card>
 
         <div className="flex gap-2">
-          <Button
-            variant={'outline'}
-            type="button"
-            onClick={() => form.reset()}
-          >
-            Restablecer
+          <Button variant={'outline'} type="button" asChild>
+            <Link href="/user/proyectos">Cancelar</Link>
           </Button>
           <Button type="submit" disabled={false}>
             {false ? (
