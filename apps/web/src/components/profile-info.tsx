@@ -1,12 +1,16 @@
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
-import { IUser } from '@repo/types';
 
 export function ProfileInfo({
   givenName,
   familyName,
   email,
   avatarUrl,
-}: Pick<IUser, 'givenName' | 'familyName' | 'email' | 'avatarUrl'>) {
+}: {
+  givenName: string;
+  familyName: string;
+  email?: string;
+  avatarUrl?: string;
+}) {
   return (
     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
       <Avatar>

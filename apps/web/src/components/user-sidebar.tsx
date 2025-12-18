@@ -56,7 +56,7 @@ export function UserSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser givenName="Aeon Julien" email="aeonruiz@uteq.edu.mx" />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );
