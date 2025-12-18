@@ -25,7 +25,7 @@ const Page = () => {
           </HeaderDescription>
         </HeaderHeading>
         <HeaderAction>
-          <Button asChild variant="outline">
+          <Button asChild variant="ghost">
             <Link href={'/user/equipos'}>
               <ArrowLeft />
               Cancelar

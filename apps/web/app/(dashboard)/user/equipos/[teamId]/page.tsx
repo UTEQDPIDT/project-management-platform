@@ -98,7 +98,7 @@ const Page = () => {
             </HeaderAction>
           </Header>
 
-          <PageContent>
+          <PageContent className="px-4">
             <CardMembers
               teamId={teamId}
               owner={team.owner}

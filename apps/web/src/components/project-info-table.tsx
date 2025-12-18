@@ -73,7 +73,7 @@ export default function ProjectInfoTable({
   }
 
   return (
-    <div className="text-sm">
+    <div className="text-sm border-b pb-4 w-full px-4">
       <div className="flex items-start">
         <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
           <CircleDashed size={14} /> Estado
@@ -133,7 +133,7 @@ export default function ProjectInfoTable({
       </div>
 
       <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 h-11 items-center hover:bg-secondary rounded-md">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 h-11 items-center rounded-md">
           <Users size={14} /> Equipo
         </span>
         <div className="p-2 hover:bg-secondary rounded-md">
@@ -148,7 +148,7 @@ export default function ProjectInfoTable({
       </div>
 
       <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 h-11 items-center hover:bg-secondary rounded-md">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 h-11 items-center rounded-md">
           <Folder size={14} /> Proyectos
         </span>
         <div className="p-2 hover:bg-secondary rounded-md">

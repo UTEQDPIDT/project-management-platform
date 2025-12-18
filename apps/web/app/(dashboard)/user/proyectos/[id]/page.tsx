@@ -40,7 +40,7 @@ const Page = () => {
             </HeaderHeading>
 
             <HeaderAction>
-              <DropdownMenu>
+              {/* <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon">
                     <Bell />
@@ -56,13 +56,13 @@ const Page = () => {
                     </span>
                   </div>
                 </DropdownMenuContent>
-              </DropdownMenu>
+              </DropdownMenu> */}
 
               <ProjectMenu projectId={id} name={project.name} />
             </HeaderAction>
           </Header>
 
-          <PageContent>
+          <PageContent className="items-center">
             <ProjectInfoTable
               status={project.status}
               trlRating={project.trlRating}

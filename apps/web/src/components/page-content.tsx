@@ -9,8 +9,6 @@ export function PageContent({
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn('flex flex-col px-4 py-6 gap-2', className)}>
-      {children}
-    </div>
+    <div className={cn('flex flex-col py-6 gap-6', className)}>{children}</div>
   );
 }
