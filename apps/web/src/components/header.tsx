@@ -79,10 +79,7 @@ function HeaderAction({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="header-action"
-      className={cn(
-        'ml-auto flex gap-2 items-center justify-center',
-        className,
-      )}
+      className={cn('ml-auto flex items-center justify-center', className)}
       {...props}
     />
   );

@@ -30,7 +30,7 @@ export function TeamMenu({ teamId, name }: { teamId: string; name: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size={'icon'}>
+        <Button variant="ghost" size={'icon'}>
           <Ellipsis />
         </Button>
       </DropdownMenuTrigger>
