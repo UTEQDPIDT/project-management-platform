@@ -84,6 +84,7 @@ import {
 import { DialogTrigger } from '@radix-ui/react-dialog';
 import { TRLForm } from './trl-assesment-form';
 import { Separator } from '../ui/separator';
+import { useState } from 'react';
 
 export function CreateProjectForm() {
   const router = useRouter();
@@ -103,6 +104,8 @@ export function CreateProjectForm() {
     useKnowledgeAreas();
   const { data: teams, isLoading: loadingTeams } = useTeamsByUser();
   const { data: projects, isLoading: loadingProjects } = useProjectsByOwner();
+
+  const [trlOpen, setTrlOpen] = useState(false);
 
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
@@ -302,7 +305,7 @@ export function CreateProjectForm() {
                         disabled={true}
                       />
                       <InputGroupAddon align="inline-end">
-                        <Dialog>
+                        <Dialog open={trlOpen} onOpenChange={setTrlOpen}>
                           <DialogTrigger asChild>
                             <InputGroupButton variant="outline">
                               Evaluar
@@ -320,7 +323,13 @@ export function CreateProjectForm() {
                               </DialogDescription>
                             </div>
                             <Separator />
-                            <TRLForm onTRLChange={field.onChange} />
+                            {/* TODO: pass Dialog state for closing */}
+                            <TRLForm
+                              onTRLChange={(trl) => {
+                                field.onChange(trl);
+                                setTrlOpen(false);
+                              }}
+                            />
                           </DialogContent>
                         </Dialog>
                       </InputGroupAddon>
