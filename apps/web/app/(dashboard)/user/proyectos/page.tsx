@@ -55,6 +55,7 @@ const Page = () => {
                 files={p.files}
                 relatedProjects={p.relatedProjects}
                 team={p.team}
+                owner={p.owner}
                 startDate={p.startDate}
                 endDate={p.endDate}
               />

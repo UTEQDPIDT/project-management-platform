@@ -39,6 +39,7 @@ export function ProjectCard({
   relatedProjects,
   activities,
   files,
+  owner,
 }: Pick<
   IProject,
   | '_id'
@@ -53,6 +54,7 @@ export function ProjectCard({
   | 'relatedProjects'
   | 'activities'
   | 'files'
+  | 'owner'
 >) {
   let badgeVariant:
     | 'default'
@@ -96,6 +98,12 @@ export function ProjectCard({
     avatarUrl: u.avatarUrl,
   }));
 
+  profiles.push({
+    givenName: owner.givenName,
+    familyName: owner.familyName,
+    avatarUrl: owner.avatarUrl,
+  });
+
   return (
     <Link href={`/user/proyectos/${projectId}`}>
       <Card className="w-full gap-6">
@@ -126,21 +134,6 @@ export function ProjectCard({
           <CardDescription className="h-24 line-clamp-5">
             {summary}
           </CardDescription>
-          <div className="h-8">
-            {team && (
-              <Button
-                size="sm"
-                className="justify-start"
-                variant={'ghost'}
-                asChild
-              >
-                <Link href={`/user/equipos/${team?._id}`}>
-                  <Users />
-                  {team?.teamName}
-                </Link>
-              </Button>
-            )}
-          </div>
           <AvatarRow profiles={profiles} />
         </CardContent>
         <CardFooter className="border-t flex gap-2 justify-start items-center">
@@ -160,7 +153,7 @@ export function ProjectCard({
           )}
           <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
             <User size={14} />
-            {uniqueUsers.length + 1}
+            {profiles.length}
           </span>
           <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
             <Paperclip size={14} />
@@ -172,7 +165,7 @@ export function ProjectCard({
           </span>
           <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
             <Folder size={14} />
-            {relatedProjects ? relatedProjects.length : 0}
+            {relatedProjects?.length}
           </span>
         </CardFooter>
       </Card>

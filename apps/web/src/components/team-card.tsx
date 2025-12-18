@@ -133,6 +133,12 @@ export default function TeamCard({
     avatarUrl: u.avatarUrl,
   }));
 
+  profiles.push({
+    givenName: owner.givenName,
+    familyName: owner.familyName,
+    avatarUrl: owner.avatarUrl,
+  });
+
   return (
     <Card className="w-full gap-6">
       <CardHeader>
@@ -165,7 +171,7 @@ export default function TeamCard({
         <div>
           <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
             <User size={14} />
-            {uniqueUsers.length + 1}
+            {profiles.length}
           </span>
         </div>
         <CardAction>{renderActionButton()}</CardAction>
