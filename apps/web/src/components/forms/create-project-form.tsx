@@ -75,8 +75,15 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '../ui/dialog';
 import { DialogTrigger } from '@radix-ui/react-dialog';
+import { TRLForm } from './trl-assesment-form';
+import { Separator } from '../ui/separator';
 
 export function CreateProjectForm() {
   const router = useRouter();
@@ -104,7 +111,7 @@ export function CreateProjectForm() {
       name: '',
       summary: '',
       objective: '',
-      trlRating: 4,
+      trlRating: 0,
       knowledgeAreas: [],
       impactAreas: [],
       prioritiesPND: [],
@@ -303,7 +310,17 @@ export function CreateProjectForm() {
                           </DialogTrigger>
 
                           <DialogContent aria-describedby="Evaluación TRL">
-                            <DialogTitle>Evaluación TRL</DialogTitle>
+                            <div className="flex flex-col gap-2">
+                              <DialogTitle>Evaluación TRL</DialogTitle>
+                              <DialogDescription>
+                                Esta encuesta evaluará la madurez del proyecto
+                                en estándares establecidos por la NASA. Haz
+                                Check en todas las casillas que apliquen al
+                                proyecto.
+                              </DialogDescription>
+                            </div>
+                            <Separator />
+                            <TRLForm onTRLChange={field.onChange} />
                           </DialogContent>
                         </Dialog>
                       </InputGroupAddon>

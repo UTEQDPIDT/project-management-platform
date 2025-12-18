@@ -10,15 +10,61 @@ export function cn(...inputs: ClassValue[]) {
  * TRL Rating
  */
 export const TRL_QUESTIONS = {
-  1: ['Basic principles observed'],
-  2: ['Technology concept formulated'],
-  3: ['Experimental proof of concept'],
-  4: ['Technology validated in lab'],
-  5: ['Technology validated in relevant environment'],
-  6: ['Technology demonstrated in relevant environment'],
-  7: ['System prototype demonstrated in operational environment'],
-  8: ['System complete and qualified'],
-  9: ['System proven in operational environment'],
+  1: [
+    {
+      id: 'trl1_basic_principles',
+      label: 'Principios básicos observados y reportados',
+    },
+  ],
+  2: [
+    {
+      id: 'trl2_concept_formulated',
+      label: 'Concepto tecnológico y/o aplicación tecnológica formulada',
+    },
+  ],
+  3: [
+    {
+      id: 'trl3_experimental_proof',
+      label: 'Prueba experimental de concepto',
+    },
+  ],
+  4: [
+    {
+      id: 'trl4_lab_validation',
+      label: 'Validación tecnológica a nivel laboratorio.',
+    },
+  ],
+  5: [
+    {
+      id: 'trl5_relevant_environment',
+      label: 'Tecnología validada en condiciones de un entorno relevante',
+    },
+  ],
+  6: [
+    {
+      id: 'trl6_relevant_demo',
+      label: 'Demostración tecnológica en un ambiente relevante',
+    },
+  ],
+  7: [
+    {
+      id: 'trl7_system_prototype',
+      label:
+        'Demostración de prototipo a nivel sistema en un ambiente operativo real',
+    },
+  ],
+  8: [
+    {
+      id: 'trl8_system_complete',
+      label: 'Sistema completo y evaluado',
+    },
+  ],
+  9: [
+    {
+      id: 'trl9_system_operational',
+      label: 'Sistema probado y terminado en entorno operacional',
+    },
+  ],
 } as const;
 
 export function calculateTRL(answers: Record<string, boolean>): number {
@@ -27,7 +73,7 @@ export function calculateTRL(answers: Record<string, boolean>): number {
   for (let level = 1; level <= 9; level++) {
     const questions = TRL_QUESTIONS[level as keyof typeof TRL_QUESTIONS];
 
-    const passed = questions.every((q) => answers[q] === true);
+    const passed = questions.every((q) => answers[q.id] === true);
     if (passed) trl = level;
     else break;
   }
