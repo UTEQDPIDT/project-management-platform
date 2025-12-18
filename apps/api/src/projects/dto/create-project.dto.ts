@@ -12,7 +12,6 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { ObjectId } from 'mongoose';
 
 export class CreateProjectDto {
   @ApiProperty({
@@ -55,7 +54,7 @@ export class CreateProjectDto {
   @IsMongoId({ each: true })
   @IsArray()
   @IsOptional()
-  knowledgeAreas: ObjectId;
+  knowledgeAreas: string;
 
   @ApiPropertyOptional({
     description: 'Áreas de impacto del proyecto.',
@@ -63,7 +62,7 @@ export class CreateProjectDto {
   @IsMongoId({ each: true })
   @IsArray()
   @IsOptional()
-  impactAreas: ObjectId;
+  impactAreas: string;
 
   @ApiPropertyOptional({
     description: 'Prioridades Nacionales.',
@@ -71,7 +70,7 @@ export class CreateProjectDto {
   @IsMongoId({ each: true })
   @IsArray()
   @IsOptional()
-  prioritiesPND: ObjectId;
+  prioritiesPND: string;
 
   @ApiPropertyOptional({
     description: 'Objetivos sustentables a los que apunta el proyecto.',
@@ -79,7 +78,7 @@ export class CreateProjectDto {
   @IsMongoId({ each: true })
   @IsArray()
   @IsOptional()
-  sustainableObjectives: ObjectId;
+  sustainableObjectives: string;
 
   @ApiPropertyOptional({
     description: 'Lineas de innovación a las que se alinea el proyecto.',
@@ -87,7 +86,7 @@ export class CreateProjectDto {
   @IsMongoId({ each: true })
   @IsArray()
   @IsOptional()
-  innovationLines: ObjectId[];
+  innovationLines: string[];
 
   @ApiPropertyOptional({
     description: 'Organización a la que le pertenece el proyecto.',

@@ -158,8 +158,8 @@ export function CreateProjectForm() {
       console.log('CLEANED DATA', cleanedData);
 
       createProject.mutate(cleanedData);
-      //   form.reset();
-      //   router.push('/user/proyectos');
+      form.reset();
+      router.push('/user/proyectos');
     } catch (err) {
       console.error('Error cleaning data', err);
     }

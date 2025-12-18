@@ -53,7 +53,6 @@ export class ProjectsController {
   @UseGuards(JwtAuthGuard)
   @Get('/by-owner')
   findByOwner(@Req() req) {
-    console.log('Searching for projects with owner id', req.user.id);
     return this.projectsService.findByOwner(req.user.id);
   }
 

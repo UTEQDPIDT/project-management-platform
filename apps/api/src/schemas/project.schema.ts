@@ -51,51 +51,48 @@ export class Project extends Document {
   })
   status: Status;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description:
       'Áreas de conocimiento que alude el proyecto (referencia al catálogo).',
   })
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: KnowledgeArea.name,
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: KnowledgeArea.name }],
   })
   knowledgeAreas: KnowledgeArea[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Áreas de impacto del proyecto (referencia al catálogo).',
   })
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: ThemedImpactArea.name,
+    type: [
+      { type: mongoose.Schema.Types.ObjectId, ref: ThemedImpactArea.name },
+    ],
   })
-  impactAreas: ThemedImpactArea[];
-
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Prioridades Nacionales (referencia al catálogo).',
   })
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: PNDpriority.name,
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: PNDpriority.name }],
   })
   prioritiesPND: PNDpriority[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description:
       'Objetivos sustentables a los que apunta el proyecto (referencia al catálogo).',
   })
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: SustainabilityGoal.name,
+    type: [
+      { type: mongoose.Schema.Types.ObjectId, ref: SustainabilityGoal.name },
+    ],
   })
   sustainableObjectives: SustainabilityGoal[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description:
       'Lineas de innovación a las que se alinea el proyecto (referencia al catálogo).',
   })
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: DevelopmentLine.name,
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: DevelopmentLine.name }],
   })
   innovationLines: DevelopmentLine[];
 
@@ -140,11 +137,11 @@ export class Project extends Document {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }] })
   activities?: Activity[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Productos relacionados al proyecto.',
   })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }] })
-  products: Product[];
+  products?: Product[];
 
   @ApiPropertyOptional({
     description: 'Archivos relacionados al proyecto',
