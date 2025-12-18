@@ -126,12 +126,14 @@ export function CreateProjectForm() {
   const onSubmit = async (data: z.infer<typeof projectSchema>) => {
     try {
       console.log('RAW DATA', data);
-      //   const newActivities = await createOnBulk(data.activities);
-      //   console.log('NEW ACTIVITIES', newActivities);
+      const newActivities = await createOnBulk(data.activities);
+      console.log('NEW ACTIVITIES', newActivities);
 
       const cleanedData = {
         ...data,
-        // activities: newActivities.map((activity: IActivity) => activity._id),
+        organization: data.organization === '' ? undefined : data.organization,
+        team: data.team === '' ? undefined : data.team,
+        activities: newActivities.map((activity: IActivity) => activity._id),
       };
       console.log('CLEANED DATA', cleanedData);
 
