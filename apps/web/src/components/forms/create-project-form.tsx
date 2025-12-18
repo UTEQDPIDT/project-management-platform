@@ -70,6 +70,13 @@ import { useProjectsByOwner } from '@/hooks/projects';
 import { createOnBulk } from '@/services/activity.service';
 import Link from 'next/link';
 import { DatePicker } from '../ui/date-picker';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
+import { DialogTrigger } from '@radix-ui/react-dialog';
 
 export function CreateProjectForm() {
   const router = useRouter();
@@ -288,9 +295,17 @@ export function CreateProjectForm() {
                         disabled={true}
                       />
                       <InputGroupAddon align="inline-end">
-                        <InputGroupButton variant="outline">
-                          Evaluar
-                        </InputGroupButton>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <InputGroupButton variant="outline">
+                              Evaluar
+                            </InputGroupButton>
+                          </DialogTrigger>
+
+                          <DialogContent aria-describedby="Evaluación TRL">
+                            <DialogTitle>Evaluación TRL</DialogTitle>
+                          </DialogContent>
+                        </Dialog>
                       </InputGroupAddon>
                     </InputGroup>
                     {fieldState.invalid && (
