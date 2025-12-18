@@ -1,6 +1,35 @@
 import { api } from '@/lib/axios';
 import { IProject } from '@repo/types';
 
+const createProject = async (
+  projectData: Pick<
+    IProject,
+    | 'name'
+    | 'summary'
+    | 'objective'
+    | 'trlRating'
+    | 'organization'
+    | 'startDate'
+    | 'endDate'
+    | 'impactLevel'
+    | 'impactAreas'
+    | 'knowledgeAreas'
+    | 'prioritiesPND'
+    | 'innovationLines'
+    | 'sustainableObjectives'
+    | 'activities'
+    | 'team'
+    | 'relatedProject'
+  >,
+) => {
+  try {
+    const { data } = await api.post('/projects', projectData);
+    return data;
+  } catch (err) {
+    console.error('Error creating project', err);
+  }
+};
+
 const getAllProjects = async () => {
   try {
     const { data } = await api.get('/projects');
@@ -46,4 +75,11 @@ const deleteProject = async (id: string) => {
   }
 };
 
-export { getAllProjects, getProject, getByOwner, updateProject, deleteProject };
+export {
+  createProject,
+  getAllProjects,
+  getProject,
+  getByOwner,
+  updateProject,
+  deleteProject,
+};
