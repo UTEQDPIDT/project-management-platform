@@ -24,6 +24,7 @@ import { Badge } from './ui/badge';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Button } from './ui/button';
 
 export function ProjectCard({
   _id: projectId,
@@ -121,10 +122,25 @@ export function ProjectCard({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="flex flex-col gap-6 h-full">
+        <CardContent className="flex flex-col h-full">
           <CardDescription className="h-24 line-clamp-5">
             {summary}
           </CardDescription>
+          <div className="h-8">
+            {team && (
+              <Button
+                size="sm"
+                className="justify-start"
+                variant={'ghost'}
+                asChild
+              >
+                <Link href={`/user/equipos/${team?._id}`}>
+                  <Users />
+                  {team?.teamName}
+                </Link>
+              </Button>
+            )}
+          </div>
           <AvatarRow profiles={profiles} />
         </CardContent>
         <CardFooter className="border-t flex gap-2 justify-start items-center">
