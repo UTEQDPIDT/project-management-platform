@@ -290,10 +290,8 @@ export function CreateProjectForm() {
                       />
                       <InputGroupAddon align="inline-end">
                         <Dialog open={trlOpen} onOpenChange={setTrlOpen}>
-                          <DialogTrigger asChild>
-                            <InputGroupButton variant="outline">
-                              Evaluar
-                            </InputGroupButton>
+                          <DialogTrigger className="h-6 gap-1 px-2" asChild>
+                            <InputGroupButton>Evaluar</InputGroupButton>
                           </DialogTrigger>
 
                           <DialogContent aria-describedby="Evaluación TRL">
