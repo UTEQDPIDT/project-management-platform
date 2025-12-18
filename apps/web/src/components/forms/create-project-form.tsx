@@ -1,32 +1,32 @@
 'use client';
 
-import { teamSchema } from '@/schemas/team.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import {
   useDevelopmentLines,
-  useDivisions,
   useKnowledgeAreas,
   usePndPriorities,
   useSustainableGoals,
   useThemedImpactAreas,
 } from '@/hooks/catalogs';
-import { useCreateTeam, useTeam, useTeamsByUser } from '@/hooks/team';
+import { useTeamsByUser } from '@/hooks/team';
 
-import { resolveEmails } from '@/services/user.service';
-
+import { useCreateProject, useProjectsByOwner } from '@/hooks/projects';
+import { projectSchema } from '@/schemas/project.schema';
+import { createOnBulk } from '@/services/activity.service';
 import {
-  SeedCategory,
-  IResolvedEmail,
-  TeamsGrade,
+  IActivity,
   ImpactLevel,
   IProject,
   ITeam,
-  IActivity,
+  SeedCategory,
 } from '@repo/types';
-import { Check, ChevronsUpDown, Logs, PlusIcon, XIcon } from 'lucide-react';
+import { Check, ChevronsUpDown, XIcon } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
 import {
@@ -36,6 +36,15 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card';
+import { Command, CommandGroup, CommandItem } from '../ui/command';
+import { DatePicker } from '../ui/date-picker';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
 import {
   Field,
   FieldContent,
@@ -43,8 +52,6 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldLegend,
-  FieldSeparator,
   FieldSet,
 } from '../ui/field';
 import {
@@ -54,6 +61,7 @@ import {
   InputGroupInput,
   InputGroupTextarea,
 } from '../ui/input-group';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import {
   Select,
   SelectContent,
@@ -61,30 +69,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { Switch } from '../ui/switch';
-import { useRouter } from 'next/navigation';
-import { projectSchema } from '@/schemas/project.schema';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Command, CommandGroup, CommandItem } from '../ui/command';
-import { useCreateProject, useProjectsByOwner } from '@/hooks/projects';
-import { createOnBulk } from '@/services/activity.service';
-import Link from 'next/link';
-import { DatePicker } from '../ui/date-picker';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from '../ui/dialog';
-import { DialogTrigger } from '@radix-ui/react-dialog';
-import { TRLForm } from './trl-assesment-form';
 import { Separator } from '../ui/separator';
-import { useState } from 'react';
+import { TRLForm } from './trl-assesment-form';
 
 export function CreateProjectForm() {
   const router = useRouter();
@@ -145,9 +131,7 @@ export function CreateProjectForm() {
    */
   const onSubmit = async (data: z.infer<typeof projectSchema>) => {
     try {
-      console.log('RAW DATA', data);
       const newActivities: IActivity[] = await createOnBulk(data.activities);
-      console.log('NEW ACTIVITIES', newActivities);
 
       const cleanedData = {
         ...data,
@@ -155,7 +139,6 @@ export function CreateProjectForm() {
         team: data.team === '' ? undefined : data.team,
         activities: newActivities.map((activity: IActivity) => activity._id),
       };
-      console.log('CLEANED DATA', cleanedData);
 
       createProject.mutate(cleanedData);
       form.reset();
@@ -968,12 +951,12 @@ export function CreateProjectForm() {
                           </Button>
                         </PopoverTrigger>
 
-                        <PopoverContent className="w-full lg:max-w-2xl max-h-96 overflow-y-auto p-0">
+                        <PopoverContent className="w-full md:w-xl max-h-96 overflow-y-auto p-0">
                           <Command>
                             <CommandGroup>
                               {loadingProjects ? (
                                 <CommandItem disabled>Cargando</CommandItem>
-                              ) : projects.lenght > 0 ? (
+                              ) : projects.length > 0 ? (
                                 projects.map((project: IProject) => {
                                   const selected = value.includes(project._id);
 
