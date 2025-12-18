@@ -69,6 +69,7 @@ import { Command, CommandGroup, CommandItem } from '../ui/command';
 import { useProjectsByOwner } from '@/hooks/projects';
 import { createOnBulk } from '@/services/activity.service';
 import Link from 'next/link';
+import { DatePicker } from '../ui/date-picker';
 
 export function CreateProjectForm() {
   const router = useRouter();
@@ -153,7 +154,7 @@ export function CreateProjectForm() {
   return (
     <div>
       <form
-        className="flex flex-col gap-6 lg:w-2xl"
+        className="flex flex-col gap-6 md:w-2xl"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
         <Card>
@@ -298,6 +299,56 @@ export function CreateProjectForm() {
                   </Field>
                 )}
               />
+            </FieldGroup>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Duración</CardTitle>
+            <CardDescription>Define la duración del proyecto.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FieldGroup>
+              <div className="flex gap-6 flex-col md:flex-row">
+                <Controller
+                  control={form.control}
+                  name="startDate"
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>
+                        Fecha de inicio*
+                      </FieldLabel>
+                      <DatePicker
+                        date={field.value}
+                        onChange={field.onChange}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <Controller
+                  control={form.control}
+                  name="endDate"
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>
+                        Fecha de término*
+                      </FieldLabel>
+                      <DatePicker
+                        date={field.value}
+                        onChange={field.onChange}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+              </div>
             </FieldGroup>
           </CardContent>
         </Card>
