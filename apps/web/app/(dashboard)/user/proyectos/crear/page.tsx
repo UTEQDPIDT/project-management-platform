@@ -17,13 +17,10 @@ const Page = () => {
     <div>
       <Header>
         <HeaderHeading>
-          <HeaderTitle>Crear Proyecto</HeaderTitle>
-          <HeaderDescription>
-            Llena los detalles del nuevo proyecto.
-          </HeaderDescription>
+          <HeaderTitle>Nuevo Proyecto</HeaderTitle>
         </HeaderHeading>
         <HeaderAction>
-          <Button asChild variant="outline">
+          <Button asChild variant="ghost">
             <Link href={'/user/proyectos'}>
               <ArrowLeft />
               Cancelar

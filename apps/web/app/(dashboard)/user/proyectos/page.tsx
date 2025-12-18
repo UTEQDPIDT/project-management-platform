@@ -30,7 +30,7 @@ const Page = () => {
         <HeaderAction>
           <Button asChild>
             <Link href={'/user/proyectos/crear'}>
-              <Plus /> Crear Proyecto
+              <Plus /> Crear proyecto
             </Link>
           </Button>
         </HeaderAction>
