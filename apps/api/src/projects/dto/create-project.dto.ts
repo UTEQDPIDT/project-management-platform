@@ -1,6 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ImpactLevel, Status } from '@repo/types';
 import {
+  IsArray,
   IsDate,
   IsEnum,
   IsInt,
@@ -48,53 +49,47 @@ export class CreateProjectDto {
   @IsEnum(Status)
   status: Status;
 
-  @ApiProperty({
-    description:
-      'Progreso general del proyecto, promedio de actividades completadas.',
-  })
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Max(100)
-  progress: number;
-
-  @ApiProperty({
-    description: 'Categorías a las que pertenece el proyecto.',
-  })
-  @IsString()
-  category: string;
-
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Áreas de conocimiento que alude el proyecto.',
   })
-  @IsMongoId()
+  @IsMongoId({ each: true })
+  @IsArray()
+  @IsOptional()
   knowledgeAreas: ObjectId;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Áreas de impacto del proyecto.',
   })
-  @IsMongoId()
+  @IsMongoId({ each: true })
+  @IsArray()
+  @IsOptional()
   impactAreas: ObjectId;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Prioridades Nacionales.',
   })
-  @IsMongoId()
+  @IsMongoId({ each: true })
+  @IsArray()
+  @IsOptional()
   prioritiesPND: ObjectId;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Objetivos sustentables a los que apunta el proyecto.',
   })
-  @IsMongoId()
+  @IsMongoId({ each: true })
+  @IsArray()
+  @IsOptional()
   sustainableObjectives: ObjectId;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Lineas de innovación a las que se alinea el proyecto.',
   })
-  @IsMongoId()
-  innovationLines: ObjectId;
+  @IsMongoId({ each: true })
+  @IsArray()
+  @IsOptional()
+  innovationLines: ObjectId[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Organización a la que le pertenece el proyecto.',
   })
   @IsOptional()
@@ -107,49 +102,51 @@ export class CreateProjectDto {
   @IsEnum(ImpactLevel)
   impactLevel: ImpactLevel;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Equipo que trabaja en el proyecto.',
   })
   @IsOptional()
   @IsMongoId()
   team: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Otros proyectos relacionados o previos al proyecto.',
   })
   @IsOptional()
   @IsMongoId({ each: true })
   relatedProjects: string[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Actividades relacionadas al proyecto.',
   })
   @IsOptional()
   @IsMongoId({ each: true })
   activities: string[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Productos relacionados al proyecto.',
   })
   @IsOptional()
   @IsMongoId({ each: true })
   products: string[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Archivos relacionados al proyecto',
   })
   @IsOptional()
   @IsMongoId({ each: true })
   files: string[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Fecha de inicio del proyecto, esta será el inicio del plazo.',
   })
   @IsOptional()
   @IsDate()
   startDate: Date;
 
-  @ApiProperty({ description: 'Fecha final de vencimiento del proyecto' })
+  @ApiPropertyOptional({
+    description: 'Fecha final de vencimiento del proyecto',
+  })
   @IsOptional()
   @IsDate()
   endDate: Date;

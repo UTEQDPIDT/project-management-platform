@@ -14,7 +14,6 @@ export interface IProject {
   objective: string;
   trlRating?: number;
   status: Status;
-  progress?: number;
   knowledgeAreas?: SeedCategory[];
   impactAreas?: SeedCategory[];
   prioritiesPND?: SeedCategory[];
