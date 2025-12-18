@@ -1,0 +1,165 @@
+import React from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
+import {
+  Calendar,
+  Folder,
+  MoveRight,
+  Paperclip,
+  SquareCheck,
+  SquareCheckBig,
+  User,
+  Users,
+} from 'lucide-react';
+import AvatarRow from './avatar-row';
+import IconSquare from './icon-square';
+import { BadgeVariants, IProject, Status } from '@repo/types';
+import { Badge } from './ui/badge';
+import Link from 'next/link';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+
+export function ProjectCard({
+  _id: projectId,
+  name,
+  summary,
+  organization,
+  status,
+  trlRating,
+  startDate,
+  endDate,
+  team,
+  relatedProject,
+  activities,
+  files,
+}: Pick<
+  IProject,
+  | '_id'
+  | 'name'
+  | 'summary'
+  | 'organization'
+  | 'status'
+  | 'trlRating'
+  | 'startDate'
+  | 'endDate'
+  | 'team'
+  | 'relatedProject'
+  | 'activities'
+  | 'files'
+>) {
+  let badgeVariant:
+    | 'default'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
+    | 'blue'
+    | 'green'
+    | 'gray'
+    | 'pruple'
+    | 'orange'
+    | null
+    | undefined;
+  switch (status) {
+    case Status.PENDING:
+      badgeVariant = BadgeVariants.GRAY;
+      break;
+    case Status.PROGRESS:
+      badgeVariant = BadgeVariants.BLUE;
+      break;
+    case Status.COMPLETED:
+      badgeVariant = BadgeVariants.GREEN;
+      break;
+  }
+
+  /**
+   * Team member count
+   */
+  const members = team?.members ?? [];
+  const collaborators = team?.collaborators ?? [];
+
+  // 1. Deduplicate using user._id BEFORE mapping
+  const uniqueUsers = Array.from(
+    new Map([...members, ...collaborators].map((u) => [u._id, u])).values(),
+  );
+
+  // 2. Extract only the fields needed for AvatarRow
+  const profiles = uniqueUsers.map((u) => ({
+    givenName: u.givenName,
+    familyName: u.familyName,
+    avatarUrl: u.avatarUrl,
+  }));
+
+  return (
+    <Link href={`/user/proyectos/${projectId}`}>
+      <Card className="w-full gap-6">
+        <CardHeader>
+          <div className="flex justify-between">
+            <div className="flex gap-2 items-start">
+              <IconSquare>
+                <Folder />
+              </IconSquare>
+              <div className="flex flex-col gap-1">
+                <CardTitle className="line-clamp-1 leading-5">{name}</CardTitle>
+                <CardDescription className="text-xs line-clamp-1">
+                  {organization}
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex gap-1">
+              <Badge variant="pruple" className="h-6">
+                TRL {trlRating}
+              </Badge>
+              <Badge variant={badgeVariant} className="h-6">
+                {status}
+              </Badge>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-6 h-full">
+          <CardDescription className="h-24 line-clamp-5">
+            {summary}
+          </CardDescription>
+          <AvatarRow profiles={profiles} />
+        </CardContent>
+        <CardFooter className="border-t flex gap-2 justify-start items-center">
+          {startDate && (
+            <div className="flex gap-1">
+              <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+                <Calendar size={14} />
+                {format(startDate, "d 'de' MMM 'de' yyyy", { locale: es })}
+              </span>
+              {endDate && (
+                <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+                  <MoveRight size={10} />
+                  {format(endDate, "d 'de' MMM 'de' yyyy", { locale: es })}
+                </span>
+              )}
+            </div>
+          )}
+          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+            <User size={14} />
+            {uniqueUsers.length + 1}
+          </span>
+          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+            <Paperclip size={14} />
+            {files?.length}
+          </span>
+          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+            <SquareCheckBig size={14} />
+            {activities.length}
+          </span>
+          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+            <Folder size={14} />
+            {relatedProject ? relatedProject.length : 0}
+          </span>
+        </CardFooter>
+      </Card>
+    </Link>
+  );
+}

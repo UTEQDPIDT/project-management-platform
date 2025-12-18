@@ -14,6 +14,8 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useProjectsByOwner } from '@/hooks/projects/use-projects-by-owner';
 import LoadingMessage from '@/components/loading-message';
+import { IProject } from '@repo/types';
+import { ProjectCard } from '@/components/project-card';
 
 const Page = () => {
   const { data: projects, isLoading: loadingProjects } = useProjectsByOwner();
@@ -39,7 +41,25 @@ const Page = () => {
         {loadingProjects ? (
           <LoadingMessage message="Cargando Proyectos" />
         ) : (
-          <div>Proyectos</div>
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+            {projects.map((p: IProject) => (
+              <ProjectCard
+                key={p._id}
+                _id={p._id}
+                name={p.name}
+                summary={p.summary}
+                organization={p.organization}
+                status={p.status}
+                trlRating={p.trlRating}
+                activities={p.activities}
+                files={p.files}
+                relatedProject={p.relatedProject}
+                team={p.team}
+                startDate={p.startDate}
+                endDate={p.endDate}
+              />
+            ))}
+          </div>
         )}
       </PageContent>
     </div>
