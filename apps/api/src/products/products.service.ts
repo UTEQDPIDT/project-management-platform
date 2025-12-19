@@ -15,11 +15,12 @@ export class ProductsService {
     @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
 
-  async create(createProductDto: CreateProductDto, ownerId: string) {
+  async create(createProductDto: CreateProductDto, userId: string) {
     try {
       const createdProduct = await this.productModel.create({
         ...createProductDto,
-        owner: ownerId,
+        owner: userId,
+        updatedBy: userId,
       });
       return createdProduct;
     } catch (err: any) {
@@ -30,22 +31,39 @@ export class ProductsService {
   }
 
   async findAll() {
-    return this.productModel.find().exec();
+    return this.productModel
+      .find()
+      .populate('category')
+      .populate('subcategory')
+      .populate('owner')
+      .populate('updatedBy')
+      .populate('files')
+      .exec();
   }
 
   findOne(id: string) {
-    const product = this.productModel.findById(id).exec();
+    const product = this.productModel
+      .findById(id)
+      .populate('category')
+      .populate('subcategory')
+      .populate('owner')
+      .populate('updatedBy')
+      .populate('files')
+      .exec();
     if (!product) {
       throw new NotFoundException(`Product with ID: ${id} not found`);
     }
     return product;
   }
 
-  update(id: string, updateProductDto: UpdateProductDto) {
+  update(id: string, updateProductDto: UpdateProductDto, userId: string) {
     try {
       const updatedProduct = this.productModel.findByIdAndUpdate(
         id,
-        updateProductDto,
+        {
+          ...updateProductDto,
+          updatedBy: userId,
+        },
         { new: true },
       );
 

@@ -61,9 +61,14 @@ export class ProductsController {
     type: UpdateProductDto,
   })
   @ApiNotFoundResponse({ description: 'No se encontro el producto.' })
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(id, updateProductDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+    @Req() req,
+  ) {
+    return this.productsService.update(id, updateProductDto, req.user.id);
   }
 
   @ApiAcceptedResponse({ description: 'Producto eliminado correctamente.' })

@@ -1,7 +1,6 @@
 'use client';
 
 import { UpdateProjectForm } from '@/components/forms/update-project-form';
-import { UpdateTeamForm } from '@/components/forms/update-team-form';
 import {
   Header,
   HeaderAction,
@@ -12,7 +11,6 @@ import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
 import { Button } from '@/components/ui/button';
 import { useProject } from '@/hooks/projects';
-import { useTeam } from '@/hooks/team';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -25,7 +23,7 @@ const Page = () => {
     <div>
       <Header>
         <HeaderHeading>
-          <HeaderTitle>Editando Proyecto: {project.name}</HeaderTitle>
+          <HeaderTitle>Editando: {project.name}</HeaderTitle>
         </HeaderHeading>
         <HeaderAction>
           <Button asChild variant="ghost">
