@@ -25,6 +25,7 @@ export class ProjectsService {
       const newProject = await this.projectModel.create({
         ...createProjectDto,
         owner: userId,
+        updatedBy: userId,
       });
       return newProject;
     } catch (err: any) {
@@ -45,6 +46,7 @@ export class ProjectsService {
       .populate('products')
       .populate('files')
       .populate('owner')
+      .populate('updatedBy')
       .exec();
   }
 
@@ -60,8 +62,8 @@ export class ProjectsService {
       .populate('activities')
       .populate('products')
       .populate('files')
-      .populate('owner');
-
+      .populate('owner')
+      .populate('updatedBy');
     if (!project) {
       throw new NotFoundException(`Proyecto con el ID ${id} no encontrado.`);
     }
@@ -81,7 +83,8 @@ export class ProjectsService {
       .populate('activities')
       .populate('products')
       .populate('files')
-      .populate('owner');
+      .populate('owner')
+      .populate('updatedBy');
   }
 
   async update(

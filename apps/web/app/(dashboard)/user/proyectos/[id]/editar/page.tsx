@@ -25,7 +25,7 @@ const Page = () => {
     <div>
       <Header>
         <HeaderHeading>
-          <HeaderTitle>Editar Proyecto</HeaderTitle>
+          <HeaderTitle>Editando Proyecto: {project.name}</HeaderTitle>
         </HeaderHeading>
         <HeaderAction>
           <Button asChild variant="ghost">
