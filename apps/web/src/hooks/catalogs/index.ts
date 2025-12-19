@@ -5,3 +5,5 @@ export * from './use-knowledge-areas';
 export * from './use-pnd-priorities';
 export * from './use-sustainable-goals';
 export * from './use-themed-impact-areas';
+export * from './use-product-categories';
+export * from './use-product-subcategories';
