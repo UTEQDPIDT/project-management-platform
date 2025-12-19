@@ -1,5 +1,6 @@
 'use client';
 
+import { UpdateProjectForm } from '@/components/forms/update-project-form';
 import { UpdateTeamForm } from '@/components/forms/update-team-form';
 import {
   Header,
@@ -41,7 +42,24 @@ const Page = () => {
             <LoadingMessage />
           </div>
         ) : (
-          'Form'
+          <UpdateProjectForm
+            _id={id}
+            name={project.name}
+            summary={project.summary}
+            objective={project.objective}
+            organization={project.organization}
+            trlRating={project.trlRating}
+            startDate={project.startDate}
+            endDate={project.endDate}
+            impactLevel={project.impactLevel}
+            knowledgeAreas={project.knowledgeAreas}
+            impactAreas={project.impactAreas}
+            prioritiesPND={project.prioritiesPND}
+            sustainableObjectives={project.sustainableObjectives}
+            innovationLines={project.innovationLines}
+            team={project.team}
+            relatedProjects={project.relatedProjects}
+          />
         )}
       </PageContent>
     </div>

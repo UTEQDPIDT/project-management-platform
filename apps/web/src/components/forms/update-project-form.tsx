@@ -13,7 +13,11 @@ import {
 } from '@/hooks/catalogs';
 import { useTeamsByUser } from '@/hooks/team';
 
-import { useCreateProject, useProjectsByOwner } from '@/hooks/projects';
+import {
+  useCreateProject,
+  useProjectsByOwner,
+  useUpdateProject,
+} from '@/hooks/projects';
 import { projectSchema } from '@/schemas/project.schema';
 import { createOnBulk } from '@/services/activity.service';
 import {
@@ -71,9 +75,10 @@ import {
 } from '../ui/select';
 import { Separator } from '../ui/separator';
 import { TRLForm } from './trl-assesment-form';
+import { updateProjectSchema } from '@/schemas/update-project.schema';
 
 export function UpdateProjectForm({
-  _id,
+  _id: projectId,
   name,
   summary,
   objective,
@@ -125,12 +130,13 @@ export function UpdateProjectForm({
     useKnowledgeAreas();
   const { data: teams, isLoading: loadingTeams } = useTeamsByUser();
   const { data: projects, isLoading: loadingProjects } = useProjectsByOwner();
-  const createProject = useCreateProject();
+
+  const updateProject = useUpdateProject();
 
   const [trlOpen, setTrlOpen] = useState(false);
 
-  const form = useForm<z.infer<typeof projectSchema>>({
-    resolver: zodResolver(projectSchema),
+  const form = useForm<z.infer<typeof updateProjectSchema>>({
+    resolver: zodResolver(updateProjectSchema),
     mode: 'onChange',
     defaultValues: {
       name: name ? name : '',
@@ -146,18 +152,17 @@ export function UpdateProjectForm({
       innovationLines: innovationLines ? innovationLines.map((l) => l._id) : [],
       impactLevel: impactLevel ? impactLevel : ImpactLevel.LOCAL,
       organization: organization ? organization : '',
-      activities: [],
       team: team ? team._id : '',
       relatedProjects: relatedProjects ? relatedProjects.map((p) => p._id) : [],
-      startDate: startDate ? startDate : undefined,
-      endDate: endDate ? endDate : undefined,
+      startDate: startDate ? new Date(startDate) : undefined,
+      endDate: endDate ? new Date(endDate) : undefined,
     },
   });
 
   /**
    * Handlers
    */
-  const onSubmit = async (data: z.infer<typeof projectSchema>) => {
+  const onSubmit = async (data: z.infer<typeof updateProjectSchema>) => {
     try {
       const cleanedData = {
         ...data,
@@ -166,9 +171,9 @@ export function UpdateProjectForm({
       };
       console.log(cleanedData);
 
-      //   createProject.mutate(cleanedData);
-      //   form.reset();
-      //   router.push('/user/proyectos');
+      updateProject.mutate({ projectId, projectData: cleanedData });
+      form.reset();
+      router.push('/user/proyectos');
     } catch (err) {
       console.error('Error cleaning data', err);
     }
@@ -981,8 +986,8 @@ export function UpdateProjectForm({
           <Button variant={'outline'} type="button" asChild>
             <Link href="/user/proyectos">Cancelar</Link>
           </Button>
-          <Button type="submit" disabled={createProject.isPending}>
-            {createProject.isPending ? (
+          <Button type="submit" disabled={updateProject.isPending}>
+            {updateProject.isPending ? (
               <LoadingMessage message="Creando proyecto" />
             ) : (
               'Crear proyecto'
