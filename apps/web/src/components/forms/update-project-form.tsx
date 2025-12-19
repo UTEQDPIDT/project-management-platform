@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import {
@@ -13,21 +13,10 @@ import {
 } from '@/hooks/catalogs';
 import { useTeamsByUser } from '@/hooks/team';
 
-import {
-  useCreateProject,
-  useProjectsByOwner,
-  useUpdateProject,
-} from '@/hooks/projects';
-import { projectSchema } from '@/schemas/project.schema';
-import { createOnBulk } from '@/services/activity.service';
-import {
-  IActivity,
-  ImpactLevel,
-  IProject,
-  ITeam,
-  SeedCategory,
-} from '@repo/types';
-import { Check, ChevronsUpDown, XIcon } from 'lucide-react';
+import { useProjectsByOwner, useUpdateProject } from '@/hooks/projects';
+import { updateProjectSchema } from '@/schemas/update-project.schema';
+import { ImpactLevel, IProject, ITeam, SeedCategory } from '@repo/types';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -56,7 +45,6 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldSet,
 } from '../ui/field';
 import {
   InputGroup,
@@ -75,7 +63,6 @@ import {
 } from '../ui/select';
 import { Separator } from '../ui/separator';
 import { TRLForm } from './trl-assesment-form';
-import { updateProjectSchema } from '@/schemas/update-project.schema';
 
 export function UpdateProjectForm({
   _id: projectId,
