@@ -8,6 +8,7 @@ import {
 } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
+import { ProductsCard } from '@/components/products-card';
 import ProjectInfoTable from '@/components/project-info-table';
 import { ProjectMenu } from '@/components/project-menu';
 import { Button } from '@/components/ui/button';
@@ -77,6 +78,9 @@ const Page = () => {
               updatedBy={project.updatedBy}
               updatedAt={project.updatedAt}
             />
+            <div className="w-full px-4">
+              <ProductsCard products={project.products} />
+            </div>
           </PageContent>
         </div>
       )}

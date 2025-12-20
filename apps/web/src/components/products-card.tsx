@@ -1,0 +1,86 @@
+'use client';
+
+import { IProduct } from '@repo/types';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
+import ProductCard from './product-card';
+import { Folder, Newspaper } from 'lucide-react';
+import IconSquare from './icon-square';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './ui/dialog';
+import { CreateProductForm } from './forms/create-product-form';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from './ui/empty';
+
+interface ProductsCardProps {
+  products: IProduct[];
+}
+
+export function ProductsCard({ products }: ProductsCardProps) {
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <div className="flex justify-between">
+          <div className="flex gap-3">
+            <IconSquare>
+              <Newspaper />
+            </IconSquare>
+            <div className="flex flex-col gap-1">
+              <CardTitle>Productos</CardTitle>
+              <CardDescription>
+                Crea y gestiona los productos del proyecto.
+              </CardDescription>
+            </div>
+          </div>
+          <Dialog>
+            <DialogTrigger className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
+              Crear
+            </DialogTrigger>
+            <DialogContent>
+              <DialogTitle>Nuevo Producto</DialogTitle>
+              <CreateProductForm />
+            </DialogContent>
+          </Dialog>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {products.length > 0 ? (
+          products.map((p: IProduct) => (
+            <ProductCard
+              _id={p._id}
+              name={p.name}
+              details={p.details}
+              category={p.category}
+              subcategory={p.subcategory}
+              files={p.files}
+              coAuthor={p.coAuthor}
+              owner={p.owner}
+            />
+          ))
+        ) : (
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Newspaper />
+              </EmptyMedia>
+              <EmptyTitle>No Hay Productos</EmptyTitle>
+              <EmptyDescription>
+                No haz creado ningun producto. Inicia creando tu primer
+                producto.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
