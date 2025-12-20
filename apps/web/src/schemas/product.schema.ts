@@ -8,7 +8,7 @@ export const productSchema = z.object({
     .string()
     .max(255, 'Excede el máximo de 255 caracteres.')
     .optional(),
-  category: mongoId.or(z.literal('')),
-  subcategory: mongoId.or(z.literal('')),
+  category: mongoId,
+  subcategory: mongoId,
   coAuthor: z.enum(CoAuthor),
 });
