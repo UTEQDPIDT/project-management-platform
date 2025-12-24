@@ -161,4 +161,26 @@ export class ProjectsService {
       session.endSession();
     }
   }
+
+  async deleteProduct(projectId: string, productId: string, userId: string) {
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    try {
+      await this.productService.remove(productId);
+      await this.projectModel.updateOne(
+        { _id: projectId },
+        { $pull: { products: productId }, $set: { updatedBy: userId } },
+        { session },
+      );
+
+      await session.commitTransaction();
+      return { message: 'Producto eliminado del proyecto correctamente.' };
+    } catch (err: any) {
+      await session.abortTransaction();
+      throw new BadRequestException(err.message);
+    } finally {
+      session.endSession();
+    }
+  }
 }

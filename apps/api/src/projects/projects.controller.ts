@@ -110,4 +110,24 @@ export class ProjectsController {
   ) {
     return this.projectsService.createProduct(projectId, dto, req.user.id);
   }
+
+  @ApiAcceptedResponse({
+    description:
+      'Producto eliminado y extraído del arreglo de Productos correctamente.',
+  })
+  @ApiBadRequestResponse({ description: 'Se abortó la transacción' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
+  @UseGuards(JwtAuthGuard)
+  @Delete(':projectId/products/:productId')
+  deleteProduct(
+    @Param('projectId') projectId: string,
+    @Param('productId') productId: string,
+    @Req() req,
+  ) {
+    return this.projectsService.deleteProduct(
+      projectId,
+      productId,
+      req.user.id,
+    );
+  }
 }
