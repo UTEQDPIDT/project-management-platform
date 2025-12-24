@@ -57,7 +57,6 @@ export function CreateProductForm() {
    */
   const onSubmit = async (data: z.infer<typeof productSchema>) => {
     try {
-      console.log('FORM DATA', data);
       const cleanedData = {
         ...data,
         details: data.details === '' ? undefined : data.details,
@@ -222,7 +221,7 @@ export function CreateProductForm() {
             Cancelar
           </Button>
         </DialogClose>
-        <Button type="submit">Crear producto</Button>
+        <Button type="submit">Crear</Button>
       </div>
     </form>
   );

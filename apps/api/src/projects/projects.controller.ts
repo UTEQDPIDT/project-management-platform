@@ -20,7 +20,9 @@ import {
   ApiNotFoundResponse,
   ApiTags,
   ApiConsumes,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
+import { CreateProductDto } from '../products/dto/create-product.dto';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -88,5 +90,24 @@ export class ProjectsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.projectsService.remove(id);
+  }
+
+  /**
+   * Products
+   */
+  @ApiAcceptedResponse({
+    description:
+      'Producto creado y añadido al arreglo de Productos correctamente.',
+  })
+  @ApiBadRequestResponse({ description: 'Se abortó la transacción' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
+  @UseGuards(JwtAuthGuard)
+  @Post(':projectId/products')
+  createProduct(
+    @Param('projectId') projectId: string,
+    @Body() dto: CreateProductDto,
+    @Req() req,
+  ) {
+    return this.projectsService.createProduct(projectId, dto, req.user.id);
   }
 }

@@ -140,7 +140,10 @@ export class Project extends Document {
   @ApiPropertyOptional({
     description: 'Productos relacionados al proyecto.',
   })
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }] })
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    default: [],
+  })
   products?: Product[];
 
   @ApiPropertyOptional({

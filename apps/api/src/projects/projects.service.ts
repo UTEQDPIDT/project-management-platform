@@ -5,14 +5,18 @@ import {
 } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Project } from '../schemas/project.schema';
-import { Model } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
+import { ProductsService } from '../products/products.service';
+import { CreateProductDto } from '../products/dto/create-product.dto';
 
 @Injectable()
 export class ProjectsService {
   constructor(
+    private readonly productService: ProductsService,
+    @InjectConnection() private readonly connection: Connection,
     @InjectModel(Project.name) private projectModel: Model<Project>,
     private readonly filesService: FilesService,
   ) {}
@@ -126,5 +130,41 @@ export class ProjectsService {
     const deletedProject = await this.projectModel.findByIdAndDelete(id);
 
     return deletedProject;
+  }
+
+  /**
+   * Product + Project Services
+   */
+  async createProduct(
+    projectId: string,
+    dto: CreateProductDto,
+    userId: string,
+  ) {
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    try {
+      console.log('Creating product for project', projectId);
+
+      const product = await this.productService.create(dto, userId, session);
+
+      console.log('Adding product to project');
+
+      await this.projectModel.updateOne(
+        { _id: projectId },
+        { $push: { products: product._id } },
+        { session },
+      );
+
+      console.log('Product added');
+
+      await session.commitTransaction();
+      return product;
+    } catch (err: any) {
+      await session.abortTransaction();
+      throw new BadRequestException(err.message);
+    } finally {
+      session.endSession();
+    }
   }
 }
