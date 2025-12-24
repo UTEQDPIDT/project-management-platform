@@ -144,19 +144,13 @@ export class ProjectsService {
     session.startTransaction();
 
     try {
-      console.log('Creating product for project', projectId);
-
       const product = await this.productService.create(dto, userId, session);
-
-      console.log('Adding product to project');
 
       await this.projectModel.updateOne(
         { _id: projectId },
-        { $push: { products: product._id } },
+        { $push: { products: product._id }, $set: { updatedBy: userId } },
         { session },
       );
-
-      console.log('Product added');
 
       await session.commitTransaction();
       return product;

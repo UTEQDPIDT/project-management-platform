@@ -20,10 +20,6 @@ export class ProductsService {
     userId: string,
     session?: ClientSession,
   ) {
-    console.log('Creating product');
-    console.log('Dto', createProductDto);
-    console.log('userId', userId);
-
     try {
       const product = new this.productModel({
         ...createProductDto,
@@ -31,11 +27,7 @@ export class ProductsService {
         updatedBy: userId,
       });
 
-      console.log('Created product', product);
-
       await product.save({ session });
-
-      console.log('Product saved');
 
       return product;
     } catch (err: any) {
