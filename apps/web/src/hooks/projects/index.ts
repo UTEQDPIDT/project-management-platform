@@ -4,3 +4,5 @@ export * from './use-project';
 export * from './use-update-project';
 export * from './use-delete-project';
 export * from './use-projects-by-owner';
+export * from './use-create-product';
+export * from './use-delete-product';
