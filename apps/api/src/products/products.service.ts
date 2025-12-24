@@ -7,7 +7,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../schemas/product.schema';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 
 @Injectable()
 export class ProductsService {
@@ -15,14 +15,29 @@ export class ProductsService {
     @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
 
-  async create(createProductDto: CreateProductDto, userId: string) {
+  async create(
+    createProductDto: CreateProductDto,
+    userId: string,
+    session?: ClientSession,
+  ) {
+    console.log('Creating product');
+    console.log('Dto', createProductDto);
+    console.log('userId', userId);
+
     try {
-      const createdProduct = await this.productModel.create({
+      const product = new this.productModel({
         ...createProductDto,
         owner: userId,
         updatedBy: userId,
       });
-      return createdProduct;
+
+      console.log('Created product', product);
+
+      await product.save({ session });
+
+      console.log('Product saved');
+
+      return product;
     } catch (err: any) {
       throw new BadRequestException(
         'Error al crear el producto: ' + err.message,
