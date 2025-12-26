@@ -23,9 +23,10 @@ import {
 
 interface ProductsCardProps {
   products: IProduct[];
+  projectId: string;
 }
 
-export function ProductsCard({ products }: ProductsCardProps) {
+export function ProductsCard({ products, projectId }: ProductsCardProps) {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -55,16 +56,7 @@ export function ProductsCard({ products }: ProductsCardProps) {
       <CardContent>
         {products.length > 0 ? (
           products.map((p: IProduct) => (
-            <ProductCard
-              _id={p._id}
-              name={p.name}
-              details={p.details}
-              category={p.category}
-              subcategory={p.subcategory}
-              files={p.files}
-              coAuthor={p.coAuthor}
-              owner={p.owner}
-            />
+            <ProductCard key={p._id} product={p} projectId={projectId} />
           ))
         ) : (
           <Empty>

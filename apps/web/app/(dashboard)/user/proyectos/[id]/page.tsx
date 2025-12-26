@@ -79,7 +79,7 @@ const Page = () => {
               updatedAt={project.updatedAt}
             />
             <div className="w-full px-4">
-              <ProductsCard products={project.products} />
+              <ProductsCard products={project.products} projectId={id} />
             </div>
           </PageContent>
         </div>

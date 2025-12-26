@@ -8,35 +8,103 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import { Ellipsis, Pencil, Trash } from 'lucide-react';
+import { Button } from './ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from './ui/dialog';
+import { DialogClose } from '@radix-ui/react-dialog';
+import { useDeleteProduct } from '@/hooks/projects';
 
-export default function ProductCard({
-  _id,
-  name,
-  details,
-  category,
-  subcategory,
-  coAuthor,
-  owner,
-  files,
-}: Pick<
-  IProduct,
-  | '_id'
-  | 'name'
-  | 'details'
-  | 'category'
-  | 'subcategory'
-  | 'coAuthor'
-  | 'owner'
-  | 'files'
->) {
+interface ProductCardProps {
+  product: Pick<
+    IProduct,
+    | '_id'
+    | 'name'
+    | 'details'
+    | 'category'
+    | 'subcategory'
+    | 'coAuthor'
+    | 'owner'
+    | 'files'
+  >;
+  projectId: string;
+}
+
+export default function ProductCard({ product, projectId }: ProductCardProps) {
+  const deleteProduct = useDeleteProduct();
+
+  const handleDelete = () => {
+    deleteProduct.mutate({ projectId, productId: product._id });
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{name}</CardTitle>
+        <div className="flex justify-between items-start">
+          <div className="flex flex-col gap-1">
+            <CardTitle>{product.name}</CardTitle>
+            <CardDescription>{product.details}</CardDescription>
+          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant="ghost" size="icon-sm">
+                <Ellipsis />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="flex flex-col items-start">
+              <Dialog>
+                <DialogTrigger className="border-transparent w-full justify-start">
+                  <Pencil /> Editar
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogTitle>Editando: {product.name}</DialogTitle>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog>
+                <DialogTrigger className="border-transparent w-full justify-start hover:text-destructive-foreground">
+                  <Trash /> Eliminar
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogTitle>Elimar: {product.name}</DialogTitle>
+                  <DialogDescription>
+                    ¿Seguro que deseas eliminar el producto? Esta es una
+                    operación irreversible, una vez eliminado el producto no se
+                    podrá recuperar.
+                  </DialogDescription>
+                  <div className="flex gap-2">
+                    <DialogClose asChild>
+                      <Button variant="outline">Cancelar</Button>
+                    </DialogClose>
+
+                    <DialogClose asChild>
+                      <Button
+                        onClick={handleDelete}
+                        disabled={deleteProduct.isPending}
+                        variant="destructive"
+                      >
+                        Eliminar
+                      </Button>
+                    </DialogClose>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </CardHeader>
-      <CardContent>
-        <CardDescription>{details}</CardDescription>
-      </CardContent>
+      <CardContent></CardContent>
       <CardFooter></CardFooter>
     </Card>
   );

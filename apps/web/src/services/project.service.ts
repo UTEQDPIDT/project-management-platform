@@ -71,7 +71,13 @@ const createProduct = async (projectId: string, productData: any) => {
   }
 };
 
-const deleteProduct = async (projectId: string, productId: string) => {
+const deleteProduct = async ({
+  projectId,
+  productId,
+}: {
+  projectId: string;
+  productId: string;
+}) => {
   try {
     await api.delete(`/projects/${projectId}/products/${productId}`);
   } catch (err) {
