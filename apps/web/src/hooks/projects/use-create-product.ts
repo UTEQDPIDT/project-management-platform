@@ -1,13 +1,15 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { createProduct } from '@/services/project.service';
 
-export const useCreateProduct = (projectId: string) => {
+export const useCreateProduct = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (productData: any) => createProduct(projectId, productData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+    mutationFn: createProduct,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['project', variables.projectId],
+      });
     },
   });
 };

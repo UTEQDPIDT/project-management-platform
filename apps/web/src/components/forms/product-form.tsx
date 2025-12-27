@@ -6,7 +6,7 @@ import {
 } from '@/hooks/catalogs';
 import { productSchema } from '@/schemas/product.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CoAuthor, SeedCategory } from '@repo/types';
+import { CoAuthor, IProduct, SeedCategory } from '@repo/types';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import LoadingMessage from '../loading-message';
@@ -33,22 +33,42 @@ import {
 } from '../ui/select';
 import { Button } from '../ui/button';
 import { DialogClose } from '../ui/dialog';
+import { useCreateProduct } from '@/hooks/projects';
+import { useUpdateProduct } from '@/hooks/products';
 
-export function CreateProductForm() {
+interface Props {
+  product?: Pick<
+    IProduct,
+    | '_id'
+    | 'name'
+    | 'details'
+    | 'category'
+    | 'subcategory'
+    | 'coAuthor'
+    | 'owner'
+    | 'files'
+  >;
+  projectId: string;
+}
+
+export function ProductForm({ projectId, product }: Props) {
   const { data: categories, isLoading: loadingCategories } =
     useProductCategories();
   const { data: subcategories, isLoading: loadingSubcategories } =
     useProductSubcategories();
 
+  const createProduct = useCreateProduct();
+  const updateProduct = useUpdateProduct();
+
   const form = useForm({
     resolver: zodResolver(productSchema),
     mode: 'onChange',
     defaultValues: {
-      name: '',
-      details: '',
-      category: '',
-      subcategory: '',
-      coAuthor: CoAuthor.A,
+      name: product?.name || '',
+      details: product?.details || '',
+      category: product?.category._id || '',
+      subcategory: product?.subcategory._id || '',
+      coAuthor: product?.coAuthor || CoAuthor.A,
     },
   });
 
@@ -62,6 +82,12 @@ export function CreateProductForm() {
         details: data.details === '' ? undefined : data.details,
       };
       console.log('CLEAN DATA', cleanedData);
+
+      if (product) {
+        updateProduct.mutate({ id: product._id, productData: cleanedData });
+      } else {
+        createProduct.mutate({ projectId, productData: cleanedData });
+      }
     } catch (err) {
       console.error('Error on submit', err);
     }
@@ -221,7 +247,7 @@ export function CreateProductForm() {
             Cancelar
           </Button>
         </DialogClose>
-        <Button type="submit">Crear</Button>
+        <Button type="submit">{product ? 'Actualizar' : 'Crear'}</Button>
       </div>
     </form>
   );

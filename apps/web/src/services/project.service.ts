@@ -59,7 +59,13 @@ const deleteProject = async (id: string) => {
 /**
  * Products
  */
-const createProduct = async (projectId: string, productData: any) => {
+const createProduct = async ({
+  projectId,
+  productData,
+}: {
+  projectId: string;
+  productData: any;
+}) => {
   try {
     const { data } = await api.post(
       `/projects/${projectId}/products`,

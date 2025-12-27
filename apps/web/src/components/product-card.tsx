@@ -24,6 +24,9 @@ import {
 } from './ui/dialog';
 import { DialogClose } from '@radix-ui/react-dialog';
 import { useDeleteProduct } from '@/hooks/projects';
+import { Badge } from './ui/badge';
+import { Separator } from './ui/separator';
+import { ProductForm } from './forms/product-form';
 
 interface ProductCardProps {
   product: Pick<
@@ -63,15 +66,23 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="flex flex-col items-start">
+              {/* Edit */}
               <Dialog>
                 <DialogTrigger className="border-transparent w-full justify-start">
                   <Pencil /> Editar
                 </DialogTrigger>
                 <DialogContent>
-                  <DialogTitle>Editando: {product.name}</DialogTitle>
+                  <div className="flex flex-col gap-3 ">
+                    <Badge variant="orange">Editando</Badge>
+                    <DialogTitle>{product.name}</DialogTitle>
+                  </div>
+                  <Separator />
+
+                  <ProductForm product={product} projectId={projectId} />
                 </DialogContent>
               </Dialog>
 
+              {/* Delete */}
               <Dialog>
                 <DialogTrigger className="border-transparent w-full justify-start hover:text-destructive-foreground">
                   <Trash /> Eliminar

@@ -8,7 +8,9 @@ export function useUpdateProduct() {
     mutationFn: ({ id, productData }: { id: string; productData: any }) =>
       updateProduct(id, productData),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['products', 'product', id] });
+      queryClient.invalidateQueries({
+        queryKey: ['products', 'product', 'project', id],
+      });
     },
   });
 }

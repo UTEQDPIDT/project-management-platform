@@ -9,10 +9,10 @@ import {
   CardTitle,
 } from './ui/card';
 import ProductCard from './product-card';
-import { Folder, Newspaper } from 'lucide-react';
+import { Newspaper } from 'lucide-react';
 import IconSquare from './icon-square';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './ui/dialog';
-import { CreateProductForm } from './forms/create-product-form';
+import { ProductForm } from './forms/product-form';
 import {
   Empty,
   EmptyDescription,
@@ -20,6 +20,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from './ui/empty';
+import { Separator } from './ui/separator';
 
 interface ProductsCardProps {
   products: IProduct[];
@@ -37,9 +38,9 @@ export function ProductsCard({ products, projectId }: ProductsCardProps) {
             </IconSquare>
             <div className="flex flex-col gap-1">
               <CardTitle>Productos</CardTitle>
-              <CardDescription>
+              {/* <CardDescription>
                 Crea y gestiona los productos del proyecto.
-              </CardDescription>
+              </CardDescription> */}
             </div>
           </div>
           <Dialog>
@@ -48,7 +49,8 @@ export function ProductsCard({ products, projectId }: ProductsCardProps) {
             </DialogTrigger>
             <DialogContent>
               <DialogTitle>Nuevo Producto</DialogTitle>
-              <CreateProductForm />
+              <Separator />
+              <ProductForm projectId={projectId} />
             </DialogContent>
           </Dialog>
         </div>
