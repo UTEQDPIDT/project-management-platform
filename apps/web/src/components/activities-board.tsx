@@ -21,7 +21,7 @@ interface Props {
   projectId: string;
 }
 
-export function ActivitiesCard({ activities, projectId }: Props) {
+export function ActivitiesBoard({ activities, projectId }: Props) {
   const pendingActivities = activities.filter(
     (a: IActivity) => a.status === 'Pendiente',
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { ActivitiesCard } from '@/components/activities-card';
+import { ActivitiesBoard } from '@/components/activities-board';
 import {
   Header,
   HeaderAction,
@@ -82,7 +82,7 @@ const Page = () => {
             <div className="w-full px-4 gap-6 flex flex-col">
               <ProductsCard products={project.products} projectId={id} />
 
-              <ActivitiesCard activities={project.activities} projectId={id} />
+              <ActivitiesBoard activities={project.activities} projectId={id} />
             </div>
           </PageContent>
         </div>
