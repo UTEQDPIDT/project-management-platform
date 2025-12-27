@@ -57,9 +57,11 @@ export function ProductsCard({ products, projectId }: ProductsCardProps) {
       </CardHeader>
       <CardContent>
         {products.length > 0 ? (
-          products.map((p: IProduct) => (
-            <ProductCard key={p._id} product={p} projectId={projectId} />
-          ))
+          <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {products.map((p: IProduct) => (
+              <ProductCard key={p._id} product={p} projectId={projectId} />
+            ))}
+          </div>
         ) : (
           <Empty>
             <EmptyHeader>

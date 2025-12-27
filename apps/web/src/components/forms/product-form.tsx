@@ -81,10 +81,13 @@ export function ProductForm({ projectId, product }: Props) {
         ...data,
         details: data.details === '' ? undefined : data.details,
       };
-      console.log('CLEAN DATA', cleanedData);
+      //   console.log('CLEAN DATA', cleanedData);
 
       if (product) {
-        updateProduct.mutate({ id: product._id, productData: cleanedData });
+        updateProduct.mutate({
+          productId: product._id,
+          productData: cleanedData,
+        });
       } else {
         createProduct.mutate({ projectId, productData: cleanedData });
       }

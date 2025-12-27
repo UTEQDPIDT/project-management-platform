@@ -1,12 +1,14 @@
 import { api } from '@/lib/axios';
 import { IProduct } from '@repo/types';
 
-const createProduct = async (
+const createProduct = async ({
+  productData,
+}: {
   productData: Pick<
     IProduct,
     'name' | 'category' | 'subcategory' | 'details' | 'coAuthor'
-  >,
-) => {
+  >;
+}) => {
   try {
     const { data } = await api.post('/products', productData);
     return data;
@@ -33,18 +35,18 @@ const getProductById = async (id: string) => {
   }
 };
 
-const updateProduct = async (
-  id: string,
-  productData: Pick<
-    IProduct,
-    'name' | 'category' | 'subcategory' | 'details' | 'coAuthor'
-  >,
-) => {
+const updateProduct = async ({
+  productId,
+  productData,
+}: {
+  productId: string;
+  productData: any;
+}) => {
   try {
-    const { data } = await api.patch(`/products/${id}`, productData);
+    const { data } = await api.patch(`/products/${productId}`, productData);
     return data;
   } catch (err) {
-    console.error(`Error updating product with ID: ${id}`, err);
+    console.error(`Error updating product with ID: ${productId}`, err);
   }
 };
 

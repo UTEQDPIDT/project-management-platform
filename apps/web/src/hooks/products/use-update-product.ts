@@ -5,11 +5,10 @@ export function useUpdateProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, productData }: { id: string; productData: any }) =>
-      updateProduct(id, productData),
-    onSuccess: (_, { id }) => {
+    mutationFn: updateProduct,
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['products', 'product', 'project', id],
+        queryKey: ['project'],
       });
     },
   });

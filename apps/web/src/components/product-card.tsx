@@ -2,6 +2,7 @@ import { IProduct } from '@repo/types';
 import React from 'react';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -13,7 +14,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { Ellipsis, Pencil, Trash } from 'lucide-react';
+import { Download, Ellipsis, Pencil, Trash } from 'lucide-react';
 import { Button } from './ui/button';
 import {
   Dialog,
@@ -27,6 +28,7 @@ import { useDeleteProduct } from '@/hooks/projects';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { ProductForm } from './forms/product-form';
+import { ProfileInfo } from './profile-info';
 
 interface ProductCardProps {
   product: Pick<
@@ -56,7 +58,9 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
         <div className="flex justify-between items-start">
           <div className="flex flex-col gap-1">
             <CardTitle>{product.name}</CardTitle>
-            <CardDescription>{product.details}</CardDescription>
+            <CardDescription>
+              {product.details} Co Autor {product.coAuthor}
+            </CardDescription>
           </div>
 
           <DropdownMenu>
@@ -94,6 +98,7 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
                     operación irreversible, una vez eliminado el producto no se
                     podrá recuperar.
                   </DialogDescription>
+
                   <div className="flex gap-2">
                     <DialogClose asChild>
                       <Button variant="outline">Cancelar</Button>
@@ -115,8 +120,26 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
           </DropdownMenu>
         </div>
       </CardHeader>
-      <CardContent></CardContent>
-      <CardFooter></CardFooter>
+
+      <CardContent className="flex flex-col gap-3">
+        <Badge variant="pruple">{product.category.name}</Badge>
+        <Badge variant="blue">{product.subcategory.name}</Badge>
+
+        <ProfileInfo
+          givenName={product.owner.givenName}
+          familyName={product.owner.familyName}
+          avatarUrl={product.owner.avatarUrl}
+          email={product.owner.email}
+        />
+      </CardContent>
+
+      <CardFooter className="flex justify-end">
+        <CardAction>
+          <Button title="Descargar" variant="ghost" size="icon-sm">
+            <Download />
+          </Button>
+        </CardAction>
+      </CardFooter>
     </Card>
   );
 }
