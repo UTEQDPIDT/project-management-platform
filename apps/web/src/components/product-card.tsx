@@ -76,9 +76,11 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
                   <Pencil /> Editar
                 </DialogTrigger>
                 <DialogContent>
-                  <div className="flex flex-col gap-3 ">
+                  <div className="flex gap-3 ">
                     <Badge variant="orange">Editando</Badge>
-                    <DialogTitle>{product.name}</DialogTitle>
+                    <DialogTitle className="line-clamp-1">
+                      {product.name}
+                    </DialogTitle>
                   </div>
                   <Separator />
 
@@ -91,8 +93,9 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
                 <DialogTrigger className="border-transparent w-full justify-start hover:text-destructive-foreground">
                   <Trash /> Eliminar
                 </DialogTrigger>
-                <DialogContent>
-                  <DialogTitle>Elimar: {product.name}</DialogTitle>
+                <DialogContent className="gap-5">
+                  <Badge variant="destructive">Eliminando</Badge>
+                  <DialogTitle>{product.name}</DialogTitle>
                   <DialogDescription>
                     ¿Seguro que deseas eliminar el producto? Esta es una
                     operación irreversible, una vez eliminado el producto no se

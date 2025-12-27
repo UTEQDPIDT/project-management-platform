@@ -31,17 +31,13 @@ export function ProductsCard({ products, projectId }: ProductsCardProps) {
   return (
     <Card className="w-full">
       <CardHeader>
-        <div className="flex justify-between">
-          <div className="flex gap-3">
+        <div className="flex justify-between ">
+          <div className="flex gap-3 items-center">
             <IconSquare>
               <Newspaper />
             </IconSquare>
-            <div className="flex flex-col gap-1">
-              <CardTitle>Productos</CardTitle>
-              {/* <CardDescription>
-                Crea y gestiona los productos del proyecto.
-              </CardDescription> */}
-            </div>
+
+            <CardTitle>Productos</CardTitle>
           </div>
           <Dialog>
             <DialogTrigger className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
