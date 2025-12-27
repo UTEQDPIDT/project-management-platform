@@ -154,7 +154,7 @@ export class ProjectsService {
   }
 
   /**
-   * Product + Project Services
+   * Product Services
    */
   async createProduct(
     projectId: string,
@@ -204,4 +204,8 @@ export class ProjectsService {
       session.endSession();
     }
   }
+
+  /**
+   * Activities Services
+   */
 }
