@@ -1,5 +1,6 @@
 'use client';
 
+import { ActivitiesCard } from '@/components/activities-card';
 import {
   Header,
   HeaderAction,
@@ -78,8 +79,10 @@ const Page = () => {
               updatedBy={project.updatedBy}
               updatedAt={project.updatedAt}
             />
-            <div className="w-full px-4">
+            <div className="w-full px-4 gap-6 flex flex-col">
               <ProductsCard products={project.products} projectId={id} />
+
+              <ActivitiesCard activities={project.activities} projectId={id} />
             </div>
           </PageContent>
         </div>
