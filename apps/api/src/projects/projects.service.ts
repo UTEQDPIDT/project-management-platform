@@ -47,7 +47,14 @@ export class ProjectsService {
       .populate('team')
       .populate('relatedProjects')
       .populate('activities')
-      .populate('products')
+      .populate({
+        path: 'products',
+        populate: [
+          { path: 'category' },
+          { path: 'subcategory' },
+          { path: 'owner' },
+        ],
+      })
       .populate('files')
       .populate('owner')
       .populate('updatedBy')
@@ -64,7 +71,14 @@ export class ProjectsService {
       .populate('team')
       .populate('relatedProjects')
       .populate('activities')
-      .populate('products')
+      .populate({
+        path: 'products',
+        populate: [
+          { path: 'category' },
+          { path: 'subcategory' },
+          { path: 'owner' },
+        ],
+      })
       .populate('files')
       .populate('owner')
       .populate('updatedBy');
@@ -85,7 +99,14 @@ export class ProjectsService {
       .populate('team')
       .populate('relatedProjects')
       .populate('activities')
-      .populate('products')
+      .populate({
+        path: 'products',
+        populate: [
+          { path: 'category' },
+          { path: 'subcategory' },
+          { path: 'owner' },
+        ],
+      })
       .populate('files')
       .populate('owner')
       .populate('updatedBy');
