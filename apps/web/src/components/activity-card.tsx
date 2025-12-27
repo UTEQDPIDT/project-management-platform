@@ -36,6 +36,7 @@ import { Separator } from './ui/separator';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { ActivityForm } from './forms/activity-form';
 
 interface Props {
   activity: IActivity;
@@ -50,6 +51,31 @@ export function ActivityCard({ activity, projectId, className }: Props) {
   const handleDelete = () => {
     // todo: mutation
   };
+
+  let badgeVariant:
+    | 'orange'
+    | 'gray'
+    | 'default'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
+    | 'blue'
+    | 'green'
+    | 'purple'
+    | null
+    | undefined;
+
+  switch (activity.priority) {
+    case 'Alta':
+      badgeVariant = 'purple';
+      break;
+    case 'Media':
+      badgeVariant = 'orange';
+      break;
+    case 'Baja':
+      badgeVariant = 'gray';
+      break;
+  }
 
   return (
     <Card className={cn(className)}>
@@ -81,7 +107,7 @@ export function ActivityCard({ activity, projectId, className }: Props) {
                   </div>
                   <Separator />
 
-                  {/* todo: form */}
+                  <ActivityForm activity={activity} projectId={projectId} />
                 </DialogContent>
               </Dialog>
 
@@ -141,7 +167,9 @@ export function ActivityCard({ activity, projectId, className }: Props) {
       </CardContent>
 
       <CardFooter className="flex">
-        {activity.priority && <Badge variant="gray">{activity.priority}</Badge>}
+        {activity.priority && (
+          <Badge variant={badgeVariant}>{activity.priority}</Badge>
+        )}
       </CardFooter>
     </Card>
   );

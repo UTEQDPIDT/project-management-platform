@@ -80,9 +80,8 @@ const Page = () => {
               updatedAt={project.updatedAt}
             />
             <div className="w-full px-4 gap-6 flex flex-col">
-              <ProductsCard products={project.products} projectId={id} />
-
               <ActivitiesBoard activities={project.activities} projectId={id} />
+              <ProductsCard products={project.products} projectId={id} />
             </div>
           </PageContent>
         </div>

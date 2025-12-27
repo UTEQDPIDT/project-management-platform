@@ -10,6 +10,7 @@ export interface IActivity {
   priority?: Priority;
   status: Status;
   checked?: boolean;
+  assignees?: IUser[];
   createdBy: IUser;
   updatedBy?: IUser;
   files: IFile[];

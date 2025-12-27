@@ -121,7 +121,7 @@ export function ProjectCard({
               </div>
             </div>
             <div className="flex gap-1">
-              <Badge variant="pruple" className="h-6">
+              <Badge variant="purple" className="h-6">
                 TRL {trlRating}
               </Badge>
               <Badge variant={badgeVariant} className="h-6">

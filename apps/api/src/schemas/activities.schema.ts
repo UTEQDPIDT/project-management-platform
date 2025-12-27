@@ -1,7 +1,7 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Priority, Status } from '@repo/types';
 
 @Schema({ timestamps: true })
@@ -10,8 +10,8 @@ export class Activity extends Document {
   @Prop({ required: true })
   name: string;
 
-  @ApiProperty({ description: 'Descripcion de la actividad', maxLength: 500 })
-  @Prop({ maxLength: 500 })
+  @ApiProperty({ description: 'Descripcion de la actividad', maxLength: 255 })
+  @Prop({ maxLength: 255 })
   description?: string;
 
   @ApiProperty({ description: 'Prioridad de la actividad' })
@@ -31,6 +31,10 @@ export class Activity extends Document {
   })
   @Prop({ default: false })
   checked?: boolean;
+
+  @ApiPropertyOptional({ description: 'A quien se le asigna la actividad.' })
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
+  assignees?: User[];
 
   @ApiProperty({ description: 'Usuario que creo la activiad' })
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })

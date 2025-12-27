@@ -15,6 +15,7 @@ import {
 } from './ui/empty';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
+import { ActivityForm } from './forms/activity-form';
 
 interface Props {
   activities: IActivity[];
@@ -52,6 +53,7 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
             <DialogContent>
               <DialogTitle>Nueva Actividad</DialogTitle>
               <Separator />
+              <ActivityForm />
             </DialogContent>
           </Dialog>
         </div>
@@ -92,7 +94,7 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
                     key={a._id}
                     activity={a}
                     projectId={projectId}
-                    className="border-blue-800"
+                    className="border-blue-200"
                   />
                 ))}
               </CardContent>
@@ -113,7 +115,7 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
                     key={a._id}
                     activity={a}
                     projectId={projectId}
-                    className="border-green-700"
+                    className="border-green-200"
                   />
                 ))}
               </CardContent>
