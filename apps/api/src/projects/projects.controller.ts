@@ -140,7 +140,6 @@ export class ProjectsController {
   })
   @ApiBadRequestResponse({ description: 'Se abortó la transacción' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
   @Post(':projectId/activities')
   async createActivity(
     @Param('projectId') projectId: string,
@@ -148,5 +147,25 @@ export class ProjectsController {
     @Req() req,
   ) {
     return this.projectsService.createActivity(projectId, dto, req.user.id);
+  }
+
+  @ApiAcceptedResponse({
+    description:
+      'Producto creado y añadido al arreglo de Productos correctamente.',
+  })
+  @ApiBadRequestResponse({ description: 'Se abortó la transacción' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
+  @UseGuards(JwtAuthGuard)
+  @Delete(':projectId/activities/:activityId')
+  async deleteActivity(
+    @Param('projectId') projectId: string,
+    @Param('activityId') activityId: string,
+    @Req() req,
+  ) {
+    return this.projectsService.deleteActivity(
+      projectId,
+      activityId,
+      req.user.id,
+    );
   }
 }

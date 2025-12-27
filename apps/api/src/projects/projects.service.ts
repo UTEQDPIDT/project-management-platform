@@ -240,4 +240,26 @@ export class ProjectsService {
       session.endSession();
     }
   }
+
+  async deleteActivity(projectId: string, activityId: string, userId: string) {
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    try {
+      await this.activitiesService.remove(activityId);
+      await this.projectModel.updateOne(
+        { _id: projectId },
+        { $pull: { activities: activityId }, $set: { updatedBy: userId } },
+        { session },
+      );
+
+      await session.commitTransaction();
+      return { message: 'Actividad eliminada del proyecto correctamente.' };
+    } catch (err: any) {
+      await session.abortTransaction();
+      throw new BadRequestException(err.message);
+    } finally {
+      session.endSession();
+    }
+  }
 }
