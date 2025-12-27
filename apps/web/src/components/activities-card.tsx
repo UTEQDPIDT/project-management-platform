@@ -61,7 +61,10 @@ export function ActivitiesCard({ activities, projectId }: Props) {
           <div className="grid grid-cols-3 gap-5">
             <Card className="bg-gray-50 border-transparent shadow-none">
               <CardHeader>
-                <Badge>Pendiente</Badge>
+                <div className="flex gap-2">
+                  <Badge>Pendiente</Badge>
+                  <span>{pendingActivities.length}</span>
+                </div>
               </CardHeader>
               <CardContent className="grid gap-3 grid-cols-1">
                 {pendingActivities.map((a: IActivity) => (
@@ -73,9 +76,15 @@ export function ActivitiesCard({ activities, projectId }: Props) {
                 ))}
               </CardContent>
             </Card>
+
             <Card className="bg-blue-50 border-transparent shadow-none">
               <CardHeader>
-                <Badge variant="blue">En Progreso</Badge>
+                <div className="flex gap-2">
+                  <Badge variant="blue">En Progreso</Badge>
+                  <span className="text-blue-700">
+                    {inProgressActivities.length}
+                  </span>
+                </div>
               </CardHeader>
               <CardContent className="grid gap-3 grid-cols-1">
                 {inProgressActivities.map((a: IActivity) => (
@@ -91,7 +100,12 @@ export function ActivitiesCard({ activities, projectId }: Props) {
 
             <Card className="bg-green-50 border-transparent shadow-none">
               <CardHeader>
-                <Badge variant="green">Completado</Badge>
+                <div className="flex gap-2">
+                  <Badge variant="green">Completado</Badge>
+                  <span className="text-green-700">
+                    {completedActivities.length}
+                  </span>
+                </div>
               </CardHeader>
               <CardContent className="grid gap-3 grid-cols-1">
                 {completedActivities.map((a: IActivity) => (
@@ -99,6 +113,7 @@ export function ActivitiesCard({ activities, projectId }: Props) {
                     key={a._id}
                     activity={a}
                     projectId={projectId}
+                    className="border-green-700"
                   />
                 ))}
               </CardContent>
