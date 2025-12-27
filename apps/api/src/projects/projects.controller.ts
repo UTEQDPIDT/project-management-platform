@@ -130,4 +130,23 @@ export class ProjectsController {
       req.user.id,
     );
   }
+
+  /**
+   * Activities
+   */
+  @ApiAcceptedResponse({
+    description:
+      'Producto creado y añadido al arreglo de Productos correctamente.',
+  })
+  @ApiBadRequestResponse({ description: 'Se abortó la transacción' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
+  @UseGuards(JwtAuthGuard)
+  @Post(':projectId/activities')
+  async createActivity(
+    @Param('projectId') projectId: string,
+    @Body() dto: CreateProductDto,
+    @Req() req,
+  ) {
+    return this.projectsService.createActivity(projectId, dto, req.user.id);
+  }
 }
