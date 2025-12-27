@@ -7,7 +7,7 @@ import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Activity } from '../schemas/activities.schema';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
 
 @Injectable()
@@ -20,26 +20,15 @@ export class ActivitiesService {
   async create(
     createActivityDto: CreateActivityDto,
     userId: string,
-    files?: Express.Multer.File[],
+    session?: ClientSession,
   ): Promise<Activity> {
     try {
-      let uploadedFiles: string[] = [];
-
-      if (files && files.length > 0) {
-        for (const file of files) {
-          const savedFile = await this.filesService.uploadToGridFS(
-            file,
-            userId,
-          );
-          uploadedFiles.push(savedFile.id);
-        }
-      }
-
-      const createdActivity = await this.activityModel.create({
+      const createdActivity = new this.activityModel({
         ...createActivityDto,
         createdBy: userId,
-        files: uploadedFiles,
       });
+
+      await createdActivity.save({ session });
 
       return createdActivity;
     } catch (err: any) {

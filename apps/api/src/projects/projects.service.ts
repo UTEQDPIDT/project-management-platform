@@ -11,11 +11,13 @@ import { Connection, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
 import { ProductsService } from '../products/products.service';
 import { CreateProductDto } from '../products/dto/create-product.dto';
+import { ActivitiesService } from '../activities/activities.service';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     private readonly productService: ProductsService,
+    private readonly activitiesService: ActivitiesService,
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(Project.name) private projectModel: Model<Project>,
     private readonly filesService: FilesService,
@@ -208,4 +210,34 @@ export class ProjectsService {
   /**
    * Activities Services
    */
+  async createActivity(
+    projectId: string,
+    dto: CreateProductDto,
+    userId: string,
+  ) {
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    try {
+      const activity = await this.activitiesService.create(
+        dto,
+        userId,
+        session,
+      );
+
+      await this.projectModel.updateOne(
+        { _id: projectId },
+        { $push: { activities: activity._id }, $set: { updatedBy: userId } },
+        { session },
+      );
+
+      await session.commitTransaction();
+      return activity;
+    } catch (err: any) {
+      await session.abortTransaction();
+      throw new BadRequestException(err.message);
+    } finally {
+      session.endSession();
+    }
+  }
 }
