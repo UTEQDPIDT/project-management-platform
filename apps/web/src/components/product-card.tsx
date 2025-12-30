@@ -64,7 +64,7 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
           </div>
 
           <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon-sm">
                 <Ellipsis />
               </Button>
@@ -125,7 +125,7 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3">
-        <Badge variant="pruple">{product.category.name}</Badge>
+        <Badge variant="purple">{product.category.name}</Badge>
         <Badge variant="blue">{product.subcategory.name}</Badge>
 
         <ProfileInfo
