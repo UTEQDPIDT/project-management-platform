@@ -37,14 +37,8 @@ export class ActivitiesController {
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @UseGuards(JwtAuthGuard)
   @Post()
-  @UseInterceptors(FilesInterceptor('files'))
-  @ApiConsumes('multipart/form-data')
-  create(
-    @Body() createActivityDto: CreateActivityDto,
-    @Req() req,
-    @UploadedFiles() files: Express.Multer.File[],
-  ) {
-    return this.activitiesService.create(createActivityDto, req.user.id, files);
+  create(@Body() createActivityDto: CreateActivityDto, @Req() req) {
+    return this.activitiesService.create(createActivityDto, req.user.id);
   }
 
   @ApiCreatedResponse({
