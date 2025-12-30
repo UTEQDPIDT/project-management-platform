@@ -1,11 +1,20 @@
 'use client';
 
 import { IActivity, IUser, Priority, Status } from '@repo/types';
+import { useProject } from '@/hooks/projects';
+import React from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '../ui/field';
 import {
   InputGroup,
   InputGroupAddon,
@@ -23,6 +32,9 @@ import {
 import { DatePicker } from '../ui/date-picker';
 import { Button } from '../ui/button';
 import { DialogClose } from '../ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { Command, CommandGroup, CommandItem } from '../ui/command';
 
 interface Props {
   activity?: IActivity;
@@ -73,6 +85,27 @@ export function ActivityForm({ activity, projectId }: Props) {
   const onError = (erros: any) => {
     console.log('FORM ERRORS', erros);
   };
+
+  // Load project members (owner + team members)
+  const { data: project, isLoading: loadingProject } = useProject(
+    projectId || '',
+  );
+
+  const members: IUser[] = React.useMemo(() => {
+    if (!project) return [];
+    const list: IUser[] = [];
+    if (project.owner) list.push(project.owner);
+    if (project.team?.members && project.team.members.length > 0) {
+      list.push(...project.team.members);
+    }
+
+    // dedupe by _id
+    const map = new Map<string, IUser>();
+    list.forEach((u) => {
+      if (u && u._id) map.set(u._id, u);
+    });
+    return Array.from(map.values());
+  }, [project]);
 
   return (
     <form
@@ -195,17 +228,87 @@ export function ActivityForm({ activity, projectId }: Props) {
           )}
         />
 
-        <Controller
-          control={form.control}
-          name="assignees"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Encargados</FieldLabel>
+        {members && (
+          <Controller
+            control={form.control}
+            name="assignees"
+            render={({ field }) => {
+              const value = field.value ?? [];
 
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
+              const displayName = (u: IUser) =>
+                `${u.givenName || ''} ${u.familyName || ''}`.trim() || u.email;
+
+              return (
+                <FieldGroup>
+                  <FieldContent>
+                    <FieldLabel>Encargados</FieldLabel>
+                    <FieldDescription>
+                      Asigna encargados a esta actividad.
+                    </FieldDescription>
+                  </FieldContent>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between font-normal"
+                      >
+                        {value.length ? (
+                          `${value.length} seleccionados`
+                        ) : (
+                          <span className="text-muted-foreground font-normal">
+                            Sin selección
+                          </span>
+                        )}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+
+                    <PopoverContent className="w-full md:w-md max-h-96 overflow-y-auto p-0">
+                      <Command>
+                        <CommandGroup>
+                          {loadingProject ? (
+                            <CommandItem disabled>Cargando</CommandItem>
+                          ) : members.length > 0 ? (
+                            members.map((user: IUser) => {
+                              const selected = value.includes(user._id);
+
+                              return (
+                                <CommandItem
+                                  key={user._id}
+                                  onSelect={() => {
+                                    field.onChange(
+                                      selected
+                                        ? value.filter((v) => v !== user._id)
+                                        : [...value, user._id],
+                                    );
+                                  }}
+                                >
+                                  <Check
+                                    className={`mr-2 h-4 w-4 ${
+                                      selected ? 'opacity-100' : 'opacity-0'
+                                    }`}
+                                  />
+                                  {displayName(user)}
+                                </CommandItem>
+                              );
+                            })
+                          ) : (
+                            <div className="w-full select-none p-2 flex items-center justify-center">
+                              <span className="text-muted-foreground text-sm">
+                                No hay miembros en este proyecto
+                              </span>
+                            </div>
+                          )}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FieldGroup>
+              );
+            }}
+          />
+        )}
       </FieldGroup>
 
       <div className="flex gap-3">

@@ -40,7 +40,7 @@ import { ActivityForm } from './forms/activity-form';
 
 interface Props {
   activity: IActivity;
-  projectId: string;
+  projectId?: string;
   className?: string;
 }
 
@@ -87,7 +87,7 @@ export function ActivityCard({ activity, projectId, className }: Props) {
           </div>
 
           <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon-sm">
                 <Ellipsis />
               </Button>

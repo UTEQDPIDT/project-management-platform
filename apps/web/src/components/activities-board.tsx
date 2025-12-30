@@ -19,7 +19,7 @@ import { ActivityForm } from './forms/activity-form';
 
 interface Props {
   activities: IActivity[];
-  projectId: string;
+  projectId?: string;
 }
 
 export function ActivitiesBoard({ activities, projectId }: Props) {
@@ -53,7 +53,7 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
             <DialogContent>
               <DialogTitle>Nueva Actividad</DialogTitle>
               <Separator />
-              <ActivityForm />
+              <ActivityForm projectId={projectId} />
             </DialogContent>
           </Dialog>
         </div>
