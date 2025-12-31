@@ -46,7 +46,14 @@ export class ProjectsService {
       .populate('prioritiesPND')
       .populate('sustainableObjectives')
       .populate('innovationLines')
-      .populate('team')
+      .populate({
+        path: 'team',
+        populate: [
+          { path: 'owner' },
+          { path: 'members' },
+          { path: 'collaborators' },
+        ],
+      })
       .populate('relatedProjects')
       .populate({
         path: 'activities',
@@ -73,7 +80,14 @@ export class ProjectsService {
       .populate('prioritiesPND')
       .populate('sustainableObjectives')
       .populate('innovationLines')
-      .populate('team')
+      .populate({
+        path: 'team',
+        populate: [
+          { path: 'owner' },
+          { path: 'members' },
+          { path: 'collaborators' },
+        ],
+      })
       .populate('relatedProjects')
       .populate({
         path: 'activities',
@@ -104,7 +118,14 @@ export class ProjectsService {
       .populate('prioritiesPND')
       .populate('sustainableObjectives')
       .populate('innovationLines')
-      .populate('team')
+      .populate({
+        path: 'team',
+        populate: [
+          { path: 'owner' },
+          { path: 'members' },
+          { path: 'collaborators' },
+        ],
+      })
       .populate('relatedProjects')
       .populate({
         path: 'activities',
