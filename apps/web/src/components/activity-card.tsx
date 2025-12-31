@@ -38,6 +38,7 @@ import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { ActivityForm } from './forms/activity-form';
 import { useDeleteActivity } from '@/hooks/projects';
+import AvatarRow from './avatar-row';
 
 interface Props {
   activity: IActivity;
@@ -84,10 +85,9 @@ export function ActivityCard({ activity, projectId, className }: Props) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start gap-1">
           <div className="flex flex-col gap-1">
             <CardTitle>{activity.name}</CardTitle>
-            <CardDescription></CardDescription>
           </div>
 
           <DropdownMenu>
@@ -152,11 +152,21 @@ export function ActivityCard({ activity, projectId, className }: Props) {
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3">
+        {activity.description && (
+          <CardDescription>{activity.description}</CardDescription>
+        )}
+
+        {activity.assignees && activity.assignees.length > 0 && (
+          <AvatarRow profiles={activity.assignees} />
+        )}
+
         {activity.dueDate && (
           <div className="flex gap-1">
             <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
               <Calendar size={14} />
-              {format(activity.dueDate, "d 'de' MMM 'de' yyyy", { locale: es })}
+              {format(activity.dueDate, "'Vence el' d 'de' MMM 'de' yyyy", {
+                locale: es,
+              })}
             </span>
             {activity.dueDateEnd && (
               <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
@@ -168,13 +178,11 @@ export function ActivityCard({ activity, projectId, className }: Props) {
             )}
           </div>
         )}
-      </CardContent>
 
-      <CardFooter className="flex">
         {activity.priority && (
           <Badge variant={badgeVariant}>{activity.priority}</Badge>
         )}
-      </CardFooter>
+      </CardContent>
     </Card>
   );
 }
