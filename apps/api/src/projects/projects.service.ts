@@ -48,7 +48,10 @@ export class ProjectsService {
       .populate('innovationLines')
       .populate('team')
       .populate('relatedProjects')
-      .populate('activities')
+      .populate({
+        path: 'activities',
+        populate: [{ path: 'assignees' }, { path: 'files' }],
+      })
       .populate({
         path: 'products',
         populate: [
@@ -72,7 +75,10 @@ export class ProjectsService {
       .populate('innovationLines')
       .populate('team')
       .populate('relatedProjects')
-      .populate('activities')
+      .populate({
+        path: 'activities',
+        populate: [{ path: 'assignees' }, { path: 'files' }],
+      })
       .populate({
         path: 'products',
         populate: [
@@ -100,7 +106,10 @@ export class ProjectsService {
       .populate('innovationLines')
       .populate('team')
       .populate('relatedProjects')
-      .populate('activities')
+      .populate({
+        path: 'activities',
+        populate: [{ path: 'assignees' }, { path: 'files' }],
+      })
       .populate({
         path: 'products',
         populate: [
