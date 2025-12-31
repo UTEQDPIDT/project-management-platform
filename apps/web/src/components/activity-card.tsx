@@ -151,7 +151,7 @@ export function ActivityCard({ activity, projectId, className }: Props) {
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-3">
+      <CardContent className="flex flex-col gap-4">
         {activity.description && (
           <CardDescription>{activity.description}</CardDescription>
         )}
