@@ -91,6 +91,41 @@ const deleteProduct = async ({
   }
 };
 
+/**
+ * Activities
+ */
+const createActivity = async ({
+  projectId,
+  activityData,
+}: {
+  projectId: string;
+  activityData: any;
+}) => {
+  try {
+    const { data } = await api.post(
+      `/projects/${projectId}/activities`,
+      activityData,
+    );
+    return data;
+  } catch (err) {
+    console.error('Error creating activity', err);
+  }
+};
+
+const deleteActivity = async ({
+  projectId,
+  activityId,
+}: {
+  projectId: string;
+  activityId: string;
+}) => {
+  try {
+    await api.delete(`/projects/${projectId}/activities/${activityId}`);
+  } catch (err) {
+    console.error('Error deleting activity', err);
+  }
+};
+
 export {
   createProject,
   getAllProjects,
@@ -100,4 +135,6 @@ export {
   deleteProject,
   createProduct,
   deleteProduct,
+  createActivity,
+  deleteActivity,
 };
