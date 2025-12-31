@@ -1,7 +1,11 @@
 'use client';
 
 import { IActivity, IUser, Priority, Status } from '@repo/types';
-import { useProject } from '@/hooks/projects';
+import {
+  useCreateActivity,
+  useProject,
+  useUpdateProjectActivity,
+} from '@/hooks/projects';
 import React from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -42,53 +46,11 @@ interface Props {
 }
 
 export function ActivityForm({ activity, projectId }: Props) {
-  const form = useForm({
-    resolver: zodResolver(activityZodSchema),
-    mode: 'onChange',
-    defaultValues: {
-      name: activity?.name || '',
-      description: activity?.description || '',
-      status: activity?.status || Status.PENDING,
-      priority: activity?.priority || Priority.LOW,
-      checked: activity?.checked || false,
-      assignees: activity?.assignees
-        ? activity.assignees.map((a: IUser) => a._id)
-        : [],
-      dueDate: activity?.dueDate ? new Date(activity.dueDate) : undefined,
-      dueDateEnd: activity?.dueDateEnd
-        ? new Date(activity.dueDateEnd)
-        : undefined,
-    },
-  });
-
   /**
-   * Handlers
+   * Tanstack hooks
    */
-  const onSubmit = async (data: z.infer<typeof activityZodSchema>) => {
-    try {
-      const cleanedData = {
-        ...data,
-        description: data.description ? data.description?.trim() : undefined,
-      };
-      console.log('CLEAN DATA', cleanedData);
-
-      if (activity) {
-        if (projectId) {
-          // update mutation
-        }
-      } else {
-        if (projectId) {
-          // create mutation
-        }
-      }
-    } catch (err) {
-      console.error('Error on submit', err);
-    }
-  };
-
-  const onError = (erros: any) => {
-    console.log('FORM ERRORS', erros);
-  };
+  const createActivity = useCreateActivity();
+  const updateProjectActivity = useUpdateProjectActivity();
 
   // Load project members (owner + team members)
   const { data: project, isLoading: loadingProject } = useProject(
@@ -110,6 +72,64 @@ export function ActivityForm({ activity, projectId }: Props) {
     });
     return Array.from(map.values());
   }, [project]);
+
+  if (activity) {
+    console.log('ACTIVITY', activity);
+  }
+
+  const form = useForm({
+    resolver: zodResolver(activityZodSchema),
+    mode: 'onChange',
+    defaultValues: {
+      name: activity?.name || '',
+      description: activity?.description || '',
+      status: activity?.status || Status.PENDING,
+      priority: activity?.priority || Priority.LOW,
+      checked: activity?.checked || false,
+      assignees:
+        activity?.assignees && activity.assignees.length > 0
+          ? activity.assignees.map((a: IUser) => a._id)
+          : [],
+      dueDate: activity?.dueDate ? new Date(activity.dueDate) : undefined,
+      dueDateEnd: activity?.dueDateEnd
+        ? new Date(activity.dueDateEnd)
+        : undefined,
+    },
+  });
+
+  /**
+   * Handlers
+   */
+  const onSubmit = async (data: z.infer<typeof activityZodSchema>) => {
+    try {
+      const cleanedData = {
+        ...data,
+        description: data.description ? data.description?.trim() : undefined,
+      };
+
+      if (activity) {
+        if (projectId) {
+          updateProjectActivity.mutate({
+            activityId: activity._id,
+            activityData: cleanedData,
+          });
+        }
+      } else {
+        if (projectId) {
+          createActivity.mutate({
+            projectId,
+            activityData: cleanedData,
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Error on submit', err);
+    }
+  };
+
+  const onError = (erros: any) => {
+    console.log('FORM ERRORS', erros);
+  };
 
   return (
     <form
@@ -321,7 +341,11 @@ export function ActivityForm({ activity, projectId }: Props) {
           <Button variant="outline">Cancelar</Button>
         </DialogClose>
 
-        <Button>{activity ? 'Actualizar' : 'Crear'}</Button>
+        <Button
+          disabled={createActivity.isPending || updateProjectActivity.isPending}
+        >
+          {activity ? 'Actualizar' : 'Crear'}
+        </Button>
       </div>
     </form>
   );
