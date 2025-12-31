@@ -73,9 +73,13 @@ export function ActivityForm({ activity, projectId }: Props) {
       console.log('CLEAN DATA', cleanedData);
 
       if (activity) {
-        // update mutation
+        if (projectId) {
+          // update mutation
+        }
       } else {
-        // create mutation
+        if (projectId) {
+          // create mutation
+        }
       }
     } catch (err) {
       console.error('Error on submit', err);
@@ -222,7 +226,8 @@ export function ActivityForm({ activity, projectId }: Props) {
           name="dueDate"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Periodo</FieldLabel>
+              <FieldLabel htmlFor={field.name}>Vencimiento</FieldLabel>
+              <DatePicker date={field.value} onChange={field.onChange} />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
