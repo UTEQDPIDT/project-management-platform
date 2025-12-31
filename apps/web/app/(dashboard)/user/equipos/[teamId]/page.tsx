@@ -38,7 +38,7 @@ const Page = () => {
     | 'outline'
     | 'green'
     | 'gray'
-    | 'pruple'
+    | 'purple'
     | 'orange'
     | null
     | undefined;
@@ -99,12 +99,7 @@ const Page = () => {
           </Header>
 
           <PageContent className="px-4">
-            <CardMembers
-              teamId={teamId}
-              owner={team.owner}
-              members={team.members}
-              collaborators={team.collaborators}
-            />
+            <CardMembers team={team} />
           </PageContent>
         </div>
       )}

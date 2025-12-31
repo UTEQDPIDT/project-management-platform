@@ -1,6 +1,7 @@
 'use client';
 
 import { ActivitiesBoard } from '@/components/activities-board';
+import { CardMembers } from '@/components/card-members';
 import {
   Header,
   HeaderAction,
@@ -12,16 +13,7 @@ import { PageContent } from '@/components/page-content';
 import { ProductsBoard } from '@/components/products-board';
 import ProjectInfoTable from '@/components/project-info-table';
 import { ProjectMenu } from '@/components/project-menu';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Separator } from '@/components/ui/separator';
 import { useProject } from '@/hooks/projects';
-import { Bell } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 const Page = () => {
@@ -82,6 +74,9 @@ const Page = () => {
             <div className="w-full px-4 gap-6 flex flex-col">
               <ActivitiesBoard activities={project.activities} projectId={id} />
               <ProductsBoard products={project.products} projectId={id} />
+              <div>
+                {project.team && <CardMembers team={project.team} redirect />}
+              </div>
             </div>
           </PageContent>
         </div>
