@@ -37,6 +37,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { ActivityForm } from './forms/activity-form';
+import { useDeleteActivity } from '@/hooks/projects';
 
 interface Props {
   activity: IActivity;
@@ -46,10 +47,13 @@ interface Props {
 
 export function ActivityCard({ activity, projectId, className }: Props) {
   // todo: use hook
-  // const deleteActivity =
+  const deleteActivity = useDeleteActivity();
 
   const handleDelete = () => {
-    // todo: mutation
+    deleteActivity.mutate({
+      projectId: projectId || '',
+      activityId: activity._id,
+    });
   };
 
   let badgeVariant:
@@ -92,7 +96,7 @@ export function ActivityCard({ activity, projectId, className }: Props) {
                 <Ellipsis />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="flex flex-col items-start">
+            <DropdownMenuContent className="flex flex-col items-start gap-1">
               {/* Edit */}
               <Dialog>
                 <DialogTrigger className="border-transparent w-full justify-start">
@@ -120,8 +124,8 @@ export function ActivityCard({ activity, projectId, className }: Props) {
                   <Badge variant="destructive">Eliminando</Badge>
                   <DialogTitle>{activity.name}</DialogTitle>
                   <DialogDescription>
-                    ¿Seguro que deseas eliminar el activityo? Esta es una
-                    operación irreversible, una vez eliminado el activityo no se
+                    ¿Seguro que deseas eliminar la actividad? Esta es una
+                    operación irreversible, una vez eliminada la actividad no se
                     podrá recuperar.
                   </DialogDescription>
 
@@ -133,7 +137,7 @@ export function ActivityCard({ activity, projectId, className }: Props) {
                     <DialogClose asChild>
                       <Button
                         onClick={handleDelete}
-                        // disabled={deleteactivity.isPending}
+                        disabled={deleteActivity.isPending}
                         variant="destructive"
                       >
                         Eliminar
