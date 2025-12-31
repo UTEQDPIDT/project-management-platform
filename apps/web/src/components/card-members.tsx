@@ -1,18 +1,11 @@
 import { useRemoveCollaborator, useRemoveMember } from '@/hooks/team';
-import { SeedCategory, IUser, ITeam } from '@repo/types';
-import { Ellipsis, ExternalLink, UserMinus, Users } from 'lucide-react';
+import { ITeam, IUser } from '@repo/types';
+import { ArrowUpRight, Ellipsis, UserMinus, Users } from 'lucide-react';
 import Link from 'next/link';
-import React from 'react';
 import IconSquare from './icon-square';
 import { ProfileInfo } from './profile-info';
 import { Button } from './ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,26 +29,24 @@ export function CardMembers({
   return (
     <Card className="max-w-[500px]">
       <CardHeader className="flex justify-between">
-        <div className="flex gap-3">
-          <IconSquare>
+        <div className="flex gap-3 items-center">
+          <IconSquare className="bg-blue-50 text-blue-700">
             <Users />
           </IconSquare>
-          <div className="flex flex-col gap-1">
-            <CardTitle>
-              {team.teamName ? team.teamName : 'Integrantes del Equipo'}
-            </CardTitle>
-            <CardDescription>
-              {team.division
-                ? team.division.name
-                : 'Quienes componen tu equipo'}
-            </CardDescription>
-          </div>
+
+          <CardTitle>
+            {team.teamName ? team.teamName : 'Integrantes del Equipo'}
+          </CardTitle>
         </div>
 
         {redirect && (
-          <Button variant="link" title="Visitar">
-            <Link href={`/user/equipos/${team._id}`}>
-              <ExternalLink />
+          <Button variant="ghost" aria-label="Visitar equipo">
+            <Link
+              className="flex items-center"
+              href={`/user/equipos/${team._id}`}
+            >
+              Visitar
+              <ArrowUpRight />
             </Link>
           </Button>
         )}
