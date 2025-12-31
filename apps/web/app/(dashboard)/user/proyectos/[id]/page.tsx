@@ -9,7 +9,7 @@ import {
 } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
-import { ProductsCard } from '@/components/products-card';
+import { ProductsBoard } from '@/components/products-board';
 import ProjectInfoTable from '@/components/project-info-table';
 import { ProjectMenu } from '@/components/project-menu';
 import { Button } from '@/components/ui/button';
@@ -81,7 +81,7 @@ const Page = () => {
             />
             <div className="w-full px-4 gap-6 flex flex-col">
               <ActivitiesBoard activities={project.activities} projectId={id} />
-              <ProductsCard products={project.products} projectId={id} />
+              <ProductsBoard products={project.products} projectId={id} />
             </div>
           </PageContent>
         </div>

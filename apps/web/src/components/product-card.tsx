@@ -53,14 +53,11 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
   };
 
   return (
-    <Card>
+    <Card className="gap-2">
       <CardHeader>
-        <div className="flex justify-between items-start">
+        <div className="flex items-center justify-between gap-1">
           <div className="flex flex-col gap-1">
             <CardTitle>{product.name}</CardTitle>
-            <CardDescription>
-              {product.details} Co Autor {product.coAuthor}
-            </CardDescription>
           </div>
 
           <DropdownMenu>
@@ -69,7 +66,7 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
                 <Ellipsis />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="flex flex-col items-start">
+            <DropdownMenuContent className="flex flex-col items-start gap-1">
               {/* Edit */}
               <Dialog>
                 <DialogTrigger className="border-transparent w-full justify-start">
@@ -125,15 +122,33 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3">
-        <Badge variant="purple">{product.category.name}</Badge>
-        <Badge variant="blue">{product.subcategory.name}</Badge>
+        <div className="flex flex-col gap-2">
+          <span className="text-xs text-muted-foreground">Categoría</span>
+          <Badge>{product.category.name}</Badge>
+        </div>
 
-        <ProfileInfo
-          givenName={product.owner.givenName}
-          familyName={product.owner.familyName}
-          avatarUrl={product.owner.avatarUrl}
-          email={product.owner.email}
-        />
+        <div className="flex flex-col gap-2">
+          <span className="text-xs text-muted-foreground">Subcategoría</span>
+
+          <Badge>{product.subcategory.name}</Badge>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <span className="text-xs text-muted-foreground">Co Autor</span>
+
+          <Badge>{product.coAuthor}</Badge>
+        </div>
+
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Dueño</span>
+
+          <ProfileInfo
+            givenName={product.owner.givenName}
+            familyName={product.owner.familyName}
+            avatarUrl={product.owner.avatarUrl}
+            email={product.owner.email}
+          />
+        </div>
       </CardContent>
 
       <CardFooter className="flex justify-end">

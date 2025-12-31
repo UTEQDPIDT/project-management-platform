@@ -27,7 +27,7 @@ interface ProductsCardProps {
   projectId: string;
 }
 
-export function ProductsCard({ products, projectId }: ProductsCardProps) {
+export function ProductsBoard({ products, projectId }: ProductsCardProps) {
   return (
     <Card className="w-full">
       <CardHeader>
