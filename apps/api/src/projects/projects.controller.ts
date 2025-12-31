@@ -23,6 +23,7 @@ import {
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { CreateProductDto } from '../products/dto/create-product.dto';
+import { IsEAN } from 'class-validator';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -140,6 +141,7 @@ export class ProjectsController {
   })
   @ApiBadRequestResponse({ description: 'Se abortó la transacción' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
+  @UseGuards(JwtAuthGuard)
   @Post(':projectId/activities')
   async createActivity(
     @Param('projectId') projectId: string,
