@@ -1,18 +1,12 @@
 'use client';
 
 import { IProduct } from '@repo/types';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from './ui/card';
-import ProductCard from './product-card';
-import { Newspaper } from 'lucide-react';
-import IconSquare from './icon-square';
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './ui/dialog';
+import { FileText, Newspaper } from 'lucide-react';
 import { ProductForm } from './forms/product-form';
+import IconSquare from './icon-square';
+import ProductCard from './product-card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './ui/dialog';
 import {
   Empty,
   EmptyDescription,
@@ -33,8 +27,8 @@ export function ProductsBoard({ products, projectId }: ProductsCardProps) {
       <CardHeader>
         <div className="flex justify-between ">
           <div className="flex gap-3 items-center">
-            <IconSquare>
-              <Newspaper />
+            <IconSquare className="bg-orange-50 text-orange-700">
+              <FileText />
             </IconSquare>
 
             <CardTitle>Productos</CardTitle>
