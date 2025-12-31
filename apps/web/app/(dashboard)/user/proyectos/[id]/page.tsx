@@ -57,20 +57,7 @@ const Page = () => {
           </Header>
 
           <PageContent className="items-center">
-            <ProjectInfoTable
-              status={project.status}
-              trlRating={project.trlRating}
-              objective={project.objective}
-              impactLevel={project.impactLevel}
-              startDate={project.startDate}
-              endDate={project.endDate}
-              team={project.team}
-              relatedProjects={project.relatedProjects}
-              owner={project.owner}
-              createdAt={project.createdAt}
-              updatedBy={project.updatedBy}
-              updatedAt={project.updatedAt}
-            />
+            <ProjectInfoTable project={project} />
             <div className="w-full px-4 gap-6 flex flex-col">
               <ActivitiesBoard activities={project.activities} projectId={id} />
               <ProductsBoard products={project.products} projectId={id} />

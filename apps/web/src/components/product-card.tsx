@@ -139,7 +139,7 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
           <Badge>{product.coAuthor}</Badge>
         </div>
 
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-2">
           <span className="text-xs text-muted-foreground">Dueño</span>
 
           <ProfileInfo

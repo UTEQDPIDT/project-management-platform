@@ -17,34 +17,26 @@ import { ProfileInfo } from './profile-info';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 
-export default function ProjectInfoTable({
-  status,
-  startDate,
-  endDate,
-  trlRating,
-  objective,
-  impactLevel,
-  team,
-  relatedProjects,
-  owner,
-  createdAt,
-  updatedBy,
-  updatedAt,
-}: Pick<
-  IProject,
-  | 'status'
-  | 'startDate'
-  | 'endDate'
-  | 'trlRating'
-  | 'objective'
-  | 'impactLevel'
-  | 'team'
-  | 'relatedProjects'
-  | 'owner'
-  | 'createdAt'
-  | 'updatedBy'
-  | 'updatedAt'
->) {
+interface ProjectInfoTableProps {
+  project: IProject;
+}
+
+export default function ProjectInfoTable({ project }: ProjectInfoTableProps) {
+  const {
+    startDate,
+    endDate,
+    status,
+    trlRating,
+    team,
+    owner,
+    objective,
+    updatedAt,
+    createdAt,
+    updatedBy,
+    impactLevel,
+    relatedProjects,
+  } = project;
+
   let badgeVariant:
     | 'default'
     | 'secondary'
@@ -170,6 +162,7 @@ export default function ProjectInfoTable({
         </span>
         <div className="p-2 hover:bg-secondary rounded-md">
           <ProfileInfo
+            size="sm"
             givenName={owner.givenName}
             familyName={owner.familyName}
           />
@@ -194,6 +187,7 @@ export default function ProjectInfoTable({
         <div className="p-2 hover:bg-secondary rounded-md">
           {updatedBy && (
             <ProfileInfo
+              size="sm"
               givenName={updatedBy.givenName}
               familyName={updatedBy.familyName}
             />
