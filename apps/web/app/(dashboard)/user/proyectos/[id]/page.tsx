@@ -61,8 +61,11 @@ const Page = () => {
             <div className="w-full px-4 gap-6 flex flex-col">
               <ActivitiesBoard activities={project.activities} projectId={id} />
               <ProductsBoard products={project.products} projectId={id} />
-              <div>
+              <div className="flex w-full justify-between">
                 {project.team && <CardMembers team={project.team} redirect />}
+                {project.relatedProjects && (
+                  <span>Todo: Proyectos relacionados</span>
+                )}
               </div>
             </div>
           </PageContent>

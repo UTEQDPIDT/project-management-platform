@@ -27,7 +27,7 @@ export function CardMembers({
   }
 
   return (
-    <Card className="max-w-[500px]">
+    <Card className="w-full max-w-[500px]">
       <CardHeader className="flex justify-between">
         <div className="flex gap-3 items-center">
           <IconSquare className="bg-blue-50 text-blue-700">
