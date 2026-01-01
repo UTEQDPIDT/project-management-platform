@@ -144,7 +144,7 @@ export default function TeamCard({
       <CardHeader>
         <div className="flex justify-between">
           <div className="flex gap-2 items-start">
-            <IconSquare>
+            <IconSquare className="bg-blue-50 text-blue-700">
               <Users />
             </IconSquare>
             <div className="flex flex-col gap-1">

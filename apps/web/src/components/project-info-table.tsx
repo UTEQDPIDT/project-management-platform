@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
   ArrowUp10,
+  ArrowUpRight,
   Calendar,
   CircleDashed,
   Folder,
@@ -131,7 +132,10 @@ export default function ProjectInfoTable({ project }: ProjectInfoTableProps) {
         <div className="p-2 hover:bg-secondary rounded-md">
           {team ? (
             <Button size="xs" asChild variant="ghost">
-              <Link href={`/user/equipos/${team._id}`}>{team.teamName}</Link>
+              <Link href={`/user/equipos/${team._id}`}>
+                {team.teamName}
+                <ArrowUpRight />
+              </Link>
             </Button>
           ) : (
             <span className="text-gray-400">Vacío</span>
@@ -147,7 +151,10 @@ export default function ProjectInfoTable({ project }: ProjectInfoTableProps) {
           {relatedProjects ? (
             relatedProjects.map((p: IProject) => (
               <Button key={p._id} size="xs" asChild variant="ghost">
-                <Link href={`/user/proyectos/${p._id}`}>{p.name}</Link>
+                <Link href={`/user/proyectos/${p._id}`}>
+                  {p.name}
+                  <ArrowUpRight />
+                </Link>
               </Button>
             ))
           ) : (

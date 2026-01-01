@@ -19,13 +19,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 import { useUser } from '@/hooks/user';
+import { userProfile } from 'context/profile-provider';
 import { Pencil } from 'lucide-react';
 
 const Page = () => {
-  const { data: profile, isLoading: loadingProfile } = useUser();
-
-  console.log('USER PROFILE', profile);
+  const { user } = userProfile();
 
   return (
     <div>
@@ -38,29 +38,27 @@ const Page = () => {
         </HeaderHeading>
         <HeaderAction>
           <Dialog>
-            {!loadingProfile && (
-              <DialogTrigger>
-                <Pencil /> Editar
-              </DialogTrigger>
-            )}
-            <DialogContent className="max-h-[800px] overflow-y-auto">
+            <DialogTrigger>
+              <Pencil /> Editar
+            </DialogTrigger>
+
+            <DialogContent>
               <DialogHeader>
                 <DialogTitle>Editar Perfil</DialogTitle>
                 <DialogDescription>
-                  Edita tu perfil aquí. Haz click en guardar cuando termines.
+                  Edita tu perfil aquí y haz click en guardar cuando termines.
                 </DialogDescription>
               </DialogHeader>
-              <UserForm profile={profile} />
+              <Separator />
+              <div className="max-h-[600px] overflow-y-auto px-2">
+                <UserForm profile={user} />
+              </div>
             </DialogContent>
           </Dialog>
         </HeaderAction>
       </Header>
       <PageContent className="flex flex-col items-center gap-5 py-5">
-        {loadingProfile ? (
-          <LoadingMessage message="Cargando Perfil" />
-        ) : (
-          <CardUserInfo profile={profile} />
-        )}
+        <CardUserInfo />
       </PageContent>
     </div>
   );

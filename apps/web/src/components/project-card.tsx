@@ -1,4 +1,18 @@
-import React from 'react';
+import { BadgeVariants, IProject, Status } from '@repo/types';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import {
+  Calendar,
+  Folder,
+  MoveRight,
+  Paperclip,
+  SquareCheckBig,
+  User,
+} from 'lucide-react';
+import Link from 'next/link';
+import AvatarRow from './avatar-row';
+import IconSquare from './icon-square';
+import { Badge } from './ui/badge';
 import {
   Card,
   CardContent,
@@ -7,55 +21,27 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
-import {
-  Calendar,
-  Folder,
-  MoveRight,
-  Paperclip,
-  SquareCheck,
-  SquareCheckBig,
-  User,
-  Users,
-} from 'lucide-react';
-import AvatarRow from './avatar-row';
-import IconSquare from './icon-square';
-import { BadgeVariants, IProject, Status } from '@repo/types';
-import { Badge } from './ui/badge';
-import Link from 'next/link';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { Button } from './ui/button';
 
-export function ProjectCard({
-  _id: projectId,
-  name,
-  summary,
-  organization,
-  status,
-  trlRating,
-  startDate,
-  endDate,
-  team,
-  relatedProjects,
-  activities,
-  files,
-  owner,
-}: Pick<
-  IProject,
-  | '_id'
-  | 'name'
-  | 'summary'
-  | 'organization'
-  | 'status'
-  | 'trlRating'
-  | 'startDate'
-  | 'endDate'
-  | 'team'
-  | 'relatedProjects'
-  | 'activities'
-  | 'files'
-  | 'owner'
->) {
+interface ProjectCardProps {
+  project: IProject;
+}
+
+export function ProjectCard({ project }: ProjectCardProps) {
+  const {
+    name,
+    team,
+    owner,
+    _id: projectId,
+    trlRating,
+    summary,
+    startDate,
+    endDate,
+    files,
+    activities,
+    relatedProjects,
+    status,
+  } = project;
+
   let badgeVariant:
     | 'default'
     | 'secondary'
@@ -64,7 +50,7 @@ export function ProjectCard({
     | 'blue'
     | 'green'
     | 'gray'
-    | 'pruple'
+    | 'purple'
     | 'orange'
     | null
     | undefined;
@@ -108,20 +94,16 @@ export function ProjectCard({
     <Link href={`/user/proyectos/${projectId}`}>
       <Card className="w-full gap-6">
         <CardHeader>
-          <div className="flex justify-between">
-            <div className="flex gap-2 items-start">
-              <IconSquare>
+          <div className="flex justify-between items-center">
+            <div className="flex gap-2 items-center">
+              <IconSquare className="bg-orange-50 text-orange-700">
                 <Folder />
               </IconSquare>
-              <div className="flex flex-col gap-1">
-                <CardTitle className="line-clamp-1 leading-5">{name}</CardTitle>
-                <CardDescription className="text-xs line-clamp-1">
-                  {organization}
-                </CardDescription>
-              </div>
+
+              <CardTitle className="line-clamp-1 leading-5">{name}</CardTitle>
             </div>
             <div className="flex gap-1">
-              <Badge variant="purple" className="h-6">
+              <Badge variant="outline" className="h-6">
                 TRL {trlRating}
               </Badge>
               <Badge variant={badgeVariant} className="h-6">

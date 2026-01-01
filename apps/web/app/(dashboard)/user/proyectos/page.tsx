@@ -43,22 +43,7 @@ const Page = () => {
         ) : (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 px-4">
             {projects.map((p: IProject) => (
-              <ProjectCard
-                key={p._id}
-                _id={p._id}
-                name={p.name}
-                summary={p.summary}
-                organization={p.organization}
-                status={p.status}
-                trlRating={p.trlRating}
-                activities={p.activities}
-                files={p.files}
-                relatedProjects={p.relatedProjects}
-                team={p.team}
-                owner={p.owner}
-                startDate={p.startDate}
-                endDate={p.endDate}
-              />
+              <ProjectCard project={p} />
             ))}
           </div>
         )}

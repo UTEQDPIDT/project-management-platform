@@ -1,8 +1,7 @@
-import { IUser, UserType } from '@repo/types';
+import { UserType } from '@repo/types';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -11,27 +10,46 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Separator } from './ui/separator';
+import { ProfileInfo } from './profile-info';
 
-export default function CardUserInfo({ profile }: { profile: IUser }) {
+import { userProfile } from 'context/profile-provider';
+import { Badge } from './ui/badge';
+
+export default function CardUserInfo() {
+  const { user } = userProfile();
   const {
     givenName,
     familyName,
+    avatarUrl,
+    email,
+    dateOfBirth,
     sex,
     state,
-    dateOfBirth,
     type,
     matricula,
-    careerLevel,
     educationalProgram,
+    careerLevel,
     division,
     employeeNumber,
-    email,
     createdAt,
-    updatedAt,
-  } = profile;
+  } = user;
 
   return (
     <Card className="lg:max-w-lg w-full">
+      <CardHeader>
+        <div className="flex gap-3">
+          <ProfileInfo
+            givenName={givenName}
+            familyName={familyName}
+            avatarUrl={avatarUrl}
+            email={email}
+          />
+          <div>
+            <Badge variant="blue">{type}</Badge>
+          </div>
+        </div>
+      </CardHeader>
+
       <CardHeader>
         <CardTitle>Información Personal</CardTitle>
       </CardHeader>
@@ -82,12 +100,6 @@ export default function CardUserInfo({ profile }: { profile: IUser }) {
       <CardContent className="p-0">
         <Table>
           <TableBody>
-            <TableRow>
-              <TableCell className="text-gray-500 px-4">
-                Tipo de Usuario
-              </TableCell>
-              <TableCell>{type}</TableCell>
-            </TableRow>
             {type === UserType.ESTUDIANTE && (
               <>
                 <TableRow>

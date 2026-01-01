@@ -1,20 +1,17 @@
 import { calculateTRL, TRL_QUESTIONS } from '@/lib/utils';
 import { trlAssessmentSchema } from '@/schemas/trlAssesment.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldLegend,
-  FieldSeparator,
   FieldSet,
 } from '../ui/field';
-import { Checkbox } from '../ui/checkbox';
-import { Button } from '../ui/button';
-import { DialogClose } from '../ui/dialog';
 
 type TRLFormProps = {
   onTRLChange: (trl: number) => void;

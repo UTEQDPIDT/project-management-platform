@@ -38,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import { DialogClose } from '../ui/dialog';
 
 export default function UserForm({ profile }: { profile: IUser }) {
   /**
@@ -46,8 +47,6 @@ export default function UserForm({ profile }: { profile: IUser }) {
   const { data: divisions, isLoading: loadingDivisions } = useDivisions();
   const { data: programs, isLoading: loadingPrograms } = usePrograms();
   const updateUserMutation = useUpdateUser();
-
-  console.log('DIVISIONS', divisions);
 
   const form = useForm({
     resolver: zodResolver(updateUserSchema),
@@ -401,14 +400,12 @@ export default function UserForm({ profile }: { profile: IUser }) {
               />
             </FieldGroup>
           </FieldSet>
-          <div className="flex flex-col md:flex-row gap-2 justify-end">
-            <Button
-              onClick={() => form.reset()}
-              type="button"
-              variant={'outline'}
-            >
-              Cancelar
-            </Button>
+          <div className="flex gap-2">
+            <DialogClose asChild>
+              <Button type="button" variant={'outline'}>
+                Cancelar
+              </Button>
+            </DialogClose>
             <Button disabled={updateUserMutation.isPending} type="submit">
               {updateUserMutation.isPending ? (
                 <LoadingMessage message="Guardando" />
