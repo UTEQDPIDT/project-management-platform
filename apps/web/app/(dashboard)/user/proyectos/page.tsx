@@ -32,7 +32,7 @@ const Page = () => {
         <HeaderAction>
           <Button asChild>
             <Link href={'/user/proyectos/crear'}>
-              <Plus /> Crear proyecto
+              <Plus /> Crear Proyecto
             </Link>
           </Button>
         </HeaderAction>
@@ -43,7 +43,7 @@ const Page = () => {
         ) : (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 px-4">
             {projects.map((p: IProject) => (
-              <ProjectCard project={p} />
+              <ProjectCard key={p._id} project={p} />
             ))}
           </div>
         )}

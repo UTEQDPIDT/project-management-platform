@@ -1,7 +1,8 @@
 import { useSendJoinRequest } from '@/hooks/team';
 import { BadgeVariants, ITeam, TeamsGrade } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
-import { User, UserPlus, Users, ExternalLink } from 'lucide-react';
+import { ArrowUpRight, User, UserPlus, Users } from 'lucide-react';
+import Link from 'next/link';
 import AvatarRow from './avatar-row';
 import IconSquare from './icon-square';
 import LoadingMessage from './loading-message';
@@ -16,7 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
-import Link from 'next/link';
 
 export default function TeamCard({
   _id: teamId,
@@ -62,11 +62,11 @@ export default function TeamCard({
   const renderActionButton = () => {
     if (isOwner || isMember || isCollaborator) {
       return (
-        <Button variant="outline" size="sm" asChild>
+        <Button variant="ghost" size="sm" asChild>
           <Link href={`/user/equipos/${teamId}`}>
             <span className="flex gap-1 items-center">
-              <ExternalLink />
               Visitar
+              <ArrowUpRight />
             </span>
           </Link>
         </Button>

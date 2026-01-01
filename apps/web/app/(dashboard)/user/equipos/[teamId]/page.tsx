@@ -72,7 +72,7 @@ const Page = () => {
             <HeaderAction>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon-sm">
                     <Bell />
                   </Button>
                 </DropdownMenuTrigger>
