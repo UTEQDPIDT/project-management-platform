@@ -1,6 +1,5 @@
 import { IActivity } from './activity.type';
 import { ImpactLevel } from './enums/impact-level.enum';
-import { Status } from './enums/status.enum';
 import { IFile } from './file.type';
 import { IProduct } from './product.type';
 import { SeedCategory } from './seed-category.type';
@@ -13,7 +12,6 @@ export interface IProject {
   summary: string;
   objective: string;
   trlRating?: number;
-  status: Status;
   knowledgeAreas?: SeedCategory[];
   impactAreas?: SeedCategory[];
   prioritiesPND?: SeedCategory[];

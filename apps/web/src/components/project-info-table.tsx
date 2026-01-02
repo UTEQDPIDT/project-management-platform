@@ -1,11 +1,10 @@
-import { BadgeVariants, IProject, Status } from '@repo/types';
+import { IProject } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
   ArrowUp10,
   ArrowUpRight,
   Calendar,
-  CircleDashed,
   Folder,
   MapPinned,
   MoveRight,
@@ -16,7 +15,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { ProfileInfo } from './profile-info';
-import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
 
@@ -30,9 +28,9 @@ export default function ProjectInfoTable({
   progress,
 }: ProjectInfoTableProps) {
   const {
+    name,
     startDate,
     endDate,
-    status,
     trlRating,
     team,
     owner,
@@ -44,44 +42,8 @@ export default function ProjectInfoTable({
     relatedProjects,
   } = project;
 
-  let badgeVariant:
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'blue'
-    | 'green'
-    | 'gray'
-    | 'pruple'
-    | 'orange'
-    | null
-    | undefined;
-  switch (status) {
-    case Status.PENDING:
-      badgeVariant = BadgeVariants.GRAY;
-      break;
-    case Status.PROGRESS:
-      badgeVariant = BadgeVariants.BLUE;
-      break;
-    case Status.COMPLETED:
-      badgeVariant = BadgeVariants.GREEN;
-      break;
-    default:
-      badgeVariant = BadgeVariants.DEFAULT;
-      break;
-  }
-
   return (
     <div className="text-sm border-b pb-4 w-full px-4">
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
-          <CircleDashed size={14} /> Estado
-        </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
-          <Badge variant={badgeVariant}>{status}</Badge>
-        </div>
-      </div>
-
       <div className="flex items-start">
         <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
           <Percent size={14} /> Progreso

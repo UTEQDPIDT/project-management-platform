@@ -41,32 +41,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     files,
     activities,
     relatedProjects,
-    status,
   } = project;
-
-  let badgeVariant:
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'blue'
-    | 'green'
-    | 'gray'
-    | 'purple'
-    | 'orange'
-    | null
-    | undefined;
-  switch (status) {
-    case Status.PENDING:
-      badgeVariant = BadgeVariants.GRAY;
-      break;
-    case Status.PROGRESS:
-      badgeVariant = BadgeVariants.BLUE;
-      break;
-    case Status.COMPLETED:
-      badgeVariant = BadgeVariants.GREEN;
-      break;
-  }
 
   /**
    * Team member count
@@ -107,9 +82,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <div className="flex gap-1">
               <Badge variant="outline" className="h-6">
                 TRL {trlRating}
-              </Badge>
-              <Badge variant={badgeVariant} className="h-6">
-                {status}
               </Badge>
             </div>
           </div>
