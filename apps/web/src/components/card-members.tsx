@@ -22,10 +22,6 @@ export function CardMembers({
   const removeMember = useRemoveMember();
   const removeCollaborator = useRemoveCollaborator();
 
-  if (team) {
-    console.log('TEAM OWNER', team.owner);
-  }
-
   return (
     <Card className="w-full max-w-[500px]">
       <CardHeader className="flex justify-between">

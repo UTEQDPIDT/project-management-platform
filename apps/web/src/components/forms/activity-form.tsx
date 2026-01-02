@@ -73,10 +73,6 @@ export function ActivityForm({ activity, projectId }: Props) {
     return Array.from(map.values());
   }, [project]);
 
-  if (activity) {
-    console.log('ACTIVITY', activity);
-  }
-
   const form = useForm({
     resolver: zodResolver(activityZodSchema),
     mode: 'onChange',

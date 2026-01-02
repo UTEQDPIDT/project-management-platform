@@ -1,3 +1,4 @@
+import { IActivity, Status } from '@repo/types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
@@ -88,3 +89,15 @@ export function calculateTRL(answers: Record<string, boolean>): number {
 export const mongoId = z
   .string()
   .regex(/^[0-9a-fA-F]{24}$/, 'No es una opción válida');
+
+/**
+ * Calculate project progress
+ */
+export const calculateProgress = (activities: IActivity[]) => {
+  const totalActivities = activities.length;
+  const completedActivities = activities.filter(
+    (a) => a.status === Status.COMPLETED,
+  );
+  const progress = completedActivities.length / totalActivities;
+  return progress * 100;
+};

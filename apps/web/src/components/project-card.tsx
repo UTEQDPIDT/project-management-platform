@@ -21,6 +21,8 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
+import { calculateProgress } from '@/lib/utils';
+import { Progress } from './ui/progress';
 
 interface ProjectCardProps {
   project: IProject;
@@ -112,13 +114,43 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="flex flex-col h-full">
+
+        <CardContent className="flex flex-col h-full gap-4">
           <CardDescription className="h-24 line-clamp-5">
             {summary}
           </CardDescription>
+
+          <div className="flex flex-col gap-2.5 text-xs text-muted-foreground">
+            <div className="flex justify-between">
+              <span>Progreso</span>
+              <div className="flex">
+                <span>{calculateProgress(activities)}</span>
+                <span>%</span>
+              </div>
+            </div>
+            <Progress value={calculateProgress(activities)} />
+          </div>
+
           <AvatarRow profiles={profiles} />
         </CardContent>
+
         <CardFooter className="border-t flex gap-2 justify-start items-center">
+          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+            <User size={14} />
+            {profiles.length}
+          </span>
+          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+            <SquareCheckBig size={14} />
+            {activities.length}
+          </span>
+          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+            <Paperclip size={14} />
+            {files?.length}
+          </span>
+          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+            <Folder size={14} />
+            {relatedProjects?.length}
+          </span>
           {startDate && (
             <div className="flex gap-1">
               <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
@@ -133,22 +165,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
               )}
             </div>
           )}
-          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-            <User size={14} />
-            {profiles.length}
-          </span>
-          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-            <Paperclip size={14} />
-            {files?.length}
-          </span>
-          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-            <SquareCheckBig size={14} />
-            {activities.length}
-          </span>
-          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-            <Folder size={14} />
-            {relatedProjects?.length}
-          </span>
         </CardFooter>
       </Card>
     </Link>

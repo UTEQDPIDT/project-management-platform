@@ -14,6 +14,7 @@ import { ProductsBoard } from '@/components/products-board';
 import ProjectInfoTable from '@/components/project-info-table';
 import { ProjectMenu } from '@/components/project-menu';
 import { useProject } from '@/hooks/projects';
+import { calculateProgress } from '@/lib/utils';
 import { useParams } from 'next/navigation';
 
 const Page = () => {
@@ -57,7 +58,10 @@ const Page = () => {
           </Header>
 
           <PageContent className="items-center">
-            <ProjectInfoTable project={project} />
+            <ProjectInfoTable
+              project={project}
+              progress={calculateProgress(project.activities)}
+            />
             <div className="w-full px-4 gap-6 flex flex-col">
               <ActivitiesBoard activities={project.activities} projectId={id} />
               <ProductsBoard products={project.products} projectId={id} />

@@ -9,6 +9,7 @@ import {
   Folder,
   MapPinned,
   MoveRight,
+  Percent,
   Target,
   UserCircle,
   Users,
@@ -17,12 +18,17 @@ import Link from 'next/link';
 import { ProfileInfo } from './profile-info';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
+import { Progress } from './ui/progress';
 
 interface ProjectInfoTableProps {
   project: IProject;
+  progress: number;
 }
 
-export default function ProjectInfoTable({ project }: ProjectInfoTableProps) {
+export default function ProjectInfoTable({
+  project,
+  progress,
+}: ProjectInfoTableProps) {
   const {
     startDate,
     endDate,
@@ -78,7 +84,20 @@ export default function ProjectInfoTable({ project }: ProjectInfoTableProps) {
 
       <div className="flex items-start">
         <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
-          <Calendar size={14} /> Fecha
+          <Percent size={14} /> Progreso
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md flex gap-2 w-full max-w-48 items-center">
+          <Progress value={progress} />
+          <div className="flex text-xs">
+            <span>{progress}</span>
+            <span>%</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <Calendar size={14} /> Periodo
         </span>
         <div className="p-2 hover:bg-secondary rounded-md">
           {startDate && (
