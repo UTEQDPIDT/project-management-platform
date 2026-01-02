@@ -38,6 +38,15 @@ const getByOwner = async () => {
   }
 };
 
+const getProjectByTeam = async (teamId: string) => {
+  try {
+    const { data } = await api.get(`/projects/by-team/${teamId}`);
+    return data;
+  } catch (err) {
+    console.error('Error fetching projects by team', err);
+  }
+};
+
 const updateProject = async (id: string, projectData: IProject) => {
   try {
     const { data } = await api.patch(`/projects/${id}`, projectData);
@@ -131,6 +140,7 @@ export {
   getAllProjects,
   getProject,
   getByOwner,
+  getProjectByTeam,
   updateProject,
   deleteProject,
   createProduct,

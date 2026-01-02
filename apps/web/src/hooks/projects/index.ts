@@ -9,5 +9,5 @@ export * from './use-delete-product';
 export * from './use-create-activity';
 export * from './use-delete-activity';
 export * from './use-update-activity';
-
+export * from './use-projects-by-team';
 export * from './use-project-card-data';
