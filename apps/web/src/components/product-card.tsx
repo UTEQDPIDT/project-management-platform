@@ -124,19 +124,19 @@ export default function ProductCard({ product, projectId }: ProductCardProps) {
       <CardContent className="flex flex-col gap-3">
         <div className="flex flex-col gap-2">
           <span className="text-xs text-muted-foreground">Categoría</span>
-          <Badge>{product.category.name}</Badge>
+          <Badge variant="outline">{product.category.name}</Badge>
         </div>
 
         <div className="flex flex-col gap-2">
           <span className="text-xs text-muted-foreground">Subcategoría</span>
 
-          <Badge>{product.subcategory.name}</Badge>
+          <Badge variant="outline">{product.subcategory.name}</Badge>
         </div>
 
         <div className="flex flex-col gap-2">
           <span className="text-xs text-muted-foreground">Co Autor</span>
 
-          <Badge>{product.coAuthor}</Badge>
+          <Badge variant="outline">Tipo {product.coAuthor}</Badge>
         </div>
 
         <div className="flex flex-col gap-2">

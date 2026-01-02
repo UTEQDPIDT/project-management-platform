@@ -31,7 +31,7 @@ export function ProjectsBoard({ projects }: ProjectsBoardProps) {
       </CardHeader>
       <CardContent>
         {projects.length > 0 ? (
-          <div className="grid grid-cols-3 gap-5">
+          <div className="grid grid-cols-3 gap-4">
             {projects.map((p: IProject) => (
               <ProjectCard key={p._id} project={p} variant="compact" />
             ))}
@@ -44,8 +44,7 @@ export function ProjectsBoard({ projects }: ProjectsBoardProps) {
               </EmptyMedia>
               <EmptyTitle>No Hay Proyectos</EmptyTitle>
               <EmptyDescription>
-                No haz proyectos seleccionados. Inicia creando tu primer
-                proyecto.
+                No haz seleccionado proyectos.
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
