@@ -1,0 +1,56 @@
+import { IProject } from '@repo/types';
+import { Folder, ListTodo } from 'lucide-react';
+import IconSquare from './icon-square';
+import { ProjectCard } from './project-card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from './ui/empty';
+
+interface ProjectsBoardProps {
+  projects: IProject[];
+}
+
+export function ProjectsBoard({ projects }: ProjectsBoardProps) {
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <div className="flex justify-between ">
+          <div className="flex gap-3 items-center">
+            <IconSquare className="bg-purple-50 text-purple-800">
+              <Folder />
+            </IconSquare>
+
+            <CardTitle>Proyectos</CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {projects.length > 0 ? (
+          <div className="grid grid-cols-3 gap-5">
+            {projects.map((p: IProject) => (
+              <ProjectCard key={p._id} project={p} variant="compact" />
+            ))}
+          </div>
+        ) : (
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <ListTodo />
+              </EmptyMedia>
+              <EmptyTitle>No Hay Proyectos</EmptyTitle>
+              <EmptyDescription>
+                No haz proyectos seleccionados. Inicia creando tu primer
+                proyecto.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

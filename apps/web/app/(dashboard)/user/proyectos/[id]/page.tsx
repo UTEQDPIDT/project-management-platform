@@ -13,6 +13,7 @@ import { PageContent } from '@/components/page-content';
 import { ProductsBoard } from '@/components/products-board';
 import ProjectInfoTable from '@/components/project-info-table';
 import { ProjectMenu } from '@/components/project-menu';
+import { ProjectsBoard } from '@/components/projects-board';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';
 import { useParams } from 'next/navigation';
@@ -65,10 +66,10 @@ const Page = () => {
             <div className="w-full px-4 gap-6 flex flex-col">
               <ActivitiesBoard activities={project.activities} projectId={id} />
               <ProductsBoard products={project.products} projectId={id} />
-              <div className="flex w-full justify-between">
+              <div className="flex w-full justify-between gap-4">
                 {project.team && <CardMembers team={project.team} redirect />}
                 {project.relatedProjects && (
-                  <span>Todo: Proyectos relacionados</span>
+                  <ProjectsBoard projects={project.relatedProjects} />
                 )}
               </div>
             </div>

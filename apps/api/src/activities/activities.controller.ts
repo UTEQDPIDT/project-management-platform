@@ -87,12 +87,7 @@ export class ActivitiesController {
     @Req() req,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
-    return this.activitiesService.update(
-      id,
-      updateActivityDto,
-      req.user.id,
-      files,
-    );
+    return this.activitiesService.update(id, updateActivityDto, req.user.id);
   }
 
   @ApiAcceptedResponse({

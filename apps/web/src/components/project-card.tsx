@@ -23,122 +23,145 @@ import {
 } from './ui/card';
 import { calculateProgress } from '@/lib/utils';
 import { Progress } from './ui/progress';
+import { useProjectCardData } from '@/hooks/projects';
 
+type ProjectCardVariant = 'default' | 'compact';
 interface ProjectCardProps {
   project: IProject;
+  variant?: ProjectCardVariant;
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
-  const {
-    name,
-    team,
-    owner,
-    _id: projectId,
-    trlRating,
-    summary,
-    startDate,
-    endDate,
-    files,
-    activities,
-    relatedProjects,
-  } = project;
+function ProjectCardDefault({
+  data,
+}: {
+  data: ReturnType<typeof useProjectCardData>;
+}) {
+  return (
+    <Card className="w-full gap-6 hover:shadow-xl">
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <div className="flex gap-2 items-center">
+            <IconSquare className="bg-purple-50 text-purple-700">
+              <Folder />
+            </IconSquare>
 
-  /**
-   * Team member count
-   */
-  const members = team?.members ?? [];
-  const collaborators = team?.collaborators ?? [];
+            <CardTitle className="line-clamp-1 leading-5">
+              {data.name}
+            </CardTitle>
+          </div>
+          <div className="flex gap-1">
+            <Badge variant="outline" className="h-6">
+              TRL {data.trlRating}
+            </Badge>
+          </div>
+        </div>
+      </CardHeader>
 
-  // 1. Deduplicate using user._id BEFORE mapping
-  const uniqueUsers = Array.from(
-    new Map([...members, ...collaborators].map((u) => [u._id, u])).values(),
+      <CardContent className="flex flex-col h-full gap-4">
+        <CardDescription className="h-24 line-clamp-5">
+          {data.summary}
+        </CardDescription>
+
+        <div className="flex flex-col gap-2.5 text-xs text-muted-foreground">
+          <div className="flex justify-between">
+            <span>Progreso</span>
+            <div className="flex">
+              <span>{calculateProgress(data.activities)}</span>
+              <span>%</span>
+            </div>
+          </div>
+          <Progress value={calculateProgress(data.activities)} />
+        </div>
+
+        <AvatarRow profiles={data.profiles} />
+      </CardContent>
+
+      <CardFooter className="border-t flex gap-2 justify-start items-center">
+        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+          <User size={14} />
+          {data.profiles.length}
+        </span>
+        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+          <SquareCheckBig size={14} />
+          {data.activities.length}
+        </span>
+        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+          <Paperclip size={14} />
+          {data.files?.length}
+        </span>
+        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+          <Folder size={14} />
+          {data.relatedProjects?.length}
+        </span>
+        {data.startDate && (
+          <div className="flex gap-1">
+            <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+              <Calendar size={14} />
+              {format(data.startDate, "d 'de' MMM 'de' yyyy", { locale: es })}
+            </span>
+            {data.endDate && (
+              <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+                <MoveRight size={10} />
+                {format(data.endDate, "d 'de' MMM 'de' yyyy", { locale: es })}
+              </span>
+            )}
+          </div>
+        )}
+      </CardFooter>
+    </Card>
   );
+}
 
-  // 2. Extract only the fields needed for AvatarRow
-  const profiles = uniqueUsers.map((u) => ({
-    givenName: u.givenName,
-    familyName: u.familyName,
-    avatarUrl: u.avatarUrl,
-  }));
+function ProjectCardCompact({
+  data,
+}: {
+  data: ReturnType<typeof useProjectCardData>;
+}) {
+  return (
+    <Card className="hover:shadow-xl">
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <div className="flex gap-2 items-center">
+            <CardTitle className="line-clamp-1 leading-5">
+              {data.name}
+            </CardTitle>
+          </div>
+          <div className="flex gap-1">
+            <Badge variant="outline" className="h-6">
+              TRL {data.trlRating}
+            </Badge>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col gap-2.5 text-xs text-muted-foreground">
+          <div className="flex justify-between">
+            <span>Progreso</span>
+            <div className="flex">
+              <span>{calculateProgress(data.activities)}</span>
+              <span>%</span>
+            </div>
+          </div>
+          <Progress value={calculateProgress(data.activities)} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
-  profiles.push({
-    givenName: owner.givenName,
-    familyName: owner.familyName,
-    avatarUrl: owner.avatarUrl,
-  });
+export function ProjectCard({
+  project,
+  variant = 'default',
+}: ProjectCardProps) {
+  const data = useProjectCardData(project);
 
   return (
-    <Link href={`/user/proyectos/${projectId}`}>
-      <Card className="w-full gap-6">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div className="flex gap-2 items-center">
-              <IconSquare className="bg-orange-50 text-orange-700">
-                <Folder />
-              </IconSquare>
-
-              <CardTitle className="line-clamp-1 leading-5">{name}</CardTitle>
-            </div>
-            <div className="flex gap-1">
-              <Badge variant="outline" className="h-6">
-                TRL {trlRating}
-              </Badge>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="flex flex-col h-full gap-4">
-          <CardDescription className="h-24 line-clamp-5">
-            {summary}
-          </CardDescription>
-
-          <div className="flex flex-col gap-2.5 text-xs text-muted-foreground">
-            <div className="flex justify-between">
-              <span>Progreso</span>
-              <div className="flex">
-                <span>{calculateProgress(activities)}</span>
-                <span>%</span>
-              </div>
-            </div>
-            <Progress value={calculateProgress(activities)} />
-          </div>
-
-          <AvatarRow profiles={profiles} />
-        </CardContent>
-
-        <CardFooter className="border-t flex gap-2 justify-start items-center">
-          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-            <User size={14} />
-            {profiles.length}
-          </span>
-          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-            <SquareCheckBig size={14} />
-            {activities.length}
-          </span>
-          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-            <Paperclip size={14} />
-            {files?.length}
-          </span>
-          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-            <Folder size={14} />
-            {relatedProjects?.length}
-          </span>
-          {startDate && (
-            <div className="flex gap-1">
-              <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-                <Calendar size={14} />
-                {format(startDate, "d 'de' MMM 'de' yyyy", { locale: es })}
-              </span>
-              {endDate && (
-                <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-                  <MoveRight size={10} />
-                  {format(endDate, "d 'de' MMM 'de' yyyy", { locale: es })}
-                </span>
-              )}
-            </div>
-          )}
-        </CardFooter>
-      </Card>
+    <Link href={`/user/proyectos/${project._id}`}>
+      {variant === 'compact' ? (
+        <ProjectCardCompact data={data} />
+      ) : (
+        <ProjectCardDefault data={data} />
+      )}
     </Link>
   );
 }

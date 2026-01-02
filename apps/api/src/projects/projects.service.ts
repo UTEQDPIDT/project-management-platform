@@ -55,7 +55,7 @@ export class ProjectsService {
           { path: 'collaborators' },
         ],
       })
-      .populate('relatedProjects')
+      .populate({ path: 'relatedProjects', populate: [{ path: 'activities' }] })
       .populate({
         path: 'activities',
         populate: [{ path: 'assignees' }, { path: 'files' }],
@@ -89,7 +89,7 @@ export class ProjectsService {
           { path: 'collaborators' },
         ],
       })
-      .populate('relatedProjects')
+      .populate({ path: 'relatedProjects', populate: [{ path: 'activities' }] })
       .populate({
         path: 'activities',
         populate: [{ path: 'assignees' }, { path: 'files' }],
@@ -127,7 +127,7 @@ export class ProjectsService {
           { path: 'collaborators' },
         ],
       })
-      .populate('relatedProjects')
+      .populate({ path: 'relatedProjects', populate: [{ path: 'activities' }] })
       .populate({
         path: 'activities',
         populate: [{ path: 'assignees' }, { path: 'files' }],
