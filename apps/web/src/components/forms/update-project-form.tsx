@@ -975,9 +975,9 @@ export function UpdateProjectForm({
           </Button>
           <Button type="submit" disabled={updateProject.isPending}>
             {updateProject.isPending ? (
-              <LoadingMessage message="Creando proyecto" />
+              <LoadingMessage message="Actualizando" />
             ) : (
-              'Crear proyecto'
+              'Actualizar'
             )}
           </Button>
         </div>

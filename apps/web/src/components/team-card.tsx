@@ -140,7 +140,7 @@ export default function TeamCard({
   });
 
   return (
-    <Card className="w-full gap-6">
+    <Card className="w-full gap-4">
       <CardHeader>
         <div className="flex justify-between">
           <div className="flex gap-2 items-start">
@@ -167,7 +167,7 @@ export default function TeamCard({
         </CardDescription>
         <AvatarRow profiles={profiles} />
       </CardContent>
-      <CardFooter className="border-t flex gap-2 justify-between items-center">
+      <CardFooter className="flex border-t gap-2 justify-between items-center">
         <div>
           <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
             <User size={14} />
