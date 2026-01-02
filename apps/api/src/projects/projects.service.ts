@@ -12,6 +12,7 @@ import { FilesService } from '../files/files.service';
 import { ProductsService } from '../products/products.service';
 import { CreateProductDto } from '../products/dto/create-product.dto';
 import { ActivitiesService } from '../activities/activities.service';
+import { CreateActivityDto } from '../activities/dto/create-activity.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -242,7 +243,7 @@ export class ProjectsService {
    */
   async createActivity(
     projectId: string,
-    dto: CreateProductDto,
+    dto: CreateActivityDto,
     userId: string,
   ) {
     const session = await this.connection.startSession();

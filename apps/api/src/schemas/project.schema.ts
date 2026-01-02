@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Status, ImpactLevel } from '@repo/types';
+import { ImpactLevel } from '@repo/types';
 import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { Team } from './team.schema';
@@ -38,18 +38,6 @@ export class Project extends Document {
   })
   @Prop({ required: true, min: 1, max: 9 })
   trlRating: number;
-
-  @ApiProperty({
-    description: 'Estado actual del proyecto.',
-  })
-  @Prop({
-    required: true,
-    type: String,
-    enum: Object.values(Status),
-    default: Status.PENDING,
-    index: true,
-  })
-  status: Status;
 
   @ApiPropertyOptional({
     description:

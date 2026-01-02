@@ -69,7 +69,6 @@ export class ActivitiesService {
     id: string,
     updateActivityDto: UpdateActivityDto,
     userId: string,
-    newFiles?: Express.Multer.File[],
   ): Promise<Activity> {
     const activity = await this.activityModel.findById(id);
 
@@ -77,40 +76,11 @@ export class ActivitiesService {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
     }
 
-    let updatedFiles: string[] = [...(activity.files ?? [])];
-
-    // Obtener metadata de los archivos existentes
-    const existingFilesMetadata = await Promise.all(
-      updatedFiles.map((fileId) => this.filesService.getFileMetadata(fileId)),
-    );
-
-    // Validar duplicados por nombre
-    if (newFiles && newFiles.length > 0) {
-      for (const file of newFiles) {
-        const duplicate = existingFilesMetadata.find(
-          (meta) => meta.name === file.originalname,
-        );
-
-        if (duplicate) {
-          throw new BadRequestException(
-            `Ya existe un archivo con el nombre "${file.originalname}" en esta actividad.`,
-          );
-        }
-      }
-
-      // Agregar archivos nuevos si pasaron la validación
-      for (const file of newFiles) {
-        const savedFile = await this.filesService.uploadToGridFS(file, userId);
-        updatedFiles.push(savedFile.id.toString());
-      }
-    }
-
     const updatedActivity = await this.activityModel.findByIdAndUpdate(
       id,
       {
         ...updateActivityDto,
         updatedBy: userId,
-        files: updatedFiles,
       },
       { new: true },
     );
