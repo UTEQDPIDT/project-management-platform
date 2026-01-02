@@ -145,6 +145,12 @@ export class ProjectsService {
       .populate('updatedBy');
   }
 
+  async findByTeam(teamId: string) {
+    return await this.projectModel
+      .find({ team: teamId })
+      .populate('activities');
+  }
+
   async update(
     id: string,
     updateProjectDto: UpdateProjectDto,

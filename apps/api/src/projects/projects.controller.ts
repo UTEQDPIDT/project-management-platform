@@ -23,7 +23,6 @@ import {
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { CreateProductDto } from '../products/dto/create-product.dto';
-import { IsEAN } from 'class-validator';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -57,6 +56,15 @@ export class ProjectsController {
   @Get('/by-owner')
   findByOwner(@Req() req) {
     return this.projectsService.findByOwner(req.user.id);
+  }
+
+  @ApiAcceptedResponse({ description: 'Proyectos encontrados por equipo.' })
+  @ApiNotFoundResponse({
+    description: 'No hay proyectos con el ID del equipo proporcionado.',
+  })
+  @Get('/by-team/:teamId')
+  findByTeam(@Param('teamId') teamId) {
+    return this.projectsService.findByTeam(teamId);
   }
 
   @ApiAcceptedResponse({
