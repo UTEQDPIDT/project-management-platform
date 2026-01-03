@@ -22,6 +22,7 @@ import {
 } from './ui/dialog';
 import { useDeleteTeam } from '@/hooks/team';
 import { useRouter } from 'next/navigation';
+import { useDeleteProject } from '@/hooks/projects';
 
 export function ProjectMenu({
   projectId,
@@ -30,7 +31,7 @@ export function ProjectMenu({
   projectId: string;
   name: string;
 }) {
-  const deleteTeam = useDeleteTeam();
+  const deleteProject = useDeleteProject();
   const router = useRouter();
 
   return (
@@ -69,10 +70,10 @@ export function ProjectMenu({
                   <Button variant="outline">Cancelar</Button>
                 </DialogClose>
                 <Button
-                  disabled={deleteTeam.isPending}
+                  disabled={deleteProject.isPending}
                   variant="destructive"
                   onClick={() => {
-                    // deleteTeam.mutate(teamId);
+                    deleteProject.mutate(projectId);
                     router.push('/user/proyectos');
                   }}
                 >

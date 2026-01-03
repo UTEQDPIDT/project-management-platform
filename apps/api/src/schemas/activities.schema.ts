@@ -58,6 +58,10 @@ export class Activity extends Document {
   @ApiProperty({ description: 'Fecha final de vencimiento de la actividad' })
   @Prop()
   dueDateEnd?: Date;
+
+  @ApiPropertyOptional({ description: 'El ID del proyecto al que pertenece' })
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId })
+  projectId?: mongoose.Schema.Types.ObjectId;
 }
 
 export const ActivitySchema = SchemaFactory.createForClass(Activity);

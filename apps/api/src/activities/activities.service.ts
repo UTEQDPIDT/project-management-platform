@@ -21,11 +21,13 @@ export class ActivitiesService {
     createActivityDto: CreateActivityDto,
     userId: string,
     session?: ClientSession,
+    projectId?: string,
   ): Promise<Activity> {
     try {
       const createdActivity = new this.activityModel({
         ...createActivityDto,
         createdBy: userId,
+        projectId,
       });
 
       await createdActivity.save({ session });
@@ -38,12 +40,17 @@ export class ActivitiesService {
     }
   }
 
-  async createOnBulk(createActivityDto: CreateActivityDto[], userId: string) {
+  async createOnBulk(
+    createActivityDto: CreateActivityDto[],
+    userId: string,
+    projectId?: string,
+  ) {
     try {
       const activities = await this.activityModel.insertMany(
         createActivityDto.map((dto) => ({
           ...dto,
           createdBy: userId,
+          projectId,
         })),
       );
 
@@ -128,5 +135,9 @@ export class ActivitiesService {
     const deletedActivity = await this.activityModel.findByIdAndDelete(id);
 
     return deletedActivity;
+  }
+
+  async deleteManyByProject(projectId: string, session: ClientSession) {
+    await this.activityModel.deleteMany({ projectId }, { session });
   }
 }

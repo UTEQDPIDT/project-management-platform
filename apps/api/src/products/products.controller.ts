@@ -26,17 +26,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @ApiCreatedResponse({
-    description: 'Producto creado correctamente.',
-    type: CreateProductDto,
-  })
-  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
-  @Post()
-  create(@Body() createProductDto: CreateProductDto, @Req() req) {
-    return this.productsService.create(createProductDto, req.user.id);
-  }
-
   @ApiAcceptedResponse({
     description: 'Lista de productos obtenida correctamente.',
     type: [CreateProductDto],
@@ -69,12 +58,5 @@ export class ProductsController {
     @Req() req,
   ) {
     return this.productsService.update(id, updateProductDto, req.user.id);
-  }
-
-  @ApiAcceptedResponse({ description: 'Producto eliminado correctamente.' })
-  @ApiNotFoundResponse({ description: 'No se encontro el producto.' })
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(id);
   }
 }

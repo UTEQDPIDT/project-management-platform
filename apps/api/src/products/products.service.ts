@@ -18,6 +18,7 @@ export class ProductsService {
   async create(
     createProductDto: CreateProductDto,
     userId: string,
+    projectId: string,
     session?: ClientSession,
   ) {
     try {
@@ -25,6 +26,7 @@ export class ProductsService {
         ...createProductDto,
         owner: userId,
         updatedBy: userId,
+        projectId,
       });
 
       await product.save({ session });
@@ -91,5 +93,9 @@ export class ProductsService {
       throw new NotFoundException(`Product with ID: ${id} not found`);
 
     return deletedProduct;
+  }
+
+  async deleteMany(projectId: string, session: ClientSession) {
+    await this.productModel.deleteMany({ projectId }, { session });
   }
 }

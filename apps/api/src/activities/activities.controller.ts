@@ -48,8 +48,16 @@ export class ActivitiesController {
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @UseGuards(JwtAuthGuard)
   @Post('create-on-bulk')
-  createOnBulk(@Body() createdActivityDto: CreateActivityDto[], @Req() req) {
-    return this.activitiesService.createOnBulk(createdActivityDto, req.user.id);
+  createOnBulk(
+    @Body() createdActivityDto: CreateActivityDto[],
+    @Req() req,
+    @Body() projectId: string,
+  ) {
+    return this.activitiesService.createOnBulk(
+      createdActivityDto,
+      req.user.id,
+      projectId,
+    );
   }
 
   @ApiAcceptedResponse({

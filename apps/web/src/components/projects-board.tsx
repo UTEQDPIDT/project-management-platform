@@ -44,12 +44,12 @@ export function ProjectsBoard({ projects, loading }: ProjectsBoardProps) {
           <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <ListTodo />
+                <Folder />
               </EmptyMedia>
               <EmptyTitle>No Hay Proyectos</EmptyTitle>
-              <EmptyDescription>
+              {/* <EmptyDescription>
                 No haz seleccionado proyectos.
-              </EmptyDescription>
+              </EmptyDescription> */}
             </EmptyHeader>
           </Empty>
         )}

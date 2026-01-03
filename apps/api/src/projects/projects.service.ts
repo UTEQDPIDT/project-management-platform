@@ -174,22 +174,42 @@ export class ProjectsService {
     return updatedProject;
   }
 
-  async remove(id: string) {
-    const project = await this.projectModel.findById(id);
+  async remove(projectId: string) {
+    const project = await this.projectModel.findById(projectId);
 
     if (!project) {
-      throw new NotFoundException(`Project with ID: ${id} not found`);
+      throw new NotFoundException(`Project with ID: ${projectId} not found`);
     }
 
-    if (project.files && project.files.length > 0) {
-      for (const fileId of project.files) {
-        await this.filesService.deleteFile(fileId.toString());
-      }
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    try {
+      // Delete files
+      //   if (project.files && project.files.length > 0) {
+      //     for (const fileId of project.files) {
+      //       await this.filesService.deleteFile(fileId.toString());
+      //     }
+      //   }
+
+      // Delete products
+      await this.productService.deleteMany(projectId, session);
+
+      // Delete activities
+      await this.activitiesService.deleteManyByProject(projectId, session);
+
+      // Delete project
+      await this.projectModel.findByIdAndDelete(projectId, session);
+
+      await session.commitTransaction();
+
+      return { message: 'Project deleted successfully' };
+    } catch (err: any) {
+      await session.abortTransaction();
+      throw new BadRequestException(err.message);
+    } finally {
+      session.endSession();
     }
-
-    const deletedProject = await this.projectModel.findByIdAndDelete(id);
-
-    return deletedProject;
   }
 
   /**
@@ -204,7 +224,12 @@ export class ProjectsService {
     session.startTransaction();
 
     try {
-      const product = await this.productService.create(dto, userId, session);
+      const product = await this.productService.create(
+        dto,
+        userId,
+        projectId,
+        session,
+      );
 
       await this.projectModel.updateOne(
         { _id: projectId },
@@ -260,6 +285,7 @@ export class ProjectsService {
         dto,
         userId,
         session,
+        projectId,
       );
 
       await this.projectModel.updateOne(
