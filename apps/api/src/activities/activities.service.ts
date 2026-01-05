@@ -23,12 +23,14 @@ export class ActivitiesService {
     userId: string,
     session?: ClientSession,
     projectId?: string,
+    eventId?: string,
   ): Promise<Activity> {
     try {
       const createdActivity = new this.activityModel({
         ...createActivityDto,
         createdBy: userId,
         projectId,
+        eventId,
       });
 
       await createdActivity.save({ session });
@@ -146,5 +148,9 @@ export class ActivitiesService {
 
   async deleteManyByProject(projectId: string, session: ClientSession) {
     await this.activityModel.deleteMany({ projectId }, { session });
+  }
+
+  async deleteManyByEvent(eventId: string, session: ClientSession) {
+    await this.activityModel.deleteMany({ eventId }, { session });
   }
 }

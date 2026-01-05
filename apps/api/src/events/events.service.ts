@@ -43,6 +43,7 @@ export class EventsService {
       const createdEvent = await this.eventModel.create({
         ...createEventDto,
         createdBy: userId,
+        updatedBy: userId,
         report: uploadedFileId,
       });
 
@@ -67,11 +68,11 @@ export class EventsService {
     return event;
   }
 
-  async update(id: string, updateEventDto: UpdateEventDto, updater: string) {
+  async update(id: string, updateEventDto: UpdateEventDto, usedId: string) {
     try {
       const updatedEvent = this.eventModel.findByIdAndUpdate(id, {
         ...updateEventDto,
-        updatedBy: updater,
+        updatedBy: usedId,
       });
       if (!updatedEvent) {
         throw new NotFoundException(`Event with ID: ${id} not found`);
