@@ -65,7 +65,7 @@ export class ProductsService {
     return product;
   }
 
-  update(id: string, updateProductDto: UpdateProductDto, userId: string) {
+  async update(id: string, updateProductDto: UpdateProductDto, userId: string) {
     try {
       const updatedProduct = await this.productModel.findByIdAndUpdate(
         id,

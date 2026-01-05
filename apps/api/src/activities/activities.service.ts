@@ -80,7 +80,7 @@ export class ActivitiesService {
     id: string,
     updateActivityDto: UpdateActivityDto,
     userId: string,
-  ): Promise<Activity> {
+  ) {
     const activity = await this.activityModel.findById(id);
 
     if (!activity) {
@@ -120,10 +120,13 @@ export class ActivitiesService {
       { new: true },
     );
 
-    return { id: activityId, message: 'File removed successfully from activity' };
+    return {
+      id: activityId,
+      message: 'File removed successfully from activity',
+    };
   }
 
-  async remove(id: string): Promise<{ id: string, message: string }> {
+  async remove(id: string): Promise<{ id: string; message: string }> {
     const activity = await this.activityModel.findById(id);
 
     if (!activity) {
