@@ -1,4 +1,4 @@
-export interface Division {
+export interface SeedCategory {
   _id: string;
   name: string;
   createdAt: string;

@@ -30,7 +30,6 @@ import {
   //initialUsers,
 } from './seed-data/static-data';
 
-
 @Injectable()
 export class SeedService {
   constructor(
@@ -61,7 +60,7 @@ export class SeedService {
     @InjectModel(SustainabilityGoal.name)
     private readonly sustainabilityGoalModel: Model<SustainabilityGoal>,
 
-    // @InjectModel(User.name) 
+    // @InjectModel(User.name)
     // private readonly userModel: Model<User>,
   ) {}
 
@@ -85,79 +84,71 @@ export class SeedService {
     );
   }
 
-//   private async seedUsers(users: Partial<CreateUserDto>[]) {
-//   for (const user of users) {
+  //   private async seedUsers(users: Partial<CreateUserDto>[]) {
+  //   for (const user of users) {
 
-//     const exists = await this.userModel.findOne({ email: user.email });
+  //     const exists = await this.userModel.findOne({ email: user.email });
 
-//     if (exists) continue; // ya existe, lo ignoramos
+  //     if (exists) continue; // ya existe, lo ignoramos
 
-//     const hashedPassword = await bcrypt.hash('Cambiar123*', 10);
+  //     const hashedPassword = await bcrypt.hash('Cambiar123*', 10);
 
-//     await this.userModel.create({
-//       ...user,
-//       password: hashedPassword,
-//       verified: true, // opcional
-//     });
-//   }
-// }
+  //     await this.userModel.create({
+  //       ...user,
+  //       password: hashedPassword,
+  //       verified: true, // opcional
+  //     });
+  //   }
+  // }
 
   async runSeed(password: string) {
     if (password !== process.env.SEED_PASSWORD)
-      throw new UnauthorizedException("Contraseña incorrecta.");
+      throw new UnauthorizedException('Contraseña incorrecta.');
 
-    await this.seedCollection(
-      this.divisionModel, 
-      divisionsList, 
-      'name'
-    );
+    await this.seedCollection(this.divisionModel, divisionsList, 'name');
 
     await this.seedCollection(
       this.educationalProgramModel,
       educationalProgramsList,
-      'educationalProgram',
+      'name',
     );
 
     await this.seedCollection(
       this.productCategoryModel,
       productCategoryList,
-      'productCategory',
+      'name',
     );
 
     await this.seedCollection(
       this.productSubcategoryModel,
       productSubcategoryList,
-      'productSubcategory',
+      'name',
     );
 
     await this.seedCollection(
       this.knowledgeAreaModel,
       knowledgeAreaList,
-      'knowledgeArea',
+      'name',
     );
 
     await this.seedCollection(
       this.themedImpactAreaModel,
       themedImpactAreaList,
-      'themedImpactArea',
+      'name',
     );
 
-    await this.seedCollection(
-      this.pndPriorityModel,
-        PNDprioritiesList,
-      'PNDpriority',
-    );
+    await this.seedCollection(this.pndPriorityModel, PNDprioritiesList, 'name');
 
     await this.seedCollection(
       this.developmentLineModel,
       developmentLinesList,
-      'developmentLine',
+      'name',
     );
 
     await this.seedCollection(
       this.sustainabilityGoalModel,
       sustainabilityGoalsList,
-      'sustainabilityGoal',
+      'name',
     );
 
     //await this.seedUsers(initialUsers);

@@ -14,7 +14,7 @@ export default function AvatarRow({ profiles }: AvatarRowProps) {
   return (
     <div className="flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background *:data-[slot=avatar]:grayscale">
       {visibleProfiles.map((p, index) => (
-        <Avatar key={index}>
+        <Avatar size="sm" key={index}>
           <AvatarImage src={p.avatarUrl} alt={p.givenName} />
           <AvatarFallback>
             {p.givenName.slice(0, 1).toUpperCase()}

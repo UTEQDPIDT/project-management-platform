@@ -1,7 +1,7 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document} from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Priority, Status } from '@repo/types';
 
 @Schema({ timestamps: true })
@@ -10,8 +10,8 @@ export class Activity extends Document {
   @Prop({ required: true })
   name: string;
 
-  @ApiProperty({ description: 'Descripcion de la actividad', maxLength: 500 })
-  @Prop({ maxLength: 500 })
+  @ApiProperty({ description: 'Descripcion de la actividad', maxLength: 255 })
+  @Prop({ maxLength: 255 })
   description?: string;
 
   @ApiProperty({ description: 'Prioridad de la actividad' })
@@ -20,18 +20,21 @@ export class Activity extends Document {
 
   @ApiProperty({ description: 'Estado de la actividad' })
   @Prop({
-    required: true,
     type: String,
     enum: Object.values(Status),
     default: Status.PENDING,
   })
-  status: Status;
+  status?: Status;
 
   @ApiProperty({
     description: 'Sirve para filtrar las actividades completadas',
   })
   @Prop({ default: false })
   checked?: boolean;
+
+  @ApiPropertyOptional({ description: 'A quien se le asigna la actividad.' })
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
+  assignees?: User[];
 
   @ApiProperty({ description: 'Usuario que creo la activiad' })
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
@@ -43,7 +46,7 @@ export class Activity extends Document {
 
   @ApiProperty({ description: 'Evidencias de la actividad.' })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }] })
-  files: string[];
+  files?: string[];
 
   @ApiProperty({
     description:
@@ -55,6 +58,10 @@ export class Activity extends Document {
   @ApiProperty({ description: 'Fecha final de vencimiento de la actividad' })
   @Prop()
   dueDateEnd?: Date;
+
+  @ApiPropertyOptional({ description: 'El ID del proyecto al que pertenece' })
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId })
+  projectId?: mongoose.Schema.Types.ObjectId;
 }
 
 export const ActivitySchema = SchemaFactory.createForClass(Activity);

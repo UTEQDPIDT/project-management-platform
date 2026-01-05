@@ -1,7 +1,5 @@
 'use client';
 
-import { ChevronDownIcon } from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -9,6 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { ChevronDownIcon } from 'lucide-react';
 import { useState } from 'react';
 
 export function DatePicker({

@@ -1,15 +1,23 @@
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
-import { IUser } from '@repo/types';
 
 export function ProfileInfo({
   givenName,
   familyName,
   email,
   avatarUrl,
-}: Pick<IUser, 'givenName' | 'familyName' | 'email' | 'avatarUrl'>) {
+  size = 'default',
+  className,
+}: {
+  givenName: string;
+  familyName: string;
+  email?: string;
+  avatarUrl?: string;
+  size?: 'default' | 'sm' | 'lg';
+  className?: string;
+}) {
   return (
-    <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-      <Avatar>
+    <div className="flex items-center gap-2 text-left text-sm">
+      <Avatar size={size} className={className}>
         <AvatarImage src={avatarUrl} alt={givenName} />
         <AvatarFallback>{givenName.slice(0, 1).toUpperCase()}</AvatarFallback>
       </Avatar>

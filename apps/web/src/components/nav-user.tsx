@@ -51,7 +51,7 @@ export function NavUser() {
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuLabel className="p-0 font-normal">
+            <DropdownMenuLabel className="p-0 font-normal px-2 py-1.5">
               <ProfileInfo
                 givenName={user.givenName}
                 familyName={user.familyName}

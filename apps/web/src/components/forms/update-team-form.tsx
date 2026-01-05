@@ -11,7 +11,7 @@ import { useUpdateTeam } from '@/hooks/team';
 
 import { resolveEmails } from '@/services/user.service';
 
-import { Division, IResolvedEmail, TeamsGrade } from '@repo/types';
+import { SeedCategory, IResolvedEmail, TeamsGrade } from '@repo/types';
 import { PlusIcon, XIcon } from 'lucide-react';
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
@@ -50,6 +50,7 @@ import {
 import { Switch } from '../ui/switch';
 import { useRouter } from 'next/navigation';
 import { userProfile } from 'context/profile-provider';
+import Link from 'next/link';
 
 export function UpdateTeamForm({
   _id: teamId,
@@ -253,7 +254,7 @@ export function UpdateTeamForm({
                         {loadingDivisions ? (
                           <LoadingMessage message="Cargando divisiones" />
                         ) : (
-                          divisions.map((division: Division) => (
+                          divisions.map((division: SeedCategory) => (
                             <SelectItem key={division._id} value={division._id}>
                               {division.name}
                             </SelectItem>
@@ -501,12 +502,8 @@ export function UpdateTeamForm({
         </Card>
 
         <div className="flex gap-2">
-          <Button
-            variant={'outline'}
-            type="button"
-            onClick={() => form.reset()}
-          >
-            Restablecer
+          <Button asChild variant={'outline'} type="button">
+            <Link href={`/user/equipos/${teamId}`}>Cancelar</Link>
           </Button>
           <Button type="submit" disabled={updateTeam.isPending}>
             {updateTeam.isPending ? (

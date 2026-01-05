@@ -4,11 +4,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true })
 export class ProductCategory extends Document {
-    @ApiProperty({
-        description: 'Categoría del producto.',
-    })
-    @Prop({ required: true })
-    productCategory: string;
+  @ApiProperty({
+    description: 'Categoría del producto.',
+  })
+  @Prop({ required: true })
+  name: string;
 }
 
-export const ProductCategorySchema = SchemaFactory.createForClass(ProductCategory);
+export const ProductCategorySchema =
+  SchemaFactory.createForClass(ProductCategory);

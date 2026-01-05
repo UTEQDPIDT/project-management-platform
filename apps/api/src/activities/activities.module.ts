@@ -7,8 +7,10 @@ import { FilesModule } from '../files/files.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Activity.name, schema: ActivitySchema }]),
-    FilesModule
+    MongooseModule.forFeature([
+      { name: Activity.name, schema: ActivitySchema },
+    ]),
+    FilesModule,
   ],
   controllers: [ActivitiesController],
   providers: [ActivitiesService],

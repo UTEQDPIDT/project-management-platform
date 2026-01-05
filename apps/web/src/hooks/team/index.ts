@@ -1,5 +1,6 @@
 export * from './use-all-teams';
 export * from './use-team';
+export * from './use-teams-by-user';
 export * from './use-create-team';
 export * from './use-update-team';
 export * from './use-delete-team';

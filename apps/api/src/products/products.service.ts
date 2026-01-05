@@ -7,7 +7,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../schemas/product.schema';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 
 @Injectable()
 export class ProductsService {
@@ -15,16 +15,23 @@ export class ProductsService {
     @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
 
-  async create(createProductDto: CreateProductDto, ownerId: string): Promise<{id: string, message: string}> {
+  async create(
+    createProductDto: CreateProductDto,
+    userId: string,
+    projectId: string,
+    session?: ClientSession,
+  ) {
     try {
-      const createdProduct = await this.productModel.create({
+      const product = new this.productModel({
         ...createProductDto,
-        owner: ownerId,
+        owner: userId,
+        updatedBy: userId,
+        projectId,
       });
-      return {
-        id: createdProduct._id.toString(),
-        message: 'Product created successfully',
-      };
+
+      await product.save({ session });
+
+      return product;
     } catch (err: any) {
       throw new BadRequestException(
         'Error al crear el producto: ' + err.message,
@@ -32,36 +39,40 @@ export class ProductsService {
     }
   }
 
-  async findAll(): Promise<Product[]> {
-    return await this.productModel.find().exec();
+  async findAll() {
+    return this.productModel
+      .find()
+      .populate('category')
+      .populate('subcategory')
+      .populate('owner')
+      .populate('updatedBy')
+      .populate('files')
+      .exec();
   }
 
-  async findOne(id: string): Promise<Product> {
-    const product = await this.productModel.findById(id).exec();
+  findOne(id: string) {
+    const product = this.productModel
+      .findById(id)
+      .populate('category')
+      .populate('subcategory')
+      .populate('owner')
+      .populate('updatedBy')
+      .populate('files')
+      .exec();
     if (!product) {
       throw new NotFoundException(`Product with ID: ${id} not found`);
     }
     return product;
   }
 
-  async findManyByIds(ids: string[]): Promise<string[]> {
-  const products = await this.productModel.find({
-    _id: { $in: ids },
-  }).select('_id');
-
-  if (products.length !== ids.length) {
-    throw new NotFoundException('One or more products were not found');
-  }
-
-  return products.map(p => p._id.toString());
-}
-
-
-  async update(id: string, updateProductDto: UpdateProductDto): Promise<{ id: string, message: string }> {
+  update(id: string, updateProductDto: UpdateProductDto, userId: string) {
     try {
       const updatedProduct = await this.productModel.findByIdAndUpdate(
         id,
-        updateProductDto,
+        {
+          ...updateProductDto,
+          updatedBy: userId,
+        },
         { new: true },
       );
 
@@ -82,5 +93,9 @@ export class ProductsService {
       throw new NotFoundException(`Product with ID: ${id} not found`);
 
     return { id, message: 'Product deleted successfully' };
+  }
+
+  async deleteMany(projectId: string, session: ClientSession) {
+    await this.productModel.deleteMany({ projectId }, { session });
   }
 }

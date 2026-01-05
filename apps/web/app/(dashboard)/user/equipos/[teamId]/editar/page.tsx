@@ -26,7 +26,7 @@ const Page = () => {
           <HeaderTitle>Editar Equipo</HeaderTitle>
         </HeaderHeading>
         <HeaderAction>
-          <Button asChild variant="outline">
+          <Button asChild variant="ghost">
             <Link href={`/user/equipos/${teamId}`}>
               <ArrowLeft />
               Cancelar

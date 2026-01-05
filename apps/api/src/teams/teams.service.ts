@@ -80,7 +80,20 @@ export class TeamsService {
     return team || null;
   }
 
-  async updateTeam(id: string, updateTeamDto: UpdateTeamDto): Promise<{ id: string; message: string }> {
+  async findByUser(userId: string) {
+    return await this.teamModel
+      .find({
+        $or: [{ owner: userId }, { members: userId }],
+      })
+      .populate('owner')
+      .populate('members')
+      .populate('collaborators')
+      .populate('division')
+      .populate('userRequests')
+      .exec();
+  }
+
+  async updateTeam(id: string, updateTeamDto: UpdateTeamDto): Promise<Team> {
     try {
       const updatedTeam = await this.teamModel
         .findByIdAndUpdate(id, updateTeamDto, { new: true })

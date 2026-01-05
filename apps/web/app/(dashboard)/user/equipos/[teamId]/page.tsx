@@ -11,6 +11,7 @@ import {
 } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
+import { ProjectsBoard } from '@/components/projects-board';
 import { TeamMenu } from '@/components/team-menu';
 import { TeamUserRequests } from '@/components/team-user-requests';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
+import { useProjectsByTeam } from '@/hooks/projects';
 import { useTeam } from '@/hooks/team';
 import { BadgeVariants, TeamsGrade } from '@repo/types';
 import { Bell } from 'lucide-react';
@@ -30,6 +32,8 @@ import { useParams } from 'next/navigation';
 const Page = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const { data: team, isLoading: loadingTeam } = useTeam(teamId);
+  const { data: projects, isLoading: loadingProjects } =
+    useProjectsByTeam(teamId);
 
   let badgeVariant:
     | 'default'
@@ -38,7 +42,7 @@ const Page = () => {
     | 'outline'
     | 'green'
     | 'gray'
-    | 'pruple'
+    | 'purple'
     | 'orange'
     | null
     | undefined;
@@ -72,7 +76,7 @@ const Page = () => {
             <HeaderAction>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
+                  <Button variant="ghost" size="icon-sm">
                     <Bell />
                   </Button>
                 </DropdownMenuTrigger>
@@ -98,13 +102,9 @@ const Page = () => {
             </HeaderAction>
           </Header>
 
-          <PageContent>
-            <CardMembers
-              teamId={teamId}
-              owner={team.owner}
-              members={team.members}
-              collaborators={team.collaborators}
-            />
+          <PageContent className="px-4">
+            <CardMembers team={team} />
+            <ProjectsBoard loading={loadingProjects} projects={projects} />
           </PageContent>
         </div>
       )}

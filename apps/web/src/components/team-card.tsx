@@ -1,7 +1,8 @@
 import { useSendJoinRequest } from '@/hooks/team';
 import { BadgeVariants, ITeam, TeamsGrade } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
-import { User, UserPlus, Users, ExternalLink } from 'lucide-react';
+import { ArrowUpRight, User, UserPlus, Users } from 'lucide-react';
+import Link from 'next/link';
 import AvatarRow from './avatar-row';
 import IconSquare from './icon-square';
 import LoadingMessage from './loading-message';
@@ -16,7 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
-import Link from 'next/link';
 
 export default function TeamCard({
   _id: teamId,
@@ -62,11 +62,11 @@ export default function TeamCard({
   const renderActionButton = () => {
     if (isOwner || isMember || isCollaborator) {
       return (
-        <Button variant="outline" size="sm" asChild>
+        <Button variant="ghost" size="sm" asChild>
           <Link href={`/user/equipos/${teamId}`}>
             <span className="flex gap-1 items-center">
-              <ExternalLink />
               Visitar
+              <ArrowUpRight />
             </span>
           </Link>
         </Button>
@@ -133,12 +133,18 @@ export default function TeamCard({
     avatarUrl: u.avatarUrl,
   }));
 
+  profiles.push({
+    givenName: owner.givenName,
+    familyName: owner.familyName,
+    avatarUrl: owner.avatarUrl,
+  });
+
   return (
-    <Card className="w-full gap-6">
+    <Card className="w-full gap-4">
       <CardHeader>
         <div className="flex justify-between">
           <div className="flex gap-2 items-start">
-            <IconSquare>
+            <IconSquare className="bg-blue-50 text-blue-700">
               <Users />
             </IconSquare>
             <div className="flex flex-col gap-1">
@@ -161,11 +167,11 @@ export default function TeamCard({
         </CardDescription>
         <AvatarRow profiles={profiles} />
       </CardContent>
-      <CardFooter className="border-t flex gap-2 justify-between items-center">
+      <CardFooter className="flex border-t gap-2 justify-between items-center">
         <div>
           <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
             <User size={14} />
-            {uniqueUsers.length + 1}
+            {profiles.length}
           </span>
         </div>
         <CardAction>{renderActionButton()}</CardAction>

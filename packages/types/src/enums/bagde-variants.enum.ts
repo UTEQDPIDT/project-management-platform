@@ -3,6 +3,7 @@ export enum BadgeVariants {
   SECONDARY = 'secondary',
   DESTRUCTIVE = 'destructive',
   OUTLINE = 'outline',
+  BLUE = 'blue',
   GREEN = 'green',
   GRAY = 'gray',
   PURPLE = 'purple',

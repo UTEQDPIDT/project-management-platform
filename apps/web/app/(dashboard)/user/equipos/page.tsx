@@ -42,7 +42,7 @@ const Page = () => {
         {loadingTeams ? (
           <LoadingMessage message="Cargando equipos" />
         ) : (
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-3 px-4">
             {teams.map((team: ITeam) => (
               <TeamCard
                 key={team._id}

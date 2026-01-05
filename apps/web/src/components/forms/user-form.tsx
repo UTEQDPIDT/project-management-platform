@@ -9,12 +9,11 @@ import { useDivisions, usePrograms } from '@/hooks/catalogs';
 import { useUpdateUser } from '@/hooks/user';
 import {
   CareerLevel,
-  Division,
   IUser,
-  Program,
   Sex,
   State,
   UserType,
+  SeedCategory,
 } from '@repo/types';
 import { useEffect } from 'react';
 import LoadingMessage from '../loading-message';
@@ -39,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import { DialogClose } from '../ui/dialog';
 
 export default function UserForm({ profile }: { profile: IUser }) {
   /**
@@ -47,8 +47,6 @@ export default function UserForm({ profile }: { profile: IUser }) {
   const { data: divisions, isLoading: loadingDivisions } = useDivisions();
   const { data: programs, isLoading: loadingPrograms } = usePrograms();
   const updateUserMutation = useUpdateUser();
-
-  console.log('DIVISIONS', divisions);
 
   const form = useForm({
     resolver: zodResolver(updateUserSchema),
@@ -323,12 +321,12 @@ export default function UserForm({ profile }: { profile: IUser }) {
                             {loadingPrograms ? (
                               <LoadingMessage message="Cargando Programas" />
                             ) : (
-                              programs.map((program: Program) => (
+                              programs.map((program: SeedCategory) => (
                                 <SelectItem
                                   key={program._id}
                                   value={program._id}
                                 >
-                                  {program.educationalProgram}
+                                  {program.name}
                                 </SelectItem>
                               ))
                             )}
@@ -386,7 +384,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
                         {loadingDivisions ? (
                           <LoadingMessage message="Cargando divisiones" />
                         ) : (
-                          divisions.map((division: Division) => (
+                          divisions.map((division: SeedCategory) => (
                             <SelectItem key={division._id} value={division._id}>
                               {division.name}
                             </SelectItem>
@@ -402,14 +400,12 @@ export default function UserForm({ profile }: { profile: IUser }) {
               />
             </FieldGroup>
           </FieldSet>
-          <div className="flex flex-col md:flex-row gap-2 justify-end">
-            <Button
-              onClick={() => form.reset()}
-              type="button"
-              variant={'outline'}
-            >
-              Cancelar
-            </Button>
+          <div className="flex gap-2">
+            <DialogClose asChild>
+              <Button type="button" variant={'outline'}>
+                Cancelar
+              </Button>
+            </DialogClose>
             <Button disabled={updateUserMutation.isPending} type="submit">
               {updateUserMutation.isPending ? (
                 <LoadingMessage message="Guardando" />

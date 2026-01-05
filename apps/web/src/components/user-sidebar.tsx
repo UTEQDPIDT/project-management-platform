@@ -1,6 +1,6 @@
 'use client';
 
-import { House, Users, Folders, Calendar } from 'lucide-react';
+import { House, Users, Folder, Calendar } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -22,7 +22,7 @@ import { usePathname } from 'next/navigation';
 const items = [
   { title: 'Inicio', url: '/user/inicio', icon: House },
   { title: 'Equipos', url: '/user/equipos', icon: Users },
-  { title: 'Proyectos', url: '/user/proyectos', icon: Folders },
+  { title: 'Proyectos', url: '/user/proyectos', icon: Folder },
   { title: 'Eventos', url: '/user/eventos', icon: Calendar },
 ];
 
@@ -56,7 +56,7 @@ export function UserSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser givenName="Aeon Julien" email="aeonruiz@uteq.edu.mx" />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );

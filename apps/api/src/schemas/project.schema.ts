@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Status, ImpactLevel } from '@repo/types';
+import { ImpactLevel } from '@repo/types';
 import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { Team } from './team.schema';
 import { Activity } from './activities.schema';
 import { Product } from './product.schema';
 import { File } from './file.schema';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { KnowledgeArea } from './knowledge-area.schema.seed';
 import { ThemedImpactArea } from './themed-impact-area.schema';
 import { PNDpriority } from './pnd-priority.schema.seed';
@@ -39,81 +39,56 @@ export class Project extends Document {
   @Prop({ required: true, min: 1, max: 9 })
   trlRating: number;
 
-  @ApiProperty({
-    description: 'Estado actual del proyecto.',
-  })
-  @Prop({
-    required: true,
-    type: String,
-    enum: Object.values(Status),
-    default: Status.PENDING,
-    index: true,
-  })
-  status: Status;
-
-  @ApiProperty({
+  @ApiPropertyOptional({
     description:
-      'Progreso general del proyecto, promedio de actividades completadas.',
-  })
-  @Prop({ min: 0, max: 100, default: 0 })
-  progress: number;
-
-  @ApiProperty({
-    description: 'Categorías a las que pertenece el proyecto.',
-  })
-  @Prop({})
-  category: string;
-
-  @ApiProperty({
-    description: 'Áreas de conocimiento que alude el proyecto (referencia al catálogo).',
+      'Áreas de conocimiento que alude el proyecto (referencia al catálogo).',
   })
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: KnowledgeArea.name,
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: KnowledgeArea.name }],
   })
-  knowledgeAreas: KnowledgeArea;
+  knowledgeAreas: KnowledgeArea[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Áreas de impacto del proyecto (referencia al catálogo).',
   })
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: ThemedImpactArea.name,
+    type: [
+      { type: mongoose.Schema.Types.ObjectId, ref: ThemedImpactArea.name },
+    ],
   })
-  impactAreas: ThemedImpactArea;
-
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Prioridades Nacionales (referencia al catálogo).',
   })
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: PNDpriority.name,
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: PNDpriority.name }],
   })
-  prioritiesPND: PNDpriority;
+  prioritiesPND: PNDpriority[];
 
-  @ApiProperty({
-    description: 'Objetivos sustentables a los que apunta el proyecto (referencia al catálogo).',
+  @ApiPropertyOptional({
+    description:
+      'Objetivos sustentables a los que apunta el proyecto (referencia al catálogo).',
   })
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: SustainabilityGoal.name,
+    type: [
+      { type: mongoose.Schema.Types.ObjectId, ref: SustainabilityGoal.name },
+    ],
   })
-  sustainableObjectives: SustainabilityGoal;
+  sustainableObjectives: SustainabilityGoal[];
 
-  @ApiProperty({
-    description: 'Lineas de innovación a las que se alinea el proyecto (referencia al catálogo).',
+  @ApiPropertyOptional({
+    description:
+      'Lineas de innovación a las que se alinea el proyecto (referencia al catálogo).',
   })
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: DevelopmentLine.name,
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: DevelopmentLine.name }],
   })
-  innovationLines: DevelopmentLine;
+  innovationLines: DevelopmentLine[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Organización a la que le pertenece el proyecto.',
   })
   @Prop({})
-  organization: string;
+  organization?: string;
 
   @ApiProperty({
     description: 'Niveles de impacto del proyecto.',
@@ -132,35 +107,38 @@ export class Project extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true })
   owner: User;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Equipo que trabaja en el proyecto.',
   })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Team', index: true })
-  team: Team;
+  team?: Team;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Otros proyectos relacionados o previos al proyecto.',
   })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }] })
-  relatedProjects: Project[];
+  relatedProjects?: Project[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Actividades relacionadas al proyecto.',
   })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }] })
-  activities: Activity[];
+  activities?: Activity[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Productos relacionados al proyecto.',
   })
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }] })
-  products: Product[];
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    default: [],
+  })
+  products?: Product[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Archivos relacionados al proyecto',
   })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }] })
-  files: string[];
+  files?: File[];
 
   @ApiProperty({
     description: 'Quien actualiza el proyecto por ultima ocasion.',
@@ -168,13 +146,15 @@ export class Project extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true })
   updatedBy: User;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Fecha de inicio del proyecto, esta será el inicio del plazo.',
   })
   @Prop()
   startDate?: Date;
 
-  @ApiProperty({ description: 'Fecha final de vencimiento del proyecto' })
+  @ApiPropertyOptional({
+    description: 'Fecha final de vencimiento del proyecto',
+  })
   @Prop()
   endDate?: Date;
 }

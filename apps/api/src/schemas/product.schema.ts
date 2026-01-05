@@ -11,18 +11,18 @@ export class Product extends Document {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ 
+  @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: ProductCategory.name,
-    required: true
-   })
+    required: true,
+  })
   category: ProductCategory;
 
-  @Prop({ 
+  @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: ProductSubcategory.name,
-    required: true
-   })
+    required: true,
+  })
   subcategory: ProductSubcategory;
 
   @Prop({ maxLength: 255 })
@@ -36,6 +36,12 @@ export class Product extends Document {
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }] })
   files: File[];
+
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  updatedBy: User;
+
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId })
+  projectId: mongoose.Schema.Types.ObjectId;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
