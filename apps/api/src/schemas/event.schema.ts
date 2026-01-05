@@ -17,9 +17,13 @@ export class Event extends Document {
   @Prop({ required: true, maxLength: 500 })
   summary: string;
 
-  @ApiProperty({ description: 'Fecha del evento' })
+  @ApiProperty({ description: 'Fecha de inicio del evento' })
+  @Prop({ required: true })
+  startDate: Date;
+
+  @ApiProperty({ description: 'Fecha de término evento' })
   @Prop()
-  date: Date;
+  endDate?: Date;
 
   @ApiProperty({ description: 'Usuario que creo el evento' })
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
