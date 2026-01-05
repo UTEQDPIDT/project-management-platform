@@ -35,10 +35,10 @@ export class EventsController {
 
   @ApiCreatedResponse({ description: 'Evento creado correctamente.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('report'))
   @UseGuards(JwtAuthGuard)
   @Post()
-  @UseInterceptors(FileInterceptor('report'))
-  @ApiConsumes('multipart/form-data')
   create(
     @Body() createEventDto: CreateEventDto,
     @Req() req,

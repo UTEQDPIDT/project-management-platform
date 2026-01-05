@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Header,
   HeaderAction,
@@ -8,9 +10,12 @@ import {
 } from '@/components/header';
 import { PageContent } from '@/components/page-content';
 import { Button } from '@/components/ui/button';
+import { useGetAllEvents } from '@/hooks/events';
 import Link from 'next/link';
 
 const Page = () => {
+  const { data: events, isLoading: loadingEvents } = useGetAllEvents();
+
   return (
     <div>
       <Header>

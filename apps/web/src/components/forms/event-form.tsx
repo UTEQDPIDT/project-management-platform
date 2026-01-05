@@ -47,9 +47,9 @@ import { Button } from '../ui/button';
 import Link from 'next/link';
 import LoadingMessage from '../loading-message';
 import { Check, ChevronsUpDown } from 'lucide-react';
-import { Avatar } from '../ui/avatar';
 import { ProfileInfo } from '../profile-info';
 import { useGetAllUsers } from '@/hooks/user';
+import { useCreateEvent } from '@/hooks/events';
 
 interface EventFormProps {
   event?: IEvent;
@@ -62,6 +62,7 @@ export default function EventForm({ event }: EventFormProps) {
    * TANSTACK HOOKS
    */
   const { data: users, isLoading: loadingUsers } = useGetAllUsers();
+  const createEvent = useCreateEvent();
 
   const renderButton = (event: IEvent | undefined) => {
     if (event) {
@@ -76,8 +77,12 @@ export default function EventForm({ event }: EventFormProps) {
       );
     } else {
       return (
-        <Button type="submit" disabled={false}>
-          {false ? <LoadingMessage message="Creando evento" /> : 'Crear evento'}
+        <Button type="submit" disabled={createEvent.isPending}>
+          {createEvent.isPending ? (
+            <LoadingMessage message="Creando evento" />
+          ) : (
+            'Crear evento'
+          )}
         </Button>
       );
     }
@@ -118,12 +123,12 @@ export default function EventForm({ event }: EventFormProps) {
       if (event) {
         // update
       } else {
-        // create
+        createEvent.mutate(cleanedData);
       }
 
-      if (true) {
-        // form.reset();
-        // router.push('/admin/eventos');
+      if (createEvent.isSuccess) {
+        form.reset();
+        router.push('/admin/eventos');
       }
     } catch (err) {
       console.error('Error cleaning data', err);
