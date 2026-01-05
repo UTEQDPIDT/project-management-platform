@@ -9,6 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Activity } from '../schemas/activities.schema';
 import { ClientSession, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
+import { Priority } from '@repo/types';
 
 @Injectable()
 export class ActivitiesService {
@@ -41,22 +42,25 @@ export class ActivitiesService {
   }
 
   async createOnBulk(
-    createActivityDto: CreateActivityDto[],
+    createActivityDto: { name: string }[],
     userId: string,
+    session?: ClientSession,
     projectId?: string,
   ) {
     try {
       const activities = await this.activityModel.insertMany(
-        createActivityDto.map((dto) => ({
-          ...dto,
+        createActivityDto.map((activity) => ({
+          name: activity.name,
           createdBy: userId,
           projectId,
+          priority: Priority.LOW,
         })),
+        { session },
       );
 
       return activities;
     } catch (err: any) {
-      throw new BadRequestException('Error al crear actividades', err.message);
+      throw new BadRequestException(err.message);
     }
   }
 

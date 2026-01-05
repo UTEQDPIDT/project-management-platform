@@ -41,25 +41,6 @@ export class ActivitiesController {
     return this.activitiesService.create(createActivityDto, req.user.id);
   }
 
-  @ApiCreatedResponse({
-    description: 'Actividades creadas correctamente.',
-    type: CreateActivityDto,
-  })
-  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
-  @Post('create-on-bulk')
-  createOnBulk(
-    @Body() createdActivityDto: CreateActivityDto[],
-    @Req() req,
-    @Body() projectId: string,
-  ) {
-    return this.activitiesService.createOnBulk(
-      createdActivityDto,
-      req.user.id,
-      projectId,
-    );
-  }
-
   @ApiAcceptedResponse({
     description: 'Lista de actividades obtenida correctamente.',
     type: [CreateActivityDto],

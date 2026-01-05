@@ -3,7 +3,6 @@ import { ProjectCleanedData, IProject } from '@repo/types';
 
 const createProject = async (projectData: ProjectCleanedData) => {
   try {
-    console.log('PROJECT CLEANED DATA', projectData);
     const { data } = await api.post('/projects', projectData);
     return data;
   } catch (err) {

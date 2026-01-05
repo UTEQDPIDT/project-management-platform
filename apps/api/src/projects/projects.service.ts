@@ -17,26 +17,58 @@ import { CreateActivityDto } from '../activities/dto/create-activity.dto';
 @Injectable()
 export class ProjectsService {
   constructor(
-    private readonly productService: ProductsService,
-    private readonly activitiesService: ActivitiesService,
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(Project.name) private projectModel: Model<Project>,
+    private readonly productService: ProductsService,
+    private readonly activitiesService: ActivitiesService,
     private readonly filesService: FilesService,
   ) {}
 
-  async create(
-    createProjectDto: CreateProjectDto,
-    userId: string,
-  ): Promise<Project> {
+  async create(dto: CreateProjectDto, userId: string): Promise<Project> {
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    const { activities, ...projectData } = dto;
+
     try {
-      const newProject = await this.projectModel.create({
-        ...createProjectDto,
-        owner: userId,
-        updatedBy: userId,
-      });
-      return newProject;
+      const [project] = await this.projectModel.create(
+        [
+          {
+            ...projectData,
+            activities: [],
+            owner: userId,
+            updatedBy: userId,
+          },
+        ],
+        { session },
+      );
+
+      const projectId = project._id;
+
+      let createdActivities = [];
+      if (activities && activities.length) {
+        createdActivities = await this.activitiesService.createOnBulk(
+          activities,
+          userId,
+          session,
+          projectId.toString(),
+        );
+      }
+
+      await this.projectModel.updateOne(
+        { _id: projectId },
+        { $set: { activities: createdActivities.map((a) => a._id) } },
+        { session },
+      );
+
+      await session.commitTransaction();
+
+      return project;
     } catch (err: any) {
-      throw new BadRequestException('Error al crear el proyecto' + err.message);
+      await session.abortTransaction();
+      throw new BadRequestException(err.message);
+    } finally {
+      session.endSession();
     }
   }
 

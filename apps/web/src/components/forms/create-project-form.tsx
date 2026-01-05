@@ -15,14 +15,7 @@ import { useTeamsByUser } from '@/hooks/team';
 
 import { useCreateProject, useProjectsByOwner } from '@/hooks/projects';
 import { projectSchema } from '@/schemas/project.schema';
-import { createOnBulk } from '@/services/activity.service';
-import {
-  IActivity,
-  ImpactLevel,
-  IProject,
-  ITeam,
-  SeedCategory,
-} from '@repo/types';
+import { ImpactLevel, IProject, ITeam, SeedCategory } from '@repo/types';
 import { Check, ChevronsUpDown, XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -101,7 +94,7 @@ export function CreateProjectForm() {
       name: '',
       summary: '',
       objective: '',
-      trlRating: 0,
+      trlRating: 3,
       knowledgeAreas: [],
       impactAreas: [],
       prioritiesPND: [],
@@ -131,13 +124,10 @@ export function CreateProjectForm() {
    */
   const onSubmit = async (data: z.infer<typeof projectSchema>) => {
     try {
-      const newActivities: IActivity[] = await createOnBulk(data.activities);
-
       const cleanedData = {
         ...data,
         organization: data.organization === '' ? undefined : data.organization,
         team: data.team === '' ? undefined : data.team,
-        activities: newActivities.map((activity: IActivity) => activity._id),
       };
 
       createProject.mutate(cleanedData);

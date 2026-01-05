@@ -119,8 +119,8 @@ export class CreateProjectDto {
     description: 'Actividades relacionadas al proyecto.',
   })
   @IsOptional()
-  @IsMongoId({ each: true })
-  activities: string[];
+  @IsArray()
+  activities: { name: string }[];
 
   @ApiPropertyOptional({
     description: 'Productos relacionados al proyecto.',
