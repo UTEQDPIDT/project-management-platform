@@ -20,7 +20,6 @@ import {
   DialogTrigger,
   DialogClose,
 } from './ui/dialog';
-import { useDeleteTeam } from '@/hooks/team';
 import { useRouter } from 'next/navigation';
 import { useDeleteProject } from '@/hooks/projects';
 
