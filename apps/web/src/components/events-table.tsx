@@ -182,6 +182,20 @@ const columns: ColumnDef<IEvent>[] = [
   {
     accessorKey: 'report',
     header: 'Reporte',
+    cell: ({ row }) => {
+      const event = row.original;
+      const report = event.report;
+
+      return (
+        <div>
+          {report ? (
+            <div>reporte</div>
+          ) : (
+            <span className="text-sm text-muted-foreground">Vacío</span>
+          )}
+        </div>
+      );
+    },
   },
   {
     id: 'actions',
