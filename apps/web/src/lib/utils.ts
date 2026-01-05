@@ -98,6 +98,8 @@ export const calculateProgress = (activities: IActivity[]) => {
   const completedActivities = activities.filter(
     (a) => a.status === Status.COMPLETED,
   );
-  const progress = completedActivities.length / totalActivities;
-  return progress * 100;
+  const progress = Math.round(
+    (completedActivities.length / totalActivities) * 100,
+  );
+  return progress;
 };
