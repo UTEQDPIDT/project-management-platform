@@ -2,18 +2,18 @@ import { Module } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { EventsController } from './events.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { EventSchema } from '../schemas/events.schema';
+import { EventSchema } from '../schemas/event.schema';
 import { FilesModule } from '../files/files.module';
 import { ActivitiesModule } from '../activities/activities.module';
 import { ProductsModule } from '../products/products.module';
 
 @Module({
   imports: [
-      MongooseModule.forFeature([{ name: Event.name, schema: EventSchema }]),
-      FilesModule,
-      ActivitiesModule,
-      ProductsModule
-    ],
+    MongooseModule.forFeature([{ name: Event.name, schema: EventSchema }]),
+    FilesModule,
+    ActivitiesModule,
+    ProductsModule,
+  ],
   controllers: [EventsController],
   providers: [EventsService],
 })

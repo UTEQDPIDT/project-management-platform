@@ -1,16 +1,19 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Event } from '../schemas/events.schema';
+import { Event } from '../schemas/event.schema';
 import { FilesService } from '../files/files.service';
 import { ProductsService } from '../products/products.service';
 import { ActivitiesService } from '../activities/activities.service';
 
 @Injectable()
 export class EventsService {
-
   constructor(
     @InjectModel(Event.name) private eventModel: Model<Event>,
     private readonly filesService: FilesService,
@@ -18,63 +21,74 @@ export class EventsService {
     private readonly productsService: ProductsService,
   ) {}
 
-  async create(createEventDto: CreateEventDto, userId: string, report?: Express.Multer.File): Promise<{ id: string, message: string }> {
+  async create(
+    createEventDto: CreateEventDto,
+    userId: string,
+    report?: Express.Multer.File,
+  ): Promise<{ id: string; message: string }> {
     try {
-
       let uploadedFileId: string | null = null;
 
       if (report) {
-        const savedFile = await this.filesService.uploadToGridFS(report, userId);
+        const savedFile = await this.filesService.uploadToGridFS(
+          report,
+          userId,
+        );
         uploadedFileId = savedFile.id.toString();
-      } 
+      }
 
       const createdEvent = await this.eventModel.create({
         ...createEventDto,
         createdBy: userId,
-        report: uploadedFileId
+        report: uploadedFileId,
       });
 
       return {
         id: createdEvent._id.toString(),
         message: `Event created successfully`,
       };
-
     } catch (err: any) {
       throw new BadRequestException('Error al crear el evento: ' + err.message);
     }
   }
 
-  async addParticipants(eventId: string, userIds: string[], updater: string): Promise<{ participantsAdded: string[], message: string }> {
+  async addParticipants(
+    eventId: string,
+    userIds: string[],
+    updater: string,
+  ): Promise<{ participantsAdded: string[]; message: string }> {
     const event = await this.eventModel.findById(eventId).exec();
-    if (!event) throw new NotFoundException(`Event with ID: ${eventId} not found`);
-  
+    if (!event)
+      throw new NotFoundException(`Event with ID: ${eventId} not found`);
+
     if (!Array.isArray(userIds) || userIds.length === 0)
-      throw new BadRequestException("userIds must be a non-empty array");
-  
+      throw new BadRequestException('userIds must be a non-empty array');
+
     const existingIds = event.participants.map((p: any) =>
-      p._id ? p._id.toString() : p.toString()
+      p._id ? p._id.toString() : p.toString(),
     );
-  
-    const newIds = userIds.filter(id => !existingIds.includes(id));
-  
+
+    const newIds = userIds.filter((id) => !existingIds.includes(id));
+
     if (newIds.length === 0)
-      throw new BadRequestException("All users are already participants");
-  
-    await this.eventModel.findByIdAndUpdate(
-      eventId,
-      { 
-        $addToSet: { participants: { $each: newIds } },
-        updatedBy: updater,
-      },
-    );
+      throw new BadRequestException('All users are already participants');
+
+    await this.eventModel.findByIdAndUpdate(eventId, {
+      $addToSet: { participants: { $each: newIds } },
+      updatedBy: updater,
+    });
 
     return {
       participantsAdded: newIds,
-      message: `Participants added successfully to event with id ${eventId}`
+      message: `Participants added successfully to event with id ${eventId}`,
     };
   }
 
-  async uploadReportFile(eventId: string, file: Express.Multer.File, userId: string): Promise<{ report: string, message: string }> {
+  async uploadReportFile(
+    eventId: string,
+    file: Express.Multer.File,
+    userId: string,
+  ): Promise<{ report: string; message: string }> {
     if (!file) {
       throw new BadRequestException('No file provided');
     }
@@ -85,83 +99,88 @@ export class EventsService {
     }
 
     if (event.report) {
-      throw new BadRequestException('This event already has a report file. Please delete it before uploading a new one.');
+      throw new BadRequestException(
+        'This event already has a report file. Please delete it before uploading a new one.',
+      );
     }
 
     const savedFile = await this.filesService.uploadToGridFS(file, userId);
 
-    const updatedEvent = await this.eventModel.findByIdAndUpdate(
-      eventId,
-      { 
-        report: savedFile.id,
-        updatedBy: userId,
-      },
-    );
+    const updatedEvent = await this.eventModel.findByIdAndUpdate(eventId, {
+      report: savedFile.id,
+      updatedBy: userId,
+    });
 
-    return { 
-      report: updatedEvent.report.toString(), 
-      message: `Report file uploaded successfully to event with id ${eventId}`
+    return {
+      report: updatedEvent.report.toString(),
+      message: `Report file uploaded successfully to event with id ${eventId}`,
     };
   }
 
-  async addActivities(eventId: string, activityIds: string[], updater: string): Promise<{ activitiesAdded: string[], message: string }> {
-
+  async addActivities(
+    eventId: string,
+    activityIds: string[],
+    updater: string,
+  ): Promise<{ activitiesAdded: string[]; message: string }> {
     const event = await this.eventModel.findById(eventId);
 
-    if (!event) 
+    if (!event)
       throw new NotFoundException(`Event with ID: ${eventId} not found`);
 
     if (!Array.isArray(activityIds) || activityIds.length === 0)
       throw new BadRequestException('activityIds must be a non-empty array');
 
     const existingIds = event.activities.map((a: any) =>
-      a._id ? a._id.toString() : a.toString()
+      a._id ? a._id.toString() : a.toString(),
     );
-    const newIds = activityIds.filter(id => !existingIds.includes(id));
+    const newIds = activityIds.filter((id) => !existingIds.includes(id));
 
     if (newIds.length === 0)
-      throw new BadRequestException('All activities are already added to the event');
+      throw new BadRequestException(
+        'All activities are already added to the event',
+      );
 
     const validActivities = await this.activitiesService.findManyByIds(newIds);
 
-    await this.eventModel.findByIdAndUpdate(eventId,
-      { 
-        $addToSet: { activities: { $each: validActivities } },
-        updatedBy: updater,
-      },
-    );
+    await this.eventModel.findByIdAndUpdate(eventId, {
+      $addToSet: { activities: { $each: validActivities } },
+      updatedBy: updater,
+    });
 
-    return { 
+    return {
       activitiesAdded: activityIds,
-      message: `Activities added successfully to event with id ${eventId}`
+      message: `Activities added successfully to event with id ${eventId}`,
     };
   }
 
-  async addProducts(eventId: string, productIds: string[], updater: string): Promise<{ productsAdded: string[], message: string }> {
+  async addProducts(
+    eventId: string,
+    productIds: string[],
+    updater: string,
+  ): Promise<{ productsAdded: string[]; message: string }> {
     const event = await this.eventModel.findById(eventId);
-    if (!event) throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    if (!event)
+      throw new NotFoundException(`Event with ID: ${eventId} not found`);
 
     if (!Array.isArray(productIds) || productIds.length === 0)
       throw new BadRequestException('productIds must be a non-empty array');
 
-    const existingIds = event.products?.map((p: any) =>
-      p._id ? p._id.toString() : p.toString()
-    ) || [];
-    const newIds = productIds.filter(id => !existingIds.includes(id));
+    const existingIds =
+      event.products?.map((p: any) =>
+        p._id ? p._id.toString() : p.toString(),
+      ) || [];
+    const newIds = productIds.filter((id) => !existingIds.includes(id));
 
     const validProducts = await this.productsService.findManyByIds(newIds);
 
-    await this.eventModel.findByIdAndUpdate(
-      eventId,
-      { 
-        $addToSet: { products: { $each: validProducts } },
-        updatedBy: updater,
-      },
-    );
+    await this.eventModel.findByIdAndUpdate(eventId, {
+      $addToSet: { products: { $each: validProducts } },
+      updatedBy: updater,
+    });
 
-    return { 
+    return {
       productsAdded: productIds,
-      message: `Products added successfully to event with id ${eventId}`
+      message: `Products added successfully to event with id ${eventId}`,
     };
   }
 
@@ -192,8 +211,7 @@ export class EventsService {
     }
   }
 
-  async remove(id: string): Promise<{ id: string, message: string }> {
-
+  async remove(id: string): Promise<{ id: string; message: string }> {
     const event = await this.eventModel.findById(id);
 
     if (!event) {
@@ -202,84 +220,84 @@ export class EventsService {
 
     const reportFile = event.report;
 
-    if (reportFile)
-      await this.filesService.deleteFile(reportFile.toString());
+    if (reportFile) await this.filesService.deleteFile(reportFile.toString());
 
     await this.eventModel.findByIdAndDelete(id);
 
     return { id, message: 'Event deleted successfully' };
   }
 
-  async removeParticipant(eventId: string, userId: string, updater: string): Promise<{ removedParticipant: string, message: string }> {
-    await this.eventModel.findByIdAndUpdate(
-      eventId,
-      { 
-        $pull: { participants: userId },
-        updatedBy: updater,
-      },
-    );
+  async removeParticipant(
+    eventId: string,
+    userId: string,
+    updater: string,
+  ): Promise<{ removedParticipant: string; message: string }> {
+    await this.eventModel.findByIdAndUpdate(eventId, {
+      $pull: { participants: userId },
+      updatedBy: updater,
+    });
 
-    return { 
+    return {
       removedParticipant: userId,
-      message: `Participants removed successfully from event with id ${eventId}`
+      message: `Participants removed successfully from event with id ${eventId}`,
     };
   }
 
-  async removeReportFile(eventId: string, updater: string): Promise<{ report: null, message: string }> {
+  async removeReportFile(
+    eventId: string,
+    updater: string,
+  ): Promise<{ report: null; message: string }> {
+    const event = await this.eventModel.findById(eventId);
+    if (!event) {
+      throw new NotFoundException(`Event with ID ${eventId} not found`);
+    }
 
-  const event = await this.eventModel.findById(eventId);
-  if (!event) {
-    throw new NotFoundException(`Event with ID ${eventId} not found`);
-  }
+    if (!event.report) {
+      throw new BadRequestException('This event has no report file assigned');
+    }
 
-  if (!event.report) {
-    throw new BadRequestException('This event has no report file assigned');
-  }
+    await this.filesService.deleteFile(event.report.toString());
 
-  await this.filesService.deleteFile(event.report.toString());
-
-  await this.eventModel.findByIdAndUpdate(
-    eventId,
-    { 
+    await this.eventModel.findByIdAndUpdate(eventId, {
       report: null,
       updatedBy: updater,
-    }
-  );
+    });
 
-  return {
-    report: null,
-    message: `Report file removed successfully from event with id ${eventId}`
-  };
-}
+    return {
+      report: null,
+      message: `Report file removed successfully from event with id ${eventId}`,
+    };
+  }
 
-  async removeActivity(eventId: string, activityId: string, updater: string): Promise<{ removedActivity: string, message: string }> {
-    await this.eventModel.findByIdAndUpdate(
-      eventId,
-      { 
-        $pull: { activities: activityId },
-        updatedBy: updater,
-      },
-    );
+  async removeActivity(
+    eventId: string,
+    activityId: string,
+    updater: string,
+  ): Promise<{ removedActivity: string; message: string }> {
+    await this.eventModel.findByIdAndUpdate(eventId, {
+      $pull: { activities: activityId },
+      updatedBy: updater,
+    });
 
-    return { 
+    return {
       removedActivity: activityId,
-      message: `Activity removed successfully from event with id ${eventId}`
+      message: `Activity removed successfully from event with id ${eventId}`,
     };
   }
 
-  async removeProduct(eventId: string, productId: string, updater: string): Promise<{ removedProduct: string, message: string }> {
-    await this.eventModel.findByIdAndUpdate(
-      eventId,
-      { 
-        $pull: { products: productId },
-        updatedBy: updater,
-      }
-    );
+  async removeProduct(
+    eventId: string,
+    productId: string,
+    updater: string,
+  ): Promise<{ removedProduct: string; message: string }> {
+    await this.eventModel.findByIdAndUpdate(eventId, {
+      $pull: { products: productId },
+      updatedBy: updater,
+    });
 
-    return { 
+    return {
       removedProduct: productId,
-      message: `Product removed successfully from event with id ${eventId}`
+      message: `Product removed successfully from event with id ${eventId}`,
     };
   }
-
 }
