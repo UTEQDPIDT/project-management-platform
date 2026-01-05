@@ -80,7 +80,6 @@ export class User extends Document {
     sparse: true, // permite múltiples null
     maxLength: 10,
     minLength: 10,
-    
   })
   matricula: string;
 
