@@ -327,7 +327,7 @@ export default function EventForm({ event }: EventFormProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Asistentes</CardTitle>
+          <CardTitle>Participación</CardTitle>
           <CardDescription>Invita a participar en el evento.</CardDescription>
         </CardHeader>
 
@@ -340,12 +340,12 @@ export default function EventForm({ event }: EventFormProps) {
 
               return (
                 <FieldGroup>
-                  {/* <FieldContent>
+                  <FieldContent>
                     <FieldLabel>Asistentes</FieldLabel>
                     <FieldDescription>
-                      Invita a participar del proyecto.
+                      Quienes participan en el evento.
                     </FieldDescription>
-                  </FieldContent> */}
+                  </FieldContent>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button

@@ -1,7 +1,7 @@
 'use client';
 
 import { useDeleteEvent, useGetAllEvents } from '@/hooks/events';
-import { IEvent } from '@repo/types';
+import { EventType, IEvent } from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from './ui/data-table';
 import LoadingMessage from './loading-message';
@@ -42,8 +42,36 @@ const columns: ColumnDef<IEvent>[] = [
     header: 'Nombre',
   },
   {
+    accessorKey: 'isPrivate',
+    header: 'Acceso',
+    cell: ({ row }) => {
+      const event = row.original;
+      const { isPrivate } = event;
+
+      return (
+        <div>
+          {isPrivate ? (
+            <Badge variant="purple">Privado</Badge>
+          ) : (
+            <Badge variant="blue">Público</Badge>
+          )}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: 'type',
     header: 'Tipo',
+    cell: ({ row }) => {
+      const event = row.original;
+      const { type } = event;
+
+      return (
+        <div>
+          <Badge variant="outline">{type}</Badge>
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'organization',
