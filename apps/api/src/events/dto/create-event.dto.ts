@@ -1,6 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EventType } from '@repo/types';
-import { IsBoolean, IsDate, IsEnum, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 export class CreateEventDto {
   @ApiProperty({
     description: 'Nombre del evento',
@@ -19,18 +25,27 @@ export class CreateEventDto {
   summary: string;
 
   @ApiProperty({
-    description: 'Fecha del evento',
+    description: 'Fecha de inicio del evento',
     example: '2025-05-01T00:00:00Z',
   })
   @IsDate()
-  date: Date;
+  startDate: Date;
 
   @ApiProperty({
+    description: 'Fecha de término del evento',
+    example: '2025-05-01T00:00:00Z',
+  })
+  @IsOptional()
+  @IsDate()
+  endDate?: Date;
+
+  @ApiPropertyOptional({
     description: 'Organización que realiza el evento.',
     example: 'CONCYTEQ',
   })
+  @IsOptional()
   @IsString()
-  organization: string;
+  organization?: string;
 
   @ApiProperty({
     description: 'Ubicación del evento',
