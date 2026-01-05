@@ -8,12 +8,14 @@ export interface IEvent {
   _id: string;
   name: string;
   summary: string;
-  organization: string;
+  organization?: string;
   location: string;
-  date: Date;
+  startDate: Date;
+  endDate?: Date;
   report: IFile;
   type: EventType;
   isPrivate: boolean;
+  participants: IUser[];
   activities?: IActivity[];
   products?: IProduct[];
   createdBy: IUser;
