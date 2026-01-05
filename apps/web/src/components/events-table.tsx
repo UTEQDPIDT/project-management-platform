@@ -15,7 +15,14 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
-import { Copy, MoreHorizontal, Pencil, Trash } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Copy,
+  ExternalLink,
+  MoreHorizontal,
+  Pencil,
+  Trash,
+} from 'lucide-react';
 import {
   Dialog,
   DialogClose,
@@ -215,6 +222,11 @@ const columns: ColumnDef<IEvent>[] = [
             <DropdownMenuItem asChild>
               <Link href={`/admin/eventos/${event._id}/editar`}>
                 <Pencil /> Editar evento
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/eventos/${event._id}`}>
+                <ExternalLink /> Visitar evento
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem
