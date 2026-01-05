@@ -24,9 +24,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './ui/dialog';
-import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import Link from 'next/link';
+import AvatarRow from './avatar-row';
 
 const columns: ColumnDef<IEvent>[] = [
   {
@@ -55,6 +55,11 @@ const columns: ColumnDef<IEvent>[] = [
   {
     accessorKey: 'participants',
     header: 'Participantes',
+    cell: ({ row }) => {
+      const event = row.original;
+      const { participants } = event;
+      return <AvatarRow profiles={participants} />;
+    },
   },
   {
     accessorKey: 'report',
@@ -84,8 +89,8 @@ const columns: ColumnDef<IEvent>[] = [
               className="hover:text-destructive-foreground"
             >
               <Dialog>
-                <DialogTrigger className="px-0 group items-start font-normal hover:text-destructive-foreground">
-                  <Trash className="text-muted-foreground group:hover:text-destructive-foreground" />{' '}
+                <DialogTrigger className="group items-center justify-start p-0 font-normal hover:text-destructive-foreground">
+                  <Trash className="text-muted-foreground group-hover:text-destructive-foreground" />{' '}
                   Eliminar evento
                 </DialogTrigger>
                 <DialogContent>
