@@ -50,6 +50,7 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import { ProfileInfo } from '../profile-info';
 import { useGetAllUsers } from '@/hooks/user';
 import { useCreateEvent } from '@/hooks/events';
+import { useUpdateEvent } from '@/hooks/events/use-update-event';
 
 interface EventFormProps {
   event?: IEvent;
@@ -63,12 +64,13 @@ export default function EventForm({ event }: EventFormProps) {
    */
   const { data: users, isLoading: loadingUsers } = useGetAllUsers();
   const createEvent = useCreateEvent();
+  const updateEvent = useUpdateEvent();
 
   const renderButton = (event: IEvent | undefined) => {
     if (event) {
       return (
-        <Button type="submit" disabled={false}>
-          {false ? (
+        <Button type="submit" disabled={updateEvent.isPending}>
+          {updateEvent.isPending ? (
             <LoadingMessage message="Actualizando evento" />
           ) : (
             'Actualizar evento'
@@ -126,7 +128,7 @@ export default function EventForm({ event }: EventFormProps) {
         createEvent.mutate(cleanedData);
       }
 
-      if (createEvent.isSuccess) {
+      if (createEvent.isSuccess || updateEvent.isSuccess) {
         form.reset();
         router.push('/admin/eventos');
       }

@@ -47,73 +47,6 @@ export class EventsController {
     return this.eventsService.create(createEventDto, req.user.id, report);
   }
 
-  @ApiCreatedResponse({
-    description: 'Participantes agregados correctamente al evento.',
-  })
-  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
-  @ApiBadRequestResponse({
-    description: 'Usuario no encontrado / ya es participante',
-  })
-  @UseGuards(JwtAuthGuard)
-  @Post(':id/participants')
-  addParticipants(
-    @Param('id') id: string,
-    @Body('participants') userIds: string[],
-    @Req() req,
-  ) {
-    return this.eventsService.addParticipants(id, userIds, req.user.id);
-  }
-
-  @ApiCreatedResponse({
-    description: 'Archivo de reporte subido correctamente al evento.',
-  })
-  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
-  @UseGuards(JwtAuthGuard)
-  @Post(':id/report-file')
-  @UseInterceptors(FileInterceptor('report'))
-  @ApiConsumes('multipart/form-data')
-  uploadReportFile(
-    @Param('id') id: string,
-    @UploadedFile() report: Express.Multer.File,
-    @Req() req,
-  ) {
-    return this.eventsService.uploadReportFile(id, report, req.user.id);
-  }
-
-  @ApiCreatedResponse({
-    description: 'Actividades agregadas correctamente al evento.',
-  })
-  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
-  @ApiBadRequestResponse({
-    description: 'Actividad no encontrada o no es válida.',
-  })
-  @UseGuards(JwtAuthGuard)
-  @Post(':id/activities')
-  addActivities(
-    @Param('id') id: string,
-    @Body('activities') dto: CreateActivityDto,
-    @Req() req,
-  ) {
-    return this.eventsService.createActivity(id, dto, req.user.id);
-  }
-
-  @ApiCreatedResponse({
-    description: 'Productos agregados correctamente al evento.',
-  })
-  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
-  @ApiBadRequestResponse({
-    description: 'Producto no encontrado o no es válido.',
-  })
-  @UseGuards(JwtAuthGuard)
-  @Post(':id/products')
-  addProducts(
-    @Param('id') id: string,
-    @Body('products') productIds: string[],
-    @Req() req,
-  ) {
-    return this.eventsService.addProducts(id, productIds, req.user.id);
-  }
-
   @ApiOkResponse({ description: 'Lista de eventos obtenida correctamente.' })
   @Get()
   findAll() {
@@ -149,21 +82,23 @@ export class EventsController {
     return this.eventsService.remove(id);
   }
 
-  @ApiOkResponse({
-    description: 'Participante eliminado correctamente del evento.',
+  /**
+   * REPORT
+   */
+  @ApiCreatedResponse({
+    description: 'Archivo de reporte subido correctamente al evento.',
   })
   @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
-  @ApiBadRequestResponse({
-    description: 'El usuario no es participante en el evento.',
-  })
+  @ApiConsumes('multipart/form-data')
   @UseGuards(JwtAuthGuard)
-  @Delete(':id/participants/:userId/remove')
-  removeParticipant(
+  @UseInterceptors(FileInterceptor('report'))
+  @Patch(':id/report-file')
+  uploadReportFile(
     @Param('id') id: string,
-    @Param('userId') userId: string,
+    @UploadedFile() report: Express.Multer.File,
     @Req() req,
   ) {
-    return this.eventsService.removeParticipant(id, userId, req.user.id);
+    return this.eventsService.uploadReportFile(id, report, req.user.id);
   }
 
   @ApiOkResponse({
@@ -172,9 +107,66 @@ export class EventsController {
   @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
   @ApiBadRequestResponse({ description: 'El archivo no existe en el evento.' })
   @UseGuards(JwtAuthGuard)
-  @Delete(':id/report-file/remove')
+  @Delete(':id/report-file')
   removeReportFile(@Param('id') id: string, @Req() req) {
     return this.eventsService.removeReportFile(id, req.user.id);
+  }
+
+  /**
+   * PARTICIPANTS
+   */
+  @ApiCreatedResponse({
+    description: 'Participantes agregados correctamente al evento.',
+  })
+  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
+  @ApiBadRequestResponse({
+    description: 'Usuario no encontrado / ya es participante',
+  })
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/participants')
+  addParticipants(
+    @Param('id') id: string,
+    @Body('participants') userIds: string[],
+    @Req() req,
+  ) {
+    return this.eventsService.addParticipants(id, userIds, req.user.id);
+  }
+
+  @ApiOkResponse({
+    description: 'Participante eliminado correctamente del evento.',
+  })
+  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
+  @ApiBadRequestResponse({
+    description: 'El usuario no es participante en el evento.',
+  })
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/participants/:userId')
+  removeParticipant(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+    @Req() req,
+  ) {
+    return this.eventsService.removeParticipant(id, userId, req.user.id);
+  }
+
+  /**
+   * ACTIVITIES
+   */
+  @ApiCreatedResponse({
+    description: 'Actividades agregadas correctamente al evento.',
+  })
+  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
+  @ApiBadRequestResponse({
+    description: 'Actividad no encontrada o no es válida.',
+  })
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/activities')
+  addActivities(
+    @Param('id') id: string,
+    @Body('activities') dto: CreateActivityDto,
+    @Req() req,
+  ) {
+    return this.eventsService.createActivity(id, dto, req.user.id);
   }
 
   @ApiOkResponse({
@@ -192,6 +184,26 @@ export class EventsController {
     @Req() req,
   ) {
     return this.eventsService.deleteActivity(eventId, activityId, req.user.id);
+  }
+
+  /**
+   * PRODUCTS
+   */
+  @ApiCreatedResponse({
+    description: 'Productos agregados correctamente al evento.',
+  })
+  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
+  @ApiBadRequestResponse({
+    description: 'Producto no encontrado o no es válido.',
+  })
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/products')
+  addProducts(
+    @Param('id') id: string,
+    @Body('products') productIds: string[],
+    @Req() req,
+  ) {
+    return this.eventsService.addProducts(id, productIds, req.user.id);
   }
 
   @ApiOkResponse({

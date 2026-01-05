@@ -5,7 +5,7 @@ import z from 'zod';
 
 const createEvent = async (eventData: z.infer<typeof eventSchema>) => {
   try {
-    const { data } = await api.post('/events', eventData);
+    await api.post('/events', eventData);
   } catch (err) {
     console.error('Error creating the event', err);
   }
@@ -20,4 +20,18 @@ const getAllEvents = async () => {
   }
 };
 
-export { createEvent, getAllEvents };
+const updateEvent = async ({
+  eventId,
+  eventData,
+}: {
+  eventId: string;
+  eventData: IEvent;
+}) => {
+  try {
+    await api.patch(`/events/${eventId}`, eventData);
+  } catch (err) {
+    console.error('Error updating event', err);
+  }
+};
+
+export { createEvent, getAllEvents, updateEvent };
