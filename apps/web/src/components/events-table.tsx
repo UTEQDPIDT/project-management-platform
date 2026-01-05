@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
-import { MoreHorizontal, Pencil, Trash } from 'lucide-react';
+import { Copy, MoreHorizontal, Pencil, Trash } from 'lucide-react';
 import {
   Dialog,
   DialogClose,
@@ -27,7 +27,6 @@ import {
 import { Badge } from './ui/badge';
 import Link from 'next/link';
 import AvatarRow from './avatar-row';
-import { deleteEvent } from '@/services/events.service';
 
 const columns: ColumnDef<IEvent>[] = [
   {
@@ -50,8 +49,8 @@ const columns: ColumnDef<IEvent>[] = [
 
       const date = event.endDate ? (
         <div>
-          {format(event.startDate, "d MMM 'al' ", { locale: es })}
-          {format(event.endDate, "d MMM 'del' yyyy", { locale: es })}
+          {format(event.startDate, "d 'de' MMMM 'al' ", { locale: es })}
+          {format(event.endDate, "d 'de' MMMM 'del' yyyy", { locale: es })}
         </div>
       ) : (
         <div>
@@ -59,6 +58,27 @@ const columns: ColumnDef<IEvent>[] = [
         </div>
       );
       return date;
+    },
+  },
+  {
+    accessorKey: 'location',
+    header: 'Ubicación',
+    cell: ({ row }) => {
+      const location = String(row.getValue('location'));
+
+      return (
+        <div className="flex gap-1 items-center justify-center">
+          <span>{location}</span>
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            title="Copiar la ubicación"
+            onClick={() => navigator.clipboard.writeText(location)}
+          >
+            <Copy />
+          </Button>
+        </div>
+      );
     },
   },
   {
@@ -137,7 +157,7 @@ export function EventsTable() {
   const { data: events, isLoading: loadingEvents } = useGetAllEvents();
 
   return (
-    <div className="flex items-center justify-center px-4">
+    <div className="flex items-center justify-center px-4 max-w-7xl">
       {loadingEvents ? (
         <LoadingMessage message="Cargando eventos" />
       ) : (
