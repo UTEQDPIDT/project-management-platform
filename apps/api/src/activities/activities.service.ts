@@ -96,7 +96,7 @@ export class ActivitiesService {
       { new: true },
     );
 
-    return { id, message: 'Activity updated successfully' };
+    return updatedActivity;
   }
 
   async removeFile(activityId: string, fileId: string, userId: string) {
@@ -120,10 +120,13 @@ export class ActivitiesService {
       { new: true },
     );
 
-    return { id: activityId, message: 'File removed successfully from activity' };
+    return {
+      id: activityId,
+      message: 'File removed successfully from activity',
+    };
   }
 
-  async remove(id: string): Promise<{ id: string, message: string }> {
+  async remove(id: string): Promise<{ id: string; message: string }> {
     const activity = await this.activityModel.findById(id);
 
     if (!activity) {

@@ -183,11 +183,7 @@ export class ProjectsService {
       .populate('activities');
   }
 
-  async update(
-    id: string,
-    updateProjectDto: UpdateProjectDto,
-    userId: string,
-  ): Promise<Project> {
+  async update(id: string, updateProjectDto: UpdateProjectDto, userId: string) {
     const project = await this.projectModel.findById(id);
 
     if (!project) {
