@@ -25,7 +25,11 @@ export function ProfileInfo({
         <span className="truncate font-medium line-clamp-1">
           {givenName} {familyName}
         </span>
-        <span className="truncate text-xs text-muted-foreground">{email}</span>
+        {email && (
+          <span className="truncate text-xs text-muted-foreground">
+            {email}
+          </span>
+        )}
       </div>
     </div>
   );
