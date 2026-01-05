@@ -64,11 +64,11 @@ export class ActivitiesService {
     }
   }
 
-  async findAll() {
+  async findAll(): Promise<Activity[]> {
     return this.activityModel.find().exec();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Activity> {
     const activity = this.activityModel.findById(id);
     if (!activity) {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
@@ -96,7 +96,7 @@ export class ActivitiesService {
       { new: true },
     );
 
-    return updatedActivity;
+    return { id, message: 'Activity updated successfully' };
   }
 
   async removeFile(activityId: string, fileId: string, userId: string) {
@@ -111,7 +111,7 @@ export class ActivitiesService {
 
     await this.filesService.deleteFile(fileId);
 
-    const updated = await this.activityModel.findByIdAndUpdate(
+    await this.activityModel.findByIdAndUpdate(
       activityId,
       {
         $pull: { files: fileId },
@@ -120,10 +120,10 @@ export class ActivitiesService {
       { new: true },
     );
 
-    return updated;
+    return { id: activityId, message: 'File removed successfully from activity' };
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<{ id: string, message: string }> {
     const activity = await this.activityModel.findById(id);
 
     if (!activity) {
@@ -136,9 +136,9 @@ export class ActivitiesService {
       }
     }
 
-    const deletedActivity = await this.activityModel.findByIdAndDelete(id);
+    await this.activityModel.findByIdAndDelete(id);
 
-    return deletedActivity;
+    return { id, message: 'Activity deleted successfully' };
   }
 
   async deleteManyByProject(projectId: string, session: ClientSession) {

@@ -203,7 +203,7 @@ export class ProjectsService {
       { new: true },
     );
 
-    return updatedProject;
+    return { id, message: 'Project updated successfully' };
   }
 
   async remove(projectId: string) {

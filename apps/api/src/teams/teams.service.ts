@@ -13,13 +13,13 @@ import { Model } from 'mongoose';
 export class TeamsService {
   constructor(@InjectModel(Team.name) private teamModel: Model<Team>) {}
 
-  async create(createTeamDto: CreateTeamDto, userId: string): Promise<Team> {
+  async create(createTeamDto: CreateTeamDto, userId: string): Promise<{ id: string; message: string }> {
     try {
       const createdTeam = await this.teamModel.create({
         ...createTeamDto,
         owner: userId,
       });
-      return createdTeam;
+      return { id: createdTeam._id.toString(), message: 'Team created successfully' };
     } catch (err: any) {
       console.error('Error creating team:', err);
       throw new BadRequestException('Error al crear el equipo.');
@@ -101,7 +101,7 @@ export class TeamsService {
 
       if (!updatedTeam)
         throw new NotFoundException(`Team with ID: ${id} not found`);
-      return updatedTeam;
+      return { id, message: 'Team updated successfully' };
     } catch (err: any) {
       if (err.code === 11000) {
         throw new BadRequestException('Team with this name already exists');
@@ -110,7 +110,7 @@ export class TeamsService {
     }
   }
 
-  async addCollaborators(teamId: string, userIds: string[]): Promise<Team> {
+  async addCollaborators(teamId: string, userIds: string[]): Promise<{ id: string; message: string }> {
     const team = await this.teamModel.findById(teamId).exec();
     if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
 
@@ -128,14 +128,15 @@ export class TeamsService {
     if (newIds.length === 0)
       throw new BadRequestException('All users are already collaborators');
 
-    return await this.teamModel.findByIdAndUpdate(
+    await this.teamModel.findByIdAndUpdate(
       teamId,
       { $addToSet: { collaborators: { $each: newIds } } },
-      { new: true },
     );
+
+    return { id: teamId, message: 'Collaborators added successfully' };
   }
 
-  async addMembers(teamId: string, userIds: string[]): Promise<Team> {
+  async addMembers(teamId: string, userIds: string[]): Promise<{ id: string; message: string }> {
     const team = await this.teamModel.findById(teamId).exec();
     if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
 
@@ -151,14 +152,15 @@ export class TeamsService {
     if (newIds.length === 0)
       throw new BadRequestException('All users are already members');
 
-    return await this.teamModel.findByIdAndUpdate(
+    await this.teamModel.findByIdAndUpdate(
       teamId,
       { $addToSet: { members: { $each: newIds } } },
-      { new: true },
     );
+
+    return { id: teamId, message: 'Members added successfully' };
   }
 
-  async sendTeamRequest(teamId: string, userId: string): Promise<Team> {
+  async sendTeamRequest(teamId: string, userId: string): Promise<{ id: string; message: string }> {
     const team = await this.teamModel.findById(teamId).exec();
     if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
 
@@ -171,62 +173,67 @@ export class TeamsService {
         `Request already exists for user ${userId}`,
       );
 
-    return await this.teamModel.findByIdAndUpdate(
+    await this.teamModel.findByIdAndUpdate(
       teamId,
       { $addToSet: { userRequests: userId } },
-      { new: true },
     );
+
+    return { id: teamId, message: 'Team request sent successfully' };
   }
 
-  async acceptRequest(teamId: string, userId: string): Promise<Team> {
+  async acceptRequest(teamId: string, userId: string): Promise<{ id: string; message: string }> {
     const team = await this.teamModel.findById(teamId).exec();
     if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
 
-    return await this.teamModel.findByIdAndUpdate(
+    await this.teamModel.findByIdAndUpdate(
       teamId,
       {
         $pull: { userRequests: userId },
         $addToSet: { members: userId },
       },
-      { new: true },
     );
+
+    return { id: teamId, message: 'Team request accepted successfully' };
   }
 
-  async rejectRequest(teamId: string, userId: string): Promise<Team> {
+  async rejectRequest(teamId: string, userId: string): Promise<{ id: string; message: string }> {
     const team = await this.teamModel.findById(teamId).exec();
     if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
 
-    return await this.teamModel.findByIdAndUpdate(
+    await this.teamModel.findByIdAndUpdate(
       teamId,
       {
         $pull: { userRequests: userId },
       },
-      { new: true },
     );
+
+    return { id: teamId, message: 'Team request rejected successfully' };
   }
 
-  async removeCollaborator(teamId: string, userId: string): Promise<Team> {
-    return this.teamModel.findByIdAndUpdate(
+  async removeCollaborator(teamId: string, userId: string): Promise<{ id: string; message: string }> {
+    await this.teamModel.findByIdAndUpdate(
       teamId,
       { $pull: { collaborators: userId } },
-      { new: true },
     );
+
+    return { id: teamId, message: 'Collaborator removed successfully' };
   }
 
-  async removeMember(teamId: string, userId: string): Promise<Team> {
-    return this.teamModel.findByIdAndUpdate(
+  async removeMember(teamId: string, userId: string): Promise<{ id: string; message: string }> {
+    await this.teamModel.findByIdAndUpdate(
       teamId,
       { $pull: { members: userId } },
-      { new: true },
     );
+
+    return { id: teamId, message: 'Member removed successfully' };
   }
 
-  async deleteTeam(id: string): Promise<Team> {
+  async deleteTeam(id: string): Promise<{ id: string; message: string }> {
     const deletedTeam = await this.teamModel.findByIdAndDelete(id).exec();
 
     if (!deletedTeam)
       throw new NotFoundException(`Team with ID: ${id} not found`);
 
-    return deletedTeam;
+    return { id, message: 'Team deleted successfully' };
   }
 }

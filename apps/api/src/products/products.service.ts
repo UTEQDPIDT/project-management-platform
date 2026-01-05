@@ -67,7 +67,7 @@ export class ProductsService {
 
   update(id: string, updateProductDto: UpdateProductDto, userId: string) {
     try {
-      const updatedProduct = this.productModel.findByIdAndUpdate(
+      const updatedProduct = await this.productModel.findByIdAndUpdate(
         id,
         {
           ...updateProductDto,
@@ -80,19 +80,19 @@ export class ProductsService {
         throw new NotFoundException(`Product with ID: ${id} not found`);
       }
 
-      return updatedProduct;
+      return { id, message: 'Product updated successfully' };
     } catch (err: any) {
       throw new BadRequestException(err.message);
     }
   }
 
-  remove(id: string) {
-    const deletedProduct = this.productModel.findByIdAndDelete(id).exec();
+  async remove(id: string): Promise<{ id: string; message: string }> {
+    const deletedProduct = await this.productModel.findByIdAndDelete(id).exec();
 
     if (!deletedProduct)
       throw new NotFoundException(`Product with ID: ${id} not found`);
 
-    return deletedProduct;
+    return { id, message: 'Product deleted successfully' };
   }
 
   async deleteMany(projectId: string, session: ClientSession) {

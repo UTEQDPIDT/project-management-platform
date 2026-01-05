@@ -10,7 +10,6 @@ import {
   NotFoundException,
   UseGuards,
   Req,
-  BadRequestException,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -40,14 +39,8 @@ export class FilesController {
   @UseGuards(JwtAuthGuard)
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req) {
-    if (!file) {
-      throw new BadRequestException('No file provided');
-    }
-
-    const savedFile = await this.filesService.uploadToGridFS(file, req.user.id);
-
-    return savedFile;
+  uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req) {
+    return this.filesService.uploadFile(file, req.user.userId);
   }
 
   @ApiResponse({ status: 200, description: 'Lista de archivos' })
@@ -60,71 +53,41 @@ export class FilesController {
   @ApiResponse({ status: 200, description: 'Metadatos del archivo' })
   @ApiResponse({ status: 404, description: 'Metadatos no encontrados' })
   @Get('metadata/:id')
-  async getFileMetadata(@Param('id') id: string) {
-    const metadata = await this.filesService.getFileMetadata(id);
-
-    if (!metadata) {
-      throw new NotFoundException('File metadata not found');
-    }
-
-    return metadata;
+  getFileMetadata(@Param('id') id: string) {
+    return this.filesService.getFileMetadata(id);
   }
 
   @ApiResponse({ status: 200, description: 'Stream del archivo' })
   @ApiResponse({ status: 404, description: 'Archivo no encontrado' })
   @Get('stream/:id')
   async getFile(@Param('id') id: string, @Res() res: Response) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new NotFoundException('Invalid file ID');
-    }
+    const { metadata, stream } =
+      await this.filesService.getStream(id);
 
-    const metadata = await this.filesService.getFileMetadata(id);
-
-    if (!metadata) {
-      throw new NotFoundException('File metadata not found');
-    }
-
-    const fileStream = await this.filesService.getFileStream(
-      metadata.gridFsId.toHexString(),
+    stream.on('error', () =>
+      res.status(404).send('File not found'),
     );
 
-    fileStream.on('error', () => res.status(404).send('File not found'));
-
-    fileStream.pipe(res);
+    stream.pipe(res);
   }
 
   @ApiResponse({ status: 200, description: 'Descarga del archivo' })
   @ApiResponse({ status: 404, description: 'Archivo no encontrado' })
   @Get('download/:id')
   async downloadFile(@Param('id') id: string, @Res() res: Response) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new NotFoundException('Invalid file ID');
-    }
+    const { metadata, stream } =
+      await this.filesService.getStream(id);
 
-    // 1. get file metadata
-    const metadata = await this.filesService.getFileMetadata(id);
-
-    if (!metadata) {
-      throw new NotFoundException('File metadata not found');
-    }
-
-    // 2. get GridFS download stream
-    const fileStream = await this.filesService.getFileStream(
-      metadata.gridFsId.toHexString(),
-    );
-
-    // 3. set headers
     res.set({
       'Content-Type': metadata.mimetype || 'application/octet-stream',
       'Content-Disposition': `attachment; filename="${metadata.name}"`,
     });
 
-    // 4. Pipe GridFS strem to the response
-    fileStream.on('error', () => {
-      return res.status(404).send('Could not read file');
-    });
+    stream.on('error', () =>
+      res.status(404).send('Could not read file'),
+    );
 
-    fileStream.pipe(res);
+    stream.pipe(res);
   }
 
   @ApiResponse({ status: 200, description: 'Archivo eliminado correctamente' })
