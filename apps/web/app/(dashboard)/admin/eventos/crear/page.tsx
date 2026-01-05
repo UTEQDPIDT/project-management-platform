@@ -1,3 +1,4 @@
+import EventForm from '@/components/forms/event-form';
 import {
   Header,
   HeaderAction,
@@ -31,7 +32,7 @@ export default function page() {
         </HeaderAction>
       </Header>
       <PageContent className="items-center">
-        <div> Form </div>
+        <EventForm />
       </PageContent>
     </div>
   );
