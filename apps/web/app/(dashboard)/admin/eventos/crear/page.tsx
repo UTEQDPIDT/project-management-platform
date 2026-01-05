@@ -1,36 +1,38 @@
 import {
   Header,
   HeaderAction,
-  HeaderContent,
   HeaderDescription,
   HeaderHeading,
   HeaderTitle,
 } from '@/components/header';
 import { PageContent } from '@/components/page-content';
 import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import React from 'react';
 
-const Page = () => {
+export default function page() {
   return (
     <div>
       <Header>
         <HeaderHeading>
-          <HeaderTitle>Eventos</HeaderTitle>
+          <HeaderTitle>Crear Evento</HeaderTitle>
           <HeaderDescription>
-            Crea y gestiona eventos internos y externos.
+            Llena los detalles del nuevo evento e invita a los participantes.
           </HeaderDescription>
         </HeaderHeading>
         <HeaderAction>
-          <Button asChild>
-            <Link href="/admin/eventos/crear">Crear Evento</Link>
+          <Button asChild variant="ghost">
+            <Link href={'/admin/eventos'}>
+              <ArrowLeft />
+              Cancelar
+            </Link>
           </Button>
         </HeaderAction>
       </Header>
-
-      <PageContent>
-        <div>Eventos</div>
+      <PageContent className="items-center">
+        <div> Form </div>
       </PageContent>
     </div>
   );
-};
-export default Page;
+}
