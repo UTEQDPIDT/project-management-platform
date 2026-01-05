@@ -43,4 +43,12 @@ const updateEvent = async ({
   }
 };
 
-export { createEvent, getAllEvents, getEventById, updateEvent };
+const deleteEvent = async (eventId: string) => {
+  try {
+    await api.delete(`/events/${eventId}`);
+  } catch (err) {
+    console.error(`Error deleting event with ID ${eventId}`, err);
+  }
+};
+
+export { createEvent, getAllEvents, getEventById, updateEvent, deleteEvent };

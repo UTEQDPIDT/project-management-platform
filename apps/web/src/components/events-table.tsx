@@ -1,6 +1,6 @@
 'use client';
 
-import { useGetAllEvents } from '@/hooks/events';
+import { useDeleteEvent, useGetAllEvents } from '@/hooks/events';
 import { IEvent } from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from './ui/data-table';
@@ -27,6 +27,7 @@ import {
 import { Badge } from './ui/badge';
 import Link from 'next/link';
 import AvatarRow from './avatar-row';
+import { deleteEvent } from '@/services/events.service';
 
 const columns: ColumnDef<IEvent>[] = [
   {
@@ -42,14 +43,22 @@ const columns: ColumnDef<IEvent>[] = [
     header: 'Organización',
   },
   {
-    accessorKey: 'startDate',
+    id: 'fechas',
     header: 'Fechas',
     cell: ({ row }) => {
-      const date = format(row.getValue('startDate'), "d',' MMM 'del' yyyy", {
-        locale: es,
-      });
+      const event = row.original;
 
-      return <div>{date}</div>;
+      const date = event.endDate ? (
+        <div>
+          {format(event.startDate, "d MMM 'al' ", { locale: es })}
+          {format(event.endDate, "d MMM 'del' yyyy", { locale: es })}
+        </div>
+      ) : (
+        <div>
+          {format(event.startDate, "d',' MMM 'del' yyyy", { locale: es })}
+        </div>
+      );
+      return date;
     },
   },
   {
@@ -69,6 +78,7 @@ const columns: ColumnDef<IEvent>[] = [
     id: 'actions',
     cell: ({ row }) => {
       const event = row.original;
+      const deleteEvent = useDeleteEvent();
 
       return (
         <DropdownMenu>
@@ -105,7 +115,12 @@ const columns: ColumnDef<IEvent>[] = [
                       <Button variant="outline">Cancelar</Button>
                     </DialogClose>
                     <DialogClose asChild>
-                      <Button variant="destructive">Eliminar</Button>
+                      <Button
+                        onClick={() => deleteEvent.mutate(event._id)}
+                        variant="destructive"
+                      >
+                        Eliminar
+                      </Button>
                     </DialogClose>
                   </div>
                 </DialogContent>

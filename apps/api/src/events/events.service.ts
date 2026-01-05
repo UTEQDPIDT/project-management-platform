@@ -83,20 +83,33 @@ export class EventsService {
     }
   }
 
-  async remove(id: string): Promise<{ id: string; message: string }> {
-    const event = await this.eventModel.findById(id);
+  async remove(eventId: string): Promise<{ id: string; message: string }> {
+    const event = await this.eventModel.findById(eventId);
 
     if (!event) {
-      throw new NotFoundException(`Event with ID: ${id} not found`);
+      throw new NotFoundException(`Event with ID: ${eventId} not found`);
     }
 
-    const reportFile = event.report;
+    const session = await this.connection.startSession();
+    session.startTransaction();
 
-    if (reportFile) await this.filesService.deleteFile(reportFile.toString());
+    try {
+      const reportFile = event.report;
+      if (reportFile) await this.filesService.deleteFile(reportFile.toString());
 
-    await this.eventModel.findByIdAndDelete(id);
+      await this.activitiesService.deleteManyByEvent(eventId, session);
 
-    return { id, message: 'Event deleted successfully' };
+      await this.eventModel.findByIdAndDelete(eventId, { session });
+
+      await session.commitTransaction();
+
+      return { id: eventId, message: 'Event deleted successfully' };
+    } catch (err: any) {
+      await session.abortTransaction();
+      throw new BadRequestException(err.message);
+    } finally {
+      session.endSession();
+    }
   }
 
   /**
