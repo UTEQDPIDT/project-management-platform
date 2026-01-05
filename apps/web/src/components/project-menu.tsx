@@ -1,6 +1,5 @@
 'useClient';
 
-import React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
