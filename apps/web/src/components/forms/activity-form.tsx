@@ -39,18 +39,24 @@ import { DialogClose } from '../ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { Command, CommandGroup, CommandItem } from '../ui/command';
+import { useCreateEventActivity, useUpdateEventActivity } from '@/hooks/events';
 
 interface Props {
   activity?: IActivity;
   projectId?: string;
+  eventId?: string;
 }
 
-export function ActivityForm({ activity, projectId }: Props) {
+export function ActivityForm({ activity, projectId, eventId }: Props) {
   /**
    * Tanstack hooks
    */
+  // Project hooks
   const createActivity = useCreateActivity();
   const updateProjectActivity = useUpdateProjectActivity();
+  // Event hooks
+  const createEventActivity = useCreateEventActivity();
+  const updateEventActivity = useUpdateEventActivity();
 
   // Load project members (owner + team members)
   const { data: project, isLoading: loadingProject } = useProject(
@@ -110,10 +116,24 @@ export function ActivityForm({ activity, projectId }: Props) {
             activityData: cleanedData,
           });
         }
+
+        if (eventId) {
+          updateEventActivity.mutate({
+            activityId: activity._id,
+            activityData: cleanedData,
+          });
+        }
       } else {
         if (projectId) {
           createActivity.mutate({
             projectId,
+            activityData: cleanedData,
+          });
+        }
+
+        if (eventId) {
+          createEventActivity.mutate({
+            eventId,
             activityData: cleanedData,
           });
         }
