@@ -28,14 +28,30 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     done: VerifyCallback,
   ) {
     console.log({ profile });
-    const user = await this.authService.validateGoogleUser({
-      role: UserRole.USER,
-      type: UserType.ESTUDIANTE,
-      email: profile.emails[0].value,
-      givenName: profile.name.givenName,
-      familyName: profile.name.familyName,
-      avatarUrl: profile.photos[0].value,
-    });
-    done(null, user);
+    
+    try {
+      // Validate that required profile data exists
+      if (!profile.emails || !profile.emails[0]) {
+        return done(new Error('Email not provided by Google'), null);
+      }
+
+      if (!profile.name || !profile.name.givenName) {
+        return done(new Error('Name not provided by Google'), null);
+      }
+
+      const user = await this.authService.validateGoogleUser({
+        role: UserRole.USER,
+        type: UserType.ESTUDIANTE,
+        email: profile.emails[0].value,
+        givenName: profile.name.givenName,
+        familyName: profile.name.familyName || '',
+        avatarUrl: profile.photos?.[0]?.value || '',
+      });
+      
+      done(null, user);
+    } catch (error) {
+      console.error('Google OAuth validation error:', error);
+      done(error, null);
+    }
   }
 }
