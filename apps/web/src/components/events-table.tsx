@@ -27,6 +27,7 @@ import {
 import { Badge } from './ui/badge';
 import Link from 'next/link';
 import AvatarRow from './avatar-row';
+import { ProfileInfo } from './profile-info';
 
 const columns: ColumnDef<IEvent>[] = [
   {
@@ -88,6 +89,94 @@ const columns: ColumnDef<IEvent>[] = [
       const event = row.original;
       const { participants } = event;
       return <AvatarRow profiles={participants} />;
+    },
+  },
+  {
+    accessorKey: 'activities',
+    header: 'No. Actividades',
+    cell: ({ row }) => {
+      const event = row.original;
+      const { activities } = event;
+
+      return <div>{activities?.length}</div>;
+    },
+  },
+  {
+    accessorKey: 'products',
+    header: 'No. Productos',
+    cell: ({ row }) => {
+      const event = row.original;
+      const { products } = event;
+
+      return <div>{products?.length}</div>;
+    },
+  },
+  {
+    accessorKey: 'createdAt',
+    header: 'Creado el',
+    cell: ({ row }) => {
+      const date = format(
+        row.getValue('createdAt'),
+        "d',' MMM 'del' yyyy kk':'mm",
+        {
+          locale: es,
+        },
+      );
+
+      return <div>{date}</div>;
+    },
+  },
+  {
+    accessorKey: 'createdBy',
+    header: 'Creado por',
+    cell: ({ row }) => {
+      const event = row.original;
+      const { createdBy } = event;
+
+      return (
+        <div>
+          <ProfileInfo
+            size="sm"
+            givenName={createdBy.givenName}
+            familyName={createdBy.familyName}
+            avatarUrl={createdBy.avatarUrl}
+          />
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'updatedAt',
+    header: 'Editado el',
+    cell: ({ row }) => {
+      const date = format(
+        row.getValue('updatedAt'),
+        "d',' MMM 'del' yyyy kk':'mm",
+        {
+          locale: es,
+        },
+      );
+
+      return <div>{date}</div>;
+    },
+  },
+  {
+    accessorKey: 'updatedBy',
+    header: 'Editado por',
+    cell: ({ row }) => {
+      const event = row.original;
+      const { createdBy: updatedBy } = event;
+
+      return (
+        <div>
+          <ProfileInfo
+            size="sm"
+            givenName={updatedBy.givenName}
+            familyName={updatedBy.familyName}
+            avatarUrl={updatedBy.avatarUrl}
+          />
+        </div>
+      );
     },
   },
   {
