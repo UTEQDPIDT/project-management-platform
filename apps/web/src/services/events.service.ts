@@ -1,4 +1,5 @@
 import { api } from '@/lib/axios';
+import { activityZodSchema } from '@/schemas/activity.schema';
 import { eventSchema } from '@/schemas/event.schema';
 import { IEvent } from '@repo/types';
 import z from 'zod';
@@ -51,4 +52,43 @@ const deleteEvent = async (eventId: string) => {
   }
 };
 
-export { createEvent, getAllEvents, getEventById, updateEvent, deleteEvent };
+/**
+ * ACTIVITIES
+ */
+const createEventActivity = async ({
+  eventId,
+  activityData,
+}: {
+  eventId: string;
+  activityData: z.infer<typeof activityZodSchema>;
+}) => {
+  try {
+    await api.post(`/events/${eventId}`, activityData);
+  } catch (err) {
+    console.error('Error creating event activity', err);
+  }
+};
+
+const deleteEventActivity = async ({
+  eventId,
+  activityId,
+}: {
+  eventId: string;
+  activityId: string;
+}) => {
+  try {
+    await api.delete(`/events/${eventId}/activities/${activityId}`);
+  } catch (err) {
+    console.error('Error deleting event activity', err);
+  }
+};
+
+export {
+  createEvent,
+  getAllEvents,
+  getEventById,
+  updateEvent,
+  deleteEvent,
+  createEventActivity,
+  deleteEventActivity,
+};
