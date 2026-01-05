@@ -16,7 +16,12 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<{ id: string; message: string }> {
     try {
-      const createdUser = new this.userModel(createUserDto);
+      // Remove undefined/null fields to avoid sparse index issues
+      const cleanedDto = Object.fromEntries(
+        Object.entries(createUserDto).filter(([_, value]) => value !== undefined && value !== null)
+      );
+      
+      const createdUser = new this.userModel(cleanedDto);
       await createdUser.save();
       return { id: createdUser._id.toString(), message: 'User created successfully' };
     } catch (err: any) {
