@@ -20,6 +20,15 @@ const getAllEvents = async () => {
   }
 };
 
+const getEventById = async (eventId: string) => {
+  try {
+    const { data } = await api.get(`/events/${eventId}`);
+    return data;
+  } catch (err) {
+    console.error(`Error fetching event with ID ${eventId}`, err);
+  }
+};
+
 const updateEvent = async ({
   eventId,
   eventData,
@@ -34,4 +43,4 @@ const updateEvent = async ({
   }
 };
 
-export { createEvent, getAllEvents, updateEvent };
+export { createEvent, getAllEvents, getEventById, updateEvent };

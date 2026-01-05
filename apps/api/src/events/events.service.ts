@@ -57,11 +57,11 @@ export class EventsService {
   }
 
   async findAll() {
-    return this.eventModel.find().exec();
+    return this.eventModel.find().populate('participants').exec();
   }
 
   async findOne(id: string) {
-    const event = await this.eventModel.findById(id);
+    const event = await this.eventModel.findById(id).populate('participants');
     if (!event) {
       throw new NotFoundException(`Event with ID: ${id} not found`);
     }

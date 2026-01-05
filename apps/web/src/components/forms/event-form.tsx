@@ -102,8 +102,8 @@ export default function EventForm({ event }: EventFormProps) {
           ? 'Av. Pie de la Cuesta 2501, Nacional, 76148 Santiago de Querétaro, Qro.'
           : '',
       organization: event?.organization || EventType.INTERNO ? 'UTEQ' : '',
-      startDate: event?.startDate || undefined,
-      endDate: event?.endDate || undefined,
+      startDate: event?.startDate ? new Date(event.startDate) : undefined,
+      endDate: event?.endDate ? new Date(event.endDate) : undefined,
       isPrivate: event?.isPrivate || false,
       participants: event?.participants
         ? event.participants.map((p: IUser) => p._id)
@@ -120,17 +120,20 @@ export default function EventForm({ event }: EventFormProps) {
         ...data,
         organization: data.organization === '' ? undefined : data.organization,
       };
-      console.log('CLEANED DATA', cleanedData);
 
       if (event) {
-        // update
+        updateEvent.mutate({ eventId: event._id, eventData: cleanedData });
+
+        if (updateEvent.isSuccess) {
+          router.push('/admin/eventos');
+        }
       } else {
         createEvent.mutate(cleanedData);
-      }
 
-      if (createEvent.isSuccess || updateEvent.isSuccess) {
-        form.reset();
-        router.push('/admin/eventos');
+        if (createEvent.isSuccess) {
+          form.reset();
+          router.push('/admin/eventos');
+        }
       }
     } catch (err) {
       console.error('Error cleaning data', err);

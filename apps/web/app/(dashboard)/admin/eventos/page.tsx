@@ -1,5 +1,4 @@
-'use client';
-
+import { EventsTable } from '@/components/events-table';
 import {
   Header,
   HeaderAction,
@@ -10,12 +9,9 @@ import {
 } from '@/components/header';
 import { PageContent } from '@/components/page-content';
 import { Button } from '@/components/ui/button';
-import { useGetAllEvents } from '@/hooks/events';
 import Link from 'next/link';
 
-const Page = () => {
-  const { data: events, isLoading: loadingEvents } = useGetAllEvents();
-
+export default function Page() {
   return (
     <div>
       <Header>
@@ -33,9 +29,8 @@ const Page = () => {
       </Header>
 
       <PageContent>
-        <div>Eventos</div>
+        <EventsTable />
       </PageContent>
     </div>
   );
-};
-export default Page;
+}
