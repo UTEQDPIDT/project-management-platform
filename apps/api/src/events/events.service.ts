@@ -62,6 +62,8 @@ export class EventsService {
       .populate('participants')
       .populate('createdBy')
       .populate('updatedBy')
+      .populate('activities')
+      .populate('products')
       .exec();
   }
 
@@ -70,7 +72,9 @@ export class EventsService {
       .findById(id)
       .populate('participants')
       .populate('createdBy')
-      .populate('updatedBy');
+      .populate('updatedBy')
+      .populate('activities')
+      .populate('products');
     if (!event) {
       throw new NotFoundException(`Event with ID: ${id} not found`);
     }
