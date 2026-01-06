@@ -1,5 +1,6 @@
 'use client';
 
+import { ActivityCard } from '@/components/activity-card';
 import { ActivityForm } from '@/components/forms/activity-form';
 import {
   Header,
@@ -29,8 +30,8 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
-import { useGetEventById } from '@/hooks/events';
-import { IProduct } from '@repo/types';
+import { useDeleteEventActivity, useGetEventById } from '@/hooks/events';
+import { IActivity, IProduct } from '@repo/types';
 import { File, FileText, ListTodo, Newspaper, Shapes } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -38,6 +39,14 @@ import { useParams } from 'next/navigation';
 const Page = () => {
   const { eventId } = useParams<{ eventId: string }>();
   const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
+  const deleteActivity = useDeleteEventActivity();
+
+  const handleDeleteActivity = (activity: IActivity) => {
+    deleteActivity.mutate({
+      eventId,
+      activityId: activity._id,
+    });
+  };
 
   return (
     <div>
@@ -82,13 +91,13 @@ const Page = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="px-4">
-                  {event.products.length > 0 ? (
-                    event.products.map((p: IProduct) => (
-                      <ProductCard
-                        key={p._id}
-                        product={p}
-                        projectId={p.projectId}
+                <div className="flex flex-col gap-4">
+                  {event.activities?.length ? (
+                    event.activities.map((a: IActivity) => (
+                      <ActivityCard
+                        key={a._id}
+                        activity={a}
+                        onDelete={handleDeleteActivity}
                       />
                     ))
                   ) : (
