@@ -63,7 +63,7 @@ const createEventActivity = async ({
   activityData: z.infer<typeof activityZodSchema>;
 }) => {
   try {
-    await api.post(`/events/${eventId}`, activityData);
+    await api.post(`/events/${eventId}/activities`, activityData);
   } catch (err) {
     console.error('Error creating event activity', err);
   }

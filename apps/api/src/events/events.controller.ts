@@ -163,7 +163,7 @@ export class EventsController {
   @Post(':id/activities')
   addActivities(
     @Param('id') id: string,
-    @Body('activities') dto: CreateActivityDto,
+    @Body() dto: CreateActivityDto,
     @Req() req,
   ) {
     return this.eventsService.createActivity(id, dto, req.user.id);

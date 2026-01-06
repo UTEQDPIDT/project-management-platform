@@ -195,12 +195,10 @@ export class EventsService {
     session.startTransaction();
 
     try {
-      const activity = await this.activitiesService.create(
-        dto,
-        userId,
+      const activity = await this.activitiesService.create(dto, userId, {
         session,
         eventId,
-      );
+      });
 
       await this.eventModel.updateOne(
         { _id: eventId },
