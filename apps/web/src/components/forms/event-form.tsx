@@ -123,17 +123,8 @@ export default function EventForm({ event }: EventFormProps) {
 
       if (event) {
         updateEvent.mutate({ eventId: event._id, eventData: cleanedData });
-
-        if (updateEvent.isSuccess) {
-          router.push('/admin/eventos');
-        }
       } else {
         createEvent.mutate(cleanedData);
-
-        if (createEvent.isSuccess) {
-          form.reset();
-          router.push('/admin/eventos');
-        }
       }
     } catch (err) {
       console.error('Error cleaning data', err);
@@ -182,7 +173,7 @@ export default function EventForm({ event }: EventFormProps) {
               name="summary"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Descripción</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Descripción *</FieldLabel>
                   <InputGroup>
                     <InputGroupTextarea
                       {...field}
@@ -295,7 +286,7 @@ export default function EventForm({ event }: EventFormProps) {
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>
-                      Fecha de inicio*
+                      Fecha de inicio *
                     </FieldLabel>
                     <DatePicker date={field.value} onChange={field.onChange} />
                     {fieldState.invalid && (
