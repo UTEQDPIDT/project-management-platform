@@ -169,7 +169,7 @@ const columns: ColumnDef<IEvent>[] = [
       const { createdBy } = event;
 
       return (
-        <div>
+        <div className="w-52">
           <ProfileInfo
             size="sm"
             givenName={createdBy.givenName}
@@ -203,7 +203,7 @@ const columns: ColumnDef<IEvent>[] = [
       const { createdBy: updatedBy } = event;
 
       return (
-        <div>
+        <div className="w-52">
           <ProfileInfo
             size="sm"
             givenName={updatedBy.givenName}
