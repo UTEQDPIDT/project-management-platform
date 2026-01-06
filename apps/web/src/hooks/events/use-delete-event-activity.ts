@@ -7,9 +7,9 @@ export const useDeleteEventActivity = () => {
   return useMutation({
     mutationFn: deleteEventActivity,
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ['events', 'event', variables.eventId],
-      });
+      // Invalidate the single event cache and the events list
+      queryClient.invalidateQueries({ queryKey: ['event', variables.eventId] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
     },
   });
 };

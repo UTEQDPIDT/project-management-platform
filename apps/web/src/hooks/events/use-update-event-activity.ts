@@ -7,9 +7,9 @@ export function useUpdateEventActivity() {
   return useMutation({
     mutationFn: updateActivity,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['event'],
-      });
+      // Invalidate event queries (all event details) and the events list
+      queryClient.invalidateQueries({ queryKey: ['event'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
     },
   });
 }
