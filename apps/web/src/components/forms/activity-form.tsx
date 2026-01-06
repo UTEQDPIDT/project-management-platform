@@ -59,7 +59,18 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
   const createEventActivity = useCreateEventActivity();
   const updateEventActivity = useUpdateEventActivity();
 
-  // Load project members (owner + team members)
+  const context = useMemo(() => {
+    if (projectId) return 'project';
+    if (eventId) return 'event';
+  }, [projectId, eventId]);
+
+  if (!context) {
+    throw new Error('ActivityForm requires either a projectId or eventId');
+  }
+
+  // Load project members (owner + team members).
+  // `useProject` is safe to call with an empty id because it uses
+  // `enabled: !!projectId` internally; this keeps hooks order stable.
   const { data: project, isLoading: loadingProject } = useProject(
     projectId || '',
   );
@@ -79,15 +90,6 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
     });
     return Array.from(map.values());
   }, [project]);
-
-  const context = useMemo(() => {
-    if (projectId) return 'project';
-    if (eventId) return 'event';
-  }, [projectId, eventId]);
-
-  if (!context) {
-    throw new Error('ActivityForm requires either a projectId or eventId');
-  }
 
   const isSubmiting =
     createActivity.isPending ||
@@ -124,7 +126,6 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
         ...data,
         description: data.description ? data.description?.trim() : undefined,
       };
-      console.log('CLEANED DATA', cleanedData);
 
       if (activity) {
         // UPDATE
@@ -286,7 +287,7 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
           )}
         />
 
-        {members && (
+        {context === 'project' && (
           <Controller
             control={form.control}
             name="assignees"

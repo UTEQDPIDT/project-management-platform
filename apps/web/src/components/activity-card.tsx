@@ -31,11 +31,11 @@ import { Separator } from './ui/separator';
 
 interface Props {
   activity: IActivity;
-  handleDelete: () => void;
+  onDelete: (activity: IActivity) => void;
   className?: string;
 }
 
-export function ActivityCard({ activity, handleDelete, className }: Props) {
+export function ActivityCard({ activity, onDelete, className }: Props) {
   let badgeVariant:
     | 'orange'
     | 'gray'
@@ -118,7 +118,11 @@ export function ActivityCard({ activity, handleDelete, className }: Props) {
                     </DialogClose>
 
                     <DialogClose asChild>
-                      <Button onClick={handleDelete} variant="destructive">
+                      <Button
+                        onClick={() => onDelete?.(activity)}
+                        variant="destructive"
+                        disabled={!onDelete}
+                      >
                         Eliminar
                       </Button>
                     </DialogClose>
