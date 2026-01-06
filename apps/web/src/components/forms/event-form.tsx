@@ -57,8 +57,6 @@ interface EventFormProps {
 }
 
 export default function EventForm({ event }: EventFormProps) {
-  const router = useRouter();
-
   /**
    * TANSTACK HOOKS
    */

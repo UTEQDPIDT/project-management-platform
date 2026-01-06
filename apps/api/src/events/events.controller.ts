@@ -126,10 +126,10 @@ export class EventsController {
   @Patch(':id/participants')
   addParticipants(
     @Param('id') id: string,
-    @Body('participants') userIds: string[],
+    @Body('participants') participants: string[],
     @Req() req,
   ) {
-    return this.eventsService.addParticipants(id, userIds, req.user.id);
+    return this.eventsService.addParticipants(id, participants, req.user.id);
   }
 
   @ApiOkResponse({

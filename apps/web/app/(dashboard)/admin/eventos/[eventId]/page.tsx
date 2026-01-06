@@ -3,6 +3,7 @@
 import { ActivityCard } from '@/components/activity-card';
 import { EventMenu } from '@/components/event-menu';
 import { ActivityForm } from '@/components/forms/activity-form';
+import { ParticipantsForm } from '@/components/forms/participants-form';
 import {
   Header,
   HeaderAction,
@@ -149,15 +150,19 @@ const Page = () => {
 
                         <CardTitle>Participantes</CardTitle>
                       </div>
-                      {/* <Dialog>
+                      <Dialog>
                         <DialogTrigger className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
                           Agregar
                         </DialogTrigger>
                         <DialogContent>
-                          <DialogTitle>Participación</DialogTitle>
+                          <DialogTitle>Participantes</DialogTitle>
                           <Separator />
+                          <ParticipantsForm
+                            eventId={eventId}
+                            participants={event.participants}
+                          />
                         </DialogContent>
-                      </Dialog> */}
+                      </Dialog>
                     </div>
                   </CardHeader>
 
@@ -186,8 +191,6 @@ const Page = () => {
                                   variant="ghost"
                                   disabled={false}
                                   onClick={() => {
-                                    // mutation
-                                    console.log('Expular');
                                     removeParticipant.mutate({
                                       eventId,
                                       userId: p._id,

@@ -88,13 +88,13 @@ const deleteEventActivity = async ({
  */
 const addParticipants = async ({
   eventId,
-  participants,
+  userIds,
 }: {
   eventId: string;
-  participants: string[];
+  userIds: string[];
 }) => {
   try {
-    await api.patch(`/events/${eventId}/participants`, participants);
+    await api.patch(`/events/${eventId}/participants`, userIds);
   } catch (err) {
     console.error('Error adding participants', err);
   }
