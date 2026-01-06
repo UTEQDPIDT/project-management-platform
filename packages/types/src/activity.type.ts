@@ -5,6 +5,8 @@ import { IUser } from './user.type';
 
 export interface IActivity {
   _id: string;
+  projectId?: string;
+  eventId?: string;
   name: string;
   description?: string;
   priority?: Priority;
