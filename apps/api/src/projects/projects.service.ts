@@ -309,12 +309,10 @@ export class ProjectsService {
     session.startTransaction();
 
     try {
-      const activity = await this.activitiesService.create(
-        dto,
-        userId,
+      const activity = await this.activitiesService.create(dto, userId, {
         session,
         projectId,
-      );
+      });
 
       await this.projectModel.updateOne(
         { _id: projectId },

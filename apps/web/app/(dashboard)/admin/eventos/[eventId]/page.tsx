@@ -76,7 +76,7 @@ const Page = () => {
                     <DialogContent>
                       <DialogTitle>Nueva Actividad</DialogTitle>
                       <Separator />
-                      <ActivityForm />
+                      <ActivityForm eventId={eventId} />
                     </DialogContent>
                   </Dialog>
                 </div>
