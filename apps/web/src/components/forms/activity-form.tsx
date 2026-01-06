@@ -6,7 +6,7 @@ import {
   useProject,
   useUpdateProjectActivity,
 } from '@/hooks/projects';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
@@ -40,6 +40,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { Command, CommandGroup, CommandItem } from '../ui/command';
 import { useCreateEventActivity, useUpdateEventActivity } from '@/hooks/events';
+import LoadingMessage from '../loading-message';
 
 interface Props {
   activity?: IActivity;
@@ -79,6 +80,21 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
     return Array.from(map.values());
   }, [project]);
 
+  const context = useMemo(() => {
+    if (projectId) return 'project';
+    if (eventId) return 'event';
+  }, [projectId, eventId]);
+
+  if (!context) {
+    throw new Error('ActivityForm requires either a projectId or eventId');
+  }
+
+  const isSubmiting =
+    createActivity.isPending ||
+    updateProjectActivity.isPending ||
+    createEventActivity.isPending ||
+    updateEventActivity.isPending;
+
   const form = useForm({
     resolver: zodResolver(activityZodSchema),
     mode: 'onChange',
@@ -108,34 +124,35 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
         ...data,
         description: data.description ? data.description?.trim() : undefined,
       };
+      console.log('CLEANED DATA', cleanedData);
 
       if (activity) {
-        if (projectId) {
+        // UPDATE
+        if (context === 'project') {
           updateProjectActivity.mutate({
             activityId: activity._id,
             activityData: cleanedData,
           });
-        }
-
-        if (eventId) {
+        } else {
           updateEventActivity.mutate({
             activityId: activity._id,
             activityData: cleanedData,
           });
         }
       } else {
-        if (projectId) {
+        // CREATE
+        if (context === 'project' && projectId) {
           createActivity.mutate({
             projectId,
             activityData: cleanedData,
           });
-        }
-
-        if (eventId) {
-          createEventActivity.mutate({
-            eventId,
-            activityData: cleanedData,
-          });
+        } else {
+          if (eventId) {
+            createEventActivity.mutate({
+              eventId,
+              activityData: cleanedData,
+            });
+          }
         }
       }
     } catch (err) {
@@ -357,10 +374,8 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
           <Button variant="outline">Cancelar</Button>
         </DialogClose>
 
-        <Button
-          disabled={createActivity.isPending || updateProjectActivity.isPending}
-        >
-          {activity ? 'Actualizar' : 'Crear'}
+        <Button disabled={isSubmiting}>
+          {isSubmiting ? <LoadingMessage /> : activity ? 'Actualizar' : 'Crear'}
         </Button>
       </div>
     </form>
