@@ -43,7 +43,11 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
-import { useDeleteEventActivity, useGetEventById } from '@/hooks/events';
+import {
+  useDeleteEventActivity,
+  useGetEventById,
+  useRemoveParticipant,
+} from '@/hooks/events';
 import { IActivity, IProduct, IUser } from '@repo/types';
 import {
   Download,
@@ -64,6 +68,7 @@ const Page = () => {
   const { eventId } = useParams<{ eventId: string }>();
   const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
   const deleteActivity = useDeleteEventActivity();
+  const removeParticipant = useRemoveParticipant();
 
   const handleDeleteActivity = (activity: IActivity) => {
     deleteActivity.mutate({
@@ -180,10 +185,14 @@ const Page = () => {
                                   className="w-full justify-start font-normal bg-transparent hover:text-destructive-foreground"
                                   variant="ghost"
                                   disabled={false}
-                                  onClick={() =>
+                                  onClick={() => {
                                     // mutation
-                                    console.log('Expularr')
-                                  }
+                                    console.log('Expular');
+                                    removeParticipant.mutate({
+                                      eventId,
+                                      userId: p._id,
+                                    });
+                                  }}
                                 >
                                   <UserMinus /> Expulsar
                                 </Button>

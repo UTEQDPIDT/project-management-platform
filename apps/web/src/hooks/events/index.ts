@@ -6,3 +6,4 @@ export * from './use-delete-event';
 export * from './use-create-event-activity';
 export * from './use-delete-event-activity';
 export * from './use-update-event-activity';
+export * from './use-remove-participant';

@@ -83,6 +83,37 @@ const deleteEventActivity = async ({
   }
 };
 
+/**
+ * PARTICIPANTS
+ */
+const addParticipants = async ({
+  eventId,
+  participants,
+}: {
+  eventId: string;
+  participants: string[];
+}) => {
+  try {
+    await api.patch(`/events/${eventId}/participants`, participants);
+  } catch (err) {
+    console.error('Error adding participants', err);
+  }
+};
+
+const removeParticipant = async ({
+  eventId,
+  userId,
+}: {
+  eventId: string;
+  userId: string;
+}) => {
+  try {
+    await api.delete(`/events/${eventId}/participants/${userId}`);
+  } catch (err) {
+    console.error('Error removing participant', err);
+  }
+};
+
 export {
   createEvent,
   getAllEvents,
@@ -91,4 +122,6 @@ export {
   deleteEvent,
   createEventActivity,
   deleteEventActivity,
+  addParticipants,
+  removeParticipant,
 };
