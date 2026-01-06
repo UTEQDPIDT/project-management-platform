@@ -1,6 +1,7 @@
 'use client';
 
 import { ActivityCard } from '@/components/activity-card';
+import { EventMenu } from '@/components/event-menu';
 import { ActivityForm } from '@/components/forms/activity-form';
 import {
   Header,
@@ -82,11 +83,7 @@ const Page = () => {
               <HeaderTitle>{event.name}</HeaderTitle>
             </HeaderHeading>
             <HeaderAction>
-              <Button asChild>
-                <Link href={`/admin/eventos/${eventId}/editar`}>
-                  Editar Evento
-                </Link>
-              </Button>
+              <EventMenu eventId={eventId} name={event.name} />
             </HeaderAction>
           </Header>
 
