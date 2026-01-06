@@ -147,21 +147,6 @@ const columns: ColumnDef<IEvent>[] = [
     },
   },
   {
-    accessorKey: 'createdAt',
-    header: 'Creado el',
-    cell: ({ row }) => {
-      const date = format(
-        row.getValue('createdAt'),
-        "d',' MMM 'del' yyyy kk':'mm",
-        {
-          locale: es,
-        },
-      );
-
-      return <div>{date}</div>;
-    },
-  },
-  {
     accessorKey: 'createdBy',
     header: 'Creado por',
     cell: ({ row }) => {
@@ -181,11 +166,11 @@ const columns: ColumnDef<IEvent>[] = [
     },
   },
   {
-    accessorKey: 'updatedAt',
-    header: 'Editado el',
+    accessorKey: 'createdAt',
+    header: 'Creado el',
     cell: ({ row }) => {
       const date = format(
-        row.getValue('updatedAt'),
+        row.getValue('createdAt'),
         "d',' MMM 'del' yyyy kk':'mm",
         {
           locale: es,
@@ -212,6 +197,21 @@ const columns: ColumnDef<IEvent>[] = [
           />
         </div>
       );
+    },
+  },
+  {
+    accessorKey: 'updatedAt',
+    header: 'Editado el',
+    cell: ({ row }) => {
+      const date = format(
+        row.getValue('updatedAt'),
+        "d',' MMM 'del' yyyy kk':'mm",
+        {
+          locale: es,
+        },
+      );
+
+      return <div>{date}</div>;
     },
   },
   {
