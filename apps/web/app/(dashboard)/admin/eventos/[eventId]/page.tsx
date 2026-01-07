@@ -103,7 +103,7 @@ const Page = () => {
           <PageContent className="px-4">
             <div className="flex gap-6 lg:gap-4 flex-col lg:flex-row">
               <div className="w-full lg:max-w-sm flex flex-col gap-6">
-                <EventInfoCard event={event} isAdmin />
+                <EventInfoCard event={event} />
 
                 <Card>
                   <CardHeader>

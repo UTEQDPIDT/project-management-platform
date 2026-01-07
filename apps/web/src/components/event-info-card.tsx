@@ -1,4 +1,4 @@
-import { IEvent } from '@repo/types';
+import { IEvent, UserRole } from '@repo/types';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import IconSquare from './icon-square';
@@ -7,13 +7,15 @@ import CopyButton from './ui/copy';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Button } from './ui/button';
+import { userProfile } from 'context/profile-provider';
 
 interface EventInfoCardProps {
   event: IEvent;
-  isAdmin?: boolean;
 }
 
-export default function EventInfoCard({ event, isAdmin }: EventInfoCardProps) {
+export default function EventInfoCard({ event }: EventInfoCardProps) {
+  const { user } = userProfile();
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -77,7 +79,7 @@ export default function EventInfoCard({ event, isAdmin }: EventInfoCardProps) {
             )}
           </div>
 
-          {isAdmin && (
+          {user.role === UserRole.ADMIN && (
             <div className="flex justify-between gap-3">
               <span className="text-muted-foreground w-24">Reporte</span>
               {event.report ? (
