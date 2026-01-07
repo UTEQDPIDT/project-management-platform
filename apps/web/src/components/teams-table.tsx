@@ -87,6 +87,7 @@ const columns: ColumnDef<ITeam>[] = [
             givenName={owner.givenName}
             familyName={owner.familyName}
             email={owner.email}
+            avatarUrl={owner.avatarUrl}
           />
         </div>
       );

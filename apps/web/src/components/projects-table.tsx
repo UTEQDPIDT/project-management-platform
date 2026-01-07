@@ -282,7 +282,7 @@ export default function ProjectsTable() {
   const { data: projects, isLoading: loadingProjects } = useAllProjects();
 
   return (
-    <div className="flex items-center justify-center px-4 max-w-6xl">
+    <div className="max-w-6xl">
       {loadingProjects ? (
         <LoadingMessage message="Cargando proyectos" />
       ) : (

@@ -301,7 +301,7 @@ export function EventsTable() {
   const { data: events, isLoading: loadingEvents } = useGetAllEvents();
 
   return (
-    <div className="flex items-center justify-center px-4 max-w-6xl">
+    <div className="max-w-6xl">
       {loadingEvents ? (
         <LoadingMessage message="Cargando eventos" />
       ) : (
