@@ -18,7 +18,7 @@ import { ProfileInfo } from './profile-info';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
 
-interface ProjectInfoTableProps {
+interface ProjectInfoProps {
   project: IProject;
   progress: number;
 }
@@ -26,7 +26,7 @@ interface ProjectInfoTableProps {
 export default function ProjectInfoTable({
   project,
   progress,
-}: ProjectInfoTableProps) {
+}: ProjectInfoProps) {
   const {
     name,
     startDate,
