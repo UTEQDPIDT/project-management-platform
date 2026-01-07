@@ -1,15 +1,21 @@
+'use client';
+
+import { EventCard } from '@/components/event-card';
 import {
   Header,
-  HeaderAction,
-  HeaderContent,
   HeaderDescription,
   HeaderHeading,
   HeaderTitle,
 } from '@/components/header';
-import { Button } from '@/components/ui/button';
+import LoadingMessage from '@/components/loading-message';
+import { PageContent } from '@/components/page-content';
+import { useGetAllEvents } from '@/hooks/events';
+import { IEvent } from '@repo/types';
 import React from 'react';
 
 const Page = () => {
+  const { data: events, isLoading: laodingEvents } = useGetAllEvents();
+
   return (
     <div>
       <Header>
@@ -20,6 +26,17 @@ const Page = () => {
           </HeaderDescription>
         </HeaderHeading>
       </Header>
+      <PageContent>
+        {laodingEvents ? (
+          <LoadingMessage message="Cargando eventos" />
+        ) : (
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+            {events.map((e: IEvent) => (
+              <EventCard event={e} />
+            ))}
+          </div>
+        )}
+      </PageContent>
     </div>
   );
 };
