@@ -15,7 +15,7 @@ export default function CopyButton({
 }) {
   const handleClick = () => {
     navigator.clipboard.writeText(valueToCopy);
-    toast('Copiado al portapapeles.');
+    toast.success('Copiado al portapapeles');
   };
 
   return (

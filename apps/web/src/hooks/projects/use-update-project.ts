@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateProject } from '@/services/project.service';
+import { toast } from 'sonner';
 
 export function useUpdateProject() {
   const queryClient = useQueryClient();
@@ -15,6 +16,8 @@ export function useUpdateProject() {
     onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast.success('Se actualizó el royecto actualizado');
     },
+    onError: () => toast.error('No se actualizó el proyecto'),
   });
 }
