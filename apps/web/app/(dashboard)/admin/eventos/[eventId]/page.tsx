@@ -44,16 +44,21 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import {
   useDeleteEventActivity,
   useGetEventById,
   useRemoveParticipant,
 } from '@/hooks/events';
 import { IActivity, IProduct, IUser } from '@repo/types';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import {
+  Copy,
   Download,
   File,
   FileText,
+  Info,
   ListTodo,
   MoreHorizontal,
   Newspaper,
@@ -95,48 +100,89 @@ const Page = () => {
 
           <PageContent className="px-4">
             <div className="flex gap-6 lg:gap-4 flex-col lg:flex-row">
-              <div className="w-full lg:max-w-md flex flex-col gap-6">
+              <div className="w-full lg:max-w-sm flex flex-col gap-6">
                 <Card>
                   <CardHeader>
                     <div className="flex justify-between">
                       <div className="flex gap-3 items-center">
-                        <IconSquare className="bg-purple-50 text-purple-700">
-                          <FileText />
+                        <IconSquare>
+                          <Info />
                         </IconSquare>
 
-                        <CardTitle>Informe</CardTitle>
+                        <CardTitle>Acerca del Evento</CardTitle>
                       </div>
-                      <Dialog>
-                        <DialogTrigger className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
-                          <Upload />
-                          Subir
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogTitle>Nueva Actividad</DialogTitle>
-                          <Separator />
-                          <ActivityForm eventId={eventId} />
-                        </DialogContent>
-                      </Dialog>
                     </div>
                   </CardHeader>
 
                   <CardContent>
-                    {event.report ? (
-                      <span>reporte</span>
-                    ) : (
-                      <Empty>
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon">
-                            <FileText />
-                          </EmptyMedia>
-                          <EmptyTitle>No Hay Informe</EmptyTitle>
-                          <EmptyDescription>
-                            No se ha subido el informe del evento. Haz clic en
-                            subir para seleccionar un archivo.
-                          </EmptyDescription>
-                        </EmptyHeader>
-                      </Empty>
-                    )}
+                    <div className="flex flex-col text-sm gap-4">
+                      <div className="flex justify-between gap-3">
+                        <span className="text-muted-foreground">Fecha</span>
+                        {event.endDate ? (
+                          <div>
+                            {format(event.startDate, "d 'de' MMMM 'al' ", {
+                              locale: es,
+                            })}
+                            {format(event.endDate, "d 'de' MMMM 'del' yyyy", {
+                              locale: es,
+                            })}
+                          </div>
+                        ) : (
+                          <div>
+                            {format(event.startDate, "d',' MMM 'del' yyyy", {
+                              locale: es,
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex justify-between gap-5">
+                        <span className="text-muted-foreground">
+                          Organización
+                        </span>
+                        <span>{event.organization}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Nombre</span>
+                        <span>{event.name}</span>
+                      </div>
+
+                      <div className="flex justify-between gap-5">
+                        <span className="text-muted-foreground">Resumen</span>
+                        <span>{event.summary}</span>
+                      </div>
+
+                      <div className="flex justify-between gap-5">
+                        <span className="text-muted-foreground">Ubicación</span>
+                        <div className="relative group text-right">
+                          <span>{event.location}</span>
+                          <Button
+                            className="absolute top-0 right-0 opacity-0 group-hover:opacity-100"
+                            variant="outline"
+                            title="Copiar"
+                            size="icon-xs"
+                            onClick={() =>
+                              navigator.clipboard.writeText(event.location)
+                            }
+                          >
+                            <Copy />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between gap-3">
+                        <span className="text-muted-foreground">Reporte</span>
+                        {event.report ? (
+                          <span>reporte</span>
+                        ) : (
+                          <Button size="sm" variant="outline">
+                            <Upload />
+                            Subir
+                          </Button>
+                        )}
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -144,15 +190,15 @@ const Page = () => {
                   <CardHeader>
                     <div className="flex justify-between">
                       <div className="flex gap-3 items-center">
-                        <IconSquare className="bg-blue-50 text-blue-700">
+                        <IconSquare>
                           <Users />
                         </IconSquare>
 
                         <CardTitle>Participantes</CardTitle>
                       </div>
                       <Dialog>
-                        <DialogTrigger className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
-                          Agregar
+                        <DialogTrigger className="h-7 px-3 hover:bg-secondary/90 border">
+                          Gestionar
                         </DialogTrigger>
                         <DialogContent>
                           <DialogTitle>Participantes</DialogTitle>
@@ -227,7 +273,7 @@ const Page = () => {
                   <CardHeader>
                     <div className="flex justify-between">
                       <div className="flex gap-3 items-center">
-                        <IconSquare className="bg-green-50 text-green-700">
+                        <IconSquare>
                           <ListTodo />
                         </IconSquare>
 
@@ -276,7 +322,7 @@ const Page = () => {
                 <Card>
                   <CardHeader>
                     <div className="flex gap-3 items-center">
-                      <IconSquare className="bg-orange-50 text-orange-700">
+                      <IconSquare>
                         <Shapes />
                       </IconSquare>
 
