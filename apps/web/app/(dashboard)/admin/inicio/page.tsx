@@ -1,19 +1,24 @@
+'use client';
+
 import {
   Header,
   HeaderHeading,
   HeaderTitle,
   HeaderDescription,
 } from '@/components/header';
+import { userProfile } from 'context/profile-provider';
 import React from 'react';
 
 const Page = () => {
+  const { user } = userProfile();
+
   return (
     <div>
       <Header>
         <HeaderHeading>
           <HeaderTitle>Dashboard Administrativo</HeaderTitle>
           <HeaderDescription>
-            Bienvenido Aeon Julien. Esto es lo que esta sucediendo.
+            Bienvenido {user.givenName}. Esto es lo que esta sucediendo.
           </HeaderDescription>
         </HeaderHeading>
       </Header>

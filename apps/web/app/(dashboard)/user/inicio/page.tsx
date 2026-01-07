@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Header,
   HeaderAction,
@@ -7,15 +9,18 @@ import {
   HeaderTitle,
 } from '@/components/header';
 import { Button } from '@/components/ui/button';
+import { userProfile } from 'context/profile-provider';
 import React from 'react';
 
 const Page = () => {
+  const { user } = userProfile();
+
   return (
     <div>
       <Header>
         <HeaderHeading>
           <HeaderTitle>Dashboard</HeaderTitle>
-          <HeaderDescription>Bienvenido Aeon Julien</HeaderDescription>
+          <HeaderDescription>Bienvenido {user.givenName}</HeaderDescription>
         </HeaderHeading>
       </Header>
     </div>
