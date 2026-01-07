@@ -3,14 +3,13 @@
 import {
   Header,
   HeaderAction,
-  HeaderContent,
   HeaderDescription,
   HeaderHeading,
   HeaderTitle,
 } from '@/components/header';
 import { PageContent } from '@/components/page-content';
 import { Button } from '@/components/ui/button';
-import { Folder, Plus } from 'lucide-react';
+import { Folder, FolderPlus } from 'lucide-react';
 import Link from 'next/link';
 import { useProjectsByOwner } from '@/hooks/projects/use-projects-by-owner';
 import LoadingMessage from '@/components/loading-message';
@@ -48,7 +47,7 @@ const Page = () => {
         {loadingProjects ? (
           <LoadingMessage message="Cargando Proyectos" />
         ) : projects.length > 0 ? (
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 px-4">
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((p: IProject) => (
               <ProjectCard key={p._id} project={p} />
             ))}

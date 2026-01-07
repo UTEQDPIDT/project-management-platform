@@ -1,4 +1,4 @@
-import { BadgeVariants, IProject, Status } from '@repo/types';
+import { IProject } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -6,6 +6,7 @@ import {
   Folder,
   MoveRight,
   Paperclip,
+  Shapes,
   SquareCheckBig,
   User,
 } from 'lucide-react';
@@ -16,7 +17,6 @@ import { Badge } from './ui/badge';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -37,7 +37,7 @@ function ProjectCardDefault({
   data: ReturnType<typeof useProjectCardData>;
 }) {
   return (
-    <Card className="w-full gap-6 hover:shadow-xl">
+    <Card className="w-full gap-6 hover:shadow-xl min-w-96">
       <CardHeader>
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
@@ -58,10 +58,6 @@ function ProjectCardDefault({
       </CardHeader>
 
       <CardContent className="flex flex-col h-full gap-4">
-        <CardDescription className="h-24 line-clamp-5">
-          {data.summary}
-        </CardDescription>
-
         <div className="flex flex-col gap-2.5 text-xs text-muted-foreground">
           <div className="flex justify-between">
             <span>Progreso</span>
@@ -74,25 +70,7 @@ function ProjectCardDefault({
         </div>
 
         <AvatarRow profiles={data.profiles} />
-      </CardContent>
 
-      <CardFooter className="border-t flex gap-2 justify-start items-center">
-        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-          <User size={14} />
-          {data.profiles.length}
-        </span>
-        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-          <SquareCheckBig size={14} />
-          {data.activities.length}
-        </span>
-        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-          <Paperclip size={14} />
-          {data.files?.length}
-        </span>
-        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-          <Folder size={14} />
-          {data.relatedProjects?.length}
-        </span>
         {data.startDate && (
           <div className="flex gap-1">
             <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
@@ -107,6 +85,29 @@ function ProjectCardDefault({
             )}
           </div>
         )}
+      </CardContent>
+
+      <CardFooter className="border-t flex gap-3 justify-start items-center">
+        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+          <User size={14} />
+          {data.profiles.length}
+        </span>
+        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+          <SquareCheckBig size={14} />
+          {data.activities.length}
+        </span>
+        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+          <Shapes size={14} />
+          {data.products?.length}
+        </span>
+        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+          <Paperclip size={14} />
+          {data.files?.length}
+        </span>
+        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+          <Folder size={14} />
+          {data.relatedProjects?.length}
+        </span>
       </CardFooter>
     </Card>
   );

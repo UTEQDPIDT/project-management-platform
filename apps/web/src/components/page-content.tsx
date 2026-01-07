@@ -9,6 +9,15 @@ export function PageContent({
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn('flex flex-col py-6 gap-6', className)}>{children}</div>
+    <div className="flex w-full justify-center">
+      <div
+        className={cn(
+          'flex flex-col gap-6 items-center w-full max-w-[1440px] px-4 py-6',
+          className,
+        )}
+      >
+        {children}
+      </div>
+    </div>
   );
 }

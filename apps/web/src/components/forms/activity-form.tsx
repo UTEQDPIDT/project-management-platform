@@ -375,9 +375,17 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
           <Button variant="outline">Cancelar</Button>
         </DialogClose>
 
-        <Button disabled={isSubmiting}>
-          {isSubmiting ? <LoadingMessage /> : activity ? 'Actualizar' : 'Crear'}
-        </Button>
+        <DialogClose asChild>
+          <Button type="submit" disabled={isSubmiting}>
+            {isSubmiting ? (
+              <LoadingMessage />
+            ) : activity ? (
+              'Actualizar'
+            ) : (
+              'Crear'
+            )}
+          </Button>
+        </DialogClose>
       </div>
     </form>
   );

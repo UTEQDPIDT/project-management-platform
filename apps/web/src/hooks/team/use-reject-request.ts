@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { rejectRequest } from '@/services/team.service';
+import { toast } from 'sonner';
 
 export function useRejectRequest() {
   const queryClient = useQueryClient();
@@ -9,6 +10,7 @@ export function useRejectRequest() {
       rejectRequest(teamId, userId),
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: ['team', teamId] });
+      toast.success('La solicitud ha sido rechazada');
     },
   });
 }

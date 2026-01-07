@@ -2,20 +2,23 @@
 
 import { ActivitiesBoard } from '@/components/activities-board';
 import { CardMembers } from '@/components/card-members';
-import {
-  Header,
-  HeaderAction,
-  HeaderHeading,
-  HeaderTitle,
-} from '@/components/header';
+import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
 import { ProductsBoard } from '@/components/products-board';
-import ProjectInfoTable from '@/components/project-info-table';
+import ProjectInfoTable from '@/components/project-info';
 import { ProjectMenu } from '@/components/project-menu';
 import { ProjectsBoard } from '@/components/projects-board';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 const Page = () => {
@@ -32,28 +35,20 @@ const Page = () => {
         <div>
           <Header>
             <HeaderHeading>
-              <HeaderTitle>{project.name}</HeaderTitle>
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link href="/user/proyectos">Proyectos</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>{project.name}</BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
             </HeaderHeading>
 
             <HeaderAction>
-              {/* <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <Bell />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
-                  <Separator />
-
-                  <div className="px-2 py-3">
-                    <span className="text-muted-foreground text-sm">
-                      No hay notificaciones
-                    </span>
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu> */}
-
               <ProjectMenu projectId={id} name={project.name} />
             </HeaderAction>
           </Header>

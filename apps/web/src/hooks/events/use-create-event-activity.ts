@@ -1,5 +1,6 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { createEventActivity } from '@/services/events.service';
+import { toast } from 'sonner';
 
 export const useCreateEventActivity = () => {
   const queryClient = useQueryClient();
@@ -10,6 +11,8 @@ export const useCreateEventActivity = () => {
       // Invalidate the single event cache and the events list
       queryClient.invalidateQueries({ queryKey: ['event', variables.eventId] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
+      toast.success('La actividad ha sido creada');
     },
+    onError: () => toast.error('No se ha eliminado la actividad'),
   });
 };

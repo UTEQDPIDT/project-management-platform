@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import CopyButton from '@/components/ui/copy';
 import {
   Dialog,
   DialogContent,
@@ -137,17 +138,11 @@ const Page = () => {
                         <span className="text-muted-foreground">Ubicación</span>
                         <div className="relative group text-right">
                           <span>{event.location}</span>
-                          <Button
-                            className="absolute top-0 right-0 opacity-0 group-hover:opacity-100"
+                          <CopyButton
+                            valueToCopy={event.location}
                             variant="outline"
-                            title="Copiar"
-                            size="icon-xs"
-                            onClick={() =>
-                              navigator.clipboard.writeText(event.location)
-                            }
-                          >
-                            <Copy />
-                          </Button>
+                            className="absolute top-0 right-0 group-hover:opacity-100 opacity-0"
+                          />
                         </div>
                       </div>
 
@@ -176,9 +171,9 @@ const Page = () => {
                         {event.report ? (
                           <span>reporte</span>
                         ) : (
-                          <Button size="sm" variant="outline">
+                          <Button size="xs" variant="outline">
                             <Upload />
-                            Subir
+                            Subir Reporte
                           </Button>
                         )}
                       </div>
