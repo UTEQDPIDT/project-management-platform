@@ -213,6 +213,7 @@ const Page = () => {
                         {event.participants.map((p: IUser) => (
                           <div key={p._id} className="flex justify-between">
                             <ProfileInfo
+                              size="sm"
                               givenName={p.givenName}
                               familyName={p.familyName}
                               avatarUrl={p.avatarUrl}

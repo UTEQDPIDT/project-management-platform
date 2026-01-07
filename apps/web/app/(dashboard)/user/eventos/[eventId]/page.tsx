@@ -165,18 +165,6 @@ const Page = () => {
                           </div>
                         )}
                       </div>
-
-                      <div className="flex justify-between gap-3">
-                        <span className="text-muted-foreground">Reporte</span>
-                        {event.report ? (
-                          <span>reporte</span>
-                        ) : (
-                          <Button size="xs" variant="outline">
-                            <Upload />
-                            Subir Reporte
-                          </Button>
-                        )}
-                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -191,19 +179,6 @@ const Page = () => {
 
                         <CardTitle>Participantes</CardTitle>
                       </div>
-                      <Dialog>
-                        <DialogTrigger className="h-7 px-3 hover:bg-secondary/90 border">
-                          Gestionar
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogTitle>Participantes</DialogTitle>
-                          <Separator />
-                          <ParticipantsForm
-                            eventId={eventId}
-                            participants={event.participants}
-                          />
-                        </DialogContent>
-                      </Dialog>
                     </div>
                   </CardHeader>
 
@@ -213,35 +188,12 @@ const Page = () => {
                         {event.participants.map((p: IUser) => (
                           <div key={p._id} className="flex justify-between">
                             <ProfileInfo
+                              size="sm"
                               givenName={p.givenName}
                               familyName={p.familyName}
                               avatarUrl={p.avatarUrl}
                               email={p.email}
                             />
-
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button size="icon-sm" variant="ghost">
-                                  <MoreHorizontal />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent>
-                                <Button
-                                  size="sm"
-                                  className="w-full justify-start font-normal bg-transparent hover:text-destructive-foreground"
-                                  variant="ghost"
-                                  disabled={false}
-                                  onClick={() => {
-                                    removeParticipant.mutate({
-                                      eventId,
-                                      userId: p._id,
-                                    });
-                                  }}
-                                >
-                                  <UserMinus /> Expulsar
-                                </Button>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
                           </div>
                         ))}
                       </div>
@@ -274,16 +226,6 @@ const Page = () => {
 
                         <CardTitle>Actividades</CardTitle>
                       </div>
-                      <Dialog>
-                        <DialogTrigger className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
-                          Crear
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogTitle>Nueva Actividad</DialogTitle>
-                          <Separator />
-                          <ActivityForm eventId={eventId} />
-                        </DialogContent>
-                      </Dialog>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -305,7 +247,6 @@ const Page = () => {
                             <EmptyTitle>No Hay Actividades</EmptyTitle>
                             <EmptyDescription>
                               No se han agregado actividades para el evento.
-                              Crea una nueva actividad.
                             </EmptyDescription>
                           </EmptyHeader>
                         </Empty>
