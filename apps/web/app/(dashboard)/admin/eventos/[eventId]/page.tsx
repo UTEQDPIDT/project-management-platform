@@ -171,9 +171,9 @@ const Page = () => {
                         {event.report ? (
                           <span>reporte</span>
                         ) : (
-                          <Button size="sm" variant="outline">
+                          <Button size="xs" variant="outline">
                             <Upload />
-                            Subir
+                            Subir Reporte
                           </Button>
                         )}
                       </div>
