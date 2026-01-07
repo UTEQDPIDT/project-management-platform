@@ -1,9 +1,8 @@
 'use client';
 
 import { ActivityCard } from '@/components/activity-card';
+import EventInfoCard from '@/components/event-info-card';
 import { EventMenu } from '@/components/event-menu';
-import { ActivityForm } from '@/components/forms/activity-form';
-import { ParticipantsForm } from '@/components/forms/participants-form';
 import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import IconSquare from '@/components/icon-square';
 import LoadingMessage from '@/components/loading-message';
@@ -46,6 +45,7 @@ import {
   useRemoveParticipant,
 } from '@/hooks/events';
 import { IActivity, IProduct, IUser } from '@repo/types';
+import { userProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -60,6 +60,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 const Page = () => {
   const { eventId } = useParams<{ eventId: string }>();
@@ -67,12 +68,25 @@ const Page = () => {
   const deleteActivity = useDeleteEventActivity();
   const removeParticipant = useRemoveParticipant();
 
+  /**
+   * Context
+   */
+  const { user } = userProfile();
+  const currentUserId = user._id;
+
   const handleDeleteActivity = (activity: IActivity) => {
     deleteActivity.mutate({
       eventId,
       activityId: activity._id,
     });
   };
+
+  let userProducts: IProduct[] = [];
+  //   useEffect(() => {
+  //     userProducts = event.products.filter(
+  //       (p: IProduct) => p.owner._id === currentUserId,
+  //     );
+  //   }, [event, event.products]);
 
   return (
     <div>
@@ -86,7 +100,7 @@ const Page = () => {
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                      <Link href="/admin/eventos">Eventos</Link>
+                      <Link href="/user/eventos">Eventos</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
@@ -100,200 +114,131 @@ const Page = () => {
           </Header>
 
           <PageContent className="px-4">
-            <div className="flex gap-6 lg:gap-4 flex-col lg:flex-row">
-              <div className="w-full lg:max-w-sm flex flex-col gap-6">
-                <Card>
-                  <CardHeader>
-                    <div className="flex justify-between">
-                      <div className="flex gap-3 items-center">
-                        <IconSquare>
-                          <Info />
-                        </IconSquare>
+            <div className="w-full lg:flex-row flex border items-start justify-center flex-col gap-6">
+              <EventInfoCard event={event} />
 
-                        <CardTitle>Acerca del Evento</CardTitle>
-                      </div>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent>
-                    <div className="flex flex-col text-sm gap-4">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Nombre</span>
-                        <span>{event.name}</span>
-                      </div>
-
-                      <div className="flex justify-between gap-5">
-                        <span className="text-muted-foreground">
-                          Organización
-                        </span>
-                        <span>{event.organization}</span>
-                      </div>
-
-                      <div className="flex justify-between gap-5">
-                        <span className="text-muted-foreground">Resumen</span>
-                        <span>{event.summary}</span>
-                      </div>
-
-                      <div className="flex justify-between gap-5">
-                        <span className="text-muted-foreground">Ubicación</span>
-                        <div className="relative group text-right">
-                          <span>{event.location}</span>
-                          <CopyButton
-                            valueToCopy={event.location}
-                            variant="outline"
-                            className="absolute top-0 right-0 group-hover:opacity-100 opacity-0"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between gap-3">
-                        <span className="text-muted-foreground">Fecha</span>
-                        {event.endDate ? (
-                          <div>
-                            {format(event.startDate, "d 'de' MMMM 'al' ", {
-                              locale: es,
-                            })}
-                            {format(event.endDate, "d 'de' MMMM 'del' yyyy", {
-                              locale: es,
-                            })}
-                          </div>
-                        ) : (
-                          <div>
-                            {format(event.startDate, "d',' MMM 'del' yyyy", {
-                              locale: es,
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <div className="flex justify-between">
-                      <div className="flex gap-3 items-center">
-                        <IconSquare>
-                          <Users />
-                        </IconSquare>
-
-                        <CardTitle>Participantes</CardTitle>
-                      </div>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent>
-                    {event.participants.length > 0 ? (
-                      <div className="flex flex-col gap-3">
-                        {event.participants.map((p: IUser) => (
-                          <div key={p._id} className="flex justify-between">
-                            <ProfileInfo
-                              size="sm"
-                              givenName={p.givenName}
-                              familyName={p.familyName}
-                              avatarUrl={p.avatarUrl}
-                              email={p.email}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <Empty>
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon">
-                            <Users />
-                          </EmptyMedia>
-                          <EmptyTitle>No Hay Participantes</EmptyTitle>
-                          <EmptyDescription>
-                            No se han agregado participantes al evento. Agrega
-                            participantes.
-                          </EmptyDescription>
-                        </EmptyHeader>
-                      </Empty>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="w-full flex flex-col gap-6">
-                <Card>
-                  <CardHeader>
-                    <div className="flex justify-between">
-                      <div className="flex gap-3 items-center">
-                        <IconSquare>
-                          <ListTodo />
-                        </IconSquare>
-
-                        <CardTitle>Actividades</CardTitle>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col gap-4">
-                      {event.activities?.length ? (
-                        event.activities.map((a: IActivity) => (
-                          <ActivityCard
-                            key={a._id}
-                            activity={a}
-                            onDelete={handleDeleteActivity}
-                          />
-                        ))
-                      ) : (
-                        <Empty>
-                          <EmptyHeader>
-                            <EmptyMedia variant="icon">
-                              <ListTodo />
-                            </EmptyMedia>
-                            <EmptyTitle>No Hay Actividades</EmptyTitle>
-                            <EmptyDescription>
-                              No se han agregado actividades para el evento.
-                            </EmptyDescription>
-                          </EmptyHeader>
-                        </Empty>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
+              <Card className="w-full">
+                <CardHeader>
+                  <div className="flex justify-between">
                     <div className="flex gap-3 items-center">
                       <IconSquare>
-                        <Shapes />
+                        <Users />
                       </IconSquare>
 
-                      <CardTitle>Productos</CardTitle>
+                      <CardTitle>Participantes</CardTitle>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="px-4">
-                      {event.products.length > 0 ? (
-                        event.products.map((p: IProduct) => (
-                          <ProductCard
-                            key={p._id}
-                            product={p}
-                            projectId={p.projectId}
+                  </div>
+                </CardHeader>
+
+                <CardContent>
+                  {event.participants.length > 0 ? (
+                    <div className="flex flex-col gap-3">
+                      {event.participants.map((p: IUser) => (
+                        <div key={p._id} className="flex justify-between">
+                          <ProfileInfo
+                            size="sm"
+                            givenName={p.givenName}
+                            familyName={p.familyName}
+                            avatarUrl={p.avatarUrl}
+                            email={p.email}
                           />
-                        ))
-                      ) : (
-                        <Empty>
-                          <EmptyHeader>
-                            <EmptyMedia variant="icon">
-                              <Shapes />
-                            </EmptyMedia>
-                            <EmptyTitle>No Hay Productos</EmptyTitle>
-                            <EmptyDescription>
-                              No se ha agregado ningún producto. Debes esperar a
-                              que los asistentes seleccionen sus productos.
-                            </EmptyDescription>
-                          </EmptyHeader>
-                        </Empty>
-                      )}
+                        </div>
+                      ))}
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  ) : (
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <Users />
+                        </EmptyMedia>
+                        <EmptyTitle>No Hay Participantes</EmptyTitle>
+                        <EmptyDescription>
+                          No se han agregado participantes al evento. Agrega
+                          participantes.
+                        </EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
+                  )}
+                </CardContent>
+              </Card>
             </div>
+
+            <Card className="w-full">
+              <CardHeader>
+                <div className="flex justify-between">
+                  <div className="flex gap-3 items-center">
+                    <IconSquare>
+                      <ListTodo />
+                    </IconSquare>
+
+                    <CardTitle>Actividades</CardTitle>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col gap-4">
+                  {event.activities?.length ? (
+                    event.activities.map((a: IActivity) => (
+                      <ActivityCard
+                        key={a._id}
+                        activity={a}
+                        onDelete={handleDeleteActivity}
+                      />
+                    ))
+                  ) : (
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <ListTodo />
+                        </EmptyMedia>
+                        <EmptyTitle>No Hay Actividades</EmptyTitle>
+                        <EmptyDescription>
+                          No se han agregado actividades para el evento.
+                        </EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="w-full">
+              <CardHeader>
+                <div className="flex gap-3 items-center">
+                  <IconSquare>
+                    <Shapes />
+                  </IconSquare>
+
+                  <CardTitle>Productos</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="px-4">
+                  {userProducts.length ? (
+                    userProducts.map((p: IProduct) => (
+                      <ProductCard
+                        key={p._id}
+                        product={p}
+                        projectId={p.projectId}
+                      />
+                    ))
+                  ) : (
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <Shapes />
+                        </EmptyMedia>
+                        <EmptyTitle>No Hay Productos</EmptyTitle>
+                        <EmptyDescription>
+                          No haz agregado ningún producto para presentar en el
+                          evento. Agrega tus productos al evento.
+                        </EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </PageContent>
         </>
       )}

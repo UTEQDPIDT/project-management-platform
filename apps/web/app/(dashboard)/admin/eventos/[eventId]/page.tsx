@@ -1,6 +1,7 @@
 'use client';
 
 import { ActivityCard } from '@/components/activity-card';
+import EventInfoCard from '@/components/event-info-card';
 import { EventMenu } from '@/components/event-menu';
 import { ActivityForm } from '@/components/forms/activity-form';
 import { ParticipantsForm } from '@/components/forms/participants-form';
@@ -102,84 +103,7 @@ const Page = () => {
           <PageContent className="px-4">
             <div className="flex gap-6 lg:gap-4 flex-col lg:flex-row">
               <div className="w-full lg:max-w-sm flex flex-col gap-6">
-                <Card>
-                  <CardHeader>
-                    <div className="flex justify-between">
-                      <div className="flex gap-3 items-center">
-                        <IconSquare>
-                          <Info />
-                        </IconSquare>
-
-                        <CardTitle>Acerca del Evento</CardTitle>
-                      </div>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent>
-                    <div className="flex flex-col text-sm gap-4">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Nombre</span>
-                        <span>{event.name}</span>
-                      </div>
-
-                      <div className="flex justify-between gap-5">
-                        <span className="text-muted-foreground">
-                          Organización
-                        </span>
-                        <span>{event.organization}</span>
-                      </div>
-
-                      <div className="flex justify-between gap-5">
-                        <span className="text-muted-foreground">Resumen</span>
-                        <span>{event.summary}</span>
-                      </div>
-
-                      <div className="flex justify-between gap-5">
-                        <span className="text-muted-foreground">Ubicación</span>
-                        <div className="relative group text-right">
-                          <span>{event.location}</span>
-                          <CopyButton
-                            valueToCopy={event.location}
-                            variant="outline"
-                            className="absolute top-0 right-0 group-hover:opacity-100 opacity-0"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between gap-3">
-                        <span className="text-muted-foreground">Fecha</span>
-                        {event.endDate ? (
-                          <div>
-                            {format(event.startDate, "d 'de' MMMM 'al' ", {
-                              locale: es,
-                            })}
-                            {format(event.endDate, "d 'de' MMMM 'del' yyyy", {
-                              locale: es,
-                            })}
-                          </div>
-                        ) : (
-                          <div>
-                            {format(event.startDate, "d',' MMM 'del' yyyy", {
-                              locale: es,
-                            })}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex justify-between gap-3">
-                        <span className="text-muted-foreground">Reporte</span>
-                        {event.report ? (
-                          <span>reporte</span>
-                        ) : (
-                          <Button size="xs" variant="outline">
-                            <Upload />
-                            Subir Reporte
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <EventInfoCard event={event} isAdmin />
 
                 <Card>
                   <CardHeader>
