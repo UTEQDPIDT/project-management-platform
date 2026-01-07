@@ -101,6 +101,8 @@ export class EventsService {
 
     if (!event) {
       throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
+
     if (event.report) {
       throw new BadRequestException(
         'This event already has a report file. Please delete it before uploading a new one.',
