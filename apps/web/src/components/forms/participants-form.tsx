@@ -65,7 +65,7 @@ export function ParticipantsForm({
           return (
             <FieldGroup>
               <FieldContent>
-                <FieldLabel>Agregar participantes</FieldLabel>
+                <FieldLabel>Gestiona a los participantes</FieldLabel>
                 <FieldDescription>
                   Selecciona a cuantos usuarios quieras.
                 </FieldDescription>
