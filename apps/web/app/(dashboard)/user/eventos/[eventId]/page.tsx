@@ -3,6 +3,7 @@
 import { ActivityCard } from '@/components/activity-card';
 import EventInfoCard from '@/components/event-info-card';
 import { EventMenu } from '@/components/event-menu';
+import RegisterProductsForm from '@/components/forms/register-product-form';
 import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import IconSquare from '@/components/icon-square';
 import LoadingMessage from '@/components/loading-message';
@@ -204,16 +205,29 @@ const Page = () => {
 
             <Card className="w-full">
               <CardHeader>
-                <div className="flex gap-3 items-center">
-                  <IconSquare>
-                    <Shapes />
-                  </IconSquare>
+                <div className="flex justify-between">
+                  <div className="flex gap-3 items-center">
+                    <IconSquare>
+                      <Shapes />
+                    </IconSquare>
 
-                  <CardTitle>Productos</CardTitle>
+                    <CardTitle>Productos</CardTitle>
+                  </div>
+
+                  <Dialog>
+                    <DialogTrigger className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
+                      Registrar
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogTitle>Registrar Productos</DialogTitle>
+                      <Separator />
+                      <RegisterProductsForm products={event.products} />
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="px-4">
+                <div>
                   {userProducts.length ? (
                     userProducts.map((p: IProduct) => (
                       <ProductCard
