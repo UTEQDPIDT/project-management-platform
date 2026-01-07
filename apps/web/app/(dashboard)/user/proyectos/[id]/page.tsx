@@ -6,7 +6,7 @@ import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
 import { ProductsBoard } from '@/components/products-board';
-import ProjectInfoTable from '@/components/project-info-table';
+import ProjectInfoTable from '@/components/project-info';
 import { ProjectMenu } from '@/components/project-menu';
 import { ProjectsBoard } from '@/components/projects-board';
 import {

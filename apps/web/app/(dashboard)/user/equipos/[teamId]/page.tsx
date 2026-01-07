@@ -1,20 +1,20 @@
 'use client';
 
 import { CardMembers } from '@/components/card-members';
-import {
-  Header,
-  HeaderAction,
-  HeaderContent,
-  HeaderDescription,
-  HeaderHeading,
-  HeaderTitle,
-} from '@/components/header';
+import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
 import { ProjectsBoard } from '@/components/projects-board';
+import { TeamInfo } from '@/components/team-info';
 import { TeamMenu } from '@/components/team-menu';
 import { TeamUserRequests } from '@/components/team-user-requests';
-import { Badge } from '@/components/ui/badge';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -25,8 +25,8 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { useProjectsByTeam } from '@/hooks/projects';
 import { useTeam } from '@/hooks/team';
-import { BadgeVariants, TeamsGrade } from '@repo/types';
 import { Bell } from 'lucide-react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 const Page = () => {
@@ -34,26 +34,6 @@ const Page = () => {
   const { data: team, isLoading: loadingTeam } = useTeam(teamId);
   const { data: projects, isLoading: loadingProjects } =
     useProjectsByTeam(teamId);
-
-  let badgeVariant:
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'green'
-    | 'gray'
-    | 'purple'
-    | 'orange'
-    | null
-    | undefined;
-  switch (team?.grade) {
-    case TeamsGrade.FORMACION:
-      badgeVariant = BadgeVariants.GRAY;
-      break;
-    case TeamsGrade.CONSOLIDADO:
-      badgeVariant = BadgeVariants.GREEN;
-      break;
-  }
 
   return (
     <div className="w-full h-full">
@@ -65,13 +45,18 @@ const Page = () => {
         <div>
           <Header>
             <HeaderHeading>
-              <HeaderTitle>{team.teamName}</HeaderTitle>
-              <HeaderDescription>{team.division?.name}</HeaderDescription>
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link href="/user/equipos">Eventos</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>{team.teamName}</BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
             </HeaderHeading>
-
-            <HeaderContent>
-              <Badge variant={badgeVariant}>{team.grade}</Badge>
-            </HeaderContent>
 
             <HeaderAction>
               <DropdownMenu>
@@ -102,9 +87,12 @@ const Page = () => {
             </HeaderAction>
           </Header>
 
-          <PageContent className="px-4">
-            <CardMembers team={team} />
-            <ProjectsBoard loading={loadingProjects} projects={projects} />
+          <PageContent>
+            <TeamInfo team={team} />
+            <div className="w-full flex gap-4">
+              <CardMembers team={team} />
+              <ProjectsBoard loading={loadingProjects} projects={projects} />
+            </div>
           </PageContent>
         </div>
       )}
