@@ -44,7 +44,7 @@ import { Separator } from '@/components/ui/separator';
 import {
   useDeleteEventActivity,
   useGetEventById,
-  useRemoveParticipant,
+  useExitEvent,
 } from '@/hooks/events';
 import { IActivity, IProduct, IUser } from '@repo/types';
 import { format } from 'date-fns';
@@ -66,7 +66,7 @@ const Page = () => {
   const { eventId } = useParams<{ eventId: string }>();
   const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
   const deleteActivity = useDeleteEventActivity();
-  const removeParticipant = useRemoveParticipant();
+  const removeParticipant = useExitEvent();
 
   const handleDeleteActivity = (activity: IActivity) => {
     deleteActivity.mutate({
