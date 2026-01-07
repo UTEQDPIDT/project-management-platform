@@ -30,9 +30,9 @@ const Page = () => {
         {laodingEvents ? (
           <LoadingMessage message="Cargando eventos" />
         ) : (
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
             {events.map((e: IEvent) => (
-              <EventCard event={e} />
+              <EventCard key={e._id} event={e} />
             ))}
           </div>
         )}

@@ -25,6 +25,7 @@ import {
   CardTitle,
 } from './ui/card';
 import CopyButton from './ui/copy';
+import { useRegisterParticipant } from '@/hooks/events';
 
 interface EventCardProps {
   event: IEvent;
@@ -35,6 +36,11 @@ export function EventCard({ event }: EventCardProps) {
    * Context
    */
   const { user } = userProfile();
+
+  /**
+   * Tanstack
+   */
+  const registerParticipant = useRegisterParticipant();
 
   /**
    * Conditionally render buttons
@@ -59,7 +65,11 @@ export function EventCard({ event }: EventCardProps) {
       );
     } else {
       return (
-        <Button size="sm" disabled={event.isPrivate}>
+        <Button
+          size="sm"
+          disabled={event.isPrivate || registerParticipant.isPending}
+          onClick={() => registerParticipant.mutate({ eventId: event._id })}
+        >
           {event.isPrivate ? 'Evento Privado' : 'Inscribirse'}
         </Button>
       );
