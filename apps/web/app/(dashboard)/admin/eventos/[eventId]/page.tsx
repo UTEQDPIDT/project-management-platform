@@ -4,13 +4,7 @@ import { ActivityCard } from '@/components/activity-card';
 import { EventMenu } from '@/components/event-menu';
 import { ActivityForm } from '@/components/forms/activity-form';
 import { ParticipantsForm } from '@/components/forms/participants-form';
-import {
-  Header,
-  HeaderAction,
-  HeaderDescription,
-  HeaderHeading,
-  HeaderTitle,
-} from '@/components/header';
+import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import IconSquare from '@/components/icon-square';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
@@ -25,13 +19,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -51,7 +39,6 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import {
   useDeleteEventActivity,
   useGetEventById,
@@ -62,13 +49,9 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
   Copy,
-  Download,
-  File,
-  FileText,
   Info,
   ListTodo,
   MoreHorizontal,
-  Newspaper,
   Shapes,
   Upload,
   UserMinus,
