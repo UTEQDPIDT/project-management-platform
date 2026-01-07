@@ -133,24 +133,9 @@ const Page = () => {
 
                   <CardContent>
                     <div className="flex flex-col text-sm gap-4">
-                      <div className="flex justify-between gap-3">
-                        <span className="text-muted-foreground">Fecha</span>
-                        {event.endDate ? (
-                          <div>
-                            {format(event.startDate, "d 'de' MMMM 'al' ", {
-                              locale: es,
-                            })}
-                            {format(event.endDate, "d 'de' MMMM 'del' yyyy", {
-                              locale: es,
-                            })}
-                          </div>
-                        ) : (
-                          <div>
-                            {format(event.startDate, "d',' MMM 'del' yyyy", {
-                              locale: es,
-                            })}
-                          </div>
-                        )}
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Nombre</span>
+                        <span>{event.name}</span>
                       </div>
 
                       <div className="flex justify-between gap-5">
@@ -158,11 +143,6 @@ const Page = () => {
                           Organización
                         </span>
                         <span>{event.organization}</span>
-                      </div>
-
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Nombre</span>
-                        <span>{event.name}</span>
                       </div>
 
                       <div className="flex justify-between gap-5">
@@ -186,6 +166,26 @@ const Page = () => {
                             <Copy />
                           </Button>
                         </div>
+                      </div>
+
+                      <div className="flex justify-between gap-3">
+                        <span className="text-muted-foreground">Fecha</span>
+                        {event.endDate ? (
+                          <div>
+                            {format(event.startDate, "d 'de' MMMM 'al' ", {
+                              locale: es,
+                            })}
+                            {format(event.endDate, "d 'de' MMMM 'del' yyyy", {
+                              locale: es,
+                            })}
+                          </div>
+                        ) : (
+                          <div>
+                            {format(event.startDate, "d',' MMM 'del' yyyy", {
+                              locale: es,
+                            })}
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex justify-between gap-3">
