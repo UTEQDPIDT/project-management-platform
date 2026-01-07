@@ -99,7 +99,7 @@ export class TeamsService {
       .exec();
   }
 
-  async updateTeam(id: string, updateTeamDto: UpdateTeamDto): Promise<Team> {
+  async updateTeam(id: string, updateTeamDto: UpdateTeamDto) {
     try {
       const updatedTeam = await this.teamModel
         .findByIdAndUpdate(id, updateTeamDto, { new: true })

@@ -84,7 +84,7 @@ export class ActivitiesService {
     id: string,
     updateActivityDto: UpdateActivityDto,
     userId: string,
-  ): Promise<Activity> {
+  ) {
     const activity = await this.activityModel.findById(id);
 
     if (!activity) {

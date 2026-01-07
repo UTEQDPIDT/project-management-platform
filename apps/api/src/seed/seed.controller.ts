@@ -12,4 +12,11 @@ export class SeedController {
   runSeed(@Param('password') password: string) {
     return this.seedService.runSeed(password);
   }
+
+  @ApiOkResponse({ description: 'Índices de matrícula y número de empleado reparados correctamente.'})
+  @ApiBadRequestResponse({ description: 'Contraseña incorrecta.'})
+  @Get('fix-matricula-index/:password')
+  fixMatriculaIndex(@Param('password') password: string) {
+    return this.seedService.fixMatriculaIndex(password);
+  }
 }

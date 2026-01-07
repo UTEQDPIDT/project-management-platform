@@ -60,8 +60,8 @@ export class SeedService {
     @InjectModel(SustainabilityGoal.name)
     private readonly sustainabilityGoalModel: Model<SustainabilityGoal>,
 
-    // @InjectModel(User.name)
-    // private readonly userModel: Model<User>,
+    @InjectModel('User')
+    private readonly userModel: Model<any>,
   ) {}
 
   private async seedCollection(
@@ -154,5 +154,58 @@ export class SeedService {
     //await this.seedUsers(initialUsers);
 
     console.log('Seed data has been populated successfully.');
+  }
+
+  async fixMatriculaIndex(password: string) {
+    if (password !== process.env.SEED_PASSWORD)
+      throw new UnauthorizedException('Contraseña incorrecta.');
+
+    try {
+      // 1. Remove all null/undefined matricula and employeeNumber values
+      await this.userModel.updateMany(
+        { matricula: null },
+        { $unset: { matricula: '' } },
+      );
+
+      await this.userModel.updateMany(
+        { employeeNumber: null },
+        { $unset: { employeeNumber: '' } },
+      );
+
+      // 2. Drop the existing indexes if they exist
+      const indexesToDrop = ['matricula_1', 'employeeNumber_1'];
+
+      for (const indexName of indexesToDrop) {
+        try {
+          await this.userModel.collection.dropIndex(indexName);
+          console.log(`Dropped existing ${indexName} index`);
+        } catch (err) {
+          console.log(`No existing ${indexName} index to drop`);
+        }
+      }
+
+      // 3. Recreate the indexes as sparse and unique
+      await this.userModel.collection.createIndex(
+        { matricula: 1 },
+        { unique: true, sparse: true },
+      );
+
+      await this.userModel.collection.createIndex(
+        { employeeNumber: 1 },
+        { unique: true, sparse: true },
+      );
+
+      console.log(
+        'Matricula and employeeNumber indexes fixed successfully.',
+      );
+      return {
+        success: true,
+        message:
+          'Índices de matrícula y número de empleado reparados correctamente. Usuarios con valores null actualizados.',
+      };
+    } catch (error) {
+      console.error('Error fixing indexes:', error);
+      throw error;
+    }
   }
 }
