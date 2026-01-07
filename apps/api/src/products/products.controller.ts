@@ -45,6 +45,11 @@ export class ProductsController {
     return this.productsService.findOne(id);
   }
 
+  @Get('/by-user/:userId')
+  findByUser(@Param('userId') userId) {
+    return this.productsService.findByUser(userId);
+  }
+
   @ApiAcceptedResponse({
     description: 'Productp actualizado correctamente.',
     type: UpdateProductDto,

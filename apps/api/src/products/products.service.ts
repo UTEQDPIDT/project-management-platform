@@ -65,6 +65,10 @@ export class ProductsService {
     return product;
   }
 
+  findByUser(userId: string) {
+    return this.productModel.find({ owner: userId });
+  }
+
   async update(id: string, updateProductDto: UpdateProductDto, userId: string) {
     try {
       const updatedProduct = await this.productModel.findByIdAndUpdate(
