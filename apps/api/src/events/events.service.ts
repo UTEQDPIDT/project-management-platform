@@ -350,4 +350,19 @@ export class EventsService {
       message: `Participants removed successfully from event with id ${eventId}`,
     };
   }
+
+  async addParticipant(eventId: string, userId: string) {
+    try {
+      await this.eventModel.findByIdAndUpdate(eventId, {
+        $push: { participants: userId },
+      });
+
+      return {
+        addedParticipantId: userId,
+        message: `Participant with ID ${userId} added successfully`,
+      };
+    } catch (err: any) {
+      throw new BadRequestException(err.message);
+    }
+  }
 }

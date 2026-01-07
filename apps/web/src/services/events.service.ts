@@ -114,6 +114,14 @@ const removeParticipant = async ({
   }
 };
 
+const registerParticipant = async ({ eventId }: { eventId: string }) => {
+  try {
+    await api.patch(`/events/${eventId}/register`);
+  } catch (err) {
+    console.error('Error registering user');
+  }
+};
+
 export {
   createEvent,
   getAllEvents,
@@ -124,4 +132,5 @@ export {
   deleteEventActivity,
   addParticipants,
   removeParticipant,
+  registerParticipant,
 };

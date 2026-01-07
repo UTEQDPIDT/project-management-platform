@@ -115,6 +115,12 @@ export class EventsController {
   /**
    * PARTICIPANTS
    */
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/register')
+  addParticipant(@Param('id') id, @Req() req) {
+    return this.eventsService.addParticipant(id, req.user.id);
+  }
+
   @ApiCreatedResponse({
     description: 'Participantes agregados correctamente al evento.',
   })
