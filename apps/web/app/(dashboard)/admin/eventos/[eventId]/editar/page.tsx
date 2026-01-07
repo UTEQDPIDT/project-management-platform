@@ -25,7 +25,7 @@ const Page = () => {
       <Header>
         <HeaderHeading className="flex-row gap-2">
           <Badge variant="orange">Editando</Badge>
-          <HeaderTitle>{event.name}</HeaderTitle>
+          <HeaderTitle>{loadingEvent ? 'Evento' : event.name}</HeaderTitle>
         </HeaderHeading>
         <HeaderAction>
           <Button asChild variant="ghost">
