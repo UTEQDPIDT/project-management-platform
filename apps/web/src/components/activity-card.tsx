@@ -1,21 +1,16 @@
+import { cn } from '@/lib/utils';
 import { IActivity } from '@repo/types';
-import {
-  Calendar,
-  Download,
-  Ellipsis,
-  MoveRight,
-  Pencil,
-  Trash,
-} from 'lucide-react';
-import React from 'react';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { Calendar, Ellipsis, MoveRight, Pencil, Trash } from 'lucide-react';
+import AvatarRow from './avatar-row';
+import { ActivityForm } from './forms/activity-form';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from './ui/card';
@@ -33,30 +28,14 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Separator } from './ui/separator';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
-import { ActivityForm } from './forms/activity-form';
-import { useDeleteActivity } from '@/hooks/projects';
-import AvatarRow from './avatar-row';
 
 interface Props {
   activity: IActivity;
-  projectId?: string;
+  onDelete: (activity: IActivity) => void;
   className?: string;
 }
 
-export function ActivityCard({ activity, projectId, className }: Props) {
-  // todo: use hook
-  const deleteActivity = useDeleteActivity();
-
-  const handleDelete = () => {
-    deleteActivity.mutate({
-      projectId: projectId || '',
-      activityId: activity._id,
-    });
-  };
-
+export function ActivityCard({ activity, onDelete, className }: Props) {
   let badgeVariant:
     | 'orange'
     | 'gray'
@@ -111,7 +90,11 @@ export function ActivityCard({ activity, projectId, className }: Props) {
                   </div>
                   <Separator />
 
-                  <ActivityForm activity={activity} projectId={projectId} />
+                  <ActivityForm
+                    activity={activity}
+                    projectId={activity.projectId}
+                    eventId={activity.eventId}
+                  />
                 </DialogContent>
               </Dialog>
 
@@ -136,9 +119,9 @@ export function ActivityCard({ activity, projectId, className }: Props) {
 
                     <DialogClose asChild>
                       <Button
-                        onClick={handleDelete}
-                        disabled={deleteActivity.isPending}
+                        onClick={() => onDelete?.(activity)}
                         variant="destructive"
+                        disabled={!onDelete}
                       >
                         Eliminar
                       </Button>

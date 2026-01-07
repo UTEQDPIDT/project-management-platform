@@ -6,7 +6,7 @@ import {
   useProject,
   useUpdateProjectActivity,
 } from '@/hooks/projects';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
@@ -39,20 +39,38 @@ import { DialogClose } from '../ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { Command, CommandGroup, CommandItem } from '../ui/command';
+import { useCreateEventActivity, useUpdateEventActivity } from '@/hooks/events';
+import LoadingMessage from '../loading-message';
 
 interface Props {
   activity?: IActivity;
   projectId?: string;
+  eventId?: string;
 }
 
-export function ActivityForm({ activity, projectId }: Props) {
+export function ActivityForm({ activity, projectId, eventId }: Props) {
   /**
    * Tanstack hooks
    */
+  // Project hooks
   const createActivity = useCreateActivity();
   const updateProjectActivity = useUpdateProjectActivity();
+  // Event hooks
+  const createEventActivity = useCreateEventActivity();
+  const updateEventActivity = useUpdateEventActivity();
 
-  // Load project members (owner + team members)
+  const context = useMemo(() => {
+    if (projectId) return 'project';
+    if (eventId) return 'event';
+  }, [projectId, eventId]);
+
+  if (!context) {
+    throw new Error('ActivityForm requires either a projectId or eventId');
+  }
+
+  // Load project members (owner + team members).
+  // `useProject` is safe to call with an empty id because it uses
+  // `enabled: !!projectId` internally; this keeps hooks order stable.
   const { data: project, isLoading: loadingProject } = useProject(
     projectId || '',
   );
@@ -72,6 +90,12 @@ export function ActivityForm({ activity, projectId }: Props) {
     });
     return Array.from(map.values());
   }, [project]);
+
+  const isSubmiting =
+    createActivity.isPending ||
+    updateProjectActivity.isPending ||
+    createEventActivity.isPending ||
+    updateEventActivity.isPending;
 
   const form = useForm({
     resolver: zodResolver(activityZodSchema),
@@ -104,18 +128,32 @@ export function ActivityForm({ activity, projectId }: Props) {
       };
 
       if (activity) {
-        if (projectId) {
+        // UPDATE
+        if (context === 'project') {
           updateProjectActivity.mutate({
+            activityId: activity._id,
+            activityData: cleanedData,
+          });
+        } else {
+          updateEventActivity.mutate({
             activityId: activity._id,
             activityData: cleanedData,
           });
         }
       } else {
-        if (projectId) {
+        // CREATE
+        if (context === 'project' && projectId) {
           createActivity.mutate({
             projectId,
             activityData: cleanedData,
           });
+        } else {
+          if (eventId) {
+            createEventActivity.mutate({
+              eventId,
+              activityData: cleanedData,
+            });
+          }
         }
       }
     } catch (err) {
@@ -249,7 +287,7 @@ export function ActivityForm({ activity, projectId }: Props) {
           )}
         />
 
-        {members && (
+        {context === 'project' && (
           <Controller
             control={form.control}
             name="assignees"
@@ -337,10 +375,8 @@ export function ActivityForm({ activity, projectId }: Props) {
           <Button variant="outline">Cancelar</Button>
         </DialogClose>
 
-        <Button
-          disabled={createActivity.isPending || updateProjectActivity.isPending}
-        >
-          {activity ? 'Actualizar' : 'Crear'}
+        <Button disabled={isSubmiting}>
+          {isSubmiting ? <LoadingMessage /> : activity ? 'Actualizar' : 'Crear'}
         </Button>
       </div>
     </form>

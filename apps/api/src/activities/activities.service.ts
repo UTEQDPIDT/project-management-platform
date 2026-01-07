@@ -21,17 +21,21 @@ export class ActivitiesService {
   async create(
     createActivityDto: CreateActivityDto,
     userId: string,
-    session?: ClientSession,
-    projectId?: string,
+    options?: {
+      session?: ClientSession;
+      projectId?: string;
+      eventId?: string;
+    },
   ): Promise<Activity> {
     try {
       const createdActivity = new this.activityModel({
         ...createActivityDto,
         createdBy: userId,
-        projectId,
+        projectId: options?.projectId,
+        eventId: options?.eventId,
       });
 
-      await createdActivity.save({ session });
+      await createdActivity.save({ session: options?.session });
 
       return createdActivity;
     } catch (err: any) {
@@ -96,7 +100,7 @@ export class ActivitiesService {
       { new: true },
     );
 
-    return { id, message: 'Activity updated successfully' };
+    return updatedActivity;
   }
 
   async removeFile(activityId: string, fileId: string, userId: string) {
@@ -146,5 +150,9 @@ export class ActivitiesService {
 
   async deleteManyByProject(projectId: string, session: ClientSession) {
     await this.activityModel.deleteMany({ projectId }, { session });
+  }
+
+  async deleteManyByEvent(eventId: string, session: ClientSession) {
+    await this.activityModel.deleteMany({ eventId }, { session });
   }
 }

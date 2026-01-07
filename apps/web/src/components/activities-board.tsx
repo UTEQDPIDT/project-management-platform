@@ -1,7 +1,7 @@
 'use client';
 
 import { IActivity } from '@repo/types';
-import { Circle, ListTodo } from 'lucide-react';
+import { ListTodo } from 'lucide-react';
 import { ActivityCard } from './activity-card';
 import IconSquare from './icon-square';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -16,6 +16,7 @@ import {
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { ActivityForm } from './forms/activity-form';
+import { useDeleteActivity } from '@/hooks/projects';
 
 interface Props {
   activities: IActivity[];
@@ -23,6 +24,15 @@ interface Props {
 }
 
 export function ActivitiesBoard({ activities, projectId }: Props) {
+  const deleteActivity = useDeleteActivity();
+
+  const handleDeleteActivity = (activity: IActivity) => {
+    deleteActivity.mutate({
+      projectId: activity.projectId!,
+      activityId: activity._id,
+    });
+  };
+
   const pendingActivities = activities.filter(
     (a: IActivity) => a.status === 'Pendiente',
   );
@@ -73,7 +83,7 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
                   <ActivityCard
                     key={a._id}
                     activity={a}
-                    projectId={projectId}
+                    onDelete={handleDeleteActivity}
                   />
                 ))}
               </CardContent>
@@ -93,7 +103,7 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
                   <ActivityCard
                     key={a._id}
                     activity={a}
-                    projectId={projectId}
+                    onDelete={handleDeleteActivity}
                     className="border-blue-200"
                   />
                 ))}
@@ -114,7 +124,7 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
                   <ActivityCard
                     key={a._id}
                     activity={a}
-                    projectId={projectId}
+                    onDelete={handleDeleteActivity}
                     className="border-green-200"
                   />
                 ))}

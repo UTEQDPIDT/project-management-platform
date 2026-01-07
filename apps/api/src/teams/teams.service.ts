@@ -107,7 +107,8 @@ export class TeamsService {
 
       if (!updatedTeam)
         throw new NotFoundException(`Team with ID: ${id} not found`);
-      return { id, message: 'Team updated successfully' };
+
+      return updatedTeam;
     } catch (err: any) {
       if (err.code === 11000) {
         throw new BadRequestException('Team with this name already exists');

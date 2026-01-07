@@ -62,6 +62,10 @@ export class Activity extends Document {
   @ApiPropertyOptional({ description: 'El ID del proyecto al que pertenece' })
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId })
   projectId?: mongoose.Schema.Types.ObjectId;
+
+  @ApiPropertyOptional({ description: 'El ID del evento al que pertenece' })
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId })
+  eventId?: mongoose.Schema.Types.ObjectId;
 }
 
 export const ActivitySchema = SchemaFactory.createForClass(Activity);

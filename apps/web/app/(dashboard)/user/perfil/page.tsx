@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import { useUser } from '@/hooks/user';
+import { useGetAllUsers } from '@/hooks/user';
 import { userProfile } from 'context/profile-provider';
 import { Pencil } from 'lucide-react';
 

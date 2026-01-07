@@ -1,7 +1,7 @@
 'use client';
 
 import { IProduct } from '@repo/types';
-import { FileText, Newspaper } from 'lucide-react';
+import { FileText, Newspaper, Shapes } from 'lucide-react';
 import { ProductForm } from './forms/product-form';
 import IconSquare from './icon-square';
 import ProductCard from './product-card';
@@ -28,7 +28,7 @@ export function ProductsBoard({ products, projectId }: ProductsCardProps) {
         <div className="flex justify-between ">
           <div className="flex gap-3 items-center">
             <IconSquare className="bg-orange-50 text-orange-700">
-              <FileText />
+              <Shapes />
             </IconSquare>
 
             <CardTitle>Productos</CardTitle>
@@ -56,7 +56,7 @@ export function ProductsBoard({ products, projectId }: ProductsCardProps) {
           <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <Newspaper />
+                <Shapes />
               </EmptyMedia>
               <EmptyTitle>No Hay Productos</EmptyTitle>
               <EmptyDescription>
