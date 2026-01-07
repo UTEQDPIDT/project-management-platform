@@ -1,5 +1,6 @@
 import { IActivity, Status } from '@repo/types';
 import { clsx, type ClassValue } from 'clsx';
+import { toast } from 'sonner';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
 
@@ -105,4 +106,9 @@ export const calculateProgress = (activities: IActivity[]) => {
 // Concatenate strings separated by commas
 export const concatWithCommaAndDot = (words: string[]) => {
   return words.map(String).join(', ') + '.';
+};
+
+export const copyValue = (value: string) => {
+  navigator.clipboard.writeText(value);
+  toast.success('Copiado al portapapeles');
 };
