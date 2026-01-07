@@ -23,7 +23,7 @@ export interface IProject {
   team?: ITeam;
   relatedProjects?: IProject[];
   activities: IActivity[];
-  product?: IProduct[];
+  products?: IProduct[];
   files?: IFile[];
   updatedBy?: IUser;
   startDate?: Date;

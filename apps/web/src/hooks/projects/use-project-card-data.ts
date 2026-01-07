@@ -13,6 +13,7 @@ export function useProjectCardData(project: IProject) {
     endDate,
     files,
     activities,
+    products,
     relatedProjects,
   } = project;
 
@@ -46,6 +47,7 @@ export function useProjectCardData(project: IProject) {
     endDate,
     files,
     activities,
+    products,
     relatedProjects,
     profiles,
     progress,
