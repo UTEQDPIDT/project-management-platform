@@ -23,6 +23,8 @@ import Link from 'next/link';
 import { copyValue } from '@/lib/utils';
 
 const columns: ColumnDef<IUser>[] = [
+  { accessorKey: 'givenName', header: 'Nombre(s)' },
+  { accessorKey: 'familyName', header: 'Apellido(s)' },
   {
     id: 'user-type',
     header: 'Rol',
@@ -81,8 +83,6 @@ const columns: ColumnDef<IUser>[] = [
       );
     },
   },
-  { accessorKey: 'givenName', header: 'Nombre(s)' },
-  { accessorKey: 'familyName', header: 'Apellido(s)' },
   {
     accessorKey: 'email',
     header: 'Correo',
@@ -162,7 +162,11 @@ const columns: ColumnDef<IUser>[] = [
     cell: ({ row }) => {
       const { createdAt } = row.original;
 
-      return <div>{format(createdAt, "d 'de' MMMM 'de' yyyy HH':'mm")}</div>;
+      return (
+        <div>
+          {format(createdAt, "d 'de' MMMM 'de' yyyy HH':'mm", { locale: es })}
+        </div>
+      );
     },
   },
   {
