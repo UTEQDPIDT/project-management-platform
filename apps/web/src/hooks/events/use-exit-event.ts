@@ -11,11 +11,11 @@ export function useExitEvent() {
     mutationFn: removeParticipant,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['event'] });
-      toast.success('Saliste del evento');
+      toast.success('Ha salido del evento');
       router.push('/user/eventos');
     },
     onError: () => {
-      toast.error('No haz salido del evento');
+      toast.error('No ha salido del evento');
     },
   });
 }
