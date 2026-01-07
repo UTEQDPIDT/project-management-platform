@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getProductById } from '@/services/product.service';
 
-export function useTeam(productId: string) {
+export function useProductById(productId: string) {
   return useQuery({
     queryKey: ['product', productId],
     queryFn: async () => await getProductById(productId),

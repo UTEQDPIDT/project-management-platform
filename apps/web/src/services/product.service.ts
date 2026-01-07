@@ -35,6 +35,15 @@ const getProductById = async (id: string) => {
   }
 };
 
+const getProductsByUser = async (userId: string) => {
+  try {
+    const { data } = await api.get(`/products/by-user/${userId}`);
+    return data;
+  } catch (err) {
+    console.error('Error fetching user products', err);
+  }
+};
+
 const updateProduct = async ({
   productId,
   productData,
@@ -62,6 +71,7 @@ export {
   createProduct,
   getProducts,
   getProductById,
+  getProductsByUser,
   updateProduct,
   deleteProduct,
 };
