@@ -3,6 +3,7 @@ import { Button } from './button';
 import { Copy } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
 import { toast } from 'sonner';
+import { copyValue } from '@/lib/utils';
 
 export default function CopyButton({
   valueToCopy,
@@ -14,8 +15,7 @@ export default function CopyButton({
   className?: string;
 }) {
   const handleClick = () => {
-    navigator.clipboard.writeText(valueToCopy);
-    toast.success('Copiado al portapapeles');
+    copyValue(valueToCopy);
   };
 
   return (

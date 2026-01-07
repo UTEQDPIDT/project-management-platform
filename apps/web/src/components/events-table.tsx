@@ -1,7 +1,7 @@
 'use client';
 
 import { useDeleteEvent, useGetAllEvents } from '@/hooks/events';
-import { EventType, IEvent } from '@repo/types';
+import { IEvent } from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from './ui/data-table';
 import LoadingMessage from './loading-message';
@@ -12,11 +12,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
 import {
-  ArrowUpRight,
   Copy,
   ExternalLink,
   MoreHorizontal,
@@ -257,6 +257,7 @@ const columns: ColumnDef<IEvent>[] = [
                 <ExternalLink /> Visitar evento
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               asChild
               className="hover:text-destructive-foreground"
@@ -300,7 +301,7 @@ export function EventsTable() {
   const { data: events, isLoading: loadingEvents } = useGetAllEvents();
 
   return (
-    <div className="flex items-center justify-center px-4 max-w-6xl">
+    <div className="max-w-6xl">
       {loadingEvents ? (
         <LoadingMessage message="Cargando eventos" />
       ) : (
