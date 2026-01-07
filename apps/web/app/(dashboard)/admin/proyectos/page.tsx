@@ -6,8 +6,9 @@ import {
   HeaderHeading,
   HeaderTitle,
 } from '@/components/header';
+import { PageContent } from '@/components/page-content';
+import ProjectsTable from '@/components/projects-table';
 import { Button } from '@/components/ui/button';
-import React from 'react';
 
 const Page = () => {
   return (
@@ -20,6 +21,9 @@ const Page = () => {
           </HeaderDescription>
         </HeaderHeading>
       </Header>
+      <PageContent>
+        <ProjectsTable />
+      </PageContent>
     </div>
   );
 };
