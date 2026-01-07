@@ -17,6 +17,13 @@ import { PageContent } from '@/components/page-content';
 import ProductCard from '@/components/product-card';
 
 import { ProfileInfo } from '@/components/profile-info';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -91,7 +98,17 @@ const Page = () => {
         <>
           <Header>
             <HeaderHeading>
-              <HeaderTitle>{event.name}</HeaderTitle>
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link href="/admin/eventos">Eventos</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>{event.name}</BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
             </HeaderHeading>
             <HeaderAction>
               <EventMenu eventId={eventId} name={event.name} />
