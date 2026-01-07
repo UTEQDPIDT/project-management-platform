@@ -44,6 +44,10 @@ export default function ProjectInfoTable({
 
   return (
     <div className="text-sm border-b pb-4 w-full px-4">
+      <div className="pb-2">
+        <h1 className="text-xl font-semibold">{name}</h1>
+      </div>
+
       <div className="flex items-start">
         <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
           <Percent size={14} /> Progreso
