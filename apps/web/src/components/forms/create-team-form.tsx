@@ -49,6 +49,7 @@ import {
 import { Switch } from '../ui/switch';
 import { useRouter } from 'next/navigation';
 import { userProfile } from 'context/profile-provider';
+import Link from 'next/link';
 
 export function CreateTeamForm() {
   const router = useRouter();
@@ -482,12 +483,8 @@ export function CreateTeamForm() {
         </Card>
 
         <div className="flex gap-2">
-          <Button
-            variant={'outline'}
-            type="button"
-            onClick={() => form.reset()}
-          >
-            Restablecer
+          <Button variant={'outline'} type="button" asChild>
+            <Link href="/user/equipos">Cancelar</Link>
           </Button>
           <Button type="submit" disabled={createTeamMutation.isPending}>
             {createTeamMutation.isPending ? (

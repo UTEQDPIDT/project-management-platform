@@ -9,6 +9,7 @@ import {
 } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useTeam } from '@/hooks/team';
 import { ArrowLeft } from 'lucide-react';
@@ -22,8 +23,9 @@ const Page = () => {
   return (
     <div>
       <Header>
-        <HeaderHeading>
-          <HeaderTitle>Editar Equipo</HeaderTitle>
+        <HeaderHeading className="flex-row gap-2">
+          <Badge variant="orange">Editando</Badge>
+          <HeaderTitle>{team.teamName}</HeaderTitle>
         </HeaderHeading>
         <HeaderAction>
           <Button asChild variant="ghost">
