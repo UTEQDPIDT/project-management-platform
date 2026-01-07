@@ -11,7 +11,7 @@ export function NavLogo() {
         alt="Logo de la UTEQ"
       />
       <span className="text-sm font-semibold leading-tight truncate">
-        Plataforma de Gestión de Proyectos
+        CIC 4.0.
       </span>
     </div>
   );

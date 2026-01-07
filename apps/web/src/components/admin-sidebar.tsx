@@ -1,6 +1,6 @@
 'use client';
 
-import { House, Users, Contact, Folders, Calendar } from 'lucide-react';
+import { House, Users, Contact, Calendar, Folder } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -22,7 +22,7 @@ const items = [
   { title: 'Inicio', url: '/admin/inicio', icon: House },
   { title: 'Usuarios', url: '/admin/usuarios', icon: Contact },
   { title: 'Equipos', url: '/admin/equipos', icon: Users },
-  { title: 'Proyectos', url: '/admin/proyectos', icon: Folders },
+  { title: 'Proyectos', url: '/admin/proyectos', icon: Folder },
   { title: 'Eventos', url: '/admin/eventos', icon: Calendar },
 ];
 
@@ -56,7 +56,7 @@ export function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser givenName="Aeon Julien" email="aeonruiz@uteq.edu.mx" />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );
