@@ -1,7 +1,7 @@
 import { mongoId } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IProduct } from '@repo/types';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import z from 'zod';
 import { Button } from '../ui/button';
@@ -151,7 +151,7 @@ export default function RegisterProductsForm({
                       ) : (
                         <div className="w-full select-none p-2 flex items-center justify-center">
                           <span className="text-muted-foreground text-sm">
-                            No hay productos.
+                            No hay productos para seleccionar
                           </span>
                         </div>
                       )}

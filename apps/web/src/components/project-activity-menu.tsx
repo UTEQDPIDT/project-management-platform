@@ -31,7 +31,7 @@ export default function ProjectActivityMenu({
   };
 
   return (
-    <div>
+    <div className="flex flex-col gap-1">
       {/* Edit */}
       <Dialog>
         <DialogTrigger className="border-transparent w-full justify-start">

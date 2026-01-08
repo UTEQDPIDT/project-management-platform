@@ -50,7 +50,7 @@ export function EventMenu({
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           {user.role === UserRole.ADMIN ? (
-            <>
+            <div className="flex flex-col gap-1">
               <Button
                 className="font-normal w-full justify-start"
                 variant="ghost"
@@ -58,12 +58,12 @@ export function EventMenu({
               >
                 <Link href={`/admin/eventos/${eventId}/editar`}>
                   <Pencil />
-                  Editar
+                  Editar evento
                 </Link>
               </Button>
               <Dialog>
                 <DialogTrigger className="font-normal border-transparent hover:text-destructive-foreground w-full justify-start">
-                  <Trash /> Eliminar
+                  <Trash /> Eliminar evento
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -89,7 +89,7 @@ export function EventMenu({
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-            </>
+            </div>
           ) : (
             <DropdownMenuItem onClick={handleExitEvent}>
               <DoorOpen /> Salir del evento

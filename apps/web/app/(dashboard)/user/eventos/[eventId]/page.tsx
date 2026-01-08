@@ -207,7 +207,7 @@ const Page = () => {
                           <ProductCard
                             key={p._id}
                             product={p}
-                            projectId={p.projectId}
+                            enableOptions={currentUserId === p.owner._id}
                           />
                         ))}
                       </div>
