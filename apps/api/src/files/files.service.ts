@@ -25,9 +25,9 @@ export class FilesService {
       throw new BadRequestException('No file provided');
     }
 
-    await this.uploadToGridFS(file, userId);
+    const savedFile = await this.uploadToGridFS(file, userId);
 
-    return { id: file.originalname, message: 'File uploaded successfully' };
+    return { id: savedFile._id.toString(), message: 'File uploaded successfully' };
   }
 
   async uploadToGridFS(file: Express.Multer.File, ownerId: string): Promise<File> {
@@ -40,8 +40,9 @@ export class FilesService {
 
     const fileId = uploadStream.id;
 
-    new Promise((res, rej) => {
-      uploadStream.on('close', async () => {
+    // Wait for the upload to complete
+    const savedFile = await new Promise<File>((res, rej) => {
+      uploadStream.on('finish', async () => {
         // 2. Save metadata to File collection
         const savedFile = await this.fileModel.create({
           name: file.originalname,
@@ -58,7 +59,7 @@ export class FilesService {
       uploadStream.on('error', rej);
     });
 
-    return this.fileModel.findById(fileId);
+    return savedFile;
   }
 
   async findAll(): Promise<File[]> {

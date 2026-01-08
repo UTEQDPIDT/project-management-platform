@@ -1,6 +1,6 @@
 'use client';
 
-import { House, Users, Contact, Calendar, Folder } from 'lucide-react';
+import { House, Users, Contact, Calendar, Folder, File } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -24,6 +24,7 @@ const items = [
   { title: 'Equipos', url: '/admin/equipos', icon: Users },
   { title: 'Proyectos', url: '/admin/proyectos', icon: Folder },
   { title: 'Eventos', url: '/admin/eventos', icon: Calendar },
+  { title: 'Archivos', url: '/admin/archivos', icon: File },
 ];
 
 export function AdminSidebar() {

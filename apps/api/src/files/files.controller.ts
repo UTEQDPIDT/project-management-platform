@@ -75,19 +75,29 @@ export class FilesController {
   @ApiResponse({ status: 404, description: 'Archivo no encontrado' })
   @Get('download/:id')
   async downloadFile(@Param('id') id: string, @Res() res: Response) {
-    const { metadata, stream } =
-      await this.filesService.getStream(id);
+    try {
+      const { metadata, stream } = await this.filesService.getStream(id);
 
-    res.set({
-      'Content-Type': metadata.mimetype || 'application/octet-stream',
-      'Content-Disposition': `attachment; filename="${metadata.name}"`,
-    });
+      res.set({
+        'Content-Type': metadata.mimetype || 'application/octet-stream',
+        'Content-Disposition': `attachment; filename="${metadata.name}"`,
+        'Content-Length': metadata.size.toString(),
+      });
 
-    stream.on('error', () =>
-      res.status(404).send('Could not read file'),
-    );
+      stream.on('error', (error) => {
+        console.error('Stream error:', error);
+        if (!res.headersSent) {
+          res.status(404).send('Could not read file');
+        }
+      });
 
-    stream.pipe(res);
+      stream.pipe(res);
+    } catch (error) {
+      console.error('Download error:', error);
+      if (!res.headersSent) {
+        res.status(404).send('File not found');
+      }
+    }
   }
 
   @ApiResponse({ status: 200, description: 'Archivo eliminado correctamente' })
