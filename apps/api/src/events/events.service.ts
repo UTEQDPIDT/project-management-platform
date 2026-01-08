@@ -63,7 +63,14 @@ export class EventsService {
       .populate('createdBy')
       .populate('updatedBy')
       .populate('activities')
-      .populate('products')
+      .populate({
+        path: 'products',
+        populate: [
+          { path: 'owner' },
+          { path: 'category' },
+          { path: 'subcategory' },
+        ],
+      })
       .exec();
   }
 
@@ -74,10 +81,20 @@ export class EventsService {
       .populate('createdBy')
       .populate('updatedBy')
       .populate('activities')
-      .populate('products');
+      .populate('products')
+      .populate({
+        path: 'products',
+        populate: [
+          { path: 'owner' },
+          { path: 'category' },
+          { path: 'subcategory' },
+        ],
+      });
+
     if (!event) {
       throw new NotFoundException(`Event with ID: ${id} not found`);
     }
+
     return event;
   }
 
