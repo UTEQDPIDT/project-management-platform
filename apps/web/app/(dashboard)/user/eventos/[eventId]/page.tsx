@@ -229,34 +229,32 @@ const Page = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div>
-                  {loadingEvent ? (
-                    <LoadingMessage />
-                  ) : event.products.length ? (
-                    event.products.map(
-                      (p: IProduct) =>
-                        //   <ProductCard
-                        //     key={p._id}
-                        //     product={p}
-                        //     projectId={p.projectId}
-                        //   />
-                        'productos',
-                    )
-                  ) : (
-                    <Empty>
-                      <EmptyHeader>
-                        <EmptyMedia variant="icon">
-                          <Shapes />
-                        </EmptyMedia>
-                        <EmptyTitle>No Hay Productos</EmptyTitle>
-                        <EmptyDescription>
-                          No haz registrado ningún producto para presentar en
-                          este evento. Registra tus productos al evento.
-                        </EmptyDescription>
-                      </EmptyHeader>
-                    </Empty>
-                  )}
-                </div>
+                {loadingEvent ? (
+                  <LoadingMessage />
+                ) : event.products.length ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    {event.products.map((p: IProduct) => (
+                      <ProductCard
+                        key={p._id}
+                        product={p}
+                        projectId={p.projectId}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <Empty>
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <Shapes />
+                      </EmptyMedia>
+                      <EmptyTitle>No Hay Productos</EmptyTitle>
+                      <EmptyDescription>
+                        No haz registrado ningún producto para presentar en este
+                        evento. Registra tus productos al evento.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
+                )}
               </CardContent>
             </Card>
           </PageContent>
