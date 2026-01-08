@@ -61,7 +61,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 const Page = () => {
   const { eventId } = useParams<{ eventId: string }>();
@@ -82,12 +82,12 @@ const Page = () => {
     });
   };
 
-  let userProducts: IProduct[] = [];
-  //   useEffect(() => {
-  //     userProducts = event.products.filter(
-  //       (p: IProduct) => p.owner._id === currentUserId,
-  //     );
-  //   }, [event, event.products]);
+  useMemo(() => {
+    if (!event?.products || !currentUserId) return [];
+    return event.products.filter(
+      (p: IProduct) => p.owner._id === currentUserId,
+    );
+  }, [event?.products, currentUserId]);
 
   return (
     <div>
@@ -154,8 +154,7 @@ const Page = () => {
                         </EmptyMedia>
                         <EmptyTitle>No Hay Participantes</EmptyTitle>
                         <EmptyDescription>
-                          No se han agregado participantes al evento. Agrega
-                          participantes.
+                          No se hay participantes para este evento.
                         </EmptyDescription>
                       </EmptyHeader>
                     </Empty>
@@ -194,7 +193,7 @@ const Page = () => {
                         </EmptyMedia>
                         <EmptyTitle>No Hay Actividades</EmptyTitle>
                         <EmptyDescription>
-                          No se han agregado actividades para el evento.
+                          No se han agregado actividades para este evento.
                         </EmptyDescription>
                       </EmptyHeader>
                     </Empty>
@@ -221,21 +220,28 @@ const Page = () => {
                     <DialogContent>
                       <DialogTitle>Registrar Productos</DialogTitle>
                       <Separator />
-                      <RegisterProductsForm products={event.products} />
+                      <RegisterProductsForm
+                        eventId={eventId}
+                        products={event.products}
+                      />
                     </DialogContent>
                   </Dialog>
                 </div>
               </CardHeader>
               <CardContent>
                 <div>
-                  {userProducts.length ? (
-                    userProducts.map((p: IProduct) => (
-                      <ProductCard
-                        key={p._id}
-                        product={p}
-                        projectId={p.projectId}
-                      />
-                    ))
+                  {loadingEvent ? (
+                    <LoadingMessage />
+                  ) : event.products.length ? (
+                    event.products.map(
+                      (p: IProduct) =>
+                        //   <ProductCard
+                        //     key={p._id}
+                        //     product={p}
+                        //     projectId={p.projectId}
+                        //   />
+                        'productos',
+                    )
                   ) : (
                     <Empty>
                       <EmptyHeader>
@@ -244,8 +250,8 @@ const Page = () => {
                         </EmptyMedia>
                         <EmptyTitle>No Hay Productos</EmptyTitle>
                         <EmptyDescription>
-                          No haz agregado ningún producto para presentar en el
-                          evento. Agrega tus productos al evento.
+                          No haz registrado ningún producto para presentar en
+                          este evento. Registra tus productos al evento.
                         </EmptyDescription>
                       </EmptyHeader>
                     </Empty>

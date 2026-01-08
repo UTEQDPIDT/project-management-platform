@@ -203,7 +203,7 @@ export class EventsController {
     description: 'Producto no encontrado o no es válido.',
   })
   @UseGuards(JwtAuthGuard)
-  @Post(':id/products')
+  @Patch(':id/products')
   addProducts(
     @Param('id') id: string,
     @Body('products') productIds: string[],

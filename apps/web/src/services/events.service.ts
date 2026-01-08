@@ -84,6 +84,23 @@ const deleteEventActivity = async ({
 };
 
 /**
+ * PRODUCTS
+ */
+const registerProducts = async ({
+  eventId,
+  products,
+}: {
+  eventId: string;
+  products: string[];
+}) => {
+  try {
+    await api.patch(`/events/${eventId}/products`, products);
+  } catch (err) {
+    console.error('Error adding products to event');
+  }
+};
+
+/**
  * PARTICIPANTS
  */
 const addParticipants = async ({
@@ -133,4 +150,5 @@ export {
   addParticipants,
   removeParticipant,
   registerParticipant,
+  registerProducts,
 };

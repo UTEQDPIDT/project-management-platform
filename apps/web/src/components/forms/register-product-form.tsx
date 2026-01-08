@@ -1,7 +1,7 @@
 import { mongoId } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IProduct } from '@repo/types';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import z from 'zod';
 import { Button } from '../ui/button';
@@ -18,8 +18,10 @@ import { Command, CommandGroup, CommandItem } from '../ui/command';
 import LoadingMessage from '../loading-message';
 import { useProductsByUser } from '@/hooks/products';
 import { userProfile } from 'context/profile-provider';
+import { useRegisterProducts } from '@/hooks/events';
 
 interface RegisterProductsForm {
+  eventId: string;
   products: IProduct[];
 }
 
@@ -28,6 +30,7 @@ const schema = z.object({
 });
 
 export default function RegisterProductsForm({
+  eventId,
   products,
 }: RegisterProductsForm) {
   const { user } = userProfile();
@@ -38,6 +41,22 @@ export default function RegisterProductsForm({
   const { data: userProducts, isLoading: loadingProducts } = useProductsByUser(
     user._id,
   );
+  const registerProducts = useRegisterProducts();
+
+  // Filter already registered products
+  const registeredProductsId = new Set(products.map((p: IProduct) => p._id));
+
+  let notRegisteredProducts = [];
+
+  if (userProducts) {
+    notRegisteredProducts = userProducts.filter(
+      (p: IProduct) => !registeredProductsId.has(p._id),
+    );
+  }
+
+  console.log('PRODUCTS', products);
+  if (userProducts) console.log('USER PRODUCTS', userProducts);
+  console.log('NOT REGISTERED PRODUCTS', notRegisteredProducts);
 
   /**
    * React hook form
@@ -50,8 +69,9 @@ export default function RegisterProductsForm({
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof schema>) => {
-    console.log('DATA', data);
+  const onSubmit = async (products: z.infer<typeof schema>) => {
+    console.log('DATA', products);
+    registerProducts.mutate({ eventId, products });
   };
 
   const onError = (errors: any) => {
@@ -60,7 +80,7 @@ export default function RegisterProductsForm({
 
   return (
     <form
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-8"
       onSubmit={form.handleSubmit(onSubmit, onError)}
     >
       <Controller
@@ -102,8 +122,9 @@ export default function RegisterProductsForm({
                         <CommandItem disabled>
                           <LoadingMessage />
                         </CommandItem>
-                      ) : userProducts && userProducts.length > 0 ? (
-                        userProducts.map((product: IProduct) => {
+                      ) : notRegisteredProducts &&
+                        notRegisteredProducts.length ? (
+                        notRegisteredProducts.map((product: IProduct) => {
                           const selected = value.includes(product._id);
 
                           return (
@@ -130,7 +151,7 @@ export default function RegisterProductsForm({
                       ) : (
                         <div className="w-full select-none p-2 flex items-center justify-center">
                           <span className="text-muted-foreground text-sm">
-                            No se encontraron productos.
+                            No hay productos.
                           </span>
                         </div>
                       )}
@@ -151,7 +172,7 @@ export default function RegisterProductsForm({
         </DialogClose>
 
         <DialogClose asChild>
-          <Button type="submit">Guardar</Button>
+          <Button type="submit">Registrar</Button>
         </DialogClose>
       </div>
     </form>

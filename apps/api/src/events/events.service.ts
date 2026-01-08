@@ -251,37 +251,39 @@ export class EventsService {
   /**
    * PRODUCTS
    */
-
-  // todo: review and update this endpoint
   async addProducts(
     eventId: string,
     productIds: string[],
     userId: string,
   ): Promise<{ productsAdded: string[]; message: string }> {
     const event = await this.eventModel.findById(eventId);
-    if (!event)
+    if (!event) {
       throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
 
-    if (!Array.isArray(productIds) || productIds.length === 0)
+    if (!Array.isArray(productIds) || productIds.length === 0) {
       throw new BadRequestException('productIds must be a non-empty array');
+    }
 
-    const existingIds =
-      event.products?.map((p: Product) =>
-        p._id ? p._id.toString() : p.toString(),
-      ) || [];
-    const newIds = productIds.filter((id) => !existingIds.includes(id));
+    const registeredProducts = new Set(
+      event.products.map((p: Product) => p._id.toString()),
+    );
 
-    // const validProducts = await this.productsService.findManyByIds(newIds);
+    const newProducts = productIds.filter((p) => !registeredProducts.has(p));
 
-    // await this.eventModel.findByIdAndUpdate(eventId, {
-    //   $addToSet: { products: { $each: validProducts } },
-    //   updatedBy: userId,
-    // });
+    try {
+      await this.eventModel.findByIdAndUpdate(eventId, {
+        $addToSet: { products: { $each: newProducts } },
+        updatedBy: userId,
+      });
 
-    return {
-      productsAdded: productIds,
-      message: `Products added successfully to event with id ${eventId}`,
-    };
+      return {
+        productsAdded: productIds,
+        message: `Products added successfully to event with id ${eventId}`,
+      };
+    } catch (err) {
+      throw new BadRequestException(err);
+    }
   }
 
   async removeProduct(
