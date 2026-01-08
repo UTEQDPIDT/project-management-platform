@@ -1,10 +1,11 @@
 'use client';
 
 import { IProduct } from '@repo/types';
-import { FileText, Newspaper, Shapes } from 'lucide-react';
+import { Shapes } from 'lucide-react';
 import { ProductForm } from './forms/product-form';
 import IconSquare from './icon-square';
 import ProductCard from './product-card';
+import ProjectProductMenu from './project-product-menu';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './ui/dialog';
 import {
@@ -49,7 +50,14 @@ export function ProductsBoard({ products, projectId }: ProductsCardProps) {
         {products.length > 0 ? (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {products.map((p: IProduct) => (
-              <ProductCard key={p._id} product={p} projectId={projectId} />
+              <ProductCard
+                key={p._id}
+                product={p}
+                enableOptions
+                options={
+                  <ProjectProductMenu projectId={projectId} product={p} />
+                }
+              />
             ))}
           </div>
         ) : (
