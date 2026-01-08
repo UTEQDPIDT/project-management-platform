@@ -115,7 +115,7 @@ const Page = () => {
           </Header>
 
           <PageContent className="px-4">
-            <div className="w-full lg:flex-row flex border items-start justify-center flex-col gap-6">
+            <div className="w-full lg:flex-row flex items-start justify-center flex-col gap-6">
               <EventInfoCard event={event} />
 
               <Card className="w-full">
