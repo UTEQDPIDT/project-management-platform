@@ -43,9 +43,14 @@ interface ProductCardProps {
     | 'files'
   >;
   projectId: string;
+  enableOptions?: boolean;
 }
 
-export default function ProductCard({ product, projectId }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  projectId,
+  enableOptions,
+}: ProductCardProps) {
   const deleteProduct = useDeleteProduct();
 
   const handleDelete = () => {

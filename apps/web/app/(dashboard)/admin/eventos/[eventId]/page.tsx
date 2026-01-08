@@ -1,6 +1,7 @@
 'use client';
 
 import { ActivityCard } from '@/components/activity-card';
+import EventActivityMenu from '@/components/event-activity-menu';
 import EventInfoCard from '@/components/event-info-card';
 import { EventMenu } from '@/components/event-menu';
 import { ActivityForm } from '@/components/forms/activity-form';
@@ -46,7 +47,8 @@ import {
   useGetEventById,
   useExitEvent,
 } from '@/hooks/events';
-import { IActivity, IProduct, IUser } from '@repo/types';
+import { IActivity, IProduct, IUser, UserRole } from '@repo/types';
+import { userProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -63,17 +65,14 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 const Page = () => {
+  const { user } = userProfile();
+
+  /**
+   * Tanstack
+   */
   const { eventId } = useParams<{ eventId: string }>();
   const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
-  const deleteActivity = useDeleteEventActivity();
   const removeParticipant = useExitEvent();
-
-  const handleDeleteActivity = (activity: IActivity) => {
-    deleteActivity.mutate({
-      eventId,
-      activityId: activity._id,
-    });
-  };
 
   return (
     <div>
@@ -219,7 +218,13 @@ const Page = () => {
                             <ActivityCard
                               key={a._id}
                               activity={a}
-                              onDelete={handleDeleteActivity}
+                              enableOptions={user.role === UserRole.ADMIN}
+                              activityOptions={
+                                <EventActivityMenu
+                                  eventId={eventId}
+                                  activity={a}
+                                />
+                              }
                             />
                           ))}
                         </div>

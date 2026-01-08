@@ -45,7 +45,7 @@ import {
   useGetEventById,
   useExitEvent,
 } from '@/hooks/events';
-import { IActivity, IProduct, IUser } from '@repo/types';
+import { IActivity, IProduct, IUser, UserRole, UserType } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -66,7 +66,6 @@ import { useEffect, useMemo } from 'react';
 const Page = () => {
   const { eventId } = useParams<{ eventId: string }>();
   const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
-  const deleteActivity = useDeleteEventActivity();
   const removeParticipant = useExitEvent();
 
   /**
@@ -74,13 +73,6 @@ const Page = () => {
    */
   const { user } = userProfile();
   const currentUserId = user._id;
-
-  const handleDeleteActivity = (activity: IActivity) => {
-    deleteActivity.mutate({
-      eventId,
-      activityId: activity._id,
-    });
-  };
 
   useMemo(() => {
     if (!event?.products || !currentUserId) return [];
@@ -184,7 +176,7 @@ const Page = () => {
                           <ActivityCard
                             key={a._id}
                             activity={a}
-                            onDelete={handleDeleteActivity}
+                            enableOptions={user.role === UserRole.ADMIN}
                           />
                         ))}
                       </div>
