@@ -12,7 +12,7 @@ function Header({
   return (
     <header
       data-slot="header"
-      className="flex shrink-0 items-center border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)"
+      className="flex shrink-0 items-center transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)"
       {...props}
     >
       <div
