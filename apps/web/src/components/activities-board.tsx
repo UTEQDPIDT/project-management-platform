@@ -75,7 +75,7 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
                   <ActivityCard
                     key={a._id}
                     activity={a}
-                    activityOptions={
+                    options={
                       <ProjectActivityMenu
                         projectId={projectId!}
                         activity={a}
@@ -101,7 +101,7 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
                   <ActivityCard
                     key={a._id}
                     activity={a}
-                    activityOptions={
+                    options={
                       <ProjectActivityMenu
                         projectId={projectId!}
                         activity={a}
@@ -127,7 +127,7 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
                   <ActivityCard
                     key={a._id}
                     activity={a}
-                    activityOptions={
+                    options={
                       <ProjectActivityMenu
                         projectId={projectId!}
                         activity={a}

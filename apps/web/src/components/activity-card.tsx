@@ -25,7 +25,7 @@ interface Props {
   activity: IActivity;
   actionButtonText?: string;
   onAction?: () => void;
-  activityOptions?: ReactNode;
+  options?: ReactNode;
   enableOptions?: boolean;
   className?: string;
 }
@@ -34,7 +34,7 @@ export function ActivityCard({
   activity,
   actionButtonText = 'Accion',
   onAction,
-  activityOptions,
+  options,
   enableOptions,
   className,
 }: Props) {
@@ -79,7 +79,7 @@ export function ActivityCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="flex flex-col items-start gap-1">
-                {activityOptions}
+                {options}
               </DropdownMenuContent>
             </DropdownMenu>
           )}

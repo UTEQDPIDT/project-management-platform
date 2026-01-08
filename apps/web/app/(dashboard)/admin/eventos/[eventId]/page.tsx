@@ -22,7 +22,6 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import CopyButton from '@/components/ui/copy';
 import {
   Dialog,
   DialogContent,
@@ -42,22 +41,13 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
-import {
-  useDeleteEventActivity,
-  useGetEventById,
-  useExitEvent,
-} from '@/hooks/events';
+import { useExitEvent, useGetEventById } from '@/hooks/events';
 import { IActivity, IProduct, IUser, UserRole } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import {
-  Copy,
-  Info,
   ListTodo,
   MoreHorizontal,
   Shapes,
-  Upload,
   UserMinus,
   Users,
 } from 'lucide-react';
@@ -219,7 +209,7 @@ const Page = () => {
                               key={a._id}
                               activity={a}
                               enableOptions={user.role === UserRole.ADMIN}
-                              activityOptions={
+                              options={
                                 <EventActivityMenu
                                   eventId={eventId}
                                   activity={a}

@@ -9,7 +9,6 @@ import IconSquare from '@/components/icon-square';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
 import ProductCard from '@/components/product-card';
-
 import { ProfileInfo } from '@/components/profile-info';
 import {
   Breadcrumb,
@@ -18,20 +17,13 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import CopyButton from '@/components/ui/copy';
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Empty,
   EmptyDescription,
@@ -40,33 +32,17 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
-import {
-  useDeleteEventActivity,
-  useGetEventById,
-  useExitEvent,
-} from '@/hooks/events';
-import { IActivity, IProduct, IUser, UserRole, UserType } from '@repo/types';
+import { useGetEventById } from '@/hooks/events';
+import { IActivity, IProduct, IUser, UserRole } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import {
-  Copy,
-  Info,
-  ListTodo,
-  MoreHorizontal,
-  Shapes,
-  Upload,
-  UserMinus,
-  Users,
-} from 'lucide-react';
+import { ListTodo, Shapes, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
 const Page = () => {
   const { eventId } = useParams<{ eventId: string }>();
   const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
-  const removeParticipant = useExitEvent();
 
   /**
    * Context
