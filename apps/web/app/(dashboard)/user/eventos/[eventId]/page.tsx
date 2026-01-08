@@ -178,29 +178,29 @@ const Page = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex flex-col gap-4">
-                      {event.activities?.length ? (
-                        event.activities.map((a: IActivity) => (
+                    {event.activities?.length ? (
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        {event.activities.map((a: IActivity) => (
                           <ActivityCard
                             key={a._id}
                             activity={a}
                             onDelete={handleDeleteActivity}
                           />
-                        ))
-                      ) : (
-                        <Empty>
-                          <EmptyHeader>
-                            <EmptyMedia variant="icon">
-                              <ListTodo />
-                            </EmptyMedia>
-                            <EmptyTitle>No Hay Actividades</EmptyTitle>
-                            <EmptyDescription>
-                              No se han agregado actividades para este evento.
-                            </EmptyDescription>
-                          </EmptyHeader>
-                        </Empty>
-                      )}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <Empty>
+                        <EmptyHeader>
+                          <EmptyMedia variant="icon">
+                            <ListTodo />
+                          </EmptyMedia>
+                          <EmptyTitle>No Hay Actividades</EmptyTitle>
+                          <EmptyDescription>
+                            No se han agregado actividades para este evento.
+                          </EmptyDescription>
+                        </EmptyHeader>
+                      </Empty>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -234,7 +234,7 @@ const Page = () => {
                     {loadingEvent ? (
                       <LoadingMessage />
                     ) : event.products.length ? (
-                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                         {event.products.map((p: IProduct) => (
                           <ProductCard
                             key={p._id}

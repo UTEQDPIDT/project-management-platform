@@ -252,32 +252,30 @@ const Page = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="px-4">
-                      {event.products.length > 0 ? (
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                          {event.products.map((p: IProduct) => (
-                            <ProductCard
-                              key={p._id}
-                              product={p}
-                              projectId={p.projectId}
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <Empty>
-                          <EmptyHeader>
-                            <EmptyMedia variant="icon">
-                              <Shapes />
-                            </EmptyMedia>
-                            <EmptyTitle>No Hay Productos</EmptyTitle>
-                            <EmptyDescription>
-                              No se ha agregado ningún producto. Debes esperar a
-                              que los asistentes seleccionen sus productos.
-                            </EmptyDescription>
-                          </EmptyHeader>
-                        </Empty>
-                      )}
-                    </div>
+                    {event.products.length > 0 ? (
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        {event.products.map((p: IProduct) => (
+                          <ProductCard
+                            key={p._id}
+                            product={p}
+                            projectId={p.projectId}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <Empty>
+                        <EmptyHeader>
+                          <EmptyMedia variant="icon">
+                            <Shapes />
+                          </EmptyMedia>
+                          <EmptyTitle>No Hay Productos</EmptyTitle>
+                          <EmptyDescription>
+                            No se ha agregado ningún producto. Debes esperar a
+                            que los asistentes seleccionen sus productos.
+                          </EmptyDescription>
+                        </EmptyHeader>
+                      </Empty>
+                    )}
                   </CardContent>
                 </Card>
               </div>
