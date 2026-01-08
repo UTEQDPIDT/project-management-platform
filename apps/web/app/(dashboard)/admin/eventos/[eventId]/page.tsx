@@ -100,7 +100,7 @@ const Page = () => {
             </HeaderAction>
           </Header>
 
-          <PageContent className="px-4">
+          <PageContent className="px-4 border">
             <div className="flex gap-6 lg:gap-4 flex-col lg:flex-row">
               <div className="w-full lg:max-w-sm flex flex-col gap-6">
                 <EventInfoCard event={event} />
@@ -189,7 +189,7 @@ const Page = () => {
               </div>
 
               <div className="w-full flex flex-col gap-6">
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <div className="flex justify-between">
                       <div className="flex gap-3 items-center">
@@ -214,13 +214,15 @@ const Page = () => {
                   <CardContent>
                     <div className="flex flex-col gap-4">
                       {event.activities?.length ? (
-                        event.activities.map((a: IActivity) => (
-                          <ActivityCard
-                            key={a._id}
-                            activity={a}
-                            onDelete={handleDeleteActivity}
-                          />
-                        ))
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                          {event.activities.map((a: IActivity) => (
+                            <ActivityCard
+                              key={a._id}
+                              activity={a}
+                              onDelete={handleDeleteActivity}
+                            />
+                          ))}
+                        </div>
                       ) : (
                         <Empty>
                           <EmptyHeader>
@@ -239,7 +241,7 @@ const Page = () => {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <div className="flex gap-3 items-center">
                       <IconSquare>
@@ -252,13 +254,15 @@ const Page = () => {
                   <CardContent>
                     <div className="px-4">
                       {event.products.length > 0 ? (
-                        event.products.map((p: IProduct) => (
-                          <ProductCard
-                            key={p._id}
-                            product={p}
-                            projectId={p.projectId}
-                          />
-                        ))
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                          {event.products.map((p: IProduct) => (
+                            <ProductCard
+                              key={p._id}
+                              product={p}
+                              projectId={p.projectId}
+                            />
+                          ))}
+                        </div>
                       ) : (
                         <Empty>
                           <EmptyHeader>
