@@ -100,8 +100,8 @@ const Page = () => {
             </HeaderAction>
           </Header>
 
-          <PageContent className="px-4 border">
-            <div className="flex gap-6 lg:gap-4 flex-col lg:flex-row">
+          <PageContent>
+            <div className="w-full flex gap-6 lg:gap-4 flex-col lg:flex-row">
               <div className="w-full lg:max-w-sm flex flex-col gap-6">
                 <EventInfoCard event={event} />
 
