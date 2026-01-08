@@ -24,7 +24,7 @@ export default function AvatarRow({ profiles }: AvatarRowProps) {
 
       {/* Show "+N" only if extra profiles exist */}
       {extraCount > 0 && (
-        <Avatar>
+        <Avatar size="sm" className="text-[10px]">
           <AvatarFallback>+{extraCount}</AvatarFallback>
         </Avatar>
       )}
