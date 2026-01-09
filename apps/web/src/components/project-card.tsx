@@ -41,7 +41,7 @@ function ProjectCardDefault({
       <CardHeader>
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
-            <IconSquare className="bg-purple-50 text-purple-700">
+            <IconSquare color="purple">
               <Folder />
             </IconSquare>
 

@@ -96,7 +96,7 @@ const Page = () => {
                   <CardHeader>
                     <div className="flex justify-between">
                       <div className="flex gap-3 items-center">
-                        <IconSquare>
+                        <IconSquare color="blue">
                           <Users />
                         </IconSquare>
 
@@ -142,7 +142,7 @@ const Page = () => {
                   <CardHeader>
                     <div className="flex justify-between">
                       <div className="flex gap-3 items-center">
-                        <IconSquare>
+                        <IconSquare color="green">
                           <ListTodo />
                         </IconSquare>
 
@@ -212,7 +212,7 @@ const Page = () => {
                   <CardHeader>
                     <div className="flex justify-between">
                       <div className="flex gap-3 items-center">
-                        <IconSquare>
+                        <IconSquare color="orange">
                           <Shapes />
                         </IconSquare>
 
