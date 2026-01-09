@@ -80,7 +80,7 @@ export class EventsService {
       .populate('participants')
       .populate('createdBy')
       .populate('updatedBy')
-      .populate('activities')
+      .populate({ path: 'activities', populate: [{ path: 'assignees' }] })
       .populate('products')
       .populate({
         path: 'products',

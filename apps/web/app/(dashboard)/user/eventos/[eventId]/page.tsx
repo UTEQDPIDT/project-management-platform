@@ -33,23 +33,26 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
-import { useGetEventById } from '@/hooks/events';
+import { useGetEventById, useRemoveAssignee } from '@/hooks/events';
 import { IActivity, IProduct, IUser, UserRole } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
-import { ListTodo, Shapes, UserPlus, Users } from 'lucide-react';
+import { ListTodo, Shapes, UserMinus, UserPlus, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
+import { useAddAssignee } from '../../../../../src/hooks/events/use-add-assignee';
 
 const Page = () => {
-  const { eventId } = useParams<{ eventId: string }>();
-  const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
-
   /**
    * Context
    */
   const { user } = userProfile();
   const currentUserId = user._id;
+
+  const { eventId } = useParams<{ eventId: string }>();
+  const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
+  const addAssignee = useAddAssignee();
+  const removeAssignee = useRemoveAssignee();
 
   // User products
   useMemo(() => {
@@ -155,9 +158,37 @@ const Page = () => {
                             key={a._id}
                             activity={a}
                             enableOptions={user.role === UserRole.ADMIN}
-                            onAction={() => console.log('Participar')}
-                            buttonText={'Participar'}
-                            buttonIcon={<UserPlus />}
+                            onAction={
+                              a.assignees?.some(
+                                (a: IUser) => a._id === currentUserId,
+                              )
+                                ? () =>
+                                    removeAssignee.mutate({
+                                      activityId: a._id,
+                                      userId: currentUserId,
+                                    })
+                                : () =>
+                                    addAssignee.mutate({
+                                      activityId: a._id,
+                                      userId: currentUserId,
+                                    })
+                            }
+                            buttonText={
+                              a.assignees?.some(
+                                (a: IUser) => a._id === currentUserId,
+                              )
+                                ? 'Salir'
+                                : 'Participar'
+                            }
+                            buttonIcon={
+                              a.assignees?.some(
+                                (a: IUser) => a._id === currentUserId,
+                              ) ? (
+                                <UserMinus />
+                              ) : (
+                                <UserPlus />
+                              )
+                            }
                           />
                         ))}
                       </div>
