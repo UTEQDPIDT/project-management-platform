@@ -90,6 +90,17 @@ export function TeamInfo({ team }: TeamInfoProps) {
 
       <div className="flex items-start">
         <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <HatGlasses size={14} /> Estado
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          <Badge variant={isPrivate ? 'purple' : 'blue'}>
+            {isPrivate ? 'Privado' : 'Público'}
+          </Badge>
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
           <UserCircle size={14} /> Creado por
         </span>
         <div className="p-2 hover:bg-secondary rounded-md">
@@ -98,17 +109,6 @@ export function TeamInfo({ team }: TeamInfoProps) {
             givenName={owner.givenName}
             familyName={owner.familyName}
           />
-        </div>
-      </div>
-
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
-          <HatGlasses size={14} /> Estado
-        </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
-          <Badge variant={isPrivate ? 'purple' : 'blue'}>
-            {isPrivate ? 'Privado' : 'Público'}
-          </Badge>
         </div>
       </div>
 
