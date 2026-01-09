@@ -6,7 +6,7 @@ import {
   RefetchOptions,
   useQuery,
 } from '@tanstack/react-query';
-import { getUserProfile } from '@/services/user.service';
+import { getUserProfile } from '@/services/users.service';
 import { IUser } from '@repo/types';
 
 interface ProfileContextType {

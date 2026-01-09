@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { DialogClose } from '../ui/dialog';
+import { Dialog } from '@radix-ui/react-dialog';
 
 export default function UserForm({ profile }: { profile: IUser }) {
   /**
@@ -406,13 +407,16 @@ export default function UserForm({ profile }: { profile: IUser }) {
                 Cancelar
               </Button>
             </DialogClose>
-            <Button disabled={updateUserMutation.isPending} type="submit">
-              {updateUserMutation.isPending ? (
-                <LoadingMessage message="Guardando" />
-              ) : (
-                'Guardar'
-              )}
-            </Button>
+
+            <DialogClose asChild>
+              <Button disabled={updateUserMutation.isPending} type="submit">
+                {updateUserMutation.isPending ? (
+                  <LoadingMessage message="Guardando" />
+                ) : (
+                  'Guardar'
+                )}
+              </Button>
+            </DialogClose>
           </div>
         </FieldGroup>
       </form>
