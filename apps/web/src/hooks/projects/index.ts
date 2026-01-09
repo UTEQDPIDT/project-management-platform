@@ -1,4 +1,4 @@
-export * from './use-create.-project';
+export * from './use-create-project';
 export * from './use-all-projects';
 export * from './use-project';
 export * from './use-update-project';

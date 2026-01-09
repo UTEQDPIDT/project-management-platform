@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { removeCollaborator } from '@/services/team.service';
-import { toast } from 'sonner';
+import { removeCollaborator } from '@/services/teams.service';
 
 export function useRemoveCollaborator() {
   const queryClient = useQueryClient();
@@ -10,7 +9,6 @@ export function useRemoveCollaborator() {
       removeCollaborator(teamId, userId),
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: ['team', teamId] });
-      toast.success('El colaborador ha sido expulsado del equipo');
     },
   });
 }

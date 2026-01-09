@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getByUser } from '@/services/team.service';
+import { getByUser } from '@/services/teams.service';
 
 export function useTeamsByUser() {
   return useQuery({

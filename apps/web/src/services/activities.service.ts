@@ -13,7 +13,7 @@ const updateActivity = async ({
       `/activities/${activityId}`,
       activityData,
     );
-    if (status === 200) {
+    if (status === 200 || status === 201 || status === 202) {
       toast.success('Se actualizó la actividad');
     }
   } catch (err) {

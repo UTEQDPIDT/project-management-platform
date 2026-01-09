@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { acceptRequest } from '@/services/team.service';
-import { toast } from 'sonner';
+import { acceptRequest } from '@/services/teams.service';
 
 export function useAcceptRequest() {
   const queryClient = useQueryClient();
@@ -10,7 +9,6 @@ export function useAcceptRequest() {
       acceptRequest(teamId, userId),
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: ['team', teamId] });
-      toast.success('Solicitud aceptada');
     },
   });
 }

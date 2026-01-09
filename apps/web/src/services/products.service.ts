@@ -1,21 +1,6 @@
 import { api } from '@/lib/axios';
 import { IProduct } from '@repo/types';
-
-const createProduct = async ({
-  productData,
-}: {
-  productData: Pick<
-    IProduct,
-    'name' | 'category' | 'subcategory' | 'details' | 'coAuthor'
-  >;
-}) => {
-  try {
-    const { data } = await api.post('/products', productData);
-    return data;
-  } catch (err) {
-    console.error('Error creating product', err);
-  }
-};
+import { toast } from 'sonner';
 
 const getProducts = async () => {
   try {
@@ -52,26 +37,15 @@ const updateProduct = async ({
   productData: any;
 }) => {
   try {
-    const { data } = await api.patch(`/products/${productId}`, productData);
-    return data;
+    const { status } = await api.patch(`/products/${productId}`, productData);
+
+    if (status === 200 || 202) {
+      toast.success('Se ha actualizado el producto');
+    }
   } catch (err) {
     console.error(`Error updating product with ID: ${productId}`, err);
+    toast.error('No se ha actualizado el producto');
   }
 };
 
-const deleteProduct = async (id: string) => {
-  try {
-    await api.delete(`/products/${id}`);
-  } catch (err) {
-    console.error(`Error deleting product ID ${id}`, err);
-  }
-};
-
-export {
-  createProduct,
-  getProducts,
-  getProductById,
-  getProductsByUser,
-  updateProduct,
-  deleteProduct,
-};
+export { getProducts, getProductById, getProductsByUser, updateProduct };
