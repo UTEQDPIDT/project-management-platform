@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createEvent } from '@/services/events.service';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import { useRouter } from 'next/router';
 
 export function useCreateEvent() {
   const queryClient = useQueryClient();
@@ -12,10 +11,6 @@ export function useCreateEvent() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
       router.push('/admin/eventos');
-      toast.success('El evento ha sido creado');
-    },
-    onError: () => {
-      toast.error('No se ha creado el evento');
     },
   });
 }

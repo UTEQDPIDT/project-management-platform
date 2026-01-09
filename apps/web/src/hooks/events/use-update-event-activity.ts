@@ -1,6 +1,5 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { updateActivity } from '@/services/activities.service';
-import { toast } from 'sonner';
 
 export function useUpdateEventActivity() {
   const queryClient = useQueryClient();
@@ -11,7 +10,6 @@ export function useUpdateEventActivity() {
       // Invalidate event queries (all event details) and the events list
       queryClient.invalidateQueries({ queryKey: ['event'] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
-      toast.success('Se actualizó la actividad');
     },
   });
 }
