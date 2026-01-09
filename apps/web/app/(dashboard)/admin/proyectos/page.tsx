@@ -7,6 +7,7 @@ import {
   HeaderTitle,
 } from '@/components/header';
 import { PageContent } from '@/components/page-content';
+import { ProductsTable } from '@/components/products-table';
 import ProjectsTable from '@/components/projects-table';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -29,6 +30,7 @@ const Page = () => {
       </Header>
       <PageContent>
         <ProjectsTable />
+        <ProductsTable />
       </PageContent>
     </div>
   );
