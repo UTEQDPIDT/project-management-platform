@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { createActivity } from '@/services/project.service';
+import { createActivity } from '@/services/projects.service';
 import { toast } from 'sonner';
 
 export const useCreateActivity = () => {

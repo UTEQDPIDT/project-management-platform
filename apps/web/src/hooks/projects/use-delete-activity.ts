@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { deleteActivity } from '@/services/project.service';
+import { deleteActivity } from '@/services/projects.service';
 import { toast } from 'sonner';
 
 export const useDeleteActivity = () => {

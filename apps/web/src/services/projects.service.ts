@@ -1,5 +1,6 @@
 import { api } from '@/lib/axios';
 import { ProjectCleanedData, IProject } from '@repo/types';
+import { toast } from 'sonner';
 
 const createProject = async (projectData: ProjectCleanedData) => {
   try {
@@ -75,13 +76,17 @@ const createProduct = async ({
   productData: any;
 }) => {
   try {
-    const { data } = await api.post(
+    const { status } = await api.post(
       `/projects/${projectId}/products`,
       productData,
     );
-    return data;
+
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('Se ha creado el producto');
+    }
   } catch (err) {
     console.error('Error creating product', err);
+    toast.error('No se ha creado el producto');
   }
 };
 
@@ -93,9 +98,16 @@ const deleteProduct = async ({
   productId: string;
 }) => {
   try {
-    await api.delete(`/projects/${projectId}/products/${productId}`);
+    const { status } = await api.delete(
+      `/projects/${projectId}/products/${productId}`,
+    );
+
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('Se elimino producto');
+    }
   } catch (err) {
     console.error('Error deleting product', err);
+    toast.error('No se elimino el producto');
   }
 };
 

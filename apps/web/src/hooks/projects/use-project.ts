@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProject } from '@/services/project.service';
+import { getProject } from '@/services/projects.service';
 
 export function useProject(projectId: string) {
   return useQuery({

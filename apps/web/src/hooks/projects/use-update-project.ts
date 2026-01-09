@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateProject } from '@/services/project.service';
+import { updateProject } from '@/services/projects.service';
 import { toast } from 'sonner';
 
 export function useUpdateProject() {

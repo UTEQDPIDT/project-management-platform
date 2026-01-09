@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createProject } from '@/services/project.service';
+import { createProject } from '@/services/projects.service';
 import { toast } from 'sonner';
 
 export function useCreateProject() {
