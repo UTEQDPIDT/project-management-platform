@@ -6,14 +6,12 @@ import EventInfoCard from '@/components/event-info-card';
 import { EventMenu } from '@/components/event-menu';
 import EventProductMenu from '@/components/event-product-menu';
 import { ActivityForm } from '@/components/forms/activity-form';
-import { ParticipantsForm } from '@/components/forms/participants-form';
 import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import IconSquare from '@/components/icon-square';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
+import ParticipantsCard from '@/components/participants-card';
 import ProductCard from '@/components/product-card';
-
-import { ProfileInfo } from '@/components/profile-info';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -21,7 +19,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
@@ -30,11 +27,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   Empty,
   EmptyDescription,
   EmptyHeader,
@@ -42,16 +34,10 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
-import { useExitEvent, useGetEventById } from '@/hooks/events';
-import { IActivity, IProduct, IUser, UserRole } from '@repo/types';
+import { useGetEventById } from '@/hooks/events';
+import { IActivity, IProduct, UserRole } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
-import {
-  ListTodo,
-  MoreHorizontal,
-  Shapes,
-  UserMinus,
-  Users,
-} from 'lucide-react';
+import { ListTodo, Shapes } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
@@ -63,12 +49,11 @@ const Page = () => {
    */
   const { eventId } = useParams<{ eventId: string }>();
   const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
-  const removeParticipant = useExitEvent();
 
   return (
     <div>
       {loadingEvent ? (
-        <LoadingMessage />
+        <LoadingMessage message="Cargando evento" className="w-full h-screen" />
       ) : (
         <>
           <Header>
@@ -94,88 +79,7 @@ const Page = () => {
             <div className="w-full flex gap-6 lg:gap-4 flex-col lg:flex-row">
               <div className="w-full lg:max-w-sm flex flex-col gap-6">
                 <EventInfoCard event={event} />
-
-                <Card>
-                  <CardHeader>
-                    <div className="flex justify-between">
-                      <div className="flex gap-3 items-center">
-                        <IconSquare color="blue">
-                          <Users />
-                        </IconSquare>
-
-                        <CardTitle>Participantes</CardTitle>
-                      </div>
-                      <Dialog>
-                        <DialogTrigger className="h-7 px-3 hover:bg-secondary/90 border">
-                          Gestionar
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogTitle>Participantes</DialogTitle>
-                          <Separator />
-                          <ParticipantsForm
-                            eventId={eventId}
-                            participants={event.participants}
-                          />
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent>
-                    {event.participants.length > 0 ? (
-                      <div className="flex flex-col gap-3">
-                        {event.participants.map((p: IUser) => (
-                          <div key={p._id} className="flex justify-between">
-                            <ProfileInfo
-                              size="sm"
-                              givenName={p.givenName}
-                              familyName={p.familyName}
-                              avatarUrl={p.avatarUrl}
-                              email={p.email}
-                            />
-
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button size="icon-sm" variant="ghost">
-                                  <MoreHorizontal />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent>
-                                <Button
-                                  size="sm"
-                                  className="w-full justify-start font-normal bg-transparent hover:text-destructive-foreground"
-                                  variant="ghost"
-                                  disabled={false}
-                                  onClick={() => {
-                                    removeParticipant.mutate({
-                                      eventId,
-                                      userId: p._id,
-                                    });
-                                  }}
-                                >
-                                  <UserMinus /> Expulsar
-                                </Button>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <Empty>
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon">
-                            <Users />
-                          </EmptyMedia>
-                          <EmptyTitle>No Hay Participantes</EmptyTitle>
-                          <EmptyDescription>
-                            No se han agregado participantes al evento. Agrega
-                            participantes.
-                          </EmptyDescription>
-                        </EmptyHeader>
-                      </Empty>
-                    )}
-                  </CardContent>
-                </Card>
+                <ParticipantsCard event={event} />
               </div>
 
               <div className="w-full flex flex-col gap-6">

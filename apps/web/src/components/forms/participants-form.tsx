@@ -44,7 +44,6 @@ export function ParticipantsForm({
   });
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
-    console.log('DATA', participants);
     addParticipants.mutate({ eventId, userIds: data });
   };
 
@@ -65,7 +64,7 @@ export function ParticipantsForm({
           return (
             <FieldGroup>
               <FieldContent>
-                <FieldLabel>Gestiona a los participantes</FieldLabel>
+                <FieldLabel>Usuarios</FieldLabel>
                 <FieldDescription>
                   Selecciona a cuantos usuarios quieras.
                 </FieldDescription>
