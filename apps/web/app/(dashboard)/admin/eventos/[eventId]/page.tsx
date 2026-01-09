@@ -1,6 +1,7 @@
 'use client';
 
 import { ActivityCard } from '@/components/activity-card';
+import ErrorCard from '@/components/error-card';
 import EventActivityMenu from '@/components/event-activity-menu';
 import EventInfoCard from '@/components/event-info-card';
 import { EventMenu } from '@/components/event-menu';
@@ -48,12 +49,18 @@ const Page = () => {
    * Tanstack
    */
   const { eventId } = useParams<{ eventId: string }>();
-  const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
+  const {
+    data: event,
+    isLoading: loadingEvent,
+    isError,
+  } = useGetEventById(eventId);
 
   return (
     <div>
       {loadingEvent ? (
         <LoadingMessage message="Cargando evento" className="w-full h-screen" />
+      ) : isError ? (
+        <ErrorCard />
       ) : (
         <>
           <Header>

@@ -1,6 +1,7 @@
 'use client';
 
 import { CardMembers } from '@/components/card-members';
+import ErrorCard from '@/components/error-card';
 import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
@@ -32,7 +33,7 @@ import { useParams } from 'next/navigation';
 
 const Page = () => {
   const { teamId } = useParams<{ teamId: string }>();
-  const { data: team, isLoading: loadingTeam } = useTeam(teamId);
+  const { data: team, isLoading: loadingTeam, isError } = useTeam(teamId);
   const { data: projects, isLoading: loadingProjects } =
     useProjectsByTeam(teamId);
 
@@ -44,6 +45,8 @@ const Page = () => {
         <div className="w-full h-full flex items-center justify-center">
           <LoadingMessage />
         </div>
+      ) : isError ? (
+        <ErrorCard />
       ) : (
         <div>
           <Header>

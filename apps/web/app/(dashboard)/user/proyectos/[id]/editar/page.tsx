@@ -1,5 +1,6 @@
 'use client';
 
+import ErrorCard from '@/components/error-card';
 import { UpdateProjectForm } from '@/components/forms/update-project-form';
 import {
   Header,
@@ -18,7 +19,7 @@ import { useParams } from 'next/navigation';
 
 const Page = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: project, isLoading } = useProject(id);
+  const { data: project, isLoading, isError } = useProject(id);
 
   return (
     <div>
@@ -41,6 +42,8 @@ const Page = () => {
           <div className="w-full h-full flex items-center justify-center">
             <LoadingMessage />
           </div>
+        ) : isError ? (
+          <ErrorCard />
         ) : (
           <UpdateProjectForm
             _id={id}

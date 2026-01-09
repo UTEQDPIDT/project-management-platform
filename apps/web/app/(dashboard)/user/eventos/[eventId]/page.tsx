@@ -41,6 +41,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useAddAssignee } from '../../../../../src/hooks/events/use-add-assignee';
+import ErrorCard from '@/components/error-card';
 
 const Page = () => {
   /**
@@ -50,7 +51,11 @@ const Page = () => {
   const currentUserId = user._id;
 
   const { eventId } = useParams<{ eventId: string }>();
-  const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
+  const {
+    data: event,
+    isLoading: loadingEvent,
+    isError,
+  } = useGetEventById(eventId);
   const addAssignee = useAddAssignee();
   const removeAssignee = useRemoveAssignee();
 
@@ -66,6 +71,8 @@ const Page = () => {
     <div>
       {loadingEvent ? (
         <LoadingMessage message="Cargando evento" className="w-full h-screen" />
+      ) : isError ? (
+        <ErrorCard />
       ) : (
         <>
           <Header>

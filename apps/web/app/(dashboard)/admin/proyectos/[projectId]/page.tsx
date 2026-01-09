@@ -2,6 +2,7 @@
 
 import { ActivitiesBoard } from '@/components/activities-board';
 import { CardMembers } from '@/components/card-members';
+import ErrorCard from '@/components/error-card';
 import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
@@ -23,7 +24,11 @@ import { useParams } from 'next/navigation';
 
 const Page = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const { data: project, isLoading: loadingProject } = useProject(projectId);
+  const {
+    data: project,
+    isLoading: loadingProject,
+    isError,
+  } = useProject(projectId);
 
   return (
     <div className="w-full h-full">
@@ -31,6 +36,8 @@ const Page = () => {
         <div className="w-full h-full flex items-center justify-center">
           <LoadingMessage />
         </div>
+      ) : isError ? (
+        <ErrorCard />
       ) : (
         <div>
           <Header>

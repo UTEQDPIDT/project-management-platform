@@ -8,7 +8,7 @@ import z from 'zod';
 const createEvent = async (eventData: z.infer<typeof eventSchema>) => {
   try {
     const { status } = await api.post('/events', eventData);
-    if (status === 200 || status === 204) {
+    if (status === 200 || status === 201) {
       toast.success('El evento ha sido creado');
     }
   } catch (err) {

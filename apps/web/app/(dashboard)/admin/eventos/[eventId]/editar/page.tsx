@@ -1,5 +1,6 @@
 'use client';
 
+import ErrorCard from '@/components/error-card';
 import EventForm from '@/components/forms/event-form';
 import {
   Header,
@@ -18,7 +19,11 @@ import { useParams } from 'next/navigation';
 
 const Page = () => {
   const { eventId } = useParams<{ eventId: 'string' }>();
-  const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
+  const {
+    data: event,
+    isLoading: loadingEvent,
+    isError,
+  } = useGetEventById(eventId);
 
   return (
     <div>
@@ -37,7 +42,13 @@ const Page = () => {
         </HeaderAction>
       </Header>
       <PageContent className="items-center">
-        {loadingEvent ? <LoadingMessage /> : <EventForm event={event} />}
+        {loadingEvent ? (
+          <LoadingMessage />
+        ) : isError ? (
+          <ErrorCard />
+        ) : (
+          <EventForm event={event} />
+        )}
       </PageContent>
     </div>
   );
