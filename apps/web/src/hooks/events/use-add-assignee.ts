@@ -1,6 +1,5 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { addAssignee } from '@/services/activities.service';
-import { toast } from 'sonner';
 
 export function useAddAssignee() {
   const queryClient = useQueryClient();
@@ -11,7 +10,6 @@ export function useAddAssignee() {
       // Invalidate event queries (all event details) and the events list
       queryClient.invalidateQueries({ queryKey: ['event'] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
-      toast.success('Entraste a la actividad');
     },
   });
 }

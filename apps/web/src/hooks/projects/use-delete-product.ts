@@ -1,6 +1,5 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { deleteProduct } from '@/services/projects.service';
-import { toast } from 'sonner';
 
 export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
@@ -11,8 +10,6 @@ export const useDeleteProduct = () => {
       queryClient.invalidateQueries({
         queryKey: ['project', variables.projectId],
       });
-      toast.success('El producto ha sido eliminado');
     },
-    onError: () => toast.error('El producto no ha sido elimnado'),
   });
 };

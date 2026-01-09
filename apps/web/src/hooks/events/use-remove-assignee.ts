@@ -1,6 +1,5 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { removeAssignee } from '@/services/activities.service';
-import { toast } from 'sonner';
 
 export function useRemoveAssignee() {
   const queryClient = useQueryClient();
@@ -11,7 +10,6 @@ export function useRemoveAssignee() {
       // Invalidate event queries (all event details) and the events list
       queryClient.invalidateQueries({ queryKey: ['event'] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
-      toast.success('Saliste de la actividad');
     },
   });
 }
