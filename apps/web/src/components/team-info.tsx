@@ -5,6 +5,7 @@ import {
   BadgeCheck,
   Calendar,
   GraduationCap,
+  HatGlasses,
   Target,
   UserCircle,
 } from 'lucide-react';
@@ -16,8 +17,16 @@ interface TeamInfoProps {
 }
 
 export function TeamInfo({ team }: TeamInfoProps) {
-  const { teamName, grade, division, summary, createdAt, owner, updatedAt } =
-    team;
+  const {
+    teamName,
+    grade,
+    division,
+    summary,
+    createdAt,
+    owner,
+    updatedAt,
+    isPrivate,
+  } = team;
 
   let badgeVariant:
     | 'default'
@@ -89,6 +98,17 @@ export function TeamInfo({ team }: TeamInfoProps) {
             givenName={owner.givenName}
             familyName={owner.familyName}
           />
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <HatGlasses size={14} /> Estado
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          <Badge variant={isPrivate ? 'purple' : 'blue'}>
+            {isPrivate ? 'Privado' : 'Público'}
+          </Badge>
         </div>
       </div>
 

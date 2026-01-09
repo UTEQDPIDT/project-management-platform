@@ -5,6 +5,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Ellipsis, Pencil, Trash } from 'lucide-react';
@@ -35,6 +36,7 @@ export function TeamMenu({ teamId, name }: { teamId: string; name: string }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuGroup>
           <Button
             className="font-normal w-full justify-start"
