@@ -23,7 +23,7 @@ const addAssignee = async ({
   userId: string;
 }) => {
   try {
-    await api.patch(`/activities/${activityId}/add-assignee`, userId);
+    await api.patch(`/activities/${activityId}/add-assignee`, { userId });
   } catch (err) {
     console.error('Error assigning user to activity');
   }
@@ -37,7 +37,7 @@ const removeAssignee = async ({
   userId: string;
 }) => {
   try {
-    await api.patch(`activities/${activityId}/remove-assignee`, userId);
+    await api.patch(`activities/${activityId}/remove-assignee`, { userId });
   } catch (err) {
     console.error('Error removing assignee');
   }
