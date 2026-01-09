@@ -165,14 +165,10 @@ export default function TeamCard({
         <CardDescription className="h-24 line-clamp-5">
           {summary}
         </CardDescription>
-        <AvatarRow profiles={profiles} />
       </CardContent>
       <CardFooter className="flex border-t gap-2 justify-between items-center">
         <div>
-          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-            <User size={14} />
-            {profiles.length}
-          </span>
+          <AvatarRow profiles={profiles} />
         </div>
         <CardAction>{renderActionButton()}</CardAction>
       </CardFooter>

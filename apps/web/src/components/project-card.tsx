@@ -69,8 +69,6 @@ function ProjectCardDefault({
           <Progress value={calculateProgress(data.activities)} />
         </div>
 
-        <AvatarRow profiles={data.profiles} />
-
         {data.startDate && (
           <div className="flex gap-1">
             <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
@@ -88,10 +86,7 @@ function ProjectCardDefault({
       </CardContent>
 
       <CardFooter className="border-t flex gap-3 justify-start items-center">
-        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-          <User size={14} />
-          {data.profiles.length}
-        </span>
+        <AvatarRow profiles={data.profiles} />
         <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
           <SquareCheckBig size={14} />
           {data.activities.length}
