@@ -1,4 +1,5 @@
 import { api } from '@/lib/axios';
+import { toast } from 'sonner';
 import { ITeam } from '@repo/types';
 
 const getAllTeams = async (isPrivate?: boolean) => {
@@ -43,10 +44,13 @@ const createTeam = async (
   >,
 ) => {
   try {
-    const { data } = await api.post('/teams', teamData);
-    return data;
+    const { status } = await api.post('/teams', teamData);
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('El equipo ha sido creado');
+    }
   } catch (err) {
     console.error('Error creating team', err);
+    toast.error('No se creo el equipo');
   }
 };
 
@@ -58,68 +62,92 @@ const updateTeam = async (
   >,
 ) => {
   try {
-    const { data } = await api.patch(`/teams/${teamId}`, teamData);
-    return data;
+    const { status } = await api.patch(`/teams/${teamId}`, teamData);
+
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('El equipo ha sido actualizado');
+    }
   } catch (err) {
     console.error('Error updating team');
+    toast.error('No se actualizó el equipo');
   }
 };
 
 const deleteTeam = async (teamId: string) => {
   try {
-    const { data } = await api.delete(`/teams/${teamId}`);
-    return data;
+    const { status } = await api.delete(`/teams/${teamId}`);
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('El equipo ha sido eliminado');
+    }
   } catch (err) {
     console.error('Error deleting team', err);
+    toast.error('El equipo no ha sido eliminado');
   }
 };
 
 const addMembers = async (teamId: string, collaborators: string[]) => {
   try {
-    const { data } = await api.post(
+    const { status } = await api.post(
       `/teams/${teamId}/collaborators`,
       collaborators,
     );
+
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('El miembro ha sido agregado');
+    }
   } catch (err) {
     console.error('Error adding collaborators', err);
+    toast.error('El miembro no ha sido agregado');
   }
 };
 
 const removeMember = async (teamId: string, userId: string) => {
   try {
-    const { data } = await api.delete(`/teams/${teamId}/members/${userId}`);
-    return data;
+    const { status } = await api.delete(`/teams/${teamId}/members/${userId}`);
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('El miembro ha sido expulsado del equipo');
+    }
   } catch (err) {
     console.error('Error removing collaborator', err);
+    toast.error('No se expulsó al miembro');
   }
 };
 
 const addCollaborators = async (teamId: string, collaborators: string[]) => {
   try {
-    const { data } = await api.post(
+    const { status } = await api.post(
       `/teams/${teamId}/collaborators`,
       collaborators,
     );
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('El colaborador ha sido agregado');
+    }
   } catch (err) {
     console.error('Error adding collaborators', err);
+    toast.error('Se agrego al colaborador');
   }
 };
 
 const removeCollaborator = async (teamId: string, userId: string) => {
   try {
-    const { data } = await api.delete(
+    const { status } = await api.delete(
       `/teams/${teamId}/collaborators/${userId}`,
     );
-    return data;
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('El colaborador ha sido expulsado del equipo');
+    }
   } catch (err) {
     console.error('Error removing collaborator', err);
+    toast.error('No se expulsó al colaborador');
   }
 };
 
 const sendJoinRequest = async (teamId: string) => {
   try {
-    const { data } = await api.post(`/teams/${teamId}/requests`);
-    return data;
+    const { status } = await api.post(`/teams/${teamId}/requests`);
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('Solicitud enviada');
+    }
   } catch (err) {
     console.error('Error requesting to join a team', err);
   }
@@ -127,10 +155,13 @@ const sendJoinRequest = async (teamId: string) => {
 
 const acceptRequest = async (teamId: string, userId: string) => {
   try {
-    const { data } = await api.post(`/teams/${teamId}/requests/accept`, {
+    const { status } = await api.post(`/teams/${teamId}/requests/accept`, {
       userId: userId,
     });
-    return data;
+
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('Solicitud aceptada');
+    }
   } catch (err) {
     console.error('Error accepting user request', err);
   }
@@ -138,8 +169,11 @@ const acceptRequest = async (teamId: string, userId: string) => {
 
 const rejectRequest = async (teamId: string, userId: string) => {
   try {
-    const { data } = await api.delete(`/teams/${teamId}/requests/${userId}`);
-    return data;
+    const { status } = await api.delete(`/teams/${teamId}/requests/${userId}`);
+
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('Solicitud rechazada');
+    }
   } catch (err) {
     console.error('Error rejecting user request', err);
   }

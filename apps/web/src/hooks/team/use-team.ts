@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getTeam } from '@/services/team.service';
+import { getTeam } from '@/services/teams.service';
 
 export function useTeam(teamId: string) {
   return useQuery({

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getAllTeams } from '@/services/team.service';
+import { getAllTeams } from '@/services/teams.service';
 
 export function useAllTeams(isPrivate?: boolean) {
   return useQuery({

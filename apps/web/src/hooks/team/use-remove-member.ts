@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { removeMember } from '@/services/team.service';
-import { toast } from 'sonner';
+import { removeMember } from '@/services/teams.service';
 
 export function useRemoveMember() {
   const queryClient = useQueryClient();
@@ -10,7 +9,6 @@ export function useRemoveMember() {
       removeMember(teamId, userId),
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: ['team', teamId] });
-      toast.success('El miembro ha sido expulsado del equipo');
     },
   });
 }

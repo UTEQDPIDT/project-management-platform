@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { addMembers } from '@/services/team.service';
-import { toast } from 'sonner';
+import { addMembers } from '@/services/teams.service';
 
 export function useAddMembers() {
   const queryClient = useQueryClient();
@@ -10,10 +9,6 @@ export function useAddMembers() {
       addMembers(teamId, members),
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: ['team', teamId] });
-      toast.success('El miembro ha sido agregado');
-    },
-    onError: () => {
-      toast.error('El miembro no ha sido agregado');
     },
   });
 }
