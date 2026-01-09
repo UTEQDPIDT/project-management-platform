@@ -37,7 +37,7 @@ function ProjectCardDefault({
   data: ReturnType<typeof useProjectCardData>;
 }) {
   return (
-    <Card className="w-full gap-6 hover:shadow-xl min-w-96">
+    <Card className="w-full hover:shadow-xl min-w-96">
       <CardHeader>
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
@@ -57,7 +57,7 @@ function ProjectCardDefault({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col h-full gap-4">
+      <CardContent className="flex flex-col gap-4">
         <div className="flex flex-col gap-2.5 text-xs text-muted-foreground">
           <div className="flex justify-between">
             <span>Progreso</span>

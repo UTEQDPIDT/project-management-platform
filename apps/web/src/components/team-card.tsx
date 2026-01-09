@@ -140,7 +140,7 @@ export default function TeamCard({
   });
 
   return (
-    <Card className="w-full gap-4 min-w-96">
+    <Card className="w-full gap-4">
       <CardHeader>
         <div className="flex justify-between">
           <div className="flex gap-2 items-start">
@@ -162,7 +162,7 @@ export default function TeamCard({
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-6 h-full">
-        <CardDescription className="h-24 line-clamp-5">
+        <CardDescription className="h-28 line-clamp-5">
           {summary}
         </CardDescription>
       </CardContent>

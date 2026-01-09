@@ -70,7 +70,7 @@ export function EventCard({ event }: EventCardProps) {
           disabled={event.isPrivate || registerParticipant.isPending}
           onClick={() => registerParticipant.mutate({ eventId: event._id })}
         >
-          {event.isPrivate ? 'Evento Privado' : 'Inscribirse'}
+          {event.isPrivate ? 'Evento Privado' : 'Entrar'}
         </Button>
       );
     }

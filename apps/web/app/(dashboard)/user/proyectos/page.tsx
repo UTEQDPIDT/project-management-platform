@@ -47,7 +47,7 @@ const Page = () => {
         {loadingProjects ? (
           <LoadingMessage message="Cargando Proyectos" />
         ) : projects.length > 0 ? (
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
             {projects.map((p: IProject) => (
               <ProjectCard key={p._id} project={p} />
             ))}
