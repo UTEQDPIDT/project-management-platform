@@ -89,7 +89,7 @@ const Page = () => {
 
           <PageContent>
             <div className="w-full flex flex-col lg:flex-row gap-4">
-              <div className="w-full max-w-sm flex items-center justify-start flex-col gap-6">
+              <div className="w-full lg:max-w-sm flex items-center justify-start flex-col gap-6">
                 <EventInfoCard event={event} />
 
                 <Card className="w-full">
