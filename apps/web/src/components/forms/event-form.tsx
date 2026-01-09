@@ -6,6 +6,16 @@ import { z } from 'zod';
 
 import { useRouter } from 'next/navigation';
 
+import { useCreateEvent } from '@/hooks/events';
+import { useUpdateEvent } from '@/hooks/events/use-update-event';
+import { useGetAllUsers } from '@/hooks/user';
+import { eventSchema } from '@/schemas/event.schema';
+import { EventType, IEvent, IUser } from '@repo/types';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import Link from 'next/link';
+import LoadingMessage from '../loading-message';
+import { ProfileInfo } from '../profile-info';
+import { Button } from '../ui/button';
 import {
   Card,
   CardContent,
@@ -14,7 +24,7 @@ import {
   CardTitle,
 } from '../ui/card';
 import { Command, CommandGroup, CommandItem } from '../ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { DatePicker } from '../ui/date-picker';
 import {
   Field,
   FieldContent,
@@ -22,15 +32,14 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldSet,
 } from '../ui/field';
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupButton,
   InputGroupInput,
   InputGroupTextarea,
 } from '../ui/input-group';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import {
   Select,
   SelectContent,
@@ -38,19 +47,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { Separator } from '../ui/separator';
-import { eventSchema } from '@/schemas/event.schema';
-import { EventType, IEvent, IUser } from '@repo/types';
 import { Switch } from '../ui/switch';
-import { DatePicker } from '../ui/date-picker';
-import { Button } from '../ui/button';
-import Link from 'next/link';
-import LoadingMessage from '../loading-message';
-import { Check, ChevronsUpDown } from 'lucide-react';
-import { ProfileInfo } from '../profile-info';
-import { useGetAllUsers } from '@/hooks/user';
-import { useCreateEvent } from '@/hooks/events';
-import { useUpdateEvent } from '@/hooks/events/use-update-event';
 
 interface EventFormProps {
   event?: IEvent;
@@ -63,6 +60,8 @@ export default function EventForm({ event }: EventFormProps) {
   const { data: users, isLoading: loadingUsers } = useGetAllUsers();
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
+
+  const router = useRouter();
 
   const renderButton = (event: IEvent | undefined) => {
     if (event) {
@@ -121,8 +120,10 @@ export default function EventForm({ event }: EventFormProps) {
 
       if (event) {
         updateEvent.mutate({ eventId: event._id, eventData: cleanedData });
+        router.push(`/admin/eventos/${event._id}`);
       } else {
         createEvent.mutate(cleanedData);
+        router.push('/admin/eventos');
       }
     } catch (err) {
       console.error('Error cleaning data', err);
