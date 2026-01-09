@@ -23,7 +23,7 @@ export function ProjectsBoard({ projects, loading }: ProjectsBoardProps) {
       <CardHeader>
         <div className="flex justify-between ">
           <div className="flex gap-3 items-center">
-            <IconSquare className="bg-purple-50 text-purple-800">
+            <IconSquare color="purple">
               <Folder />
             </IconSquare>
 

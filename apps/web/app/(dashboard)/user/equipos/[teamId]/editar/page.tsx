@@ -1,5 +1,6 @@
 'use client';
 
+import ErrorCard from '@/components/error-card';
 import { UpdateTeamForm } from '@/components/forms/update-team-form';
 import {
   Header,
@@ -18,7 +19,7 @@ import { useParams } from 'next/navigation';
 
 const Page = () => {
   const { teamId } = useParams<{ teamId: string }>();
-  const { data: team, isLoading: loadingTeam } = useTeam(teamId);
+  const { data: team, isLoading: loadingTeam, isError } = useTeam(teamId);
 
   return (
     <div>
@@ -41,6 +42,8 @@ const Page = () => {
           <div className="w-full h-full flex items-center justify-center">
             <LoadingMessage />
           </div>
+        ) : isError ? (
+          <ErrorCard />
         ) : (
           <UpdateTeamForm
             _id={team._id}

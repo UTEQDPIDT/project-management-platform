@@ -37,11 +37,11 @@ function ProjectCardDefault({
   data: ReturnType<typeof useProjectCardData>;
 }) {
   return (
-    <Card className="w-full gap-6 hover:shadow-xl min-w-96">
+    <Card className="w-full hover:shadow-xl min-w-96">
       <CardHeader>
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
-            <IconSquare className="bg-purple-50 text-purple-700">
+            <IconSquare color="purple">
               <Folder />
             </IconSquare>
 
@@ -57,7 +57,7 @@ function ProjectCardDefault({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col h-full gap-4">
+      <CardContent className="flex flex-col gap-4">
         <div className="flex flex-col gap-2.5 text-xs text-muted-foreground">
           <div className="flex justify-between">
             <span>Progreso</span>
@@ -68,8 +68,6 @@ function ProjectCardDefault({
           </div>
           <Progress value={calculateProgress(data.activities)} />
         </div>
-
-        <AvatarRow profiles={data.profiles} />
 
         {data.startDate && (
           <div className="flex gap-1">
@@ -88,10 +86,7 @@ function ProjectCardDefault({
       </CardContent>
 
       <CardFooter className="border-t flex gap-3 justify-start items-center">
-        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-          <User size={14} />
-          {data.profiles.length}
-        </span>
+        <AvatarRow profiles={data.profiles} />
         <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
           <SquareCheckBig size={14} />
           {data.activities.length}

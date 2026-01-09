@@ -16,9 +16,10 @@ import LoadingMessage from '@/components/loading-message';
 import Link from 'next/link';
 import { ITeam } from '@repo/types';
 import TeamCard from '@/components/team-card';
+import ErrorCard from '@/components/error-card';
 
 const Page = () => {
-  const { data: teams, isLoading: loadingTeams } = useAllTeams(false);
+  const { data: teams, isLoading: loadingTeams, isError } = useAllTeams(false);
 
   return (
     <div>
@@ -41,6 +42,8 @@ const Page = () => {
       <PageContent>
         {loadingTeams ? (
           <LoadingMessage message="Cargando equipos" />
+        ) : isError ? (
+          <ErrorCard />
         ) : (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
             {teams.map((team: ITeam) => (

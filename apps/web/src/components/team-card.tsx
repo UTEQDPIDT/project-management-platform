@@ -140,11 +140,11 @@ export default function TeamCard({
   });
 
   return (
-    <Card className="w-full gap-4 min-w-96">
+    <Card className="w-full gap-4">
       <CardHeader>
         <div className="flex justify-between">
           <div className="flex gap-2 items-start">
-            <IconSquare className="bg-blue-50 text-blue-700">
+            <IconSquare color="blue">
               <Users />
             </IconSquare>
             <div className="flex flex-col gap-1">
@@ -162,17 +162,13 @@ export default function TeamCard({
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-6 h-full">
-        <CardDescription className="h-24 line-clamp-5">
+        <CardDescription className="h-28 line-clamp-5">
           {summary}
         </CardDescription>
-        <AvatarRow profiles={profiles} />
       </CardContent>
       <CardFooter className="flex border-t gap-2 justify-between items-center">
         <div>
-          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-            <User size={14} />
-            {profiles.length}
-          </span>
+          <AvatarRow profiles={profiles} />
         </div>
         <CardAction>{renderActionButton()}</CardAction>
       </CardFooter>

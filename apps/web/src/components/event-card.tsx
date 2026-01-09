@@ -70,7 +70,7 @@ export function EventCard({ event }: EventCardProps) {
           disabled={event.isPrivate || registerParticipant.isPending}
           onClick={() => registerParticipant.mutate({ eventId: event._id })}
         >
-          {event.isPrivate ? 'Evento Privado' : 'Inscribirse'}
+          {event.isPrivate ? 'Evento Privado' : 'Entrar'}
         </Button>
       );
     }
@@ -102,7 +102,7 @@ export function EventCard({ event }: EventCardProps) {
       <CardHeader>
         <div className="flex justify-between">
           <div className="flex gap-2 items-start">
-            <IconSquare className="bg-blue-50 text-blue-700">
+            <IconSquare color="blue">
               <Calendar />
             </IconSquare>
             <div className="flex flex-col gap-1">

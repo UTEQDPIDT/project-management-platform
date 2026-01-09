@@ -1,4 +1,4 @@
-import { UserType } from '@repo/types';
+import { IUser, UserType } from '@repo/types';
 import {
   Card,
   CardContent,
@@ -14,10 +14,33 @@ import { ProfileInfo } from './profile-info';
 
 import { userProfile } from 'context/profile-provider';
 import { Badge } from './ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from './ui/dialog';
+import { MoreHorizontal, Pencil, Share } from 'lucide-react';
+import UserForm from './forms/user-form';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from './ui/dropdown-menu';
+import { Button } from './ui/button';
 
-export default function CardUserInfo() {
+interface CardUserInfoProps {
+  profile: IUser;
+}
+
+export default function CardUserInfo({ profile }: CardUserInfoProps) {
   const { user } = userProfile();
   const {
+    _id,
+    role,
     givenName,
     familyName,
     avatarUrl,
@@ -32,21 +55,54 @@ export default function CardUserInfo() {
     division,
     employeeNumber,
     createdAt,
-  } = user;
+  } = profile;
 
   return (
     <Card className="lg:max-w-lg w-full">
       <CardHeader>
-        <div className="flex gap-3">
-          <ProfileInfo
-            givenName={givenName}
-            familyName={familyName}
-            avatarUrl={avatarUrl}
-            email={email}
-          />
-          <div>
-            <Badge variant="blue">{type}</Badge>
+        <div className="flex justify-between">
+          <div className="flex gap-3">
+            <ProfileInfo
+              givenName={givenName}
+              familyName={familyName}
+              avatarUrl={avatarUrl}
+              email={email}
+            />
+            <div>
+              <Badge variant="blue">{type}</Badge>
+            </div>
           </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon-sm">
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem asChild>
+                <Dialog>
+                  <DialogTrigger className="w-full justify-start font-normal">
+                    <Pencil /> Editar
+                  </DialogTrigger>
+
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Editar Perfil</DialogTitle>
+                      <DialogDescription>
+                        Edita tu perfil aquí y haz click en guardar cuando
+                        termines.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Separator />
+                    <div className="max-h-[600px] overflow-y-auto px-2">
+                      <UserForm profile={user} />
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </CardHeader>
 

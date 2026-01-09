@@ -1,4 +1,5 @@
 import { api } from '@/lib/axios';
+import { toast } from 'sonner';
 
 const updateActivity = async ({
   activityId,
@@ -8,10 +9,16 @@ const updateActivity = async ({
   activityData: any;
 }) => {
   try {
-    const { data } = await api.patch(`/activities/${activityId}`, activityData);
-    return data;
+    const { status } = await api.patch(
+      `/activities/${activityId}`,
+      activityData,
+    );
+    if (status === 200) {
+      toast.success('Se actualizó la actividad');
+    }
   } catch (err) {
     console.error('Error updating activity', err);
+    toast.success('No se actualizó la actividad');
   }
 };
 

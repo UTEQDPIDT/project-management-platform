@@ -2,13 +2,18 @@ import { api } from '@/lib/axios';
 import { activityZodSchema } from '@/schemas/activity.schema';
 import { eventSchema } from '@/schemas/event.schema';
 import { IEvent } from '@repo/types';
+import { toast } from 'sonner';
 import z from 'zod';
 
 const createEvent = async (eventData: z.infer<typeof eventSchema>) => {
   try {
-    await api.post('/events', eventData);
+    const { status } = await api.post('/events', eventData);
+    if (status === 200 || status === 201) {
+      toast.success('El evento ha sido creado');
+    }
   } catch (err) {
     console.error('Error creating the event', err);
+    toast.error('No se ha creado el evento');
   }
 };
 
@@ -18,6 +23,7 @@ const getAllEvents = async () => {
     return data;
   } catch (err) {
     console.error('Error fetching events', err);
+    toast.error('Error al solicitar eventos');
   }
 };
 
@@ -38,17 +44,25 @@ const updateEvent = async ({
   eventData: IEvent;
 }) => {
   try {
-    await api.patch(`/events/${eventId}`, eventData);
+    const { status } = await api.patch(`/events/${eventId}`, eventData);
+    if (status === 200) {
+      toast.success('Se ha actualizado el evento');
+    }
   } catch (err) {
     console.error('Error updating event', err);
+    toast.error('No se ha actualizado el evento');
   }
 };
 
 const deleteEvent = async (eventId: string) => {
   try {
-    await api.delete(`/events/${eventId}`);
+    const { status } = await api.delete(`/events/${eventId}`);
+    if (status === 200) {
+      toast.success('Se ha eliminado el evento');
+    }
   } catch (err) {
     console.error(`Error deleting event with ID ${eventId}`, err);
+    toast.error('No se ha eliminado el evento');
   }
 };
 
@@ -63,9 +77,16 @@ const createEventActivity = async ({
   activityData: z.infer<typeof activityZodSchema>;
 }) => {
   try {
-    await api.post(`/events/${eventId}/activities`, activityData);
+    const { status } = await api.post(
+      `/events/${eventId}/activities`,
+      activityData,
+    );
+    if (status === 200) {
+      toast.success('La actividad ha sido creada');
+    }
   } catch (err) {
     console.error('Error creating event activity', err);
+    toast.error('No se ha creado la actividad');
   }
 };
 
@@ -77,9 +98,15 @@ const deleteEventActivity = async ({
   activityId: string;
 }) => {
   try {
-    await api.delete(`/events/${eventId}/activities/${activityId}`);
+    const { status } = await api.delete(
+      `/events/${eventId}/activities/${activityId}`,
+    );
+    if (status === 200) {
+      toast.success('Se ha eliminado la actividad');
+    }
   } catch (err) {
     console.error('Error deleting event activity', err);
+    toast.error('No se ha eliminado la actividad');
   }
 };
 
@@ -94,9 +121,13 @@ const registerProducts = async ({
   products: string[];
 }) => {
   try {
-    await api.patch(`/events/${eventId}/products`, products);
+    const { status } = await api.patch(`/events/${eventId}/products`, products);
+    if (status === 200) {
+      toast.success('Se agregaron los productos');
+    }
   } catch (err) {
     console.error('Error adding products to event');
+    toast.error('No se agregaron los productos');
   }
 };
 
@@ -108,8 +139,14 @@ const removeProduct = async ({
   productId: string;
 }) => {
   try {
-    await api.delete(`/events/${eventId}/products/${productId}`);
+    const { status } = await api.delete(
+      `/events/${eventId}/products/${productId}`,
+    );
+    if (status === 200) {
+      toast.success('Se ha retirado el producto');
+    }
   } catch (err) {
+    toast.error('No se ha retirado el producto');
     console.error('Error removing product from event');
   }
 };
@@ -125,9 +162,16 @@ const addParticipants = async ({
   userIds: string[];
 }) => {
   try {
-    await api.patch(`/events/${eventId}/participants`, userIds);
+    const { status } = await api.patch(
+      `/events/${eventId}/participants`,
+      userIds,
+    );
+    if (status === 200) {
+      toast.success('Se han agregado participantes');
+    }
   } catch (err) {
     console.error('Error adding participants', err);
+    toast.error('No se han agregado participantes');
   }
 };
 
@@ -139,17 +183,28 @@ const removeParticipant = async ({
   userId: string;
 }) => {
   try {
-    await api.delete(`/events/${eventId}/participants/${userId}`);
+    const { status } = await api.delete(
+      `/events/${eventId}/participants/${userId}`,
+    );
+    if (status === 200) {
+      toast.success('Se ha expulsado al participante');
+    }
   } catch (err) {
     console.error('Error removing participant', err);
+    toast.error('No se ha expulsado al participante');
   }
 };
 
 const registerParticipant = async ({ eventId }: { eventId: string }) => {
   try {
-    await api.patch(`/events/${eventId}/register`);
+    const { status } = await api.patch(`/events/${eventId}/register`);
+
+    if (status === 200) {
+      toast.success('Se ha registrado al evento');
+    }
   } catch (err) {
     console.error('Error registering user');
+    toast.error('No se ha registrado el evento');
   }
 };
 

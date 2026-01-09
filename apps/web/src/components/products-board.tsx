@@ -28,7 +28,7 @@ export function ProductsBoard({ products, projectId }: ProductsCardProps) {
       <CardHeader>
         <div className="flex justify-between ">
           <div className="flex gap-3 items-center">
-            <IconSquare className="bg-orange-50 text-orange-700">
+            <IconSquare color="orange">
               <Shapes />
             </IconSquare>
 

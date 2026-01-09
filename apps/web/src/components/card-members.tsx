@@ -11,6 +11,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import { userProfile } from 'context/profile-provider';
 
 export function CardMembers({
   team,
@@ -22,11 +23,13 @@ export function CardMembers({
   const removeMember = useRemoveMember();
   const removeCollaborator = useRemoveCollaborator();
 
+  const { user } = userProfile();
+
   return (
     <Card className="w-full max-w-[500px]">
       <CardHeader className="flex justify-between">
         <div className="flex gap-3 items-center">
-          <IconSquare className="bg-blue-50 text-blue-700">
+          <IconSquare color="blue">
             <Users />
           </IconSquare>
 
@@ -50,6 +53,7 @@ export function CardMembers({
       <CardContent className="flex flex-col gap-4">
         <span className="text-muted-foreground text-sm">Dueño</span>
         <ProfileInfo
+          size="sm"
           givenName={team.owner.givenName}
           familyName={team.owner.familyName}
           email={team.owner.email}
@@ -60,32 +64,35 @@ export function CardMembers({
           team.members?.map((m: IUser) => (
             <div key={m._id} className="flex justify-between">
               <ProfileInfo
+                size="sm"
                 givenName={m.givenName}
                 familyName={m.familyName}
                 email={m.email}
                 avatarUrl={m.avatarUrl}
               />
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon-sm" variant="ghost">
-                    <Ellipsis />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <Button
-                    size="sm"
-                    className="w-full justify-start font-normal bg-transparent hover:bg-accent"
-                    variant="destructive"
-                    disabled={removeMember.isPending}
-                    onClick={() =>
-                      removeMember.mutate({ teamId: team._id, userId: m._id })
-                    }
-                  >
-                    <UserMinus /> Expulsar
-                  </Button>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {user._id === team.owner._id && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="icon-sm" variant="ghost">
+                      <Ellipsis />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <Button
+                      size="sm"
+                      className="w-full justify-start font-normal hover:text-destructive-foreground"
+                      variant="ghost"
+                      disabled={removeMember.isPending}
+                      onClick={() =>
+                        removeMember.mutate({ teamId: team._id, userId: m._id })
+                      }
+                    >
+                      <UserMinus /> Expulsar
+                    </Button>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
           ))
         ) : (
@@ -96,35 +103,38 @@ export function CardMembers({
           team.collaborators?.map((c: IUser) => (
             <div key={c._id} className="flex justify-between">
               <ProfileInfo
+                size="sm"
                 givenName={c.givenName}
                 familyName={c.familyName}
                 email={c.email}
                 avatarUrl={c.avatarUrl}
               />
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon-sm" variant="ghost">
-                    <Ellipsis />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <Button
-                    size="sm"
-                    className="w-full justify-start font-normal bg-transparent hover:bg-accent"
-                    variant="destructive"
-                    disabled={removeCollaborator.isPending}
-                    onClick={() =>
-                      removeCollaborator.mutate({
-                        teamId: team._id,
-                        userId: c._id,
-                      })
-                    }
-                  >
-                    <UserMinus /> Expulsar
-                  </Button>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {user._id === team.owner._id && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="icon-sm" variant="ghost">
+                      <Ellipsis />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <Button
+                      size="sm"
+                      className="w-full justify-start font-normal bg-transparent hover:bg-accent"
+                      variant="destructive"
+                      disabled={removeCollaborator.isPending}
+                      onClick={() =>
+                        removeCollaborator.mutate({
+                          teamId: team._id,
+                          userId: c._id,
+                        })
+                      }
+                    >
+                      <UserMinus /> Expulsar
+                    </Button>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
           ))
         ) : (

@@ -1,5 +1,6 @@
 import { api } from '@/lib/axios';
 import { UpdateUser } from '@/schemas/update-user.schema';
+import { toast } from 'sonner';
 
 const getAllUsers = async () => {
   try {
@@ -10,12 +11,25 @@ const getAllUsers = async () => {
   }
 };
 
+const getUserById = async (userId: string) => {
+  try {
+    const { data } = await api.get(`/users/${userId}`);
+    return data;
+  } catch (err) {
+    console.error('Error fetching user');
+    toast.error('No se encontró el perfil');
+  }
+};
+
 const updateUser = async (data: UpdateUser) => {
   try {
-    console.log('Updating user');
-    await api.patch('/users', data);
+    const { status } = await api.patch('/users', data);
+    if (status === 200) {
+      toast.success('Perfil actualizado');
+    }
   } catch (err) {
     console.error('Error when updating user', err);
+    toast.error('No se actualizó el perfil');
   }
 };
 
@@ -37,4 +51,4 @@ const resolveEmails = async (emails: string[]) => {
   }
 };
 
-export { getAllUsers, updateUser, getUserProfile, resolveEmails };
+export { getAllUsers, getUserById, updateUser, getUserProfile, resolveEmails };

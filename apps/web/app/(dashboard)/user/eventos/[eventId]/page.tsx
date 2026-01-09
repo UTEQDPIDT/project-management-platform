@@ -9,8 +9,8 @@ import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import IconSquare from '@/components/icon-square';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
+import ParticipantsCard from '@/components/participants-card';
 import ProductCard from '@/components/product-card';
-import { ProfileInfo } from '@/components/profile-info';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -36,11 +36,12 @@ import { Separator } from '@/components/ui/separator';
 import { useGetEventById, useRemoveAssignee } from '@/hooks/events';
 import { IActivity, IProduct, IUser, UserRole } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
-import { ListTodo, Shapes, UserMinus, UserPlus, Users } from 'lucide-react';
+import { ListTodo, Shapes, UserMinus, UserPlus } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useAddAssignee } from '../../../../../src/hooks/events/use-add-assignee';
+import ErrorCard from '@/components/error-card';
 
 const Page = () => {
   /**
@@ -50,7 +51,11 @@ const Page = () => {
   const currentUserId = user._id;
 
   const { eventId } = useParams<{ eventId: string }>();
-  const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
+  const {
+    data: event,
+    isLoading: loadingEvent,
+    isError,
+  } = useGetEventById(eventId);
   const addAssignee = useAddAssignee();
   const removeAssignee = useRemoveAssignee();
 
@@ -65,7 +70,9 @@ const Page = () => {
   return (
     <div>
       {loadingEvent ? (
-        <LoadingMessage />
+        <LoadingMessage message="Cargando evento" className="w-full h-screen" />
+      ) : isError ? (
+        <ErrorCard />
       ) : (
         <>
           <Header>
@@ -89,52 +96,9 @@ const Page = () => {
 
           <PageContent>
             <div className="w-full flex flex-col lg:flex-row gap-4">
-              <div className="w-full max-w-sm flex items-center justify-start flex-col gap-6">
+              <div className="w-full lg:max-w-sm flex items-center justify-start flex-col gap-6">
                 <EventInfoCard event={event} />
-
-                <Card className="w-full">
-                  <CardHeader>
-                    <div className="flex justify-between">
-                      <div className="flex gap-3 items-center">
-                        <IconSquare>
-                          <Users />
-                        </IconSquare>
-
-                        <CardTitle>Participantes</CardTitle>
-                      </div>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent>
-                    {event.participants.length > 0 ? (
-                      <div className="flex flex-col gap-3">
-                        {event.participants.map((p: IUser) => (
-                          <div key={p._id} className="flex justify-between">
-                            <ProfileInfo
-                              size="sm"
-                              givenName={p.givenName}
-                              familyName={p.familyName}
-                              avatarUrl={p.avatarUrl}
-                              email={p.email}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <Empty>
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon">
-                            <Users />
-                          </EmptyMedia>
-                          <EmptyTitle>No Hay Participantes</EmptyTitle>
-                          <EmptyDescription>
-                            No se hay participantes para este evento.
-                          </EmptyDescription>
-                        </EmptyHeader>
-                      </Empty>
-                    )}
-                  </CardContent>
-                </Card>
+                <ParticipantsCard className="w-full" event={event} />
               </div>
 
               <div className="w-full flex flex-col gap-6">
@@ -142,7 +106,7 @@ const Page = () => {
                   <CardHeader>
                     <div className="flex justify-between">
                       <div className="flex gap-3 items-center">
-                        <IconSquare>
+                        <IconSquare color="green">
                           <ListTodo />
                         </IconSquare>
 
@@ -212,7 +176,7 @@ const Page = () => {
                   <CardHeader>
                     <div className="flex justify-between">
                       <div className="flex gap-3 items-center">
-                        <IconSquare>
+                        <IconSquare color="orange">
                           <Shapes />
                         </IconSquare>
 

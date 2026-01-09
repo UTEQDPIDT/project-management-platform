@@ -9,7 +9,7 @@ import {
 } from '@/components/header';
 import { PageContent } from '@/components/page-content';
 import { Button } from '@/components/ui/button';
-import { Folder, FolderPlus } from 'lucide-react';
+import { Folder } from 'lucide-react';
 import Link from 'next/link';
 import { useProjectsByOwner } from '@/hooks/projects/use-projects-by-owner';
 import LoadingMessage from '@/components/loading-message';
@@ -23,9 +23,14 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
+import ErrorCard from '@/components/error-card';
 
 const Page = () => {
-  const { data: projects, isLoading: loadingProjects } = useProjectsByOwner();
+  const {
+    data: projects,
+    isLoading: loadingProjects,
+    isError,
+  } = useProjectsByOwner();
 
   return (
     <div>
@@ -46,8 +51,10 @@ const Page = () => {
       <PageContent>
         {loadingProjects ? (
           <LoadingMessage message="Cargando Proyectos" />
+        ) : isError ? (
+          <ErrorCard />
         ) : projects.length > 0 ? (
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
             {projects.map((p: IProject) => (
               <ProjectCard key={p._id} project={p} />
             ))}

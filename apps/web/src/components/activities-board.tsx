@@ -42,7 +42,7 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
       <CardHeader>
         <div className="flex justify-between ">
           <div className="flex gap-3 items-center">
-            <IconSquare className="bg-green-50 text-green-800">
+            <IconSquare color="green">
               <ListTodo />
             </IconSquare>
 

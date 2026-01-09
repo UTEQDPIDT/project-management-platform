@@ -34,13 +34,14 @@ import {
 import {
   Copy,
   ExternalLink,
-  IdCard,
   MoreHorizontal,
   Pencil,
   Trash,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const columns: ColumnDef<IProject>[] = [
   {
@@ -121,6 +122,23 @@ const columns: ColumnDef<IProject>[] = [
       const { products } = row.original;
 
       return <div>{products?.length}</div>;
+    },
+  },
+  {
+    id: 'period',
+    header: 'Periodo',
+    cell: ({ row }) => {
+      const { startDate } = row.original;
+      const { endDate } = row.original;
+
+      return (
+        <div>
+          <span>{format(startDate, "d 'de' MMMM 'al' ", { locale: es })}</span>
+          <span>
+            {format(endDate, "d 'de' MMMM 'de' yyyy", { locale: es })}
+          </span>
+        </div>
+      );
     },
   },
   { accessorKey: 'impactLevel', header: 'Nivel de Impacto' },

@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { useDivisions } from '@/hooks/catalogs';
 import { useCreateTeam } from '@/hooks/team';
 
-import { resolveEmails } from '@/services/user.service';
+import { resolveEmails } from '@/services/users.service';
 
 import { SeedCategory, IResolvedEmail, TeamsGrade } from '@repo/types';
 import { PlusIcon, XIcon } from 'lucide-react';

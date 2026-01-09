@@ -62,7 +62,7 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <SidebarMenuButton asChild>
-                <Link href={'/user/perfil'}>
+                <Link href={`/user/perfil/${user._id}`}>
                   <CircleUserRound className="stroke-gray-500" />
                   <span>Perfil</span>
                 </Link>
