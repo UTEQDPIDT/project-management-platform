@@ -2,41 +2,50 @@ import { cn } from '@/lib/utils';
 import { IActivity } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Calendar, Ellipsis, MoveRight, Pencil, Trash } from 'lucide-react';
+import { Calendar, Ellipsis, MoveRight } from 'lucide-react';
 import AvatarRow from './avatar-row';
-import { ActivityForm } from './forms/activity-form';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from './ui/card';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from './ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { Separator } from './ui/separator';
+import { ReactNode } from 'react';
 
 interface Props {
   activity: IActivity;
-  onDelete: (activity: IActivity) => void;
+  buttonText?: string;
+  buttonIcon?: ReactNode;
+  onAction?: () => void;
+  options?: ReactNode;
+  enableOptions?: boolean;
+  showStatus?: boolean;
+  showPriority?: boolean;
   className?: string;
 }
 
-export function ActivityCard({ activity, onDelete, className }: Props) {
-  let badgeVariant:
+export function ActivityCard({
+  activity,
+  buttonText = 'Accion',
+  buttonIcon,
+  onAction,
+  options,
+  enableOptions,
+  showStatus,
+  showPriority,
+  className,
+}: Props) {
+  let priorityBadgeVariant:
     | 'orange'
     | 'gray'
     | 'default'
@@ -51,13 +60,13 @@ export function ActivityCard({ activity, onDelete, className }: Props) {
 
   switch (activity.priority) {
     case 'Alta':
-      badgeVariant = 'purple';
+      priorityBadgeVariant = 'purple';
       break;
     case 'Media':
-      badgeVariant = 'orange';
+      priorityBadgeVariant = 'orange';
       break;
     case 'Baja':
-      badgeVariant = 'gray';
+      priorityBadgeVariant = 'gray';
       break;
   }
 
@@ -69,68 +78,18 @@ export function ActivityCard({ activity, onDelete, className }: Props) {
             <CardTitle>{activity.name}</CardTitle>
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon-sm">
-                <Ellipsis />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="flex flex-col items-start gap-1">
-              {/* Edit */}
-              <Dialog>
-                <DialogTrigger className="border-transparent w-full justify-start">
-                  <Pencil /> Editar
-                </DialogTrigger>
-                <DialogContent>
-                  <div className="flex gap-3 ">
-                    <Badge variant="orange">Editando</Badge>
-                    <DialogTitle className="line-clamp-1">
-                      {activity.name}
-                    </DialogTitle>
-                  </div>
-                  <Separator />
-
-                  <ActivityForm
-                    activity={activity}
-                    projectId={activity.projectId}
-                    eventId={activity.eventId}
-                  />
-                </DialogContent>
-              </Dialog>
-
-              {/* Delete */}
-              <Dialog>
-                <DialogTrigger className="border-transparent w-full justify-start hover:text-destructive-foreground">
-                  <Trash /> Eliminar
-                </DialogTrigger>
-                <DialogContent className="gap-5">
-                  <Badge variant="destructive">Eliminando</Badge>
-                  <DialogTitle>{activity.name}</DialogTitle>
-                  <DialogDescription>
-                    ¿Seguro que deseas eliminar la actividad? Esta es una
-                    operación irreversible, una vez eliminada la actividad no se
-                    podrá recuperar.
-                  </DialogDescription>
-
-                  <div className="flex gap-2">
-                    <DialogClose asChild>
-                      <Button variant="outline">Cancelar</Button>
-                    </DialogClose>
-
-                    <DialogClose asChild>
-                      <Button
-                        onClick={() => onDelete?.(activity)}
-                        variant="destructive"
-                        disabled={!onDelete}
-                      >
-                        Eliminar
-                      </Button>
-                    </DialogClose>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {enableOptions && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon-sm">
+                  <Ellipsis />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="flex flex-col items-start gap-1">
+                {options}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </CardHeader>
 
@@ -162,10 +121,20 @@ export function ActivityCard({ activity, onDelete, className }: Props) {
           </div>
         )}
 
-        {activity.priority && (
-          <Badge variant={badgeVariant}>{activity.priority}</Badge>
+        {showPriority && (
+          <Badge variant={priorityBadgeVariant}>{activity.priority}</Badge>
         )}
       </CardContent>
+      {onAction && (
+        <CardFooter className="flex justify-end">
+          <CardAction>
+            <Button variant="outline" onClick={onAction} size="xs">
+              {buttonIcon}
+              {buttonText}
+            </Button>
+          </CardAction>
+        </CardFooter>
+      )}
     </Card>
   );
 }

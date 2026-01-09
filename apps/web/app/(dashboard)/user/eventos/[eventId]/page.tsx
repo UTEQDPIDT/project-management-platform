@@ -1,18 +1,15 @@
 'use client';
 
 import { ActivityCard } from '@/components/activity-card';
-import EventActivityMenu from '@/components/event-activity-menu';
 import EventInfoCard from '@/components/event-info-card';
 import { EventMenu } from '@/components/event-menu';
 import EventProductMenu from '@/components/event-product-menu';
-import { ActivityForm } from '@/components/forms/activity-form';
-import { ParticipantsForm } from '@/components/forms/participants-form';
+import RegisterProductsForm from '@/components/forms/register-product-form';
 import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import IconSquare from '@/components/icon-square';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
 import ProductCard from '@/components/product-card';
-
 import { ProfileInfo } from '@/components/profile-info';
 import {
   Breadcrumb,
@@ -21,7 +18,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
@@ -30,11 +26,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   Empty,
   EmptyDescription,
   EmptyHeader,
@@ -42,28 +33,34 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
-import { useExitEvent, useGetEventById } from '@/hooks/events';
+import { useGetEventById, useRemoveAssignee } from '@/hooks/events';
 import { IActivity, IProduct, IUser, UserRole } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
-import {
-  ListTodo,
-  MoreHorizontal,
-  Shapes,
-  UserMinus,
-  Users,
-} from 'lucide-react';
+import { ListTodo, Shapes, UserMinus, UserPlus, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useMemo } from 'react';
+import { useAddAssignee } from '../../../../../src/hooks/events/use-add-assignee';
 
 const Page = () => {
-  const { user } = userProfile();
-
   /**
-   * Tanstack
+   * Context
    */
+  const { user } = userProfile();
+  const currentUserId = user._id;
+
   const { eventId } = useParams<{ eventId: string }>();
   const { data: event, isLoading: loadingEvent } = useGetEventById(eventId);
-  const removeParticipant = useExitEvent();
+  const addAssignee = useAddAssignee();
+  const removeAssignee = useRemoveAssignee();
+
+  // User products
+  useMemo(() => {
+    if (!event?.products || !currentUserId) return [];
+    return event.products.filter(
+      (p: IProduct) => p.owner._id === currentUserId,
+    );
+  }, [event?.products, currentUserId]);
 
   return (
     <div>
@@ -77,7 +74,7 @@ const Page = () => {
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                      <Link href="/admin/eventos">Eventos</Link>
+                      <Link href="/user/eventos">Eventos</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
@@ -91,11 +88,11 @@ const Page = () => {
           </Header>
 
           <PageContent>
-            <div className="w-full flex gap-6 lg:gap-4 flex-col lg:flex-row">
-              <div className="w-full lg:max-w-sm flex flex-col gap-6">
+            <div className="w-full flex flex-col lg:flex-row gap-4">
+              <div className="w-full max-w-sm flex items-center justify-start flex-col gap-6">
                 <EventInfoCard event={event} />
 
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <div className="flex justify-between">
                       <div className="flex gap-3 items-center">
@@ -105,19 +102,6 @@ const Page = () => {
 
                         <CardTitle>Participantes</CardTitle>
                       </div>
-                      <Dialog>
-                        <DialogTrigger className="h-7 px-3 hover:bg-secondary/90 border">
-                          Gestionar
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogTitle>Participantes</DialogTitle>
-                          <Separator />
-                          <ParticipantsForm
-                            eventId={eventId}
-                            participants={event.participants}
-                          />
-                        </DialogContent>
-                      </Dialog>
                     </div>
                   </CardHeader>
 
@@ -133,30 +117,6 @@ const Page = () => {
                               avatarUrl={p.avatarUrl}
                               email={p.email}
                             />
-
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button size="icon-sm" variant="ghost">
-                                  <MoreHorizontal />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent>
-                                <Button
-                                  size="sm"
-                                  className="w-full justify-start font-normal bg-transparent hover:text-destructive-foreground"
-                                  variant="ghost"
-                                  disabled={false}
-                                  onClick={() => {
-                                    removeParticipant.mutate({
-                                      eventId,
-                                      userId: p._id,
-                                    });
-                                  }}
-                                >
-                                  <UserMinus /> Expulsar
-                                </Button>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
                           </div>
                         ))}
                       </div>
@@ -168,8 +128,7 @@ const Page = () => {
                           </EmptyMedia>
                           <EmptyTitle>No Hay Participantes</EmptyTitle>
                           <EmptyDescription>
-                            No se han agregado participantes al evento. Agrega
-                            participantes.
+                            No se hay participantes para este evento.
                           </EmptyDescription>
                         </EmptyHeader>
                       </Empty>
@@ -189,72 +148,102 @@ const Page = () => {
 
                         <CardTitle>Actividades</CardTitle>
                       </div>
-                      <Dialog>
-                        <DialogTrigger className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
-                          Crear
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogTitle>Nueva Actividad</DialogTitle>
-                          <Separator />
-                          <ActivityForm eventId={eventId} />
-                        </DialogContent>
-                      </Dialog>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex flex-col gap-4">
-                      {event.activities?.length ? (
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                          {event.activities.map((a: IActivity) => (
-                            <ActivityCard
-                              key={a._id}
-                              activity={a}
-                              enableOptions={user.role === UserRole.ADMIN}
-                              options={
-                                <EventActivityMenu
-                                  eventId={eventId}
-                                  activity={a}
-                                />
-                              }
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <Empty>
-                          <EmptyHeader>
-                            <EmptyMedia variant="icon">
-                              <ListTodo />
-                            </EmptyMedia>
-                            <EmptyTitle>No Hay Actividades</EmptyTitle>
-                            <EmptyDescription>
-                              No se han agregado actividades para el evento.
-                              Crea una nueva actividad.
-                            </EmptyDescription>
-                          </EmptyHeader>
-                        </Empty>
-                      )}
-                    </div>
+                    {event.activities?.length ? (
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        {event.activities.map((a: IActivity) => (
+                          <ActivityCard
+                            key={a._id}
+                            activity={a}
+                            enableOptions={user.role === UserRole.ADMIN}
+                            onAction={
+                              a.assignees?.some(
+                                (a: IUser) => a._id === currentUserId,
+                              )
+                                ? () =>
+                                    removeAssignee.mutate({
+                                      activityId: a._id,
+                                      userId: currentUserId,
+                                    })
+                                : () =>
+                                    addAssignee.mutate({
+                                      activityId: a._id,
+                                      userId: currentUserId,
+                                    })
+                            }
+                            buttonText={
+                              a.assignees?.some(
+                                (a: IUser) => a._id === currentUserId,
+                              )
+                                ? 'Salir'
+                                : 'Participar'
+                            }
+                            buttonIcon={
+                              a.assignees?.some(
+                                (a: IUser) => a._id === currentUserId,
+                              ) ? (
+                                <UserMinus />
+                              ) : (
+                                <UserPlus />
+                              )
+                            }
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <Empty>
+                        <EmptyHeader>
+                          <EmptyMedia variant="icon">
+                            <ListTodo />
+                          </EmptyMedia>
+                          <EmptyTitle>No Hay Actividades</EmptyTitle>
+                          <EmptyDescription>
+                            No se han agregado actividades para este evento.
+                          </EmptyDescription>
+                        </EmptyHeader>
+                      </Empty>
+                    )}
                   </CardContent>
                 </Card>
 
                 <Card className="w-full">
                   <CardHeader>
-                    <div className="flex gap-3 items-center">
-                      <IconSquare>
-                        <Shapes />
-                      </IconSquare>
+                    <div className="flex justify-between">
+                      <div className="flex gap-3 items-center">
+                        <IconSquare>
+                          <Shapes />
+                        </IconSquare>
 
-                      <CardTitle>Productos</CardTitle>
+                        <CardTitle>Productos</CardTitle>
+                      </div>
+
+                      <Dialog>
+                        <DialogTrigger className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
+                          Registrar
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogTitle>Registrar Productos</DialogTitle>
+                          <Separator />
+                          <RegisterProductsForm
+                            eventId={eventId}
+                            products={event.products}
+                          />
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    {event.products.length > 0 ? (
+                    {loadingEvent ? (
+                      <LoadingMessage />
+                    ) : event.products.length ? (
                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                         {event.products.map((p: IProduct) => (
                           <ProductCard
                             key={p._id}
                             product={p}
-                            enableOptions
+                            enableOptions={currentUserId === p.owner._id}
                             options={
                               <EventProductMenu eventId={eventId} product={p} />
                             }
@@ -269,8 +258,8 @@ const Page = () => {
                           </EmptyMedia>
                           <EmptyTitle>No Hay Productos</EmptyTitle>
                           <EmptyDescription>
-                            No se ha agregado ningún producto. Debes esperar a
-                            que los asistentes seleccionen sus productos.
+                            No haz registrado ningún producto para presentar en
+                            este evento. Registra tus productos al evento.
                           </EmptyDescription>
                         </EmptyHeader>
                       </Empty>

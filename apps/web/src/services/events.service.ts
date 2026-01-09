@@ -84,6 +84,37 @@ const deleteEventActivity = async ({
 };
 
 /**
+ * PRODUCTS
+ */
+const registerProducts = async ({
+  eventId,
+  products,
+}: {
+  eventId: string;
+  products: string[];
+}) => {
+  try {
+    await api.patch(`/events/${eventId}/products`, products);
+  } catch (err) {
+    console.error('Error adding products to event');
+  }
+};
+
+const removeProduct = async ({
+  eventId,
+  productId,
+}: {
+  eventId: string;
+  productId: string;
+}) => {
+  try {
+    await api.delete(`/events/${eventId}/products/${productId}`);
+  } catch (err) {
+    console.error('Error removing product from event');
+  }
+};
+
+/**
  * PARTICIPANTS
  */
 const addParticipants = async ({
@@ -114,6 +145,14 @@ const removeParticipant = async ({
   }
 };
 
+const registerParticipant = async ({ eventId }: { eventId: string }) => {
+  try {
+    await api.patch(`/events/${eventId}/register`);
+  } catch (err) {
+    console.error('Error registering user');
+  }
+};
+
 export {
   createEvent,
   getAllEvents,
@@ -124,4 +163,7 @@ export {
   deleteEventActivity,
   addParticipants,
   removeParticipant,
+  registerParticipant,
+  registerProducts,
+  removeProduct,
 };

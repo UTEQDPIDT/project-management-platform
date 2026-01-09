@@ -103,6 +103,28 @@ export class ActivitiesService {
     return updatedActivity;
   }
 
+  async addAssignee(activityId: string, userId: string, updaterId: string) {
+    try {
+      await this.activityModel.findByIdAndUpdate(
+        { _id: activityId },
+        { $addToSet: { assignees: userId }, $set: { updatedBy: updaterId } },
+      );
+    } catch (err: any) {
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async removeAssignee(activityId: string, userId: string, updaterId: string) {
+    try {
+      await this.activityModel.findByIdAndUpdate(
+        { _id: activityId },
+        { $pull: { assignees: userId }, $set: { updatedBy: updaterId } },
+      );
+    } catch (err: any) {
+      throw new BadRequestException(err.message);
+    }
+  }
+
   async removeFile(activityId: string, fileId: string, userId: string) {
     const activity = await this.activityModel.findById(activityId);
     if (!activity) {

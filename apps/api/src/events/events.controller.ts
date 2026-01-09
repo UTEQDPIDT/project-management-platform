@@ -115,6 +115,12 @@ export class EventsController {
   /**
    * PARTICIPANTS
    */
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/register')
+  addParticipant(@Param('id') id, @Req() req) {
+    return this.eventsService.addParticipant(id, req.user.id);
+  }
+
   @ApiCreatedResponse({
     description: 'Participantes agregados correctamente al evento.',
   })
@@ -197,7 +203,7 @@ export class EventsController {
     description: 'Producto no encontrado o no es válido.',
   })
   @UseGuards(JwtAuthGuard)
-  @Post(':id/products')
+  @Patch(':id/products')
   addProducts(
     @Param('id') id: string,
     @Body('products') productIds: string[],

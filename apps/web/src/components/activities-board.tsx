@@ -17,6 +17,7 @@ import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { ActivityForm } from './forms/activity-form';
 import { useDeleteActivity } from '@/hooks/projects';
+import ProjectActivityMenu from './project-activity-menu';
 
 interface Props {
   activities: IActivity[];
@@ -24,15 +25,6 @@ interface Props {
 }
 
 export function ActivitiesBoard({ activities, projectId }: Props) {
-  const deleteActivity = useDeleteActivity();
-
-  const handleDeleteActivity = (activity: IActivity) => {
-    deleteActivity.mutate({
-      projectId: activity.projectId!,
-      activityId: activity._id,
-    });
-  };
-
   const pendingActivities = activities.filter(
     (a: IActivity) => a.status === 'Pendiente',
   );
@@ -83,7 +75,13 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
                   <ActivityCard
                     key={a._id}
                     activity={a}
-                    onDelete={handleDeleteActivity}
+                    options={
+                      <ProjectActivityMenu
+                        projectId={projectId!}
+                        activity={a}
+                      />
+                    }
+                    enableOptions
                   />
                 ))}
               </CardContent>
@@ -103,8 +101,13 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
                   <ActivityCard
                     key={a._id}
                     activity={a}
-                    onDelete={handleDeleteActivity}
-                    className="border-blue-200"
+                    options={
+                      <ProjectActivityMenu
+                        projectId={projectId!}
+                        activity={a}
+                      />
+                    }
+                    enableOptions
                   />
                 ))}
               </CardContent>
@@ -124,8 +127,13 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
                   <ActivityCard
                     key={a._id}
                     activity={a}
-                    onDelete={handleDeleteActivity}
-                    className="border-green-200"
+                    options={
+                      <ProjectActivityMenu
+                        projectId={projectId!}
+                        activity={a}
+                      />
+                    }
+                    enableOptions
                   />
                 ))}
               </CardContent>

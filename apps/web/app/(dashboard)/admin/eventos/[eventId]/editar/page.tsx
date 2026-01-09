@@ -29,7 +29,7 @@ const Page = () => {
         </HeaderHeading>
         <HeaderAction>
           <Button asChild variant="ghost">
-            <Link href={'/admin/eventos'}>
+            <Link href={`/admin/eventos/${event._id}`}>
               <ArrowLeft />
               Cancelar
             </Link>
