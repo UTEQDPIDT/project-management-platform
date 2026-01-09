@@ -39,7 +39,7 @@ import { DialogClose } from '../ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { Command, CommandGroup, CommandItem } from '../ui/command';
-import { useCreateEventActivity, useUpdateEventActivity } from '@/hooks/events';
+import { useCreateEventActivity, useRemoveAssignee } from '@/hooks/events';
 import LoadingMessage from '../loading-message';
 
 interface Props {
@@ -57,7 +57,7 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
   const updateProjectActivity = useUpdateProjectActivity();
   // Event hooks
   const createEventActivity = useCreateEventActivity();
-  const updateEventActivity = useUpdateEventActivity();
+  const updateEventActivity = useRemoveAssignee();
 
   const context = useMemo(() => {
     if (projectId) return 'project';

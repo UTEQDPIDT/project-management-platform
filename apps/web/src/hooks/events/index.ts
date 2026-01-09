@@ -12,3 +12,5 @@ export * from './use-register-participant';
 export * from './use-exit-event';
 export * from './use-register-products';
 export * from './use-remove-product';
+export * from './use-add-assignee';
+export * from './use-remove-assignee';

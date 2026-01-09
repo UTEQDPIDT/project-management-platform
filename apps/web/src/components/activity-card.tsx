@@ -8,6 +8,7 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -23,22 +24,28 @@ import { ReactNode } from 'react';
 
 interface Props {
   activity: IActivity;
-  actionButtonText?: string;
+  buttonText?: string;
+  buttonIcon?: ReactNode;
   onAction?: () => void;
   options?: ReactNode;
   enableOptions?: boolean;
+  showStatus?: boolean;
+  showPriority?: boolean;
   className?: string;
 }
 
 export function ActivityCard({
   activity,
-  actionButtonText = 'Accion',
+  buttonText = 'Accion',
+  buttonIcon,
   onAction,
   options,
   enableOptions,
+  showStatus,
+  showPriority,
   className,
 }: Props) {
-  let badgeVariant:
+  let priorityBadgeVariant:
     | 'orange'
     | 'gray'
     | 'default'
@@ -53,13 +60,13 @@ export function ActivityCard({
 
   switch (activity.priority) {
     case 'Alta':
-      badgeVariant = 'purple';
+      priorityBadgeVariant = 'purple';
       break;
     case 'Media':
-      badgeVariant = 'orange';
+      priorityBadgeVariant = 'orange';
       break;
     case 'Baja':
-      badgeVariant = 'gray';
+      priorityBadgeVariant = 'gray';
       break;
   }
 
@@ -114,13 +121,18 @@ export function ActivityCard({
           </div>
         )}
 
-        {activity.priority && (
-          <Badge variant={badgeVariant}>{activity.priority}</Badge>
+        {showPriority && (
+          <Badge variant={priorityBadgeVariant}>{activity.priority}</Badge>
         )}
       </CardContent>
       {onAction && (
-        <CardFooter>
-          <Button>{actionButtonText}</Button>
+        <CardFooter className="flex justify-end">
+          <CardAction>
+            <Button variant="outline" onClick={onAction} size="xs">
+              {buttonIcon}
+              {buttonText}
+            </Button>
+          </CardAction>
         </CardFooter>
       )}
     </Card>

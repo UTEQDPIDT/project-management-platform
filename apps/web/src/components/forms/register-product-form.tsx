@@ -54,10 +54,6 @@ export default function RegisterProductsForm({
     );
   }
 
-  console.log('PRODUCTS', products);
-  if (userProducts) console.log('USER PRODUCTS', userProducts);
-  console.log('NOT REGISTERED PRODUCTS', notRegisteredProducts);
-
   /**
    * React hook form
    */

@@ -80,6 +80,28 @@ export class ActivitiesController {
   }
 
   @ApiAcceptedResponse({
+    description: 'Se asigno la actividad al usuario correctamente.',
+  })
+  @ApiNotFoundResponse({ description: 'No se encontro la actividad.' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/add-assignee')
+  addAssignee(@Param('id') id, @Body() userId, @Req() req) {
+    this.activitiesService.addAssignee(id, userId, req.user.id);
+  }
+
+  @ApiAcceptedResponse({
+    description: 'Se retiro el usuario de la actividad correctamente.',
+  })
+  @ApiNotFoundResponse({ description: 'No se encontro la actividad.' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/remove-assignee')
+  removeAssignee(@Param('id') id, @Body() userId, @Req() req) {
+    this.activitiesService.removeAssignee(id, userId, req.user.id);
+  }
+
+  @ApiAcceptedResponse({
     description: 'Archivo eliminado de la actividad correctamente.',
   })
   @ApiNotFoundResponse({

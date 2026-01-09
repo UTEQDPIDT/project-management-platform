@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { updateActivity } from '@/services/activity.service';
+import { updateActivity } from '@/services/activities.service';
 import { toast } from 'sonner';
 
 export function useUpdateProjectActivity() {

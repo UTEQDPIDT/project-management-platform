@@ -36,10 +36,10 @@ import { Separator } from '@/components/ui/separator';
 import { useGetEventById } from '@/hooks/events';
 import { IActivity, IProduct, IUser, UserRole } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
-import { ListTodo, Shapes, Users } from 'lucide-react';
+import { ListTodo, Shapes, UserPlus, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 const Page = () => {
   const { eventId } = useParams<{ eventId: string }>();
@@ -51,6 +51,7 @@ const Page = () => {
   const { user } = userProfile();
   const currentUserId = user._id;
 
+  // User products
   useMemo(() => {
     if (!event?.products || !currentUserId) return [];
     return event.products.filter(
@@ -154,6 +155,9 @@ const Page = () => {
                             key={a._id}
                             activity={a}
                             enableOptions={user.role === UserRole.ADMIN}
+                            onAction={() => console.log('Participar')}
+                            buttonText={'Participar'}
+                            buttonIcon={<UserPlus />}
                           />
                         ))}
                       </div>
