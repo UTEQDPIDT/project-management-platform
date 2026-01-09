@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { createProduct } from '@/services/product.service';
+import { createProduct } from '@/services/products.service';
 import { toast } from 'sonner';
 
 export function useCreateProduct() {

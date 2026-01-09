@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { deleteProduct } from '@/services/product.service';
+import { deleteProduct } from '@/services/products.service';
 import { toast } from 'sonner';
 
 export function useDeleteProduct() {
