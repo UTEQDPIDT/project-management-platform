@@ -26,8 +26,8 @@ export interface IProject {
   products?: IProduct[];
   files?: IFile[];
   updatedBy?: IUser;
-  startDate?: Date;
-  endDate?: Date;
+  startDate: Date;
+  endDate: Date;
   createdAt: Date;
   updatedAt: Date;
 }
