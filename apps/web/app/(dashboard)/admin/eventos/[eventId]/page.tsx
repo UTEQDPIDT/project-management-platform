@@ -4,6 +4,7 @@ import { ActivityCard } from '@/components/activity-card';
 import EventActivityMenu from '@/components/event-activity-menu';
 import EventInfoCard from '@/components/event-info-card';
 import { EventMenu } from '@/components/event-menu';
+import EventProductMenu from '@/components/event-product-menu';
 import { ActivityForm } from '@/components/forms/activity-form';
 import { ParticipantsForm } from '@/components/forms/participants-form';
 import { Header, HeaderAction, HeaderHeading } from '@/components/header';
@@ -253,7 +254,10 @@ const Page = () => {
                           <ProductCard
                             key={p._id}
                             product={p}
-                            projectId={p.projectId}
+                            enableOptions
+                            options={
+                              <EventProductMenu eventId={eventId} product={p} />
+                            }
                           />
                         ))}
                       </div>

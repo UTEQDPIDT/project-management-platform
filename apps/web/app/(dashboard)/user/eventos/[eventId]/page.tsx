@@ -3,6 +3,7 @@
 import { ActivityCard } from '@/components/activity-card';
 import EventInfoCard from '@/components/event-info-card';
 import { EventMenu } from '@/components/event-menu';
+import EventProductMenu from '@/components/event-product-menu';
 import RegisterProductsForm from '@/components/forms/register-product-form';
 import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import IconSquare from '@/components/icon-square';
@@ -208,6 +209,9 @@ const Page = () => {
                             key={p._id}
                             product={p}
                             enableOptions={currentUserId === p.owner._id}
+                            options={
+                              <EventProductMenu eventId={eventId} product={p} />
+                            }
                           />
                         ))}
                       </div>

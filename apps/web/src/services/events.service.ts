@@ -100,6 +100,20 @@ const registerProducts = async ({
   }
 };
 
+const removeProduct = async ({
+  eventId,
+  productId,
+}: {
+  eventId: string;
+  productId: string;
+}) => {
+  try {
+    await api.delete(`/events/${eventId}/products/${productId}`);
+  } catch (err) {
+    console.error('Error removing product from event');
+  }
+};
+
 /**
  * PARTICIPANTS
  */
@@ -151,4 +165,5 @@ export {
   removeParticipant,
   registerParticipant,
   registerProducts,
+  removeProduct,
 };
