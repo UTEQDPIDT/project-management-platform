@@ -25,7 +25,7 @@ const Page = () => {
       <Header>
         <HeaderHeading className="flex-row gap-2">
           <Badge variant="orange">Editando</Badge>
-          <HeaderTitle>{project.name}</HeaderTitle>
+          <HeaderTitle className="line-clamp-1">{project.name}</HeaderTitle>
         </HeaderHeading>
         <HeaderAction>
           <Button asChild variant="ghost">

@@ -18,12 +18,15 @@ import {
 } from '@/components/ui/breadcrumb';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';
+import { userProfile } from 'context/profile-provider';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 const Page = () => {
   const { id } = useParams<{ id: string }>();
   const { data: project, isLoading: loadingProject } = useProject(id);
+
+  const { user } = userProfile();
 
   return (
     <div className="w-full h-full">
@@ -49,7 +52,9 @@ const Page = () => {
             </HeaderHeading>
 
             <HeaderAction>
-              <ProjectMenu projectId={id} name={project.name} />
+              {user._id === project.owner._id && (
+                <ProjectMenu projectId={id} name={project.name} />
+              )}
             </HeaderAction>
           </Header>
 
