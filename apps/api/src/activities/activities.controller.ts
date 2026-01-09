@@ -86,7 +86,11 @@ export class ActivitiesController {
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @UseGuards(JwtAuthGuard)
   @Patch(':id/add-assignee')
-  addAssignee(@Param('id') id, @Body() userId, @Req() req) {
+  addAssignee(
+    @Param('id') id: string,
+    @Body('userId') userId: string,
+    @Req() req,
+  ) {
     this.activitiesService.addAssignee(id, userId, req.user.id);
   }
 
@@ -97,7 +101,11 @@ export class ActivitiesController {
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @UseGuards(JwtAuthGuard)
   @Patch(':id/remove-assignee')
-  removeAssignee(@Param('id') id, @Body() userId, @Req() req) {
+  removeAssignee(
+    @Param('id') id: string,
+    @Body('userId') userId: string,
+    @Req() req,
+  ) {
     this.activitiesService.removeAssignee(id, userId, req.user.id);
   }
 
