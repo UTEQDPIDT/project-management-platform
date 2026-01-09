@@ -23,10 +23,13 @@ const getUserById = async (userId: string) => {
 
 const updateUser = async (data: UpdateUser) => {
   try {
-    console.log('Updating user');
-    await api.patch('/users', data);
+    const { status } = await api.patch('/users', data);
+    if (status === 200) {
+      toast.success('Perfil actualizado');
+    }
   } catch (err) {
     console.error('Error when updating user', err);
+    toast.error('No se actualizó el perfil');
   }
 };
 

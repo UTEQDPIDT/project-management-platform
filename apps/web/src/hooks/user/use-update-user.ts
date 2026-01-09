@@ -8,9 +8,9 @@ export function useUpdateUser() {
   return useMutation({
     mutationFn: updateUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', 'users', 'user'] });
-      toast.success('Perfil actualizado');
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
-    onError: () => toast.error('No se actualizó el perfil'),
   });
 }
