@@ -4,10 +4,14 @@ import { toast } from 'sonner';
 
 const createProject = async (projectData: ProjectCleanedData) => {
   try {
-    const { data } = await api.post('/projects', projectData);
-    return data;
+    const { status } = await api.post('/projects', projectData);
+
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('El proyecto ha sido creado');
+    }
   } catch (err) {
     console.error('Error creating project', err);
+    toast.error('El proyecto no ha sido creado');
   }
 };
 
@@ -49,19 +53,25 @@ const getProjectByTeam = async (teamId: string) => {
 
 const updateProject = async (id: string, projectData: IProject) => {
   try {
-    const { data } = await api.patch(`/projects/${id}`, projectData);
-    return data;
+    const { status } = await api.patch(`/projects/${id}`, projectData);
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('El proyecto ha sido actualizado');
+    }
   } catch (err) {
     console.error('Error updating project by ID', err);
+    toast.error('No se actualizó el proyecto');
   }
 };
 
 const deleteProject = async (id: string) => {
   try {
-    const { data } = await api.delete(`/projects/${id}`);
-    return data;
+    const { status } = await api.delete(`/projects/${id}`);
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('El proyecto ha sido eliminado');
+    }
   } catch (err) {
     console.error('Error deleting project by ID', err);
+    toast.error('El proyecto no ha sido eliminado');
   }
 };
 
@@ -103,7 +113,7 @@ const deleteProduct = async ({
     );
 
     if (status === 200 || status === 201 || status === 202) {
-      toast.success('Se elimino producto');
+      toast.success('Se elimino el producto');
     }
   } catch (err) {
     console.error('Error deleting product', err);
@@ -122,13 +132,17 @@ const createActivity = async ({
   activityData: any;
 }) => {
   try {
-    const { data } = await api.post(
+    const { status } = await api.post(
       `/projects/${projectId}/activities`,
       activityData,
     );
-    return data;
+
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('La actividad ha sido creada');
+    }
   } catch (err) {
     console.error('Error creating activity', err);
+    toast.error('No se ha creado la actividad');
   }
 };
 
@@ -140,9 +154,16 @@ const deleteActivity = async ({
   activityId: string;
 }) => {
   try {
-    await api.delete(`/projects/${projectId}/activities/${activityId}`);
+    const { status } = await api.delete(
+      `/projects/${projectId}/activities/${activityId}`,
+    );
+
+    if (status === 200 || status === 201 || status === 202) {
+      toast.success('La actividad ha sido eliminada');
+    }
   } catch (err) {
     console.error('Error deleting activity', err);
+    toast.error('No se ha eliminado la actividad');
   }
 };
 
