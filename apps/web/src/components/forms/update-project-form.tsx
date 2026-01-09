@@ -15,7 +15,13 @@ import { useTeamsByUser } from '@/hooks/team';
 
 import { useProjectsByOwner, useUpdateProject } from '@/hooks/projects';
 import { updateProjectSchema } from '@/schemas/update-project.schema';
-import { ImpactLevel, IProject, ITeam, SeedCategory } from '@repo/types';
+import {
+  ImpactLevel,
+  IProject,
+  ITeam,
+  SeedCategory,
+  UserRole,
+} from '@repo/types';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -63,6 +69,7 @@ import {
 } from '../ui/select';
 import { Separator } from '../ui/separator';
 import { TRLForm } from './trl-assesment-form';
+import { userProfile } from 'context/profile-provider';
 
 export function UpdateProjectForm({
   _id: projectId,
@@ -101,6 +108,8 @@ export function UpdateProjectForm({
   | 'endDate'
 >) {
   const router = useRouter();
+  const { user } = userProfile();
+  const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
 
   /**
    * React Query Hooks
@@ -160,7 +169,7 @@ export function UpdateProjectForm({
 
       updateProject.mutate({ projectId, projectData: cleanedData });
       form.reset();
-      router.push('/user/proyectos');
+      router.push(`${rootUrl}/proyectos/${projectId}`);
     } catch (err) {
       console.error('Error cleaning data', err);
     }
