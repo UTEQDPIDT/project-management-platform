@@ -25,6 +25,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { useProjectsByTeam } from '@/hooks/projects';
 import { useTeam } from '@/hooks/team';
+import { userProfile } from 'context/profile-provider';
 import { Bell } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -34,6 +35,8 @@ const Page = () => {
   const { data: team, isLoading: loadingTeam } = useTeam(teamId);
   const { data: projects, isLoading: loadingProjects } =
     useProjectsByTeam(teamId);
+
+  const { user } = userProfile();
 
   return (
     <div className="w-full h-full">
@@ -58,33 +61,35 @@ const Page = () => {
               </Breadcrumb>
             </HeaderHeading>
 
-            <HeaderAction>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon-sm">
-                    <Bell />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
-                  <Separator />
-                  {team.userRequests.length > 0 ? (
-                    <TeamUserRequests
-                      teamId={teamId}
-                      request={team.userRequests}
-                    />
-                  ) : (
-                    <div className="px-2 py-3">
-                      <span className="text-muted-foreground text-sm">
-                        No hay notificaciones
-                      </span>
-                    </div>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+            {user._id === team.owner._id && (
+              <HeaderAction>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon-sm">
+                      <Bell />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
+                    <Separator />
+                    {team.userRequests.length > 0 ? (
+                      <TeamUserRequests
+                        teamId={teamId}
+                        request={team.userRequests}
+                      />
+                    ) : (
+                      <div className="px-2 py-3">
+                        <span className="text-muted-foreground text-sm">
+                          No hay notificaciones
+                        </span>
+                      </div>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-              <TeamMenu teamId={teamId} name={team.teamName} />
-            </HeaderAction>
+                <TeamMenu teamId={teamId} name={team.teamName} />
+              </HeaderAction>
+            )}
           </Header>
 
           <PageContent>
