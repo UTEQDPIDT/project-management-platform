@@ -1,11 +1,17 @@
-import { IProject } from '@repo/types';
+import { IProject, SeedCategory } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
   ArrowUp10,
   ArrowUpRight,
+  BookOpen,
+  BrainCircuit,
+  Building,
   Calendar,
   Folder,
+  FoldVertical,
+  LandPlot,
+  Leaf,
   MapPinned,
   MoveRight,
   Percent,
@@ -17,6 +23,7 @@ import Link from 'next/link';
 import { ProfileInfo } from './profile-info';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
+import { concatWithCommaAndDot } from '@/lib/utils';
 
 interface ProjectInfoProps {
   project: IProject;
@@ -34,11 +41,17 @@ export default function ProjectInfoTable({
     trlRating,
     team,
     owner,
+    organization,
     objective,
     updatedAt,
     createdAt,
     updatedBy,
     impactLevel,
+    impactAreas,
+    knowledgeAreas,
+    sustainableObjectives,
+    prioritiesPND,
+    innovationLines,
     relatedProjects,
   } = project;
 
@@ -46,6 +59,19 @@ export default function ProjectInfoTable({
     <div className="text-sm border-b pb-4 w-full px-4">
       <div className="pb-2">
         <h1 className="text-xl font-semibold">{name}</h1>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <Building size={14} /> Organización
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          {organization ? (
+            <span>{organization}</span>
+          ) : (
+            <span className="text-gray-400">Vacío</span>
+          )}
+        </div>
       </div>
 
       <div className="flex items-start">
@@ -108,6 +134,93 @@ export default function ProjectInfoTable({
           <MapPinned size={14} /> Nivel de impacto
         </span>
         <div className="p-2 hover:bg-secondary rounded-md">{impactLevel}</div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <BookOpen size={14} className="shrink-0" /> Áreas de Conocimiento
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
+          {knowledgeAreas ? (
+            <span>
+              {concatWithCommaAndDot(
+                knowledgeAreas.map((a: SeedCategory) => a.name),
+              )}
+            </span>
+          ) : (
+            <span className="text-gray-400">Vacío</span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <FoldVertical size={14} className="shrink-0" /> Impactos Transversales
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
+          {impactAreas ? (
+            <span>
+              {concatWithCommaAndDot(
+                impactAreas.map((a: SeedCategory) => a.name),
+              )}
+            </span>
+          ) : (
+            <span className="text-gray-400">Vacío</span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <Leaf size={14} className="shrink-0" /> Objetivos Sustentables
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
+          {sustainableObjectives ? (
+            <span>
+              {concatWithCommaAndDot(
+                sustainableObjectives.map((o: SeedCategory) => o.name),
+              )}
+            </span>
+          ) : (
+            <span className="text-gray-400">Vacío</span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <LandPlot size={14} className="shrink-0" />
+          Prioridades PND
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
+          {prioritiesPND ? (
+            <span>
+              {concatWithCommaAndDot(
+                prioritiesPND.map((p: SeedCategory) => p.name),
+              )}
+            </span>
+          ) : (
+            <span className="text-gray-400">Vacío</span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <BrainCircuit size={14} className="shrink-0" />
+          LIIADTs
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
+          {innovationLines ? (
+            <span>
+              {concatWithCommaAndDot(
+                innovationLines.map((l: SeedCategory) => l.name),
+              )}
+            </span>
+          ) : (
+            <span className="text-gray-400">Vacío</span>
+          )}
+        </div>
       </div>
 
       <div className="flex items-start">
