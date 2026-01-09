@@ -128,7 +128,7 @@ const columns: ColumnDef<IEvent>[] = [
   },
   {
     accessorKey: 'activities',
-    header: 'No. Actividades',
+    header: 'Actividades',
     cell: ({ row }) => {
       const event = row.original;
       const { activities } = event;
@@ -138,7 +138,7 @@ const columns: ColumnDef<IEvent>[] = [
   },
   {
     accessorKey: 'products',
-    header: 'No. Productos',
+    header: 'Productos',
     cell: ({ row }) => {
       const event = row.original;
       const { products } = event;
