@@ -9,21 +9,66 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../schemas/user.schema';
 import { Model } from 'mongoose';
+import { UserType } from '@repo/types';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  async create(createUserDto: CreateUserDto): Promise<{ id: string; message: string }> {
+  /**
+   * Clears properties based on user type:
+   * - ESTUDIANTE: clears employeeNumber
+   * - MAESTRO/ADMINISTRATIVO: clears matricula and educationalProgram
+   * Returns an object with $set and $unset operations for MongoDB
+   */
+  private clearPropertiesByUserType(data: any): { $set: any; $unset?: any } {
+    const fieldsToSet = { ...data };
+    const fieldsToUnset: any = {};
+
+    if (data.type === UserType.ESTUDIANTE) {
+      // Students shouldn't have employee number
+      delete fieldsToSet.employeeNumber;
+      fieldsToUnset.employeeNumber = '';
+    } else if (
+      data.type === UserType.MAESTRO ||
+      data.type === UserType.ADMINISTRATIVO
+    ) {
+      // Teachers and administrative staff shouldn't have matricula or educational program
+      delete fieldsToSet.matricula;
+      delete fieldsToSet.educationalProgram;
+      fieldsToUnset.matricula = '';
+      fieldsToUnset.educationalProgram = '';
+    }
+
+    const result: { $set: any; $unset?: any } = { $set: fieldsToSet };
+    if (Object.keys(fieldsToUnset).length > 0) {
+      result.$unset = fieldsToUnset;
+    }
+
+    return result;
+  }
+
+  async create(
+    createUserDto: CreateUserDto,
+  ): Promise<{ id: string; message: string }> {
     try {
+      // Clear properties based on user type
+      const dataWithClearedProps =
+        this.clearPropertiesByUserType(createUserDto);
+
       // Remove undefined/null fields to avoid sparse index issues
       const cleanedDto = Object.fromEntries(
-        Object.entries(createUserDto).filter(([_, value]) => value !== undefined && value !== null)
+        Object.entries(dataWithClearedProps).filter(
+          ([_, value]) => value !== undefined && value !== null,
+        ),
       );
-      
+
       const createdUser = new this.userModel(cleanedDto);
       await createdUser.save();
-      return { id: createdUser._id.toString(), message: 'User created successfully' };
+      return {
+        id: createdUser._id.toString(),
+        message: 'User created successfully',
+      };
     } catch (err: any) {
       // Handle duplicate key or validation errors
       if (err.code === 11000) {
@@ -69,10 +114,17 @@ export class UsersService {
     return results;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<{ id: string; message: string }> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<{ id: string; message: string }> {
     try {
+      // Clear properties based on user type
+      // Use MongoDB operators to properly set and unset fields
+      const updateOperations = this.clearPropertiesByUserType(updateUserDto);
+
       const updatedUser = await this.userModel
-        .findByIdAndUpdate(id, updateUserDto, { new: true })
+        .findByIdAndUpdate(id, updateOperations, { new: true })
         .exec();
 
       if (!updatedUser)
