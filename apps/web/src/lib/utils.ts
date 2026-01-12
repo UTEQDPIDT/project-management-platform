@@ -1,4 +1,4 @@
-import { IActivity, Status } from '@repo/types';
+import { IActivity, Status, UserRole } from '@repo/types';
 import { clsx, type ClassValue } from 'clsx';
 import { toast } from 'sonner';
 import { twMerge } from 'tailwind-merge';
@@ -123,4 +123,9 @@ export const formatFileSize = (bytes: number, decimals = 2): string => {
   const value = bytes / Math.pow(k, i);
 
   return `${parseFloat(value.toFixed(decimals))} ${sizes[i]}`;
+};
+
+export const getBaseUrlBasedOnRole = (userRole: string) => {
+  const baseUrl = userRole === UserRole.ADMIN ? '/admin' : '/user';
+  return baseUrl;
 };
