@@ -57,6 +57,27 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
     createdAt,
   } = profile;
 
+  let badgeVariant:
+    | 'blue'
+    | 'default'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
+    | 'green'
+    | 'gray'
+    | 'purple'
+    | 'orange'
+    | null
+    | undefined;
+  switch (type) {
+    case UserType.ESTUDIANTE:
+      badgeVariant = 'blue';
+      break;
+    case UserType.MAESTRO:
+      badgeVariant = 'green';
+      break;
+  }
+
   return (
     <Card className="lg:max-w-lg w-full">
       <CardHeader>
@@ -69,40 +90,41 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
               email={email}
             />
             <div>
-              <Badge variant="blue">{type}</Badge>
+              <Badge variant={badgeVariant}>{type}</Badge>
             </div>
           </div>
+          {user._id === profile._id && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon-sm">
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem asChild>
+                  <Dialog>
+                    <DialogTrigger className="w-full justify-start font-normal">
+                      <Pencil /> Editar
+                    </DialogTrigger>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon-sm">
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem asChild>
-                <Dialog>
-                  <DialogTrigger className="w-full justify-start font-normal">
-                    <Pencil /> Editar
-                  </DialogTrigger>
-
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Editar Perfil</DialogTitle>
-                      <DialogDescription>
-                        Edita tu perfil aquí y haz click en guardar cuando
-                        termines.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <Separator />
-                    <div className="max-h-[600px] overflow-y-auto px-2">
-                      <UserForm profile={user} />
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Editar Perfil</DialogTitle>
+                        <DialogDescription>
+                          Edita tu perfil aquí y haz click en guardar cuando
+                          termines.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Separator />
+                      <div className="max-h-[600px] overflow-y-auto px-2">
+                        <UserForm profile={user} />
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </CardHeader>
 
@@ -162,19 +184,37 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                   <TableCell className="text-gray-500 px-4">
                     Matricula
                   </TableCell>
-                  <TableCell>{matricula}</TableCell>
+                  <TableCell>
+                    {matricula ? (
+                      matricula
+                    ) : (
+                      <span className="text-muted-foreground">Vacío</span>
+                    )}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="text-gray-500 px-4">
                     Programa educativo
                   </TableCell>
-                  <TableCell>{educationalProgram?.name}</TableCell>
+                  <TableCell>
+                    {educationalProgram ? (
+                      educationalProgram.name
+                    ) : (
+                      <span className="text-muted-foreground">Vacío</span>
+                    )}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="text-gray-500 px-4">
                     Nivel de carrera
                   </TableCell>
-                  <TableCell>{careerLevel}</TableCell>
+                  <TableCell>
+                    {careerLevel ? (
+                      careerLevel
+                    ) : (
+                      <span className="text-muted-foreground">Vacío</span>
+                    )}
+                  </TableCell>
                 </TableRow>
               </>
             )}
@@ -183,12 +223,24 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                 <TableCell className="text-gray-500 px-4">
                   Número de empleado
                 </TableCell>
-                <TableCell>{employeeNumber}</TableCell>
+                <TableCell>
+                  {employeeNumber ? (
+                    employeeNumber
+                  ) : (
+                    <span className="text-muted-foreground">Vacío</span>
+                  )}
+                </TableCell>
               </TableRow>
             )}
             <TableRow>
               <TableCell className="text-gray-500 px-4">Division</TableCell>
-              <TableCell>{division?.name}</TableCell>
+              <TableCell>
+                {division ? (
+                  division.name
+                ) : (
+                  <span className="text-muted-foreground">Vacío</span>
+                )}
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
