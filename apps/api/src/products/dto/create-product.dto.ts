@@ -21,7 +21,7 @@ export class CreateProductDto {
   @ApiProperty({ description: 'Subcategoría a la que pertenece el producto' })
   @IsMongoId()
   subcategory: ObjectId;
-    
+
   @ApiProperty({
     description: 'Detalles del producto como especifica la documentación',
     maxLength: 255,
@@ -40,9 +40,9 @@ export class CreateProductDto {
   coAuthor?: CoAuthor;
 
   @ApiProperty({
-    description: 'Evidencias asociadas al producto, referenciadas por IDs',
+    description: 'Archivo del producto',
   })
   @IsOptional()
   @IsMongoId({ each: true })
-  files?: string[];
+  file: string;
 }
