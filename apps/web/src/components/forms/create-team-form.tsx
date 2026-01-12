@@ -50,11 +50,12 @@ import { Switch } from '../ui/switch';
 import { useRouter } from 'next/navigation';
 import { userProfile } from 'context/profile-provider';
 import Link from 'next/link';
+import { getBaseUrlBasedOnRole } from '@/lib/utils';
 
 export function CreateTeamForm() {
   const router = useRouter();
-
   const { user } = userProfile();
+  const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   /**
    * React Query Hooks
@@ -134,7 +135,7 @@ export function CreateTeamForm() {
       };
       createTeamMutation.mutate(cleanedData);
       form.reset();
-      router.push('/user/equipos');
+      router.push(`${baseUrl}/equipos`);
     } catch (err) {
       console.error('Error cleaning data', err);
     }
@@ -484,7 +485,7 @@ export function CreateTeamForm() {
 
         <div className="flex gap-2">
           <Button variant={'outline'} type="button" asChild>
-            <Link href="/user/equipos">Cancelar</Link>
+            <Link href={`${baseUrl}/equipos`}>Cancelar</Link>
           </Button>
           <Button type="submit" disabled={createTeamMutation.isPending}>
             {createTeamMutation.isPending ? (
