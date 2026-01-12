@@ -12,7 +12,7 @@ export interface IProduct {
   details: string;
   coAuthor: CoAuthor;
   owner: IUser;
-  files: IFile[];
+  file: IFile;
   updatedBy: IUser;
   createdAt: Date;
   updatedAt: Date;

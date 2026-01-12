@@ -34,8 +34,8 @@ export class Product extends Document {
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   owner: User;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }] })
-  files: File[];
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'File' })
+  file: File;
 
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   updatedBy: User;
