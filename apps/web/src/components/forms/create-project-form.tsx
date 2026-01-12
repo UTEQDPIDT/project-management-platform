@@ -15,7 +15,13 @@ import { useTeamsByUser } from '@/hooks/team';
 
 import { useCreateProject, useProjectsByOwner } from '@/hooks/projects';
 import { projectSchema } from '@/schemas/project.schema';
-import { ImpactLevel, IProject, ITeam, SeedCategory } from '@repo/types';
+import {
+  ImpactLevel,
+  IProject,
+  ITeam,
+  SeedCategory,
+  UserRole,
+} from '@repo/types';
 import { Check, ChevronsUpDown, XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -64,9 +70,12 @@ import {
 } from '../ui/select';
 import { Separator } from '../ui/separator';
 import { TRLForm } from './trl-assesment-form';
+import { userProfile } from 'context/profile-provider';
 
 export function CreateProjectForm() {
   const router = useRouter();
+  const { user } = userProfile();
+  const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
 
   /**
    * React Query Hooks
@@ -132,7 +141,7 @@ export function CreateProjectForm() {
 
       createProject.mutate(cleanedData);
       form.reset();
-      router.push('/user/proyectos');
+      router.push(`${rootUrl}/proyectos`);
     } catch (err) {
       console.error('Error cleaning data', err);
     }
@@ -991,7 +1000,7 @@ export function CreateProjectForm() {
 
         <div className="flex gap-2">
           <Button variant={'outline'} type="button" asChild>
-            <Link href="/user/proyectos">Cancelar</Link>
+            <Link href={`${rootUrl}/proyectos`}>Cancelar</Link>
           </Button>
           <Button type="submit" disabled={createProject.isPending}>
             {createProject.isPending ? (

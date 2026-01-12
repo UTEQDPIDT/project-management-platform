@@ -21,6 +21,8 @@ import {
 } from './ui/dialog';
 import { useRouter } from 'next/navigation';
 import { useDeleteProject } from '@/hooks/projects';
+import { userProfile } from 'context/profile-provider';
+import { UserRole } from '@repo/types';
 
 export function ProjectMenu({
   projectId,
@@ -31,6 +33,8 @@ export function ProjectMenu({
 }) {
   const deleteProject = useDeleteProject();
   const router = useRouter();
+  const { user } = userProfile();
+  const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
 
   return (
     <DropdownMenu>
@@ -46,7 +50,7 @@ export function ProjectMenu({
             variant="ghost"
             asChild
           >
-            <Link href={`/user/proyectos/${projectId}/editar`}>
+            <Link href={`${rootUrl}/proyectos/${projectId}/editar`}>
               <Pencil />
               Editar
             </Link>
@@ -72,7 +76,7 @@ export function ProjectMenu({
                   variant="destructive"
                   onClick={() => {
                     deleteProject.mutate(projectId);
-                    router.push('/user/proyectos');
+                    router.push(`${rootUrl}/proyectos`);
                   }}
                 >
                   Eliminar

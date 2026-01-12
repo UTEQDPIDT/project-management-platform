@@ -1,36 +1,34 @@
+import { CreateProjectForm } from '@/components/forms/create-project-form';
 import {
   Header,
   HeaderAction,
-  HeaderContent,
-  HeaderDescription,
   HeaderHeading,
   HeaderTitle,
 } from '@/components/header';
 import { PageContent } from '@/components/page-content';
-import { ProductsTable } from '@/components/products-table';
-import ProjectsTable from '@/components/projects-table';
 import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import React from 'react';
 
 const Page = () => {
   return (
     <div>
       <Header>
         <HeaderHeading>
-          <HeaderTitle>Proyectos</HeaderTitle>
-          <HeaderDescription>
-            Gestiona los proyectos existentes.
-          </HeaderDescription>
+          <HeaderTitle>Nuevo Proyecto</HeaderTitle>
         </HeaderHeading>
         <HeaderAction>
-          <Button asChild>
-            <Link href="/admin/proyectos/crear">Crear Proyecto</Link>
+          <Button asChild variant="ghost">
+            <Link href={'/admin/proyectos'}>
+              <ArrowLeft />
+              Cancelar
+            </Link>
           </Button>
         </HeaderAction>
       </Header>
-      <PageContent>
-        <ProjectsTable />
-        <ProductsTable />
+      <PageContent className="items-center">
+        <CreateProjectForm />
       </PageContent>
     </div>
   );
