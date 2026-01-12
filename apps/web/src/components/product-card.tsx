@@ -21,7 +21,7 @@ interface ProductCardProps {
     | 'subcategory'
     | 'coAuthor'
     | 'owner'
-    | 'files'
+    | 'file'
   >;
   options?: ReactNode;
   enableOptions?: boolean;

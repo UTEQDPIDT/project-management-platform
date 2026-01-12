@@ -1,4 +1,4 @@
-import { IProject } from '@repo/types';
+import { IProject, UserRole } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -8,7 +8,6 @@ import {
   Paperclip,
   Shapes,
   SquareCheckBig,
-  User,
 } from 'lucide-react';
 import Link from 'next/link';
 import AvatarRow from './avatar-row';
@@ -24,6 +23,7 @@ import {
 import { calculateProgress } from '@/lib/utils';
 import { Progress } from './ui/progress';
 import { useProjectCardData } from '@/hooks/projects';
+import { userProfile } from 'context/profile-provider';
 
 type ProjectCardVariant = 'default' | 'compact';
 interface ProjectCardProps {
@@ -150,9 +150,11 @@ export function ProjectCard({
   variant = 'default',
 }: ProjectCardProps) {
   const data = useProjectCardData(project);
+  const { user } = userProfile();
+  const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
 
   return (
-    <Link href={`/user/proyectos/${project._id}`}>
+    <Link href={`${rootUrl}/proyectos/${project._id}`}>
       {variant === 'compact' ? (
         <ProjectCardCompact data={data} />
       ) : (
