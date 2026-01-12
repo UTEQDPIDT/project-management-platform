@@ -12,7 +12,6 @@ export interface IEvent {
   location: string;
   startDate: Date;
   endDate?: Date;
-  report: IFile;
   type: EventType;
   isPrivate: boolean;
   participants: IUser[];

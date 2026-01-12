@@ -5,7 +5,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Activity } from './activities.schema';
 import { Product } from './product.schema';
 import { EventType } from '@repo/types';
-import { File } from './file.schema';
 
 @Schema({ timestamps: true })
 export class Event extends Document {
@@ -48,10 +47,6 @@ export class Event extends Document {
   @ApiProperty({ description: 'Lista de participantes del evento' })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
   participants: User[];
-
-  @ApiProperty({ description: 'Reporte del evento' })
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'File' })
-  report?: File;
 
   @ApiProperty({ description: 'Indica si el evento es privado' })
   @Prop({ default: false })
