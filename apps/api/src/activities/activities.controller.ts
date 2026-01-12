@@ -1,29 +1,25 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
   Req,
-  UseInterceptors,
-  UploadedFiles,
+  UseGuards,
 } from '@nestjs/common';
-import { ActivitiesService } from './activities.service';
-import { CreateActivityDto } from './dto/create-activity.dto';
-import { UpdateActivityDto } from './dto/update-activity.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import {
   ApiAcceptedResponse,
-  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { FilesInterceptor } from '@nestjs/platform-express/multer/interceptors/files.interceptor';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
+import { ActivitiesService } from './activities.service';
+import { CreateActivityDto } from './dto/create-activity.dto';
+import { UpdateActivityDto } from './dto/update-activity.dto';
 
 @ApiTags('Activities')
 @Controller('activities')
@@ -68,13 +64,10 @@ export class ActivitiesController {
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FilesInterceptor('files'))
   update(
     @Param('id') id: string,
     @Body() updateActivityDto: UpdateActivityDto,
     @Req() req,
-    @UploadedFiles() files: Express.Multer.File[],
   ) {
     return this.activitiesService.update(id, updateActivityDto, req.user.id);
   }
@@ -107,23 +100,6 @@ export class ActivitiesController {
     @Req() req,
   ) {
     this.activitiesService.removeAssignee(id, userId, req.user.id);
-  }
-
-  @ApiAcceptedResponse({
-    description: 'Archivo eliminado de la actividad correctamente.',
-  })
-  @ApiNotFoundResponse({
-    description: 'No se encontro la actividad o el archivo.',
-  })
-  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
-  @Delete(':id/activityFiles')
-  removeFileFromActivity(
-    @Param('id') id: string,
-    @Body('fileId') fileId: string,
-    @Req() req,
-  ) {
-    return this.activitiesService.removeFile(id, fileId, req.user.id);
   }
 
   @ApiAcceptedResponse({ description: 'Actividad eliminada correctamente.' })
