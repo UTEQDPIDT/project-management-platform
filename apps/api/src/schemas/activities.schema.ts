@@ -44,10 +44,6 @@ export class Activity extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   updatedBy?: User;
 
-  @ApiProperty({ description: 'Evidencias de la actividad.' })
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }] })
-  files?: string[];
-
   @ApiProperty({
     description:
       'Fecha de vencimiento de la actividad. Al existir una fecha final de vencimiento, esta será el inicio del plazo.',
