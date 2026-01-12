@@ -22,10 +22,12 @@ import { logout } from '@/lib/auth/logout';
 import Link from 'next/link';
 import { ProfileInfo } from './profile-info';
 import { userProfile } from 'context/profile-provider';
+import { getBaseUrlBasedOnRole } from '@/lib/utils';
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { user } = userProfile();
+  const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   return (
     <SidebarMenu>
@@ -62,7 +64,7 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <SidebarMenuButton asChild>
-                <Link href={`/user/perfil/${user._id}`}>
+                <Link href={`${baseUrl}/perfil/${user._id}`}>
                   <CircleUserRound className="stroke-gray-500" />
                   <span>Perfil</span>
                 </Link>

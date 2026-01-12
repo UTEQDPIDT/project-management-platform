@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
-import { Copy, ExternalLink, MoreHorizontal, Pencil } from 'lucide-react';
+import { Copy, ExternalLink, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { copyValue } from '@/lib/utils';
 
@@ -29,17 +29,16 @@ const columns: ColumnDef<IUser>[] = [
     id: 'user-type',
     header: 'Rol',
     cell: ({ row }) => {
-      const { role } = row.original;
       const { type } = row.original;
 
       return (
         <div>
-          {role === UserRole.ADMIN ? (
-            <Badge variant="purple">Administrativo</Badge>
+          {type === UserType.ADMINISTRATIVO ? (
+            <Badge variant="purple">{type}</Badge>
           ) : type === UserType.MAESTRO ? (
-            <Badge variant="orange">Maestro</Badge>
+            <Badge variant="green">{type}</Badge>
           ) : (
-            <Badge variant="blue">Alumno</Badge>
+            <Badge variant="blue">{type}</Badge>
           )}
         </div>
       );
@@ -55,7 +54,7 @@ const columns: ColumnDef<IUser>[] = [
 
       return (
         <div>
-          {type === UserType.MAESTRO ? (
+          {type === UserType.MAESTRO || type === UserType.ADMINISTRATIVO ? (
             employeeNumber ? (
               <div className="flex justify-between group">
                 <span>{employeeNumber}</span>

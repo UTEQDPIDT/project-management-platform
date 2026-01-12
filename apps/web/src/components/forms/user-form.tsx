@@ -39,7 +39,6 @@ import {
   SelectValue,
 } from '../ui/select';
 import { DialogClose } from '../ui/dialog';
-import { Dialog } from '@radix-ui/react-dialog';
 
 export default function UserForm({ profile }: { profile: IUser }) {
   /**
@@ -76,7 +75,6 @@ export default function UserForm({ profile }: { profile: IUser }) {
         data.educationalProgram === '' ? undefined : data.educationalProgram,
       division: data.division === '' ? undefined : data.division,
     };
-    console.log(cleanedData);
     updateUserMutation.mutate(cleanedData);
   };
 
@@ -93,7 +91,10 @@ export default function UserForm({ profile }: { profile: IUser }) {
   useEffect(() => {
     if (userType === UserType.ESTUDIANTE) {
       setValue('employeeNumber', '');
-    } else if (userType === UserType.MAESTRO) {
+    } else if (
+      userType === UserType.MAESTRO ||
+      userType === UserType.ADMINISTRATIVO
+    ) {
       setValue('matricula', '');
       setValue('educationalProgram', '');
     }
@@ -342,7 +343,8 @@ export default function UserForm({ profile }: { profile: IUser }) {
                 </FieldGroup>
               )}
 
-              {userType === UserType.MAESTRO && (
+              {(userType === UserType.MAESTRO ||
+                userType === UserType.ADMINISTRATIVO) && (
                 <Controller
                   control={form.control}
                   name="employeeNumber"
