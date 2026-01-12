@@ -13,19 +13,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import {
-  Copy,
-  Download,
-  ExternalLink,
-  MoreHorizontal,
-  Pencil,
-} from 'lucide-react';
+import { Copy, Download, ExternalLink, MoreHorizontal } from 'lucide-react';
 import { copyValue } from '@/lib/utils';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import { ProfileInfo } from './profile-info';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { downloadFile } from '@/services/files.service';
 
 const columns: ColumnDef<IProduct>[] = [
   { accessorKey: 'name', header: 'Nombre' },
@@ -79,6 +74,15 @@ const columns: ColumnDef<IProduct>[] = [
     id: 'actions',
     cell: ({ row }) => {
       const product = row.original;
+      const { file } = product;
+
+      const handleDownload = async () => {
+        try {
+          await downloadFile(file._id, file.name);
+        } catch (error) {
+          console.error('Failed to download file:', error);
+        }
+      };
 
       return (
         <DropdownMenu>
@@ -89,7 +93,7 @@ const columns: ColumnDef<IProduct>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleDownload}>
               <Download /> Descargar producto
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
