@@ -76,6 +76,9 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
     case UserType.MAESTRO:
       badgeVariant = 'green';
       break;
+    case UserType.ADMINISTRATIVO:
+      badgeVariant = 'purple';
+      break;
   }
 
   return (
@@ -218,7 +221,8 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                 </TableRow>
               </>
             )}
-            {type === UserType.MAESTRO && (
+            {(type === UserType.MAESTRO ||
+              type === UserType.ADMINISTRATIVO) && (
               <TableRow>
                 <TableCell className="text-gray-500 px-4">
                   Número de empleado
