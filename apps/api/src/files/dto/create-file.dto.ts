@@ -1,12 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsInt, IsMongoId } from 'class-validator';
+import { FileOwnerType } from '@repo/types';
+import { IsString, IsInt, IsMongoId, IsEnum } from 'class-validator';
 
 export class CreateFileDto {
   @ApiProperty({
     description: 'El nombre del archivo.',
   })
   @IsString()
-  name: string;
+  originalName: string;
 
   @ApiProperty({
     description: 'La URL del archivo almacenado.',
@@ -27,11 +28,15 @@ export class CreateFileDto {
   mimetype: string;
 
   @ApiProperty({
-    description: 'El proprietario del archivo.',
+    description: 'La entidad proprietaria del archivo.',
   })
   @IsMongoId()
-  owner: string;
+  ownerId: string;
 
-  @IsString()
+  @ApiProperty({ description: 'El tipo de entidad proprietaria del archivo.' })
+  @IsEnum(FileOwnerType)
+  ownerType: FileOwnerType;
+
+  @IsMongoId()
   gridFsId: string;
 }
