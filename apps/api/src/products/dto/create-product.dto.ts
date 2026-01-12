@@ -38,11 +38,4 @@ export class CreateProductDto {
   @IsEnum(CoAuthor)
   @IsOptional()
   coAuthor?: CoAuthor;
-
-  @ApiProperty({
-    description: 'Archivo del producto',
-  })
-  @IsOptional()
-  @IsMongoId({ each: true })
-  file: string;
 }

@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { File } from './file.schema';
 import { User } from './user.schema';
 import { CoAuthor } from '@repo/types';
 import { ProductCategory } from './product-category.schema.seed';
@@ -33,9 +32,6 @@ export class Product extends Document {
 
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   owner: User;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'File' })
-  file: File;
 
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   updatedBy: User;

@@ -46,7 +46,6 @@ export class ProductsService {
       .populate('subcategory')
       .populate('owner')
       .populate('updatedBy')
-      .populate('file')
       .exec();
   }
 
@@ -57,7 +56,6 @@ export class ProductsService {
       .populate('subcategory')
       .populate('owner')
       .populate('updatedBy')
-      .populate('file')
       .exec();
     if (!product) {
       throw new NotFoundException(`Product with ID: ${id} not found`);
