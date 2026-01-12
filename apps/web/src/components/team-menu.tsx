@@ -24,7 +24,6 @@ import {
 import { useDeleteTeam } from '@/hooks/team';
 import { useRouter } from 'next/navigation';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
-import { userAgent } from 'next/server';
 import { userProfile } from 'context/profile-provider';
 
 export function TeamMenu({ teamId, name }: { teamId: string; name: string }) {
