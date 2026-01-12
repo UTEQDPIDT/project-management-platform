@@ -23,10 +23,15 @@ import {
 } from './ui/dialog';
 import { useDeleteTeam } from '@/hooks/team';
 import { useRouter } from 'next/navigation';
+import { getBaseUrlBasedOnRole } from '@/lib/utils';
+import { userAgent } from 'next/server';
+import { userProfile } from 'context/profile-provider';
 
 export function TeamMenu({ teamId, name }: { teamId: string; name: string }) {
   const deleteTeam = useDeleteTeam();
   const router = useRouter();
+  const { user } = userProfile();
+  const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   return (
     <DropdownMenu>
@@ -43,7 +48,7 @@ export function TeamMenu({ teamId, name }: { teamId: string; name: string }) {
             variant="ghost"
             asChild
           >
-            <Link href={`/user/equipos/${teamId}/editar`}>
+            <Link href={`${baseUrl}/equipos/${teamId}/editar`}>
               <Pencil />
               Editar
             </Link>
@@ -69,7 +74,7 @@ export function TeamMenu({ teamId, name }: { teamId: string; name: string }) {
                   variant="destructive"
                   onClick={() => {
                     deleteTeam.mutate(teamId);
-                    router.push('/user/equipos');
+                    router.push(`${baseUrl}/equipos`);
                   }}
                 >
                   Eliminar

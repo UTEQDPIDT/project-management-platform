@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { userProfile } from 'context/profile-provider';
+import { getBaseUrlBasedOnRole } from '@/lib/utils';
 
 export function CardMembers({
   team,
@@ -24,6 +25,7 @@ export function CardMembers({
   const removeCollaborator = useRemoveCollaborator();
 
   const { user } = userProfile();
+  const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   return (
     <Card className="w-full max-w-[500px]">
@@ -42,7 +44,7 @@ export function CardMembers({
           <Button variant="ghost" aria-label="Visitar equipo">
             <Link
               className="flex items-center"
-              href={`/user/equipos/${team._id}`}
+              href={`${baseUrl}/equipos/${team._id}`}
             >
               Visitar
               <ArrowUpRight />

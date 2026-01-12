@@ -51,6 +51,7 @@ import { Switch } from '../ui/switch';
 import { useRouter } from 'next/navigation';
 import { userProfile } from 'context/profile-provider';
 import Link from 'next/link';
+import { getBaseUrlBasedOnRole } from '@/lib/utils';
 
 export function UpdateTeamForm({
   _id: teamId,
@@ -75,6 +76,7 @@ export function UpdateTeamForm({
   const router = useRouter();
 
   const { user } = userProfile();
+  const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   /**
    * React Query Hooks
@@ -154,7 +156,7 @@ export function UpdateTeamForm({
       };
       updateTeam.mutate({ teamId, teamData: cleanedData });
       form.reset();
-      router.push(`/user/equipos/${teamId}`);
+      router.push(`${baseUrl}/equipos/${teamId}`);
     } catch (err) {
       console.error('Error cleaning data', err);
     }
@@ -503,7 +505,7 @@ export function UpdateTeamForm({
 
         <div className="flex gap-2">
           <Button asChild variant={'outline'} type="button">
-            <Link href={`/user/equipos/${teamId}`}>Cancelar</Link>
+            <Link href={`${baseUrl}/equipos/${teamId}`}>Cancelar</Link>
           </Button>
           <Button type="submit" disabled={updateTeam.isPending}>
             {updateTeam.isPending ? (
