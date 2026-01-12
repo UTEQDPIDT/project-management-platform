@@ -90,7 +90,7 @@ export class ProjectsService {
       .populate({ path: 'relatedProjects', populate: [{ path: 'activities' }] })
       .populate({
         path: 'activities',
-        populate: [{ path: 'assignees' }, { path: 'files' }],
+        populate: [{ path: 'assignees' }],
       })
       .populate({
         path: 'products',
@@ -100,7 +100,6 @@ export class ProjectsService {
           { path: 'owner' },
         ],
       })
-      .populate('files')
       .populate('owner')
       .populate('updatedBy')
       .exec();
@@ -124,7 +123,7 @@ export class ProjectsService {
       .populate({ path: 'relatedProjects', populate: [{ path: 'activities' }] })
       .populate({
         path: 'activities',
-        populate: [{ path: 'assignees' }, { path: 'files' }],
+        populate: [{ path: 'assignees' }],
       })
       .populate({
         path: 'products',
@@ -134,7 +133,6 @@ export class ProjectsService {
           { path: 'owner' },
         ],
       })
-      .populate('files')
       .populate('owner')
       .populate('updatedBy');
     if (!project) {
@@ -162,7 +160,7 @@ export class ProjectsService {
       .populate({ path: 'relatedProjects', populate: [{ path: 'activities' }] })
       .populate({
         path: 'activities',
-        populate: [{ path: 'assignees' }, { path: 'files' }],
+        populate: [{ path: 'assignees' }],
       })
       .populate({
         path: 'products',
@@ -172,7 +170,6 @@ export class ProjectsService {
           { path: 'owner' },
         ],
       })
-      .populate('files')
       .populate('owner')
       .populate('updatedBy');
   }
@@ -213,13 +210,6 @@ export class ProjectsService {
     session.startTransaction();
 
     try {
-      // Delete files
-      //   if (project.files && project.files.length > 0) {
-      //     for (const fileId of project.files) {
-      //       await this.filesService.deleteFile(fileId.toString());
-      //     }
-      //   }
-
       // Delete products
       await this.productService.deleteMany(projectId, session);
 

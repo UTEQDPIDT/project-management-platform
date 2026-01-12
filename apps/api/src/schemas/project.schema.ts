@@ -134,12 +134,6 @@ export class Project extends Document {
   })
   products?: Product[];
 
-  @ApiPropertyOptional({
-    description: 'Archivos relacionados al proyecto',
-  })
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }] })
-  files?: File[];
-
   @ApiProperty({
     description: 'Quien actualiza el proyecto por ultima ocasion.',
   })

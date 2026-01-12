@@ -130,13 +130,6 @@ export class CreateProjectDto {
   products: string[];
 
   @ApiPropertyOptional({
-    description: 'Archivos relacionados al proyecto',
-  })
-  @IsOptional()
-  @IsMongoId({ each: true })
-  files: string[];
-
-  @ApiPropertyOptional({
     description: 'Fecha de inicio del proyecto, esta será el inicio del plazo.',
   })
   @IsOptional()
