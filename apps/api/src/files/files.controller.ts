@@ -1,28 +1,30 @@
 import {
   Controller,
-  Get,
-  Post,
-  Param,
   Delete,
-  UseInterceptors,
-  UploadedFile,
-  Res,
-  NotFoundException,
-  UseGuards,
+  Get,
+  Param,
+  Post,
   Req,
+  Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
-import mongoose from 'mongoose';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import {
   ApiConsumes,
   ApiCreatedResponse,
   ApiResponse,
+  ApiNotFoundResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
+  ApiBadRequestResponse,
+  ApiOkResponse,
 } from '@nestjs/swagger';
+import { Response } from 'express';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { File } from '../schemas/file.schema';
+import { FilesService } from './files.service';
 
 @ApiTags('files')
 @Controller('files')
@@ -34,8 +36,8 @@ export class FilesController {
     description: 'Se subió el archivo correctamente.',
     type: File,
   })
-  @ApiResponse({ status: 401, description: 'No autorizado.' })
-  @ApiResponse({ status: 400, description: 'No se proporcionó el archivo.' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado.' })
+  @ApiBadRequestResponse({ description: 'No se proporcionó el archivo.' })
   @UseGuards(JwtAuthGuard)
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
@@ -43,36 +45,33 @@ export class FilesController {
     return this.filesService.uploadFile(file, req.user.userId);
   }
 
-  @ApiResponse({ status: 200, description: 'Lista de archivos' })
+  @ApiOkResponse({ description: 'Lista de archivos' })
   @ApiResponse({ status: 500, description: 'Error en el servidor' })
   @Get()
   findAll() {
     return this.filesService.findAll();
   }
 
-  @ApiResponse({ status: 200, description: 'Metadatos del archivo' })
-  @ApiResponse({ status: 404, description: 'Metadatos no encontrados' })
+  @ApiOkResponse({ description: 'Metadatos del archivo' })
+  @ApiNotFoundResponse({ description: 'Metadatos no encontrados' })
   @Get('metadata/:id')
   getFileMetadata(@Param('id') id: string) {
     return this.filesService.getFileMetadata(id);
   }
 
-  @ApiResponse({ status: 200, description: 'Stream del archivo' })
-  @ApiResponse({ status: 404, description: 'Archivo no encontrado' })
+  @ApiOkResponse({ description: 'Stream del archivo' })
+  @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
   @Get('stream/:id')
   async getFile(@Param('id') id: string, @Res() res: Response) {
-    const { metadata, stream } =
-      await this.filesService.getStream(id);
+    const { metadata, stream } = await this.filesService.getStream(id);
 
-    stream.on('error', () =>
-      res.status(404).send('File not found'),
-    );
+    stream.on('error', () => res.status(404).send('File not found'));
 
     stream.pipe(res);
   }
 
-  @ApiResponse({ status: 200, description: 'Descarga del archivo' })
-  @ApiResponse({ status: 404, description: 'Archivo no encontrado' })
+  @ApiOkResponse({ description: 'Descarga del archivo' })
+  @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
   @Get('download/:id')
   async downloadFile(@Param('id') id: string, @Res() res: Response) {
     try {
@@ -80,7 +79,7 @@ export class FilesController {
 
       res.set({
         'Content-Type': metadata.mimetype || 'application/octet-stream',
-        'Content-Disposition': `attachment; filename="${metadata.name}"`,
+        'Content-Disposition': `attachment; filename="${metadata.originalName}"`,
         'Content-Length': metadata.size.toString(),
       });
 
@@ -100,8 +99,8 @@ export class FilesController {
     }
   }
 
-  @ApiResponse({ status: 200, description: 'Archivo eliminado correctamente' })
-  @ApiResponse({ status: 404, description: 'Archivo no encontrado' })
+  @ApiOkResponse({ description: 'Archivo eliminado correctamente' })
+  @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.filesService.deleteFile(id);
