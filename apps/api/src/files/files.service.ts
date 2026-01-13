@@ -159,4 +159,13 @@ export class FilesService {
       await this.deleteFile(file._id.toString());
     }
   }
+
+  async deleteFilesByOwner(ownerId: string) {
+    try {
+      await this.fileModel.deleteMany({ owner: ownerId });
+      return { message: 'Files deleted successfully' };
+    } catch (error: any) {
+      throw new BadRequestException(error.message);
+    }
+  }
 }

@@ -116,4 +116,11 @@ export class FilesController {
   remove(@Param('id') id: string) {
     return this.filesService.deleteFile(id);
   }
+
+  @ApiOkResponse({ description: 'Archivo eliminado correctamente' })
+  @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
+  @Delete('/by-owner/:ownerId')
+  removeByOwner(@Param('ownerId') ownerId: string) {
+    return this.filesService.deleteFilesByOwner(ownerId);
+  }
 }
