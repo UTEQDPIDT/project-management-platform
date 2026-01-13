@@ -125,44 +125,11 @@ export class ActivitiesService {
     }
   }
 
-  async removeFile(activityId: string, fileId: string, userId: string) {
-    const activity = await this.activityModel.findById(activityId);
-    if (!activity) {
-      throw new NotFoundException(`Activity with ID ${activityId} not found`);
-    }
-
-    if (!activity.files.includes(fileId)) {
-      throw new BadRequestException('File does not belong to this activity');
-    }
-
-    await this.filesService.deleteFile(fileId);
-
-    await this.activityModel.findByIdAndUpdate(
-      activityId,
-      {
-        $pull: { files: fileId },
-        updatedBy: userId,
-      },
-      { new: true },
-    );
-
-    return {
-      id: activityId,
-      message: 'File removed successfully from activity',
-    };
-  }
-
   async remove(id: string): Promise<{ id: string; message: string }> {
     const activity = await this.activityModel.findById(id);
 
     if (!activity) {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
-    }
-
-    if (activity.files && activity.files.length > 0) {
-      for (const fileId of activity.files) {
-        await this.filesService.deleteFile(fileId.toString());
-      }
     }
 
     await this.activityModel.findByIdAndDelete(id);

@@ -63,14 +63,6 @@ export class CreateEventDto {
   type: EventType;
 
   @ApiProperty({
-    description: 'Reporte del evento (ID del archivo).',
-    example: '60d21b4f67d0d8992e610c87',
-    type: 'string',
-    format: 'binary',
-  })
-  report: any;
-
-  @ApiProperty({
     description: 'Indica si el evento es privado',
     example: false,
   })

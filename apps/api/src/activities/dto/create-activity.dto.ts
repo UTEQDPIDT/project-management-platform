@@ -55,17 +55,6 @@ export class CreateActivityDto {
   checked?: boolean;
 
   @ApiProperty({
-    type: 'string',
-    format: 'binary',
-    required: false,
-    isArray: true,
-    description: 'Evidencias de la actividad.',
-  })
-  @IsOptional()
-  @IsMongoId({ each: true })
-  files?: any[];
-
-  @ApiProperty({
     description:
       'Fecha de vencimiento de la actividad. Al existir una fecha final de vencimiento, esta será el inicio del plazo.',
     example: '2024-12-30T23:59:59.999Z',

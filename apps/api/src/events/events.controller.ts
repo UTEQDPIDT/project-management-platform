@@ -1,32 +1,27 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
   Req,
-  UseInterceptors,
-  UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
-import { EventsService } from './events.service';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
 import {
   ApiBadRequestResponse,
-  ApiBody,
-  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateActivityDto } from '../activities/dto/create-activity.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
+import { CreateEventDto } from './dto/create-event.dto';
+import { UpdateEventDto } from './dto/update-event.dto';
+import { EventsService } from './events.service';
 
 @ApiTags('Events')
 @Controller('events')
@@ -35,16 +30,10 @@ export class EventsController {
 
   @ApiCreatedResponse({ description: 'Evento creado correctamente.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('report'))
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(
-    @Body() createEventDto: CreateEventDto,
-    @Req() req,
-    @UploadedFile() report: Express.Multer.File,
-  ) {
-    return this.eventsService.create(createEventDto, req.user.id, report);
+  create(@Body() createEventDto: CreateEventDto, @Req() req) {
+    return this.eventsService.create(createEventDto, req.user.id);
   }
 
   @ApiOkResponse({ description: 'Lista de eventos obtenida correctamente.' })
@@ -80,36 +69,6 @@ export class EventsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.eventsService.remove(id);
-  }
-
-  /**
-   * REPORT
-   */
-  @ApiCreatedResponse({
-    description: 'Archivo de reporte subido correctamente al evento.',
-  })
-  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
-  @ApiConsumes('multipart/form-data')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('report'))
-  @Patch(':id/report-file')
-  uploadReportFile(
-    @Param('id') id: string,
-    @UploadedFile() report: Express.Multer.File,
-    @Req() req,
-  ) {
-    return this.eventsService.uploadReportFile(id, report, req.user.id);
-  }
-
-  @ApiOkResponse({
-    description: 'Archivo de reporte eliminado correctamente del evento.',
-  })
-  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
-  @ApiBadRequestResponse({ description: 'El archivo no existe en el evento.' })
-  @UseGuards(JwtAuthGuard)
-  @Delete(':id/report-file')
-  removeReportFile(@Param('id') id: string, @Req() req) {
-    return this.eventsService.removeReportFile(id, req.user.id);
   }
 
   /**

@@ -1,6 +1,5 @@
 import { Priority } from './enums/priority.enum';
 import { Status } from './enums/status.enum';
-import { IFile } from './file.type';
 import { IUser } from './user.type';
 
 export interface IActivity {
@@ -15,7 +14,6 @@ export interface IActivity {
   assignees?: IUser[];
   createdBy: IUser;
   updatedBy?: IUser;
-  files: IFile[];
   dueDate?: Date;
   dueDateEnd?: Date;
   createdAt: Date;

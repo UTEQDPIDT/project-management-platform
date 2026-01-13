@@ -1,6 +1,5 @@
 import { IActivity } from './activity.type';
 import { ImpactLevel } from './enums/impact-level.enum';
-import { IFile } from './file.type';
 import { IProduct } from './product.type';
 import { SeedCategory } from './seed-category.type';
 import { ITeam } from './team.type';
@@ -24,7 +23,6 @@ export interface IProject {
   relatedProjects?: IProject[];
   activities: IActivity[];
   products?: IProduct[];
-  files?: IFile[];
   updatedBy?: IUser;
   startDate: Date;
   endDate: Date;
