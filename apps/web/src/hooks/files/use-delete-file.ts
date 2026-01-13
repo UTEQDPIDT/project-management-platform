@@ -1,22 +1,22 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { uploadFile } from '@/services/files.service';
-import { IFile, UploadFilePayload } from '@repo/types';
+import { deleteFile } from '@/services/files.service';
+import { IFile } from '@repo/types';
 import { toast } from 'sonner';
 
-export const useUploadFile = () => {
+export const useDeleteFile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: UploadFilePayload) => uploadFile(payload),
+    mutationFn: deleteFile,
     onSuccess: (file: IFile) => {
-      toast.success('Archivo subido correctamente');
+      toast.success('El archivo fue eliminado');
 
       queryClient.invalidateQueries({
         queryKey: ['files', file.entityId, file.entityType],
       });
     },
     onError: () => {
-      toast.error('No se pudo subir el archivo');
+      toast.error('No se pudo eliminar el archivo');
     },
   });
 };

@@ -121,7 +121,7 @@ export class FilesService {
     return metadata;
   }
 
-  async deleteFile(id: string): Promise<{ id: string; message: string }> {
+  async deleteFile(id: string): Promise<File> {
     // extract file metadata
     const file = await this.fileModel.findById(id);
 
@@ -129,9 +129,10 @@ export class FilesService {
       throw new NotFoundException('File metadata not found');
     }
 
+    let deletedFile: File;
     try {
       // Delete file metadata
-      await this.fileModel.findByIdAndDelete(id);
+      deletedFile = await this.fileModel.findByIdAndDelete(id);
     } catch (error: any) {
       throw new BadRequestException(error.message);
     }
@@ -148,7 +149,7 @@ export class FilesService {
       );
     }
 
-    return { id, message: 'File deleted successfully' };
+    return deletedFile;
   }
 
   async deleteFiles(files: File[]) {

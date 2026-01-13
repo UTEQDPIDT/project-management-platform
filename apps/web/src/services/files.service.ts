@@ -1,6 +1,5 @@
 import { api } from '@/lib/axios';
 import { UploadFilePayload } from '@repo/types';
-import { toast } from 'sonner';
 
 const uploadFile = async ({
   file,
@@ -14,16 +13,12 @@ const uploadFile = async ({
     formData.append('entityId', entityId);
     formData.append('entityType', entityType);
 
-    const { status, data } = await api.post('/files/upload', formData);
-
-    if (status === 200) {
-      toast.success('Archivo subido correctamente');
-    }
+    const { data } = await api.post('/files/upload', formData);
 
     return data;
   } catch (error) {
     console.error('Error uploading file');
-    toast.error('No se pudo subir el archivo');
+    throw error;
   }
 };
 
@@ -33,6 +28,7 @@ const getAllFiles = async () => {
     return data;
   } catch (err) {
     console.error('Error loading files');
+    throw err;
   }
 };
 
@@ -59,4 +55,15 @@ const downloadFile = async (fileId: string, fileName: string) => {
   }
 };
 
-export { uploadFile, getAllFiles, downloadFile };
+const deleteFile = async ({ fileId }: { fileId: string }) => {
+  try {
+    const { data } = await api.delete(`/files/${fileId}`);
+
+    return data;
+  } catch (error) {
+    console.error('Error deleting file', error);
+    throw error;
+  }
+};
+
+export { uploadFile, getAllFiles, downloadFile, deleteFile };
