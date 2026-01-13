@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { FileOwnerType } from '@repo/types';
+import { EntityType } from '@repo/types';
 import { IsString, IsInt, IsMongoId, IsEnum } from 'class-validator';
 
 export class CreateFileDto {
@@ -31,11 +31,11 @@ export class CreateFileDto {
     description: 'La entidad proprietaria del archivo.',
   })
   @IsMongoId()
-  ownerId: string;
+  entityId: string;
 
   @ApiProperty({ description: 'El tipo de entidad proprietaria del archivo.' })
-  @IsEnum(FileOwnerType)
-  ownerType: FileOwnerType;
+  @IsEnum(EntityType)
+  entityType: EntityType;
 
   @IsMongoId()
   gridFsId: string;

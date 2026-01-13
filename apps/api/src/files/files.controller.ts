@@ -50,8 +50,8 @@ export class FilesController {
   ) {
     return this.filesService.uploadFile(
       file,
-      body.ownerId,
-      body.ownerType,
+      body.entityId,
+      body.entityType,
       req.user.id,
     );
   }

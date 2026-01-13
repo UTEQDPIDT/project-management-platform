@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { File } from '../schemas/file.schema';
 import { mongo } from 'mongoose';
-import { FileOwnerType } from '@repo/types';
+import { EntityType } from '@repo/types';
 
 @Injectable()
 export class FilesService {
@@ -26,8 +26,8 @@ export class FilesService {
 
   async uploadFile(
     file: Express.Multer.File,
-    ownerId: string,
-    ownerType: FileOwnerType,
+    entityId: string,
+    entityType: EntityType,
     userId: string,
   ): Promise<{ id: string; message: string }> {
     if (!file) {
@@ -43,9 +43,9 @@ export class FilesService {
         originalName: file.originalname,
         size: file.size,
         mimetype: file.mimetype,
-        ownerId: ownerId,
-        ownerType: ownerType,
-        uploadedBy: userId,
+        entityId,
+        entityType,
+        owner: userId,
         url: `/files/${gridFsId}`,
         gridFsId,
       });

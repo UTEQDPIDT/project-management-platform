@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
-import { FileOwnerType } from '@repo/types';
+import { EntityType } from '@repo/types';
 
 @Schema({ timestamps: true })
 export class File extends Document {
@@ -38,11 +38,11 @@ export class File extends Document {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
   })
-  ownerId: mongoose.Types.ObjectId;
+  entityId: mongoose.Types.ObjectId;
 
   @ApiProperty({})
-  @Prop({ type: String, enum: FileOwnerType, required: true })
-  ownerType: FileOwnerType;
+  @Prop({ type: String, enum: EntityType, required: true })
+  entityType: EntityType;
 
   @ApiProperty({ description: 'El usuario que subió el archivo' })
   @Prop({
@@ -50,7 +50,7 @@ export class File extends Document {
     ref: 'User',
     required: true,
   })
-  uploadedBy: User;
+  owner: User;
 
   @ApiProperty({ description: 'ID del archivo almacenado en GridFS.' })
   @Prop({
