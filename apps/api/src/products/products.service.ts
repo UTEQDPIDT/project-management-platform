@@ -105,6 +105,21 @@ export class ProductsService {
   }
 
   async deleteMany(projectId: string, session: ClientSession) {
+    const products = await this.productModel
+      .find({ projectId })
+      .session(session)
+      .exec();
+
+    const filesPerProduct = await Promise.all(
+      products.map((product) =>
+        this.filesService.findFilesForEntity(product._id.toString()),
+      ),
+    );
+
+    const files = filesPerProduct.flat();
+
+    await this.filesService.deleteFiles(files);
+
     await this.productModel.deleteMany({ projectId }, { session });
   }
 }
