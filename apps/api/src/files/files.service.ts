@@ -145,4 +145,10 @@ export class FilesService {
 
     return { id, message: 'File deleted successfully' };
   }
+
+  async deleteFiles(files: File[]) {
+    for (const file of files) {
+      await this.deleteFile(file._id.toString());
+    }
+  }
 }
