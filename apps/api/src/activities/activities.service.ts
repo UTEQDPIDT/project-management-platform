@@ -132,16 +132,46 @@ export class ActivitiesService {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
     }
 
+    const files = await this.filesService.findFilesForEntity(
+      activity._id.toString(),
+    );
+
+    await this.filesService.deleteFiles(files);
+
     await this.activityModel.findByIdAndDelete(id);
 
     return { id, message: 'Activity deleted successfully' };
   }
 
   async deleteManyByProject(projectId: string, session: ClientSession) {
+    const activities = await this.activityModel.find({ projectId }).exec();
+
+    const filesPerActivity = await Promise.all(
+      activities.map((a) =>
+        this.filesService.findFilesForEntity(a._id.toString()),
+      ),
+    );
+
+    const files = filesPerActivity.flat();
+
+    await this.filesService.deleteFiles(files);
+
     await this.activityModel.deleteMany({ projectId }, { session });
   }
 
   async deleteManyByEvent(eventId: string, session: ClientSession) {
+    const activities = await this.activityModel.find({ eventId }).exec();
+
+    const filesPerActivity = await Promise.all(
+      activities.map((a) =>
+        this.filesService.findFilesForEntity(a._id.toString()),
+      ),
+    );
+
+    const files = filesPerActivity.flat();
+
+    await this.filesService.deleteFiles(files);
+
     await this.activityModel.deleteMany({ eventId }, { session });
   }
 }

@@ -87,6 +87,14 @@ export class FilesService {
     return this.fileModel.find().exec();
   }
 
+  async findFilesForEntity(entityId: string) {
+    return this.fileModel.find({ entityId });
+  }
+
+  async findFilesByOwner(userId: string) {
+    return this.fileModel.find({ owner: userId });
+  }
+
   async getStream(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new NotFoundException('Invalid file ID');
@@ -144,5 +152,20 @@ export class FilesService {
     }
 
     return { id, message: 'File deleted successfully' };
+  }
+
+  async deleteFiles(files: File[]) {
+    for (const file of files) {
+      await this.deleteFile(file._id.toString());
+    }
+  }
+
+  async deleteFilesByOwner(ownerId: string) {
+    try {
+      await this.fileModel.deleteMany({ owner: ownerId });
+      return { message: 'Files deleted successfully' };
+    } catch (error: any) {
+      throw new BadRequestException(error.message);
+    }
   }
 }
