@@ -1,6 +1,7 @@
 import { Ability, AbilityBuilder, AbilityClass, ExtractSubjectType, InferSubjects } from "@casl/ability";
 import { Injectable } from "@nestjs/common";
-import { User } from "../schemas/user.schema";
+import { User, Activity, Event, File, Product, Project, Team } from "../schemas/index";
+
 
 export enum Action {
     Manage = 'manage', // wildcard for any action
@@ -10,7 +11,7 @@ export enum Action {
     Delete = 'delete',
 }
 
-export type Subjects = InferSubjects<typeof User> | 'all';
+export type Subjects = InferSubjects<typeof User | typeof Activity | typeof Event | typeof File | typeof Product | typeof Project | typeof Team> | 'all';
 
 export type AppAbility = Ability<[Action, Subjects]>;
 
