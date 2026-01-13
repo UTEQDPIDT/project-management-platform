@@ -34,56 +34,68 @@ export class FilesService {
       throw new BadRequestException('No file provided');
     }
 
-    const savedFile = await this.uploadToGridFS(
-      file,
-      ownerId,
-      ownerType,
-      userId,
-    );
+    const session = await this.connection.startSession();
 
-    return {
-      id: savedFile._id.toString(),
-      message: 'File uploaded successfully',
-    };
+    // 1. Upload to gridFs
+    const gridFsId = await this.uploadToGridFS(file);
+
+    try {
+      session.startTransaction();
+
+      // 2. Save metadata to File collection
+      const savedFile = await this.fileModel.create(
+        [
+          {
+            originalName: file.originalname,
+            size: file.size,
+            mimetype: file.mimetype,
+            ownerId: ownerId,
+            ownerType: ownerType,
+            uploadedBy: userId,
+            url: `/files/${gridFsId}`,
+            gridFsId,
+          },
+        ],
+        { session },
+      );
+
+      await session.commitTransaction();
+
+      return {
+        id: savedFile[0]._id.toString(),
+        message: 'File uploaded successfully',
+      };
+    } catch (error: any) {
+      await session.abortTransaction();
+
+      // Delete file from GridFS
+      await this.bucket.delete(new mongoose.Types.ObjectId(gridFsId));
+
+      throw new BadRequestException(error.message);
+    } finally {
+      session.endSession();
+    }
   }
 
   async uploadToGridFS(
     file: Express.Multer.File,
-    ownerId: string,
-    ownerType: FileOwnerType,
-    userId: string,
-  ): Promise<File> {
-    // 1. Upload buffer to GridFS
-    const uploadStream = this.bucket.openUploadStream(file.originalname, {
-      contentType: file.mimetype,
-    });
-
-    uploadStream.end(file.buffer);
-
-    const fileId = uploadStream.id;
-
-    // Wait for the upload to complete
-    const savedFile = await new Promise<File>((res, rej) => {
-      uploadStream.on('finish', async () => {
-        // 2. Save metadata to File collection
-        const savedFile = await this.fileModel.create({
-          originalName: file.originalname,
-          size: file.size,
-          mimetype: file.mimetype,
-          ownerId: ownerId,
-          ownerType: ownerType,
-          uploadedBy: userId,
-          url: `/files/${fileId}`,
-          gridFsId: fileId,
-        });
-
-        res(savedFile);
+  ): Promise<mongoose.Types.ObjectId> {
+    return new Promise((res, rej) => {
+      // Upload buffer to GridFS
+      const uploadStream = this.bucket.openUploadStream(file.originalname, {
+        contentType: file.mimetype,
       });
 
+      uploadStream.end(file.buffer);
+
+      // On finish return stream id (gridFsId)
+      uploadStream.on('finish', () => {
+        res(uploadStream.id as mongoose.Types.ObjectId);
+      });
+
+      // On error reject
       uploadStream.on('error', rej);
     });
-
-    return savedFile;
   }
 
   async findAll(): Promise<File[]> {
