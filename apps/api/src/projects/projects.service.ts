@@ -206,10 +206,17 @@ export class ProjectsService {
       throw new NotFoundException(`Project with ID: ${projectId} not found`);
     }
 
+    const files = await this.filesService.findFilesForEntity(
+      project._id.toString(),
+    );
+
     const session = await this.connection.startSession();
     session.startTransaction();
 
     try {
+      // Delete files
+      await this.filesService.deleteFiles(files);
+
       // Delete products
       await this.productService.deleteMany(projectId, session);
 
