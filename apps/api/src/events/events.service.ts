@@ -116,6 +116,10 @@ export class EventsService {
 
       await this.eventModel.findByIdAndDelete(eventId, { session });
 
+      const files = await this.filesService.findFilesForEntity(eventId);
+
+      await this.filesService.deleteFiles(files);
+
       await session.commitTransaction();
 
       return { id: eventId, message: 'Event deleted successfully' };
