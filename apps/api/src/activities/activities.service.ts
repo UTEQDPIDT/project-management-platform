@@ -132,6 +132,12 @@ export class ActivitiesService {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
     }
 
+    const files = await this.filesService.findFilesForEntity(
+      activity._id.toString(),
+    );
+
+    await this.filesService.deleteFiles(files);
+
     await this.activityModel.findByIdAndDelete(id);
 
     return { id, message: 'Activity deleted successfully' };
