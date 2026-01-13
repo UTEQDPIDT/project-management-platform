@@ -64,4 +64,16 @@ export class ProductsController {
   ) {
     return this.productsService.update(id, updateProductDto, req.user.id);
   }
+
+  @ApiAcceptedResponse({
+    description: 'Producto eliminado correctamente.',
+    type: UpdateProductDto,
+  })
+  @ApiNotFoundResponse({ description: 'No se encontro el producto.' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado' })
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    await this.productsService.remove(id);
+  }
 }

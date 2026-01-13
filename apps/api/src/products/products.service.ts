@@ -8,11 +8,13 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../schemas/product.schema';
 import { ClientSession, Model } from 'mongoose';
+import { FilesService } from '../files/files.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
+    private readonly filesService: FilesService,
   ) {}
 
   async create(
@@ -88,13 +90,18 @@ export class ProductsService {
     }
   }
 
-  async remove(id: string): Promise<{ id: string; message: string }> {
-    const deletedProduct = await this.productModel.findByIdAndDelete(id).exec();
+  async remove(id: string) {
+    try {
+      const files = await this.filesService.findFilesForEntity(id);
 
-    if (!deletedProduct)
-      throw new NotFoundException(`Product with ID: ${id} not found`);
+      await this.filesService.deleteFiles(files);
 
-    return { id, message: 'Product deleted successfully' };
+      await this.productModel.findByIdAndDelete(id);
+
+      return { message: 'Product deleted successfully' };
+    } catch (error: any) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async deleteMany(projectId: string, session: ClientSession) {
