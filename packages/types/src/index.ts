@@ -10,7 +10,7 @@ export * from './enums/sex-enum';
 export * from './enums/state.enum';
 export * from './enums/event-type.enum';
 export * from './enums/bagde-variants.enum';
-export * from './enums/file-owner-type.enum';
+export * from './enums/entity-type.enum';
 
 export * from './dtos/project-cleaned-data';
 

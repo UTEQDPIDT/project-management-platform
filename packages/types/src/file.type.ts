@@ -1,4 +1,4 @@
-import { FileOwnerType } from './enums/file-owner-type.enum';
+import { EntityType } from './enums/entity-type.enum';
 import { IUser } from './user.type';
 
 export interface IFile {
@@ -7,9 +7,9 @@ export interface IFile {
   url: string;
   size: number;
   mimetype: string;
-  ownerId: string;
-  ownerType: FileOwnerType;
-  uploadedBy: IUser;
+  entityId: string;
+  entityType: EntityType;
+  owner: IUser;
   gridFsId: string;
   createdAt: Date;
   updatedAt: Date;

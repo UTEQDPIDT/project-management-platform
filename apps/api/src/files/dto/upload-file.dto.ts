@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { FileOwnerType } from '@repo/types';
+import { EntityType } from '@repo/types';
 import { IsEnum, IsMongoId } from 'class-validator';
 
 export class UploadFileDto {
@@ -8,13 +8,13 @@ export class UploadFileDto {
     description: 'El ID de la entidad dueña del archivo',
   })
   @IsMongoId()
-  ownerId: string;
+  entityId: string;
 
   @ApiProperty({
-    enum: FileOwnerType,
+    enum: EntityType,
     description:
       'El tipo de entidad dueña del archivo. e.g. Proyecto, Evento, etc.',
   })
-  @IsEnum(FileOwnerType)
-  ownerType: FileOwnerType;
+  @IsEnum(EntityType)
+  entityType: EntityType;
 }

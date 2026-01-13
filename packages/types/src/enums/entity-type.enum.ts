@@ -1,4 +1,4 @@
-export enum FileOwnerType {
+export enum EntityType {
   PROJECT = 'project',
   EVENT = 'event',
   ACTIVITY = 'activity',
