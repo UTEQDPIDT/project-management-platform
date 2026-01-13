@@ -29,7 +29,7 @@ export class FilesService {
     entityId: string,
     entityType: EntityType,
     userId: string,
-  ): Promise<{ id: string; message: string }> {
+  ) {
     if (!file) {
       throw new BadRequestException('No file provided');
     }
@@ -50,10 +50,7 @@ export class FilesService {
         gridFsId,
       });
 
-      return {
-        id: savedFile._id.toString(),
-        message: 'File uploaded successfully',
-      };
+      return savedFile;
     } catch (error: any) {
       // Delete file from GridFS when file metadata throws
       await this.bucket.delete(new mongoose.Types.ObjectId(gridFsId));
