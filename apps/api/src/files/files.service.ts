@@ -34,56 +34,53 @@ export class FilesService {
       throw new BadRequestException('No file provided');
     }
 
-    const savedFile = await this.uploadToGridFS(
-      file,
-      ownerId,
-      ownerType,
-      userId,
-    );
+    // 1. Upload to gridFs
+    const gridFsId = await this.uploadToGridFS(file);
 
-    return {
-      id: savedFile._id.toString(),
-      message: 'File uploaded successfully',
-    };
+    try {
+      // 2. Save metadata to File collection
+      const savedFile = await this.fileModel.create({
+        originalName: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype,
+        ownerId: ownerId,
+        ownerType: ownerType,
+        uploadedBy: userId,
+        url: `/files/${gridFsId}`,
+        gridFsId,
+      });
+
+      return {
+        id: savedFile._id.toString(),
+        message: 'File uploaded successfully',
+      };
+    } catch (error: any) {
+      // Delete file from GridFS when file metadata throws
+      await this.bucket.delete(new mongoose.Types.ObjectId(gridFsId));
+
+      throw new BadRequestException(error.message);
+    }
   }
 
   async uploadToGridFS(
     file: Express.Multer.File,
-    ownerId: string,
-    ownerType: FileOwnerType,
-    userId: string,
-  ): Promise<File> {
-    // 1. Upload buffer to GridFS
-    const uploadStream = this.bucket.openUploadStream(file.originalname, {
-      contentType: file.mimetype,
-    });
-
-    uploadStream.end(file.buffer);
-
-    const fileId = uploadStream.id;
-
-    // Wait for the upload to complete
-    const savedFile = await new Promise<File>((res, rej) => {
-      uploadStream.on('finish', async () => {
-        // 2. Save metadata to File collection
-        const savedFile = await this.fileModel.create({
-          originalName: file.originalname,
-          size: file.size,
-          mimetype: file.mimetype,
-          ownerId: ownerId,
-          ownerType: ownerType,
-          uploadedBy: userId,
-          url: `/files/${fileId}`,
-          gridFsId: fileId,
-        });
-
-        res(savedFile);
+  ): Promise<mongoose.Types.ObjectId> {
+    return new Promise((res, rej) => {
+      // Upload buffer to GridFS
+      const uploadStream = this.bucket.openUploadStream(file.originalname, {
+        contentType: file.mimetype,
       });
 
+      uploadStream.end(file.buffer);
+
+      // On finish return stream id (gridFsId)
+      uploadStream.on('finish', () => {
+        res(uploadStream.id as mongoose.Types.ObjectId);
+      });
+
+      // On error reject
       uploadStream.on('error', rej);
     });
-
-    return savedFile;
   }
 
   async findAll(): Promise<File[]> {
@@ -127,13 +124,24 @@ export class FilesService {
       throw new NotFoundException('File metadata not found');
     }
 
-    const gridFsId = file.gridFsId;
+    try {
+      // Delete file metadata
+      await this.fileModel.findByIdAndDelete(id);
+    } catch (error: any) {
+      throw new BadRequestException(error.message);
+    }
 
-    // Delete file from GridFS
-    await this.bucket.delete(new mongoose.Types.ObjectId(gridFsId));
-
-    // Delete file metadata
-    await this.fileModel.findByIdAndDelete(id);
+    try {
+      // Delete file from GridFS
+      await this.bucket.delete(new mongoose.Types.ObjectId(file.gridFsId));
+    } catch (error) {
+      // IMPORTANT: do not fail the request
+      // Todo: cleanup cron job for orphaned GridFS files
+      console.error(
+        `Failed to delete GridFS file ${file.gridFsId.toString()}`,
+        error,
+      );
+    }
 
     return { id, message: 'File deleted successfully' };
   }
