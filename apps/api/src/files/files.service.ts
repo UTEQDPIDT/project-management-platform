@@ -34,46 +34,31 @@ export class FilesService {
       throw new BadRequestException('No file provided');
     }
 
-    const session = await this.connection.startSession();
-
     // 1. Upload to gridFs
     const gridFsId = await this.uploadToGridFS(file);
 
     try {
-      session.startTransaction();
-
       // 2. Save metadata to File collection
-      const savedFile = await this.fileModel.create(
-        [
-          {
-            originalName: file.originalname,
-            size: file.size,
-            mimetype: file.mimetype,
-            ownerId: ownerId,
-            ownerType: ownerType,
-            uploadedBy: userId,
-            url: `/files/${gridFsId}`,
-            gridFsId,
-          },
-        ],
-        { session },
-      );
-
-      await session.commitTransaction();
+      const savedFile = await this.fileModel.create({
+        originalName: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype,
+        ownerId: ownerId,
+        ownerType: ownerType,
+        uploadedBy: userId,
+        url: `/files/${gridFsId}`,
+        gridFsId,
+      });
 
       return {
-        id: savedFile[0]._id.toString(),
+        id: savedFile._id.toString(),
         message: 'File uploaded successfully',
       };
     } catch (error: any) {
-      await session.abortTransaction();
-
-      // Delete file from GridFS
+      // Delete file from GridFS when file metadata throws
       await this.bucket.delete(new mongoose.Types.ObjectId(gridFsId));
 
       throw new BadRequestException(error.message);
-    } finally {
-      session.endSession();
     }
   }
 
@@ -139,13 +124,24 @@ export class FilesService {
       throw new NotFoundException('File metadata not found');
     }
 
-    const gridFsId = file.gridFsId;
+    try {
+      // Delete file metadata
+      await this.fileModel.findByIdAndDelete(id);
+    } catch (error: any) {
+      throw new BadRequestException(error.message);
+    }
 
-    // Delete file from GridFS
-    await this.bucket.delete(new mongoose.Types.ObjectId(gridFsId));
-
-    // Delete file metadata
-    await this.fileModel.findByIdAndDelete(id);
+    try {
+      // Delete file from GridFS
+      await this.bucket.delete(new mongoose.Types.ObjectId(file.gridFsId));
+    } catch (error) {
+      // IMPORTANT: do not fail the request
+      // Todo: cleanup cron job for orphaned GridFS files
+      console.error(
+        `Failed to delete GridFS file ${file.gridFsId.toString()}`,
+        error,
+      );
+    }
 
     return { id, message: 'File deleted successfully' };
   }
