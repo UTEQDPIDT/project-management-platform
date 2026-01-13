@@ -87,6 +87,14 @@ export class FilesService {
     return this.fileModel.find().exec();
   }
 
+  async findFilesForEntity(entityId: string) {
+    return this.fileModel.find({ entityId });
+  }
+
+  async findFilesByOwner(userId: string) {
+    return this.fileModel.find({ owner: userId });
+  }
+
   async getStream(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new NotFoundException('Invalid file ID');
