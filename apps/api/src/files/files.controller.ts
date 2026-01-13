@@ -52,7 +52,7 @@ export class FilesController {
       file,
       body.ownerId,
       body.ownerType,
-      req.user.userId,
+      req.user.id,
     );
   }
 
