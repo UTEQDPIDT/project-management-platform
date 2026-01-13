@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -25,6 +26,7 @@ import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { File } from '../schemas/file.schema';
 import { FilesService } from './files.service';
+import { UploadFileDto } from './dto/upload-file.dto';
 
 @ApiTags('files')
 @Controller('files')
@@ -41,8 +43,17 @@ export class FilesController {
   @UseGuards(JwtAuthGuard)
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req) {
-    return this.filesService.uploadFile(file, req.user.userId);
+  uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: UploadFileDto,
+    @Req() req,
+  ) {
+    return this.filesService.uploadFile(
+      file,
+      body.ownerId,
+      body.ownerType,
+      req.user.userId,
+    );
   }
 
   @ApiOkResponse({ description: 'Lista de archivos' })
@@ -63,7 +74,7 @@ export class FilesController {
   @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
   @Get('stream/:id')
   async getFile(@Param('id') id: string, @Res() res: Response) {
-    const { metadata, stream } = await this.filesService.getStream(id);
+    const { stream } = await this.filesService.getStream(id);
 
     stream.on('error', () => res.status(404).send('File not found'));
 
