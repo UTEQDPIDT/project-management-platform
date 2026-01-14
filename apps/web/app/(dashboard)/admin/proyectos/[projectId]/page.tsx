@@ -19,6 +19,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { useGetFiles } from '@/hooks/files';
+import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';
 import { EntityType } from '@repo/types';
@@ -33,14 +34,24 @@ const Page = () => {
     isLoading: loadingProject,
     isError,
   } = useProject(projectId);
+
+  // Saved Project Files
   const {
-    data: files,
+    data: savedFiles,
     isLoading: loadingFiles,
     isError: errorFetchingFiles,
   } = useGetFiles();
 
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const handleUpload = () => {};
+  // Manage file upload
+  const uploadMultipleFiles = useUploadMultipleFiles();
+  const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+  const handleUpload = () => {
+    uploadMultipleFiles.mutate({
+      files: filesToUpload,
+      entityId: projectId,
+      entityType: EntityType.PROJECT,
+    });
+  };
 
   return (
     <div className="w-full h-full">
@@ -91,14 +102,15 @@ const Page = () => {
                 {project.relatedProjects && (
                   <ProjectsBoard projects={project.relatedProjects} />
                 )}
-                {files && (
+                {savedFiles && (
                   <FilesCard
-                    files={files}
-                    uploadedFiles={uploadedFiles}
-                    setUploadedFiles={setUploadedFiles}
+                    savedFiles={savedFiles}
+                    filesToUpload={filesToUpload}
+                    setFilesToUpload={setFilesToUpload}
                     onUpload={handleUpload}
                     isLoading={loadingFiles}
                     isError={errorFetchingFiles}
+                    isUploading={uploadMultipleFiles.isPending}
                   />
                 )}
               </div>

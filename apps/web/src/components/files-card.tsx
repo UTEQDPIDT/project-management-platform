@@ -31,9 +31,9 @@ import LoadingMessage from './loading-message';
 import ErrorCard from './error-card';
 
 type FileCardProps = {
-  files: IFile[];
-  uploadedFiles: File[];
-  setUploadedFiles: Dispatch<SetStateAction<File[]>>;
+  savedFiles: IFile[];
+  filesToUpload: File[];
+  setFilesToUpload: Dispatch<SetStateAction<File[]>>;
   onUpload?: () => void;
   onDelete?: (fileId: string) => void;
   isLoading?: boolean;
@@ -42,9 +42,9 @@ type FileCardProps = {
 };
 
 export default function FilesCard({
-  files,
-  uploadedFiles,
-  setUploadedFiles,
+  savedFiles,
+  filesToUpload,
+  setFilesToUpload,
   onUpload,
   onDelete,
   isLoading,
@@ -79,8 +79,8 @@ export default function FilesCard({
 
               <div className="px-4">
                 <FileUpload
-                  value={uploadedFiles}
-                  onValueChange={setUploadedFiles}
+                  value={filesToUpload}
+                  onValueChange={setFilesToUpload}
                   maxSize={5 * 1024 * 1024}
                   multiple
                 >
@@ -103,7 +103,7 @@ export default function FilesCard({
                     </FileUploadTrigger>
                   </FileUploadDropzone>
                   <FileUploadList>
-                    {uploadedFiles.map((file) => (
+                    {filesToUpload.map((file) => (
                       <FileUploadItem
                         key={`${file.name}-${file.lastModified}`}
                         value={file}
@@ -143,7 +143,7 @@ export default function FilesCard({
           <ErrorCard />
         ) : (
           <FileList>
-            {files.map((f: IFile) => (
+            {savedFiles.map((f: IFile) => (
               <FileList.Item key={f._id} file={f}>
                 <FileList.Actions fileId={f._id} />
               </FileList.Item>
