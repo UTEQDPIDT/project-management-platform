@@ -83,7 +83,12 @@ export class FilesService {
         uploadedFiles.push(savedFile);
       }
 
-      return { message: 'Uploaded Files Successfully' };
+      return {
+        message: 'Uploaded Files Successfully',
+        entityId,
+        entityType,
+        files: uploadedFiles,
+      };
     } catch (error: any) {
       await this.deleteFiles(uploadedFiles);
       throw new BadRequestException(error.message);
