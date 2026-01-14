@@ -59,6 +59,15 @@ const getAllFiles = async () => {
   }
 };
 
+const getFilesForEntity = async (entityId: string) => {
+  try {
+    const { data } = await api.get(`/files/for-entity/${entityId}`);
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const downloadFile = async (fileId: string, fileName: string) => {
   try {
     const { data } = await api.get(`/files/download/${fileId}`, {
@@ -97,6 +106,7 @@ export {
   uploadFile,
   uploadMultipleFiles,
   getAllFiles,
+  getFilesForEntity,
   downloadFile,
   deleteFile,
 };

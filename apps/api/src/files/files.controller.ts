@@ -93,7 +93,7 @@ export class FilesController {
     description: 'Lista de archivos encontrados por el ID de la entidad padre',
   })
   @ApiResponse({ status: 500, description: 'Error en el servidor' })
-  @Get('/by-entity/:entityId')
+  @Get('/for-entity/:entityId')
   findFilesForEntity(@Param('entityId') entityId: string) {
     return this.filesService.findFilesForEntity(entityId);
   }
