@@ -32,11 +32,11 @@ const Page = () => {
     isLoading: loadingProject,
     isError,
   } = useProject(projectId);
-  //   const {
-  //     data: files,
-  //     isLoading: loadingFiles,
-  //     isError: errorFetchingFiles,
-  //   } = useGetFiles();
+  const {
+    data: files,
+    isLoading: loadingFiles,
+    isError: errorFetchingFiles,
+  } = useGetFiles();
 
   return (
     <div className="w-full h-full">
@@ -86,6 +86,15 @@ const Page = () => {
                 {project.team && <CardMembers team={project.team} redirect />}
                 {project.relatedProjects && (
                   <ProjectsBoard projects={project.relatedProjects} />
+                )}
+                {files && (
+                  <FileList>
+                    {files.map((f: IFile) => (
+                      <FileList.Item key={f._id} file={f}>
+                        <FileList.Actions fileId={f._id} />
+                      </FileList.Item>
+                    ))}
+                  </FileList>
                 )}
               </div>
             </div>
