@@ -8,10 +8,11 @@ import {
   Req,
   Res,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiConsumes,
   ApiCreatedResponse,
@@ -50,6 +51,31 @@ export class FilesController {
   ) {
     return this.filesService.uploadFile(
       file,
+      body.entityId,
+      body.entityType,
+      req.user.id,
+    );
+  }
+
+  @ApiConsumes('multipart/form-data')
+  @ApiCreatedResponse({
+    description: 'Se subiieron los archivos correctamente.',
+    type: Array<File>,
+  })
+  @ApiUnauthorizedResponse({ description: 'No autorizado.' })
+  @ApiBadRequestResponse({
+    description: 'Ocurrió un error al subir los archivos.',
+  })
+  @UseGuards(JwtAuthGuard)
+  @Post('upload/multiple')
+  @UseInterceptors(FilesInterceptor('files'))
+  uploadMultiple(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body() body: UploadFileDto,
+    @Req() req,
+  ) {
+    return this.filesService.uploadFiles(
+      files,
       body.entityId,
       body.entityType,
       req.user.id,
