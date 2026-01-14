@@ -21,8 +21,10 @@ import {
 import { useGetFiles } from '@/hooks/files';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';
+import { EntityType } from '@repo/types';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 
 const Page = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -36,6 +38,9 @@ const Page = () => {
     isLoading: loadingFiles,
     isError: errorFetchingFiles,
   } = useGetFiles();
+
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const handleUpload = () => {};
 
   return (
     <div className="w-full h-full">
@@ -86,7 +91,16 @@ const Page = () => {
                 {project.relatedProjects && (
                   <ProjectsBoard projects={project.relatedProjects} />
                 )}
-                {files && <FilesCard files={files} />}
+                {files && (
+                  <FilesCard
+                    files={files}
+                    uploadedFiles={uploadedFiles}
+                    setUploadedFiles={setUploadedFiles}
+                    onUpload={handleUpload}
+                    isLoading={loadingFiles}
+                    isError={errorFetchingFiles}
+                  />
+                )}
               </div>
             </div>
           </PageContent>

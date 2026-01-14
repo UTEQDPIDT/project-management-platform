@@ -1,7 +1,7 @@
 'use client';
 
 import { IFile } from '@repo/types';
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import IconSquare from './icon-square';
 import { File as FileIcon, Upload, X } from 'lucide-react';
@@ -28,12 +28,14 @@ import {
 } from './ui/file-upload';
 import FileList from './file-list';
 import LoadingMessage from './loading-message';
+import ErrorCard from './error-card';
 
 type FileCardProps = {
   files: IFile[];
-  onUpload?: (files: File[]) => Promise<void>;
+  uploadedFiles: File[];
+  setUploadedFiles: Dispatch<SetStateAction<File[]>>;
+  onUpload?: () => void;
   onDelete?: (fileId: string) => void;
-  onDownload?: (fileId: string) => void;
   isLoading?: boolean;
   isError?: boolean;
   isUploading?: boolean;
@@ -41,14 +43,14 @@ type FileCardProps = {
 
 export default function FilesCard({
   files,
+  uploadedFiles,
+  setUploadedFiles,
   onUpload,
   onDelete,
   isLoading,
   isError,
   isUploading,
 }: FileCardProps) {
-  const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
-
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
@@ -79,6 +81,7 @@ export default function FilesCard({
                 <FileUpload
                   value={uploadedFiles}
                   onValueChange={setUploadedFiles}
+                  maxSize={5 * 1024 * 1024}
                   multiple
                 >
                   <FileUploadDropzone>
@@ -118,7 +121,7 @@ export default function FilesCard({
                 </FileUpload>
               </div>
               <SheetFooter>
-                <Button disabled={isUploading}>
+                <Button disabled={isUploading} onClick={onUpload}>
                   {isUploading ? (
                     <LoadingMessage message="Subiendo archivos" />
                   ) : (
@@ -134,13 +137,19 @@ export default function FilesCard({
         </div>
       </CardHeader>
       <CardContent>
-        <FileList>
-          {files.map((f: IFile) => (
-            <FileList.Item key={f._id} file={f}>
-              <FileList.Actions fileId={f._id} />
-            </FileList.Item>
-          ))}
-        </FileList>
+        {isLoading ? (
+          <LoadingMessage message="Cargando archivos" />
+        ) : isError ? (
+          <ErrorCard />
+        ) : (
+          <FileList>
+            {files.map((f: IFile) => (
+              <FileList.Item key={f._id} file={f}>
+                <FileList.Actions fileId={f._id} />
+              </FileList.Item>
+            ))}
+          </FileList>
+        )}
       </CardContent>
     </Card>
   );
