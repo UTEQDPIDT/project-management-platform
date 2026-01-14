@@ -13,89 +13,80 @@ import { Model } from 'mongoose';
 export class TeamsService {
   constructor(@InjectModel(Team.name) private teamModel: Model<Team>) {}
 
-  async create(
-    createTeamDto: CreateTeamDto,
-    userId: string,
-  ): Promise<{ id: string; message: string }> {
-    try {
-      const createdTeam = await this.teamModel.create({
-        ...createTeamDto,
-        owner: userId,
-      });
-      return {
-        id: createdTeam._id.toString(),
-        message: 'Team created successfully',
-      };
-    } catch (err: any) {
-      console.error('Error creating team:', err);
-      throw new BadRequestException('Error al crear el equipo.');
-    }
+  async create(createTeamDto: CreateTeamDto, userId: string) {
+    const createdTeam = await this.teamModel.create({
+      ...createTeamDto,
+      memberships: [
+        {
+          user: userId,
+          role: 'OWNER',
+          status: 'ACTIVE',
+        },
+      ],
+    });
+
+    return {
+      id: createdTeam._id.toString(),
+      message: 'Team created successfully',
+    };
   }
 
-  async findAll(filter: {
-    userId: string;
-    isPrivate?: boolean;
-  }): Promise<Team[]> {
-    const { userId, isPrivate } = filter;
+  async findAll({ userId, isPrivate }: { userId: string; isPrivate?: boolean }) {
+    const orConditions: any[] = [
+      {
+        memberships: {
+          $elemMatch: {
+            user: userId,
+            status: 'ACTIVE',
+          },
+        },
+      },
+    ];
 
-    let query: any = {};
-
-    if (filter.isPrivate !== undefined) {
-      query = {
-        $or: [
-          { isPrivate: isPrivate },
-          { owner: userId },
-          { members: userId },
-          { collaborators: userId },
-        ],
-      };
+    if (isPrivate !== undefined) {
+      orConditions.push({ isPrivate });
     }
 
-    return this.teamModel
-      .find(query)
-      .populate('owner')
-      .populate('members')
-      .populate('collaborators')
-      .populate('division')
-      .populate('userRequests')
-      .exec();
+    return this.teamModel.find({ $or: orConditions });
+  }
+
+  async findByUser(userId: string) {
+    return this.teamModel.find({
+      memberships: {
+        $elemMatch: {
+          user: userId,
+          status: 'ACTIVE',
+        },
+      },
+    });
   }
 
   async findOne(id: string): Promise<Team> {
     const team = await this.teamModel
       .findById(id)
-      .populate('owner')
-      .populate('members')
-      .populate('collaborators')
       .populate('division')
-      .populate('userRequests')
+      .populate('memberships.user')
       .exec();
-    if (!team) throw new NotFoundException(`Team with ID: ${id} not found`);
+
+    if (!team)
+      throw new NotFoundException(`Team with ID: ${id} not found`);
+
     return team;
   }
 
-  async findByOwner(ownerId: string): Promise<Team | null> {
-    const team = await this.teamModel
-      .findOne({ owner: ownerId })
-      .populate('owner')
-      .populate('members')
-      .populate('collaborators')
-      .populate('division')
-      .populate('userRequests')
-      .exec();
-    return team || null;
-  }
-
-  async findByUser(userId: string) {
-    return await this.teamModel
+  async findOwnedByUser(userId: string): Promise<Team[]> {
+    return this.teamModel
       .find({
-        $or: [{ owner: userId }, { members: userId }],
+        memberships: {
+          $elemMatch: {
+            user: userId,
+            role: 'OWNER',
+            status: 'ACTIVE',
+          },
+        },
       })
-      .populate('owner')
-      .populate('members')
-      .populate('collaborators')
       .populate('division')
-      .populate('userRequests')
+      .populate('memberships.user')
       .exec();
   }
 
@@ -117,132 +108,147 @@ export class TeamsService {
     }
   }
 
-  async addCollaborators(
-    teamId: string,
-    userIds: string[],
-  ): Promise<{ id: string; message: string }> {
-    const team = await this.teamModel.findById(teamId).exec();
-    if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
+  async addCollaborators(teamId: string, userIds: string[]) {
+    const team = await this.teamModel.findById(teamId);
+    if (!team) throw new NotFoundException();
 
-    if (!Array.isArray(userIds) || userIds.length === 0)
-      throw new BadRequestException('userIds must be a non-empty array');
-
-    // Convert collaborators to string IDs (populated or raw ObjectId)
-    const existingIds = team.collaborators.map((c: any) =>
-      c._id ? c._id.toString() : c.toString(),
+    const existingUserIds = team.memberships.map(m =>
+      m.user.toString(),
     );
 
-    // Filter IDs that are not already in the team
-    const newIds = userIds.filter((id) => !existingIds.includes(id));
+    const newMemberships = userIds
+      .filter(id => !existingUserIds.includes(id))
+      .map(id => ({
+        user: id,
+        role: 'COLLABORATOR',
+        status: 'ACTIVE',
+      }));
 
-    if (newIds.length === 0)
-      throw new BadRequestException('All users are already collaborators');
+    if (!newMemberships.length) {
+      throw new BadRequestException('All users already belong to the team');
+    }
 
     await this.teamModel.findByIdAndUpdate(teamId, {
-      $addToSet: { collaborators: { $each: newIds } },
+      $push: { memberships: { $each: newMemberships } },
     });
 
     return { id: teamId, message: 'Collaborators added successfully' };
   }
 
-  async addMembers(
-    teamId: string,
-    userIds: string[],
-  ): Promise<{ id: string; message: string }> {
-    const team = await this.teamModel.findById(teamId).exec();
-    if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
+  async addMembers(teamId: string, userIds: string[]) {
+    const team = await this.teamModel.findById(teamId);
+    if (!team) throw new NotFoundException();
 
-    if (!Array.isArray(userIds) || userIds.length === 0)
-      throw new BadRequestException('userIds must be a non-empty array');
-
-    const existingIds = team.members.map((m: any) =>
-      m._id ? m._id.toString() : m.toString(),
+    const existingUserIds = team.memberships.map(m =>
+      m.user.toString(),
     );
 
-    const newIds = userIds.filter((id) => !existingIds.includes(id));
+    const newMemberships = userIds
+      .filter(id => !existingUserIds.includes(id))
+      .map(id => ({
+        user: id,
+        role: 'MEMBER',
+        status: 'ACTIVE',
+      }));
 
-    if (newIds.length === 0)
-      throw new BadRequestException('All users are already members');
+    if (!newMemberships.length) {
+      throw new BadRequestException('All users already belong to the team');
+    }
 
     await this.teamModel.findByIdAndUpdate(teamId, {
-      $addToSet: { members: { $each: newIds } },
+      $push: { memberships: { $each: newMemberships } },
     });
 
     return { id: teamId, message: 'Members added successfully' };
   }
 
-  async sendTeamRequest(
-    teamId: string,
-    userId: string,
-  ): Promise<{ id: string; message: string }> {
-    const team = await this.teamModel.findById(teamId).exec();
-    if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
+  async sendTeamRequest(teamId: string, userId: string) {
+    const team = await this.teamModel.findById(teamId);
+    if (!team) throw new NotFoundException();
 
-    const existingRequests = team.userRequests.map((r: any) =>
-      r._id ? r._id.toString() : r.toString(),
+    const alreadyExists = team.memberships.some(
+      m => m.user.toString() === userId,
     );
 
-    if (existingRequests.includes(userId))
-      throw new BadRequestException(
-        `Request already exists for user ${userId}`,
-      );
+    if (alreadyExists) {
+      throw new BadRequestException('User already related to team');
+    }
 
     await this.teamModel.findByIdAndUpdate(teamId, {
-      $addToSet: { userRequests: userId },
+      $push: {
+        memberships: {
+          user: userId,
+          role: 'MEMBER',
+          status: 'PENDING',
+        },
+      },
     });
 
     return { id: teamId, message: 'Team request sent successfully' };
   }
 
-  async acceptRequest(
-    teamId: string,
-    userId: string,
-  ): Promise<{ id: string; message: string }> {
-    const team = await this.teamModel.findById(teamId).exec();
-    if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
+  async acceptRequest(teamId: string, userId: string) {
+    const result = await this.teamModel.findOneAndUpdate(
+      {
+        _id: teamId,
+        memberships: {
+          $elemMatch: {
+            user: userId,
+            status: 'PENDING',
+          },
+        },
+      },
+      {
+        $set: {
+          'memberships.$.status': 'ACTIVE',
+        },
+      },
+    );
 
-    await this.teamModel.findByIdAndUpdate(teamId, {
-      $pull: { userRequests: userId },
-      $addToSet: { members: userId },
-    });
+    if (!result) {
+      throw new NotFoundException('Pending request not found');
+    }
 
     return { id: teamId, message: 'Team request accepted successfully' };
   }
 
-  async rejectRequest(
-    teamId: string,
-    userId: string,
-  ): Promise<{ id: string; message: string }> {
-    const team = await this.teamModel.findById(teamId).exec();
-    if (!team) throw new NotFoundException(`Team with ID: ${teamId} not found`);
-
+  async rejectRequest(teamId: string, userId: string) {
     await this.teamModel.findByIdAndUpdate(teamId, {
-      $pull: { userRequests: userId },
+      $pull: {
+        memberships: {
+          user: userId,
+          status: 'PENDING',
+        },
+      },
     });
 
     return { id: teamId, message: 'Team request rejected successfully' };
   }
 
-  async removeCollaborator(
-    teamId: string,
-    userId: string,
-  ): Promise<{ id: string; message: string }> {
+  async removeMember(teamId: string, userId: string) {
     await this.teamModel.findByIdAndUpdate(teamId, {
-      $pull: { collaborators: userId },
-    });
-
-    return { id: teamId, message: 'Collaborator removed successfully' };
-  }
-
-  async removeMember(
-    teamId: string,
-    userId: string,
-  ): Promise<{ id: string; message: string }> {
-    await this.teamModel.findByIdAndUpdate(teamId, {
-      $pull: { members: userId },
+      $pull: {
+        memberships: {
+          user: userId,
+          role: 'MEMBER',
+        },
+      },
     });
 
     return { id: teamId, message: 'Member removed successfully' };
+  }
+
+  async removeCollaborator(teamId: string, userId: string) {
+    await this.teamModel.findByIdAndUpdate(teamId, {
+      $pull: {
+        memberships: {
+          user: userId,
+          role: 'COLLABORATOR',
+        },
+      },
+    });
+
+    return { id: teamId, message: 'Collaborator removed successfully' };
   }
 
   async deleteTeam(id: string): Promise<{ id: string; message: string }> {

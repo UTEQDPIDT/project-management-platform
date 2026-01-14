@@ -4,6 +4,7 @@ import mongoose, { Document } from 'mongoose';
 import { TeamsGrade } from '@repo/types';
 import { User } from './user.schema';
 import { Division } from './division.schema.seed';
+import { TeamMembership } from './team-membership.schema';
 
 @Schema({ timestamps: true })
 export class Team extends Document {
@@ -45,56 +46,9 @@ export class Team extends Document {
   })
   grade: TeamsGrade;
 
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  })
-  @ApiProperty({
-    description: 'El propietario del equipo.',
-  })
-  owner: User;
+  @Prop({ type: [TeamMembership], default: [] })
+memberships: TeamMembership[];
 
-  @Prop({
-    type: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
-  })
-  @ApiProperty({
-    description: 'Lista de colaboradores del equipo.',
-    isArray: true,
-  })
-  collaborators: User[];
-
-  @Prop({
-    type: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
-  })
-  @ApiProperty({
-    description: 'Lista de miembros del equipo.',
-    isArray: true,
-  })
-  members: User[];
-
-  @Prop({
-    type: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
-  })
-  @ApiProperty({
-    description: 'Lista de solicitantes para unirse al equipo.',
-    isArray: true,
-  })
-  userRequests: User[];
 
   @ApiProperty({ description: 'Indica si el equipo es privado' })
   @Prop({ default: false })
