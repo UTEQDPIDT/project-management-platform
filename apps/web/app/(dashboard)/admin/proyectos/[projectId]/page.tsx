@@ -3,6 +3,7 @@
 import { ActivitiesBoard } from '@/components/activities-board';
 import { CardMembers } from '@/components/card-members';
 import ErrorCard from '@/components/error-card';
+import FileList from '@/components/file-list';
 import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
@@ -17,8 +18,10 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { useGetFiles } from '@/hooks/files';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';
+import { IFile } from '@repo/types';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
@@ -29,6 +32,11 @@ const Page = () => {
     isLoading: loadingProject,
     isError,
   } = useProject(projectId);
+  const {
+    data: files,
+    isLoading: loadingFiles,
+    isError: errorFetchingFiles,
+  } = useGetFiles();
 
   return (
     <div className="w-full h-full">
@@ -78,6 +86,15 @@ const Page = () => {
                 {project.team && <CardMembers team={project.team} redirect />}
                 {project.relatedProjects && (
                   <ProjectsBoard projects={project.relatedProjects} />
+                )}
+                {files && (
+                  <FileList>
+                    {files.map((f: IFile) => (
+                      <FileList.Item key={f._id} file={f}>
+                        <FileList.Actions fileId={f._id} />
+                      </FileList.Item>
+                    ))}
+                  </FileList>
                 )}
               </div>
             </div>

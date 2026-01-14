@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import LoadingMessage from './loading-message';
 import { DataTable } from './ui/data-table';
@@ -31,10 +33,10 @@ import { ProfileInfo } from './profile-info';
 import { downloadFile } from '@/services/files.service';
 
 const columns: ColumnDef<IFile>[] = [
-  { accessorKey: 'name', header: 'Archivo' },
+  { accessorKey: 'originalName', header: 'Nombre' },
   {
     accessorKey: 'size',
-    header: 'Peso',
+    header: 'Tamaño de archivo',
     cell: ({ row }) => {
       const { size } = row.original;
       return <div>{formatFileSize(size)}</div>;
@@ -53,23 +55,22 @@ const columns: ColumnDef<IFile>[] = [
       );
     },
   },
-  //   {
-  //     accessorKey: 'owner',
-  //     header: 'Subido por',
-  //     cell: ({ row }) => {
-  //       const { owner } = row.original;
+  {
+    accessorKey: 'owner',
+    header: 'Proprietario',
+    cell: ({ row }) => {
+      const { owner } = row.original;
 
-  //       return (
-  //         <ProfileInfo
-  //           size="sm"
-  //           givenName={owner.givenName}
-  //           familyName={owner.familyName}
-  //           email={owner.email}
-  //           avatarUrl={owner.avatarUrl}
-  //         />
-  //       );
-  //     },
-  //   },
+      return (
+        <ProfileInfo
+          size="sm"
+          givenName={owner.givenName}
+          familyName={owner.familyName}
+          avatarUrl={owner.avatarUrl}
+        />
+      );
+    },
+  },
   {
     id: 'actions',
     cell: ({ row }) => {
@@ -77,7 +78,7 @@ const columns: ColumnDef<IFile>[] = [
 
       const handleDownload = async () => {
         try {
-          await downloadFile(file._id, file.name);
+          await downloadFile(file._id, file.originalName);
         } catch (error) {
           console.error('Failed to download file:', error);
           // You can add a toast notification here if you have one
@@ -142,7 +143,7 @@ export default function FilesTable() {
   const { data, isLoading } = useGetFiles();
 
   return (
-    <div className="max-w-6xl">
+    <div className="max-w-6xl w-full">
       {isLoading ? (
         <LoadingMessage message="Cargando equipos" />
       ) : (

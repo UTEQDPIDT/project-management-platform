@@ -81,15 +81,15 @@ export class FilesService {
   }
 
   async findAll(): Promise<File[]> {
-    return this.fileModel.find().exec();
+    return this.fileModel.find().populate('owner').exec();
   }
 
   async findFilesForEntity(entityId: string) {
-    return this.fileModel.find({ entityId });
+    return this.fileModel.find({ entityId }).populate('owner').exec();
   }
 
   async findFilesByOwner(userId: string) {
-    return this.fileModel.find({ owner: userId });
+    return this.fileModel.find({ owner: userId }).populate('owner').exec();
   }
 
   async getStream(id: string) {
