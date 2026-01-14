@@ -59,6 +59,42 @@ export class FilesService {
     }
   }
 
+  async uploadFiles(
+    files: Express.Multer.File[],
+    entityId: string,
+    entityType: EntityType,
+    userId: string,
+  ) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No files provided');
+    }
+
+    const uploadedFiles: File[] = [];
+
+    try {
+      for (const file of files) {
+        const savedFile = await this.uploadFile(
+          file,
+          entityId,
+          entityType,
+          userId,
+        );
+
+        uploadedFiles.push(savedFile);
+      }
+
+      return {
+        message: 'Uploaded Files Successfully',
+        entityId,
+        entityType,
+        files: uploadedFiles,
+      };
+    } catch (error: any) {
+      await this.deleteFiles(uploadedFiles);
+      throw new BadRequestException(error.message);
+    }
+  }
+
   async uploadToGridFS(
     file: Express.Multer.File,
   ): Promise<mongoose.Types.ObjectId> {
