@@ -1,5 +1,9 @@
 import { api } from '@/lib/axios';
-import { EntityType, UploadFilePayload } from '@repo/types';
+import {
+  EntityType,
+  UploadFilePayload,
+  UploadMultipleFilesResponse,
+} from '@repo/types';
 
 const uploadFile = async ({
   file,
@@ -30,7 +34,7 @@ const uploadMultipleFiles = async ({
   files: File[];
   entityId: string;
   entityType: EntityType;
-}) => {
+}): Promise<UploadMultipleFilesResponse> => {
   try {
     const formData = new FormData();
 

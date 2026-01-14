@@ -24,3 +24,4 @@ export * from './project.type';
 export * from './seed-category.type';
 export * from './event.type';
 export * from './upload-file-payload.type';
+export * from './upload-multiple-files-response.type';
