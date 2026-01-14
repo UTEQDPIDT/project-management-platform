@@ -1,5 +1,5 @@
 import { api } from '@/lib/axios';
-import { UploadFilePayload } from '@repo/types';
+import { EntityType, UploadFilePayload } from '@repo/types';
 
 const uploadFile = async ({
   file,
@@ -18,6 +18,29 @@ const uploadFile = async ({
     return data;
   } catch (error) {
     console.error('Error uploading file');
+    throw error;
+  }
+};
+
+const uploadMultipleFiles = async ({
+  files,
+  entityId,
+  entityType,
+}: {
+  files: File[];
+  entityId: string;
+  entityType: EntityType;
+}) => {
+  try {
+    const formData = new FormData();
+
+    files.forEach((file) => formData.append('files', file));
+    formData.append('entityId', entityId);
+    formData.append('entityType', entityType);
+
+    const { data } = await api.post('/files/upload/multiple', formData);
+    return data;
+  } catch (error) {
     throw error;
   }
 };
@@ -66,4 +89,10 @@ const deleteFile = async ({ fileId }: { fileId: string }) => {
   }
 };
 
-export { uploadFile, getAllFiles, downloadFile, deleteFile };
+export {
+  uploadFile,
+  uploadMultipleFiles,
+  getAllFiles,
+  downloadFile,
+  deleteFile,
+};
