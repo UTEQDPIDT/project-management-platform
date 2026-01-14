@@ -51,6 +51,8 @@ const Page = () => {
       entityId: projectId,
       entityType: EntityType.PROJECT,
     });
+
+    setFilesToUpload([]);
   };
 
   return (
