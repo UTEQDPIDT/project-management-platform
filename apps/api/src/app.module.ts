@@ -14,6 +14,7 @@ import { ProductsModule } from './products/products.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { ProjectsModule } from './projects/projects.module';
 import { EventsModule } from './events/events.module';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
@@ -42,6 +43,8 @@ import { EventsModule } from './events/events.module';
     ProjectsModule,
 
     EventsModule,
+
+    CaslModule,
   ],
   controllers: [AppController],
   providers: [AppService],
