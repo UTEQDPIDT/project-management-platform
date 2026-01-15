@@ -1,12 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CoAuthor } from '@repo/types';
-import {
-  IsString,
-  IsOptional,
-  IsMongoId,
-  IsEnum,
-  MaxLength,
-} from 'class-validator';
+import { IsString, IsOptional, IsMongoId, IsEnum } from 'class-validator';
 import { ObjectId } from 'mongoose';
 
 export class CreateProductDto {
@@ -23,17 +17,7 @@ export class CreateProductDto {
   subcategory: ObjectId;
 
   @ApiProperty({
-    description: 'Detalles del producto como especifica la documentación',
-    maxLength: 255,
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  details?: string;
-
-  @ApiProperty({
-    description: 'Nivel del Co-Autor',
+    description: 'Tipo de Co-Autor',
   })
   @IsEnum(CoAuthor)
   @IsOptional()
