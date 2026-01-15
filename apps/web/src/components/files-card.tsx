@@ -126,9 +126,9 @@ export default function FilesCard({
                     </FileUploadTrigger>
                   </FileUploadDropzone>
                   <FileUploadList className="flex-1 max-h-[55vh] overflow-y-auto pr-1">
-                    {filesToUpload.map((file) => (
+                    {filesToUpload.map((file, index) => (
                       <FileUploadItem
-                        key={`${file.name}-${file.lastModified}`}
+                        key={`${file.name}-${file.lastModified}-${index}`}
                         value={file}
                       >
                         <FileUploadItemPreview />
