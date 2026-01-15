@@ -76,52 +76,6 @@ const deleteProject = async (id: string) => {
 };
 
 /**
- * Products
- */
-const createProduct = async ({
-  projectId,
-  productData,
-}: {
-  projectId: string;
-  productData: any;
-}) => {
-  try {
-    const { status } = await api.post(
-      `/projects/${projectId}/products`,
-      productData,
-    );
-
-    if (status === 200 || status === 201 || status === 202) {
-      toast.success('Se ha creado el producto');
-    }
-  } catch (err) {
-    console.error('Error creating product', err);
-    toast.error('No se ha creado el producto');
-  }
-};
-
-const deleteProduct = async ({
-  projectId,
-  productId,
-}: {
-  projectId: string;
-  productId: string;
-}) => {
-  try {
-    const { status } = await api.delete(
-      `/projects/${projectId}/products/${productId}`,
-    );
-
-    if (status === 200 || status === 201 || status === 202) {
-      toast.success('Se elimino el producto');
-    }
-  } catch (err) {
-    console.error('Error deleting product', err);
-    toast.error('No se elimino el producto');
-  }
-};
-
-/**
  * Activities
  */
 const createActivity = async ({
@@ -175,8 +129,6 @@ export {
   getProjectByTeam,
   updateProject,
   deleteProject,
-  createProduct,
-  deleteProduct,
   createActivity,
   deleteActivity,
 };

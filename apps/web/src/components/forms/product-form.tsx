@@ -33,21 +33,10 @@ import {
 } from '../ui/select';
 import { Button } from '../ui/button';
 import { DialogClose } from '../ui/dialog';
-import { useCreateProduct } from '@/hooks/projects';
-import { useUpdateProduct } from '@/hooks/products';
+import { useCreateProduct, useUpdateProduct } from '@/hooks/products';
 
 interface Props {
-  product?: Pick<
-    IProduct,
-    | '_id'
-    | 'name'
-    | 'details'
-    | 'category'
-    | 'subcategory'
-    | 'coAuthor'
-    | 'owner'
-    | 'files'
-  >;
+  product?: IProduct;
   projectId: string;
 }
 

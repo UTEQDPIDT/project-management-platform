@@ -12,17 +12,7 @@ import {
 } from './ui/dropdown-menu';
 
 interface ProductCardProps {
-  product: Pick<
-    IProduct,
-    | '_id'
-    | 'name'
-    | 'details'
-    | 'category'
-    | 'subcategory'
-    | 'coAuthor'
-    | 'owner'
-    | 'file'
-  >;
+  product: IProduct;
   options?: ReactNode;
   enableOptions?: boolean;
 }
