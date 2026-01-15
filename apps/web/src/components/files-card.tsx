@@ -4,7 +4,7 @@ import { IFile } from '@repo/types';
 import React, { Dispatch, SetStateAction } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import IconSquare from './icon-square';
-import { File as FileIcon, Upload, X } from 'lucide-react';
+import { Paperclip, Upload, X } from 'lucide-react';
 import {
   Sheet,
   SheetClose,
@@ -36,6 +36,7 @@ type FileCardProps = {
   setFilesToUpload: Dispatch<SetStateAction<File[]>>;
   onUpload?: () => void;
   onDelete?: (fileId: string) => void;
+  accept?: string;
   isLoading?: boolean;
   isError?: boolean;
   isUploading?: boolean;
@@ -47,6 +48,7 @@ export default function FilesCard({
   setFilesToUpload,
   onUpload,
   onDelete,
+  accept,
   isLoading,
   isError,
   isUploading,
@@ -57,7 +59,7 @@ export default function FilesCard({
         <div className="flex gap-4 justify-between">
           <div className="flex gap-2 items-center">
             <IconSquare color="indigo">
-              <FileIcon />
+              <Paperclip />
             </IconSquare>
             <CardTitle>Archivos</CardTitle>
           </div>
@@ -82,6 +84,7 @@ export default function FilesCard({
                   value={filesToUpload}
                   onValueChange={setFilesToUpload}
                   maxSize={5 * 1024 * 1024}
+                  accept={accept}
                   multiple
                 >
                   <FileUploadDropzone>

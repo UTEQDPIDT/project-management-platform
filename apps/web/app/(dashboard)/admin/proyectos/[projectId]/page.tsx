@@ -113,6 +113,7 @@ const Page = () => {
                     isLoading={loadingFiles}
                     isError={errorFetchingFiles}
                     isUploading={uploadMultipleFiles.isPending}
+                    accept=".pdf,.doc,.docx"
                   />
                 )}
               </div>
