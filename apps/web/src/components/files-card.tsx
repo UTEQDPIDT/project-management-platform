@@ -91,7 +91,7 @@ export default function FilesCard({
               </Button>
             </SheetTrigger>
 
-            <SheetContent>
+            <SheetContent className="flex h-dvh flex-col">
               <SheetHeader>
                 <SheetTitle>Subir Archivos</SheetTitle>
                 <SheetDescription>
@@ -99,7 +99,7 @@ export default function FilesCard({
                 </SheetDescription>
               </SheetHeader>
 
-              <div className="px-4">
+              <div className="flex min-h-0 flex-1 flex-col px-4">
                 <FileUpload
                   value={filesToUpload}
                   onValueChange={setFilesToUpload}
@@ -125,7 +125,7 @@ export default function FilesCard({
                       </Button>
                     </FileUploadTrigger>
                   </FileUploadDropzone>
-                  <FileUploadList>
+                  <FileUploadList className="flex-1 max-h-[55vh] overflow-y-auto pr-1">
                     {filesToUpload.map((file) => (
                       <FileUploadItem
                         key={`${file.name}-${file.lastModified}`}
@@ -143,7 +143,7 @@ export default function FilesCard({
                   </FileUploadList>
                 </FileUpload>
               </div>
-              <SheetFooter>
+              <SheetFooter className="shrink-0">
                 <Button disabled={isUploading} onClick={onUpload}>
                   {isUploading ? (
                     <LoadingMessage message="Subiendo archivos" />
