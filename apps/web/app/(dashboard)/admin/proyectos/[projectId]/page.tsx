@@ -18,7 +18,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { useGetFiles, useGetFilesForEntity } from '@/hooks/files';
+import { useGetFilesForEntity } from '@/hooks/files';
 import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';

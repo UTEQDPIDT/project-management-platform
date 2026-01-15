@@ -1,7 +1,7 @@
 'use client';
 
 import { IFile } from '@repo/types';
-import React, { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import IconSquare from './icon-square';
 import { Paperclip, Upload, X } from 'lucide-react';
@@ -64,7 +64,7 @@ export default function FilesCard({
             <CardTitle>Archivos</CardTitle>
           </div>
           <Sheet>
-            <SheetTrigger>
+            <SheetTrigger asChild>
               <Button variant="outline" size="sm">
                 <Upload />
                 Subir
