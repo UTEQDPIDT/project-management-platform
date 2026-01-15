@@ -12,7 +12,7 @@ import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { ProductForm } from './forms/product-form';
 import { Button } from './ui/button';
-import { useDeleteProduct } from '@/hooks/projects';
+import { useDeleteProduct } from '@/hooks/products';
 import { IProduct } from '@repo/types';
 
 interface ProjectProductMenuProps {
@@ -27,7 +27,7 @@ export default function ProjectProductMenu({
   const deleteProduct = useDeleteProduct();
 
   const handleDelete = () => {
-    deleteProduct.mutate({ projectId, productId: product._id });
+    deleteProduct.mutate({ productId: product._id });
   };
 
   return (

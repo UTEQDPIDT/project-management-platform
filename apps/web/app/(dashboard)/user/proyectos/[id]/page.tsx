@@ -17,6 +17,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { useProductsByProject } from '@/hooks/products';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';
 import { userProfile } from 'context/profile-provider';
@@ -26,6 +27,11 @@ import { useParams } from 'next/navigation';
 const Page = () => {
   const { id } = useParams<{ id: string }>();
   const { data: project, isLoading: loadingProject, isError } = useProject(id);
+  const {
+    data: products,
+    isLoading: loadingProducts,
+    isError: errorFetchingProducts,
+  } = useProductsByProject(id);
 
   const { user } = userProfile();
 
@@ -68,7 +74,12 @@ const Page = () => {
             />
             <div className="w-full px-4 gap-6 flex flex-col">
               <ActivitiesBoard activities={project.activities} projectId={id} />
-              <ProductsBoard products={project.products} projectId={id} />
+              <ProductsBoard
+                products={products}
+                projectId={id}
+                isLoading={loadingProducts}
+                isError={errorFetchingProducts}
+              />
               <div className="flex w-full justify-between gap-4">
                 {project.team && <CardMembers team={project.team} redirect />}
                 {project.relatedProjects && (

@@ -42,6 +42,7 @@ import Link from 'next/link';
 import { Badge } from './ui/badge';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useProductsByProject } from '@/hooks/products';
 
 const columns: ColumnDef<IProject>[] = [
   {
@@ -59,26 +60,6 @@ const columns: ColumnDef<IProject>[] = [
             valueToCopy={name}
             variant="outline"
             className=" opacity-0 group-hover:opacity-100"
-          />
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: 'owner',
-    header: 'Dueño',
-    cell: ({ row }) => {
-      const project = row.original;
-      const { owner } = project;
-
-      return (
-        <div className="w-52">
-          <ProfileInfo
-            size="sm"
-            givenName={owner.givenName}
-            familyName={owner.familyName}
-            email={owner.email}
-            avatarUrl={owner.avatarUrl}
           />
         </div>
       );
@@ -116,12 +97,12 @@ const columns: ColumnDef<IProject>[] = [
     },
   },
   {
-    accessorKey: 'products',
+    id: 'products',
     header: 'Productos',
     cell: ({ row }) => {
-      const { products } = row.original;
-
-      return <div>{products?.length}</div>;
+      const { _id } = row.original;
+      const { data: products, isLoading } = useProductsByProject(_id);
+      return <div>{isLoading ? <LoadingMessage /> : products.length}</div>;
     },
   },
   {
@@ -142,7 +123,26 @@ const columns: ColumnDef<IProject>[] = [
     },
   },
   { accessorKey: 'impactLevel', header: 'Nivel de Impacto' },
+  {
+    accessorKey: 'owner',
+    header: 'Proprietario',
+    cell: ({ row }) => {
+      const project = row.original;
+      const { owner } = project;
 
+      return (
+        <div className="w-52">
+          <ProfileInfo
+            size="sm"
+            givenName={owner.givenName}
+            familyName={owner.familyName}
+            email={owner.email}
+            avatarUrl={owner.avatarUrl}
+          />
+        </div>
+      );
+    },
+  },
   {
     id: 'actions',
     cell: ({ row }) => {
@@ -217,7 +217,7 @@ export default function ProjectsTable() {
   const { data: projects, isLoading: loadingProjects } = useAllProjects();
 
   return (
-    <div className="max-w-6xl">
+    <div className="max-w-6xl w-full">
       {loadingProjects ? (
         <LoadingMessage message="Cargando proyectos" />
       ) : (

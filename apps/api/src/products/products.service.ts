@@ -9,6 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../schemas/product.schema';
 import { ClientSession, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
+import { EntityType } from '@repo/types';
 
 @Injectable()
 export class ProductsService {
@@ -19,19 +20,26 @@ export class ProductsService {
 
   async create(
     createProductDto: CreateProductDto,
+    file: Express.Multer.File,
     userId: string,
-    projectId: string,
-    session?: ClientSession,
   ) {
     try {
       const product = new this.productModel({
         ...createProductDto,
         owner: userId,
         updatedBy: userId,
-        projectId,
       });
 
-      await product.save({ session });
+      await product.save();
+
+      if (product) {
+        await this.filesService.uploadFile(
+          file,
+          product._id.toString(),
+          EntityType.PRODUCT,
+          userId,
+        );
+      }
 
       return product;
     } catch (err: any) {
@@ -44,6 +52,16 @@ export class ProductsService {
   async findAll() {
     return this.productModel
       .find()
+      .populate('category')
+      .populate('subcategory')
+      .populate('owner')
+      .populate('updatedBy')
+      .exec();
+  }
+
+  async findByProject(projectId: string) {
+    return await this.productModel
+      .find({ projectId })
       .populate('category')
       .populate('subcategory')
       .populate('owner')
@@ -69,8 +87,21 @@ export class ProductsService {
     return this.productModel.find({ owner: userId });
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto, userId: string) {
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+    file: Express.Multer.File,
+    userId: string,
+  ) {
     try {
+      // Delete previous files
+      const previousFiles = await this.filesService.findFilesForEntity(id);
+      await this.filesService.deleteFiles(previousFiles);
+
+      // Upload new file
+      await this.filesService.uploadFile(file, id, EntityType.PRODUCT, userId);
+
+      // Update product
       const updatedProduct = await this.productModel.findByIdAndUpdate(
         id,
         {

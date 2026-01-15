@@ -24,9 +24,6 @@ export class Product extends Document {
   })
   subcategory: ProductSubcategory;
 
-  @Prop({ maxLength: 255 })
-  details: string;
-
   @Prop({ required: false, enum: CoAuthor, default: CoAuthor.A })
   coAuthor: CoAuthor;
 

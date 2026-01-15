@@ -8,23 +8,47 @@ import {
   Delete,
   UseGuards,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import {
   ApiAcceptedResponse,
+  ApiBadRequestResponse,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @ApiConsumes('multipart/form-data')
+  @ApiCreatedResponse({
+    description: 'Producto creado correctamente',
+    type: [CreateProductDto],
+  })
+  @ApiBadRequestResponse({
+    description: 'Ocurrió un error al crear el producto',
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  @Post()
+  create(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req,
+  ) {
+    return this.productsService.create(createProductDto, file, req.user.id);
+  }
 
   @ApiAcceptedResponse({
     description: 'Lista de productos obtenida correctamente.',
@@ -33,6 +57,14 @@ export class ProductsController {
   @Get()
   findAll() {
     return this.productsService.findAll();
+  }
+
+  @ApiAcceptedResponse({
+    description: 'Lista de productos de un proyecto.',
+  })
+  @Get('/by-project/:projectId')
+  findByProject(@Param('projectId') projectId: string) {
+    return this.productsService.findByProject(projectId);
   }
 
   @ApiAcceptedResponse({
@@ -50,19 +82,22 @@ export class ProductsController {
     return this.productsService.findByUser(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiConsumes('multipart/form-data')
   @ApiAcceptedResponse({
     description: 'Productp actualizado correctamente.',
     type: UpdateProductDto,
   })
   @ApiNotFoundResponse({ description: 'No se encontro el producto.' })
-  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
   @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile() file: Express.Multer.File,
     @Req() req,
   ) {
-    return this.productsService.update(id, updateProductDto, req.user.id);
+    return this.productsService.update(id, updateProductDto, file, req.user.id);
   }
 
   @ApiAcceptedResponse({

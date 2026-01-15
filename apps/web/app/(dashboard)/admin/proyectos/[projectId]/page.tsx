@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import { useGetFilesForEntity } from '@/hooks/files';
 import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
+import { useProductsByProject } from '@/hooks/products';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';
 import { EntityType } from '@repo/types';
@@ -34,6 +35,11 @@ const Page = () => {
     isLoading: loadingProject,
     isError,
   } = useProject(projectId);
+  const {
+    data: products,
+    isLoading: loadingProducts,
+    isError: errorFetchingProducts,
+  } = useProductsByProject(projectId);
 
   // Saved Project Files
   const {
@@ -96,8 +102,10 @@ const Page = () => {
                 projectId={projectId}
               />
               <ProductsBoard
-                products={project.products}
+                products={products}
                 projectId={projectId}
+                isLoading={loadingProducts}
+                isError={errorFetchingProducts}
               />
               <div className="flex w-full justify-between gap-4">
                 {project.team && <CardMembers team={project.team} redirect />}
