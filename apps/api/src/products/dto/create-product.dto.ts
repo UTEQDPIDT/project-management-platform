@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CoAuthor } from '@repo/types';
-import { IsString, IsOptional, IsMongoId, IsEnum } from 'class-validator';
+import { IsString, IsMongoId, IsEnum, IsOptional } from 'class-validator';
 import { ObjectId } from 'mongoose';
 
 export class CreateProductDto {
@@ -20,6 +20,19 @@ export class CreateProductDto {
     description: 'Tipo de Co-Autor',
   })
   @IsEnum(CoAuthor)
+  coAuthor: CoAuthor;
+
+  @ApiProperty({
+    description: 'Proyecto al que pertenece el producto',
+  })
+  @IsMongoId()
+  projectId: ObjectId;
+
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    required: false,
+  })
   @IsOptional()
-  coAuthor?: CoAuthor;
+  file?: any;
 }
