@@ -8,8 +8,14 @@ export const productSchema = z.object({
   subcategory: mongoId,
   coAuthor: z.enum(CoAuthor),
   file: z
-    .file()
-    .min(1)
-    .max(5 * 1024 * 1024, 'El archivo pesa más de 5 MB')
-    .mime('application/json'),
+    .instanceof(File)
+    .refine(
+      (file) => file.size <= 5 * 1024 * 1024,
+      'El archivo pesa más de 5 MB',
+    )
+    .refine(
+      (file) => file.type === 'application/pdf',
+      'Solo se aceptan archivos PDF',
+    )
+    .optional(),
 });

@@ -6,7 +6,7 @@ import {
 } from '@/hooks/catalogs';
 import { productSchema } from '@/schemas/product.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CoAuthor, IProduct, SeedCategory } from '@repo/types';
+import { CoAuthor, IFile, IProduct, SeedCategory } from '@repo/types';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import LoadingMessage from '../loading-message';
@@ -22,7 +22,6 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-  InputGroupTextarea,
 } from '../ui/input-group';
 import {
   Select,
@@ -34,6 +33,8 @@ import {
 import { Button } from '../ui/button';
 import { DialogClose } from '../ui/dialog';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/products';
+import { Input } from '../ui/input';
+import { useGetFilesForEntity } from '@/hooks/files';
 
 interface Props {
   product?: IProduct;
@@ -45,6 +46,17 @@ export function ProductForm({ projectId, product }: Props) {
     useProductCategories();
   const { data: subcategories, isLoading: loadingSubcategories } =
     useProductSubcategories();
+
+  let currentFile: IFile;
+  if (product) {
+    const { data: files, isLoading: loadingFile } = useGetFilesForEntity(
+      product?._id,
+    );
+
+    currentFile = Array.isArray(files) ? files[0] : files;
+  }
+
+  // Safely get the first file if it's an array, or use it directly if it's an object
 
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
@@ -65,15 +77,24 @@ export function ProductForm({ projectId, product }: Props) {
    */
   const onSubmit = async (data: z.infer<typeof productSchema>) => {
     try {
-      console.log('DATA:', data);
+      const formData = new FormData();
+      formData.append('name', data.name);
+      formData.append('category', data.category);
+      formData.append('subcategory', data.subcategory);
+      formData.append('coAuthor', data.coAuthor);
+      formData.append('projectId', projectId);
+
+      if (data.file) {
+        formData.append('file', data.file);
+      }
 
       if (product) {
         updateProduct.mutate({
           productId: product._id,
-          productData: data,
+          productData: formData,
         });
       } else {
-        createProduct.mutate({ projectId, productData: data });
+        createProduct.mutate({ productData: formData });
       }
     } catch (err) {
       console.error('Error on submit', err);
@@ -209,10 +230,40 @@ export function ProductForm({ projectId, product }: Props) {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldContent>
-                <FieldLabel htmlFor={field.name}>Archivo</FieldLabel>
+                <FieldLabel htmlFor={field.name}>
+                  Archivo {!product && '*'}
+                </FieldLabel>
               </FieldContent>
 
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              {currentFile &&
+                typeof currentFile === 'object' &&
+                currentFile.originalName && (
+                  <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
+                    <p className="text-sm text-blue-700">
+                      <span className="font-medium">Archivo actual:</span>{' '}
+                      {currentFile.originalName}
+                    </p>
+                  </div>
+                )}
+
+              <Input
+                id={field.name}
+                name={field.name}
+                aria-invalid={fieldState.invalid}
+                type="file"
+                accept=".pdf"
+                onChange={(e) => field.onChange(e.target.files?.[0])}
+                onBlur={field.onBlur}
+                disabled={field.disabled}
+              />
+
+              {fieldState.invalid ? (
+                <FieldError errors={[fieldState.error]} />
+              ) : (
+                <FieldDescription>
+                  Solo se aceptan archivos PDF
+                </FieldDescription>
+              )}
             </Field>
           )}
         />
