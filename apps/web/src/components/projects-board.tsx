@@ -11,13 +11,19 @@ import {
   EmptyTitle,
 } from './ui/empty';
 import LoadingMessage from './loading-message';
+import ErrorCard from './error-card';
 
 interface ProjectsBoardProps {
   projects: IProject[];
   loading?: boolean;
+  error?: boolean;
 }
 
-export function ProjectsBoard({ projects, loading }: ProjectsBoardProps) {
+export function ProjectsBoard({
+  projects,
+  loading,
+  error,
+}: ProjectsBoardProps) {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -34,6 +40,8 @@ export function ProjectsBoard({ projects, loading }: ProjectsBoardProps) {
       <CardContent>
         {loading ? (
           <LoadingMessage message="Cargando Proyectos" />
+        ) : error ? (
+          <ErrorCard />
         ) : projects.length > 0 ? (
           <div className="grid grid-cols-3 gap-4">
             {projects.map((p: IProject) => (

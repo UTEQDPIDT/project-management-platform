@@ -16,13 +16,22 @@ import {
   EmptyTitle,
 } from './ui/empty';
 import { Separator } from './ui/separator';
+import LoadingMessage from './loading-message';
+import ErrorCard from './error-card';
 
-interface ProductsCardProps {
+type ProductsCardProps = {
   products: IProduct[];
   projectId: string;
-}
+  isLoading?: boolean;
+  isError?: boolean;
+};
 
-export function ProductsBoard({ products, projectId }: ProductsCardProps) {
+export function ProductsBoard({
+  products,
+  projectId,
+  isLoading,
+  isError,
+}: ProductsCardProps) {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -47,7 +56,11 @@ export function ProductsBoard({ products, projectId }: ProductsCardProps) {
         </div>
       </CardHeader>
       <CardContent>
-        {products.length > 0 ? (
+        {isLoading ? (
+          <LoadingMessage message="Cargando productos" />
+        ) : isError ? (
+          <ErrorCard />
+        ) : products.length > 0 ? (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {products.map((p: IProduct) => (
               <ProductCard
