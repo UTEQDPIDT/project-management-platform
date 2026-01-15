@@ -75,7 +75,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
         data.educationalProgram === '' ? undefined : data.educationalProgram,
       division: data.division === '' ? undefined : data.division,
     };
-    updateUserMutation.mutate(cleanedData);
+    updateUserMutation.mutate({ userId: profile._id, data: cleanedData });
   };
 
   const onError = (errors: any) => {
