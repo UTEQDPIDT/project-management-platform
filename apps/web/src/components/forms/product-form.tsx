@@ -37,17 +37,7 @@ import { useCreateProduct } from '@/hooks/projects';
 import { useUpdateProduct } from '@/hooks/products';
 
 interface Props {
-  product?: Pick<
-    IProduct,
-    | '_id'
-    | 'name'
-    | 'details'
-    | 'category'
-    | 'subcategory'
-    | 'coAuthor'
-    | 'owner'
-    | 'files'
-  >;
+  product?: IProduct;
   projectId: string;
 }
 
@@ -65,7 +55,6 @@ export function ProductForm({ projectId, product }: Props) {
     mode: 'onChange',
     defaultValues: {
       name: product?.name || '',
-      details: product?.details || '',
       category: product?.category._id || '',
       subcategory: product?.subcategory._id || '',
       coAuthor: product?.coAuthor || CoAuthor.A,
@@ -77,19 +66,15 @@ export function ProductForm({ projectId, product }: Props) {
    */
   const onSubmit = async (data: z.infer<typeof productSchema>) => {
     try {
-      const cleanedData = {
-        ...data,
-        details: data.details === '' ? undefined : data.details,
-      };
-      //   console.log('CLEAN DATA', cleanedData);
+      console.log('DATA:', data);
 
       if (product) {
         updateProduct.mutate({
           productId: product._id,
-          productData: cleanedData,
+          productData: data,
         });
       } else {
-        createProduct.mutate({ projectId, productData: cleanedData });
+        createProduct.mutate({ projectId, productData: data });
       }
     } catch (err) {
       console.error('Error on submit', err);
@@ -194,34 +179,10 @@ export function ProductForm({ projectId, product }: Props) {
 
         <Controller
           control={form.control}
-          name="details"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldContent>
-                <FieldLabel htmlFor={field.name}>Detalle</FieldLabel>
-              </FieldContent>
-              <InputGroup>
-                <InputGroupTextarea
-                  {...field}
-                  id={field.name}
-                  aria-invalid={fieldState.invalid}
-                  placeholder="Detalla el tipo de producto y autor"
-                />
-                <InputGroupAddon align="block-end">
-                  {field.value?.length}/255
-                </InputGroupAddon>
-              </InputGroup>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
-
-        <Controller
-          control={form.control}
           name="coAuthor"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Co Author</FieldLabel>
+              <FieldLabel htmlFor={field.name}>Tipo de Co Author</FieldLabel>
               <Select {...field} onValueChange={field.onChange}>
                 <SelectTrigger
                   id={field.name}
@@ -242,6 +203,20 @@ export function ProductForm({ projectId, product }: Props) {
             </Field>
           )}
         />
+
+        <Controller
+          control={form.control}
+          name="file"
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldContent>
+                <FieldLabel htmlFor={field.name}>Archivo</FieldLabel>
+              </FieldContent>
+
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
       </FieldGroup>
 
       <div className="flex gap-2">
@@ -250,7 +225,9 @@ export function ProductForm({ projectId, product }: Props) {
             Cancelar
           </Button>
         </DialogClose>
-        <Button type="submit">{product ? 'Actualizar' : 'Crear'}</Button>
+        <DialogClose asChild>
+          <Button type="submit">{product ? 'Actualizar' : 'Crear'}</Button>
+        </DialogClose>
       </div>
     </form>
   );

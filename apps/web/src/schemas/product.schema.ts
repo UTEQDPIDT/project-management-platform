@@ -4,11 +4,12 @@ import { z } from 'zod';
 
 export const productSchema = z.object({
   name: z.string().min(1, 'El producto necesita un nombre.'),
-  details: z
-    .string()
-    .max(255, 'Excede el máximo de 255 caracteres.')
-    .optional(),
   category: mongoId,
   subcategory: mongoId,
   coAuthor: z.enum(CoAuthor),
+  file: z
+    .file()
+    .min(1)
+    .max(5 * 1024 * 1024, 'El archivo pesa más de 5 MB')
+    .mime('application/json'),
 });
