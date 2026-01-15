@@ -3,7 +3,7 @@
 import { ActivitiesBoard } from '@/components/activities-board';
 import { CardMembers } from '@/components/card-members';
 import ErrorCard from '@/components/error-card';
-import FileList from '@/components/file-list';
+import FilesCard from '@/components/files-card';
 import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
@@ -18,12 +18,14 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { useGetFiles } from '@/hooks/files';
+import { useGetFilesForEntity } from '@/hooks/files';
+import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';
-import { IFile } from '@repo/types';
+import { EntityType } from '@repo/types';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 
 const Page = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -32,11 +34,26 @@ const Page = () => {
     isLoading: loadingProject,
     isError,
   } = useProject(projectId);
+
+  // Saved Project Files
   const {
-    data: files,
+    data: savedFiles,
     isLoading: loadingFiles,
     isError: errorFetchingFiles,
-  } = useGetFiles();
+  } = useGetFilesForEntity(projectId);
+
+  // Manage file upload
+  const uploadMultipleFiles = useUploadMultipleFiles();
+  const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+  const handleUpload = () => {
+    uploadMultipleFiles.mutate({
+      files: filesToUpload,
+      entityId: projectId,
+      entityType: EntityType.PROJECT,
+    });
+
+    setFilesToUpload([]);
+  };
 
   return (
     <div className="w-full h-full">
@@ -87,14 +104,17 @@ const Page = () => {
                 {project.relatedProjects && (
                   <ProjectsBoard projects={project.relatedProjects} />
                 )}
-                {files && (
-                  <FileList>
-                    {files.map((f: IFile) => (
-                      <FileList.Item key={f._id} file={f}>
-                        <FileList.Actions fileId={f._id} />
-                      </FileList.Item>
-                    ))}
-                  </FileList>
+                {savedFiles && (
+                  <FilesCard
+                    savedFiles={savedFiles}
+                    filesToUpload={filesToUpload}
+                    setFilesToUpload={setFilesToUpload}
+                    onUpload={handleUpload}
+                    isLoading={loadingFiles}
+                    isError={errorFetchingFiles}
+                    isUploading={uploadMultipleFiles.isPending}
+                    accept=".pdf,.doc,.docx"
+                  />
                 )}
               </div>
             </div>

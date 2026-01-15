@@ -12,7 +12,7 @@ export const useDeleteFile = () => {
       toast.success('El archivo fue eliminado');
 
       queryClient.invalidateQueries({
-        queryKey: ['files', file.entityId, file.entityType],
+        queryKey: ['files', file.entityId],
       });
     },
     onError: () => {
