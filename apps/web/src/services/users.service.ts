@@ -21,9 +21,15 @@ const getUserById = async (userId: string) => {
   }
 };
 
-const updateUser = async (data: UpdateUser) => {
+const updateUser = async ({
+  userId,
+  data,
+}: {
+  userId: string;
+  data: UpdateUser;
+}) => {
   try {
-    const { status } = await api.patch('/users', data);
+    const { status } = await api.patch(`/users/${userId}`, data);
     if (status === 200) {
       toast.success('Perfil actualizado');
     }
