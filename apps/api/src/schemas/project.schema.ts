@@ -4,8 +4,6 @@ import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { Team } from './team.schema';
 import { Activity } from './activities.schema';
-import { Product } from './product.schema';
-import { File } from './file.schema';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { KnowledgeArea } from './knowledge-area.schema.seed';
 import { ThemedImpactArea } from './themed-impact-area.schema';
@@ -124,15 +122,6 @@ export class Project extends Document {
   })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }] })
   activities?: Activity[];
-
-  @ApiPropertyOptional({
-    description: 'Productos relacionados al proyecto.',
-  })
-  @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
-    default: [],
-  })
-  products?: Product[];
 
   @ApiProperty({
     description: 'Quien actualiza el proyecto por ultima ocasion.',
