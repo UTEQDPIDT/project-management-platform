@@ -29,6 +29,8 @@ import {
 import FileList from './file-list';
 import LoadingMessage from './loading-message';
 import ErrorCard from './error-card';
+import { useDeleteFile } from '@/hooks/files/use-delete-file';
+import { downloadFile } from '@/services/files.service';
 
 type FileCardProps = {
   savedFiles: IFile[];
@@ -53,6 +55,19 @@ export default function FilesCard({
   isError,
   isUploading,
 }: FileCardProps) {
+  const deleteFileMutation = useDeleteFile();
+
+  const handleDelete = (fileId: string) => {
+    deleteFileMutation.mutate({ fileId });
+  };
+
+  const handleDownload = (fileId: string) => {
+    const file = savedFiles.find((f) => f._id === fileId);
+    if (file) {
+      downloadFile(fileId, file.originalName);
+    }
+  };
+
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
@@ -145,7 +160,7 @@ export default function FilesCard({
         ) : isError ? (
           <ErrorCard />
         ) : (
-          <FileList>
+          <FileList onDelete={handleDelete} onDownload={handleDownload}>
             {savedFiles.map((f: IFile) => (
               <FileList.Item key={f._id} file={f}>
                 <FileList.Actions fileId={f._id} />
