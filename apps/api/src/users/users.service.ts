@@ -52,18 +52,7 @@ export class UsersService {
     createUserDto: CreateUserDto,
   ): Promise<{ id: string; message: string }> {
     try {
-      // Clear properties based on user type
-      const dataWithClearedProps =
-        this.clearPropertiesByUserType(createUserDto);
-
-      // Remove undefined/null fields to avoid sparse index issues
-      const cleanedDto = Object.fromEntries(
-        Object.entries(dataWithClearedProps).filter(
-          ([_, value]) => value !== undefined && value !== null,
-        ),
-      );
-
-      const createdUser = new this.userModel(cleanedDto);
+      const createdUser = new this.userModel(createUserDto);
       await createdUser.save();
       return {
         id: createdUser._id.toString(),
@@ -72,9 +61,7 @@ export class UsersService {
     } catch (err: any) {
       // Handle duplicate key or validation errors
       if (err.code === 11000) {
-        throw new BadRequestException(
-          'User with this email, matricula, or employee number already exists',
-        );
+        throw new BadRequestException('User with this email already exists');
       }
       throw new BadRequestException(err.message);
     }
