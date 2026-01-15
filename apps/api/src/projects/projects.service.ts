@@ -238,63 +238,6 @@ export class ProjectsService {
   }
 
   /**
-   * Product Services
-   */
-  async createProduct(
-    projectId: string,
-    dto: CreateProductDto,
-    userId: string,
-  ) {
-    const session = await this.connection.startSession();
-    session.startTransaction();
-
-    try {
-      const product = await this.productService.create(
-        dto,
-        userId,
-        projectId,
-        session,
-      );
-
-      await this.projectModel.updateOne(
-        { _id: projectId },
-        { $push: { products: product._id }, $set: { updatedBy: userId } },
-        { session },
-      );
-
-      await session.commitTransaction();
-      return product;
-    } catch (err: any) {
-      await session.abortTransaction();
-      throw new BadRequestException(err.message);
-    } finally {
-      session.endSession();
-    }
-  }
-
-  async deleteProduct(projectId: string, productId: string, userId: string) {
-    const session = await this.connection.startSession();
-    session.startTransaction();
-
-    try {
-      await this.productService.remove(productId);
-      await this.projectModel.updateOne(
-        { _id: projectId },
-        { $pull: { products: productId }, $set: { updatedBy: userId } },
-        { session },
-      );
-
-      await session.commitTransaction();
-      return { message: 'Producto eliminado del proyecto correctamente.' };
-    } catch (err: any) {
-      await session.abortTransaction();
-      throw new BadRequestException(err.message);
-    } finally {
-      session.endSession();
-    }
-  }
-
-  /**
    * Activities Services
    */
   async createActivity(
