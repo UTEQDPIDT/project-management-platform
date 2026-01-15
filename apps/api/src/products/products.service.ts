@@ -22,14 +22,12 @@ export class ProductsService {
     createProductDto: CreateProductDto,
     file: Express.Multer.File,
     userId: string,
-    projectId: string,
   ) {
     try {
       const product = new this.productModel({
         ...createProductDto,
         owner: userId,
         updatedBy: userId,
-        projectId,
       });
 
       await product.save();
@@ -89,8 +87,21 @@ export class ProductsService {
     return this.productModel.find({ owner: userId });
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto, userId: string) {
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+    file: Express.Multer.File,
+    userId: string,
+  ) {
     try {
+      // Delete previous files
+      const previousFiles = await this.filesService.findFilesForEntity(id);
+      await this.filesService.deleteFiles(previousFiles);
+
+      // Upload new file
+      await this.filesService.uploadFile(file, id, EntityType.PRODUCT, userId);
+
+      // Update product
       const updatedProduct = await this.productModel.findByIdAndUpdate(
         id,
         {

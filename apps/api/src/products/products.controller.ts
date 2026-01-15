@@ -45,15 +45,9 @@ export class ProductsController {
   create(
     @Body() createProductDto: CreateProductDto,
     @UploadedFile() file: Express.Multer.File,
-    @Body('projectId') projectId: string,
     @Req() req,
   ) {
-    return this.productsService.create(
-      createProductDto,
-      file,
-      req.user.id,
-      projectId,
-    );
+    return this.productsService.create(createProductDto, file, req.user.id);
   }
 
   @ApiAcceptedResponse({
@@ -88,19 +82,22 @@ export class ProductsController {
     return this.productsService.findByUser(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiConsumes('multipart/form-data')
   @ApiAcceptedResponse({
     description: 'Productp actualizado correctamente.',
     type: UpdateProductDto,
   })
   @ApiNotFoundResponse({ description: 'No se encontro el producto.' })
-  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
   @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile() file: Express.Multer.File,
     @Req() req,
   ) {
-    return this.productsService.update(id, updateProductDto, req.user.id);
+    return this.productsService.update(id, updateProductDto, file, req.user.id);
   }
 
   @ApiAcceptedResponse({
