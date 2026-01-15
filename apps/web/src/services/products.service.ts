@@ -36,6 +36,15 @@ const getProductsByUser = async (userId: string) => {
   }
 };
 
+const getProductsByProject = async (projectId: string) => {
+  try {
+    const { data } = await api.get(`/products/by-project/${projectId}`);
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const updateProduct = async ({
   productId,
   productData,
@@ -65,6 +74,7 @@ export {
   getProducts,
   getProductById,
   getProductsByUser,
+  getProductsByProject,
   updateProduct,
   deleteProduct,
 };
