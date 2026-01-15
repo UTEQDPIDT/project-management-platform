@@ -7,11 +7,11 @@ export const useUploadMultipleFiles = () => {
 
   return useMutation({
     mutationFn: uploadMultipleFiles,
-    onSuccess: ({ entityId, entityType }) => {
+    onSuccess: ({ entityId }) => {
       toast.success('Archivos subidos correctamente');
 
       queryClient.invalidateQueries({
-        queryKey: ['files', entityId, entityType],
+        queryKey: ['files', entityId],
       });
     },
     onError: () => {
