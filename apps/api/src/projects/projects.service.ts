@@ -10,7 +10,6 @@ import { Project } from '../schemas/project.schema';
 import { Connection, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
 import { ProductsService } from '../products/products.service';
-import { CreateProductDto } from '../products/dto/create-product.dto';
 import { ActivitiesService } from '../activities/activities.service';
 import { CreateActivityDto } from '../activities/dto/create-activity.dto';
 
@@ -92,14 +91,6 @@ export class ProjectsService {
         path: 'activities',
         populate: [{ path: 'assignees' }],
       })
-      .populate({
-        path: 'products',
-        populate: [
-          { path: 'category' },
-          { path: 'subcategory' },
-          { path: 'owner' },
-        ],
-      })
       .populate('owner')
       .populate('updatedBy')
       .exec();
@@ -124,14 +115,6 @@ export class ProjectsService {
       .populate({
         path: 'activities',
         populate: [{ path: 'assignees' }],
-      })
-      .populate({
-        path: 'products',
-        populate: [
-          { path: 'category' },
-          { path: 'subcategory' },
-          { path: 'owner' },
-        ],
       })
       .populate('owner')
       .populate('updatedBy');
@@ -161,14 +144,6 @@ export class ProjectsService {
       .populate({
         path: 'activities',
         populate: [{ path: 'assignees' }],
-      })
-      .populate({
-        path: 'products',
-        populate: [
-          { path: 'category' },
-          { path: 'subcategory' },
-          { path: 'owner' },
-        ],
       })
       .populate('owner')
       .populate('updatedBy');
