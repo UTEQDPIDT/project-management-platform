@@ -31,13 +31,19 @@ import LoadingMessage from './loading-message';
 import ErrorCard from './error-card';
 import { useDeleteFile } from '@/hooks/files/use-delete-file';
 import { downloadFile } from '@/services/files.service';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from './ui/empty';
 
 type FileCardProps = {
   savedFiles: IFile[];
   filesToUpload: File[];
   setFilesToUpload: Dispatch<SetStateAction<File[]>>;
   onUpload?: () => void;
-  onDelete?: (fileId: string) => void;
   accept?: string;
   isLoading?: boolean;
   isError?: boolean;
@@ -49,7 +55,6 @@ export default function FilesCard({
   filesToUpload,
   setFilesToUpload,
   onUpload,
-  onDelete,
   accept,
   isLoading,
   isError,
@@ -159,7 +164,7 @@ export default function FilesCard({
           <LoadingMessage message="Cargando archivos" />
         ) : isError ? (
           <ErrorCard />
-        ) : (
+        ) : savedFiles.length ? (
           <FileList onDelete={handleDelete} onDownload={handleDownload}>
             {savedFiles.map((f: IFile) => (
               <FileList.Item key={f._id} file={f}>
@@ -167,6 +172,16 @@ export default function FilesCard({
               </FileList.Item>
             ))}
           </FileList>
+        ) : (
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Paperclip />
+              </EmptyMedia>
+              <EmptyTitle>No Hay Archivos</EmptyTitle>
+              <EmptyDescription>No haz subido ningún archivo.</EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         )}
       </CardContent>
     </Card>
