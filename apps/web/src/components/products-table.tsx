@@ -74,11 +74,11 @@ const columns: ColumnDef<IProduct>[] = [
     id: 'actions',
     cell: ({ row }) => {
       const product = row.original;
-      const { file } = product;
+      //   const { file } = product;
 
       const handleDownload = async () => {
         try {
-          await downloadFile(file._id, file.name);
+          //   await downloadFile(file._id, file.name);
         } catch (error) {
           console.error('Failed to download file:', error);
         }

@@ -61,6 +61,16 @@ export class ProductsService {
       .exec();
   }
 
+  async findByProject(projectId: string) {
+    return await this.productModel
+      .find({ projectId })
+      .populate('category')
+      .populate('subcategory')
+      .populate('owner')
+      .populate('updatedBy')
+      .exec();
+  }
+
   findOne(id: string) {
     const product = this.productModel
       .findById(id)

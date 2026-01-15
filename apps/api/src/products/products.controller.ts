@@ -66,6 +66,14 @@ export class ProductsController {
   }
 
   @ApiAcceptedResponse({
+    description: 'Lista de productos de un proyecto.',
+  })
+  @Get('/by-project/:projectId')
+  findByProject(@Param('projectId') projectId: string) {
+    return this.productsService.findByProject(projectId);
+  }
+
+  @ApiAcceptedResponse({
     description: 'Producto obtenido correctamente.',
     type: CreateProductDto,
   })
