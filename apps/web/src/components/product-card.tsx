@@ -81,7 +81,7 @@ export default function ProductCard({
           <span className="text-xs text-muted-foreground">Archivo</span>
           {files && files.length > 0 ? (
             files.map((file: IFile) => (
-              <FileButton key={file._id} file={file} />
+              <FileButton key={file._id} file={file} className="max-w-72" />
             ))
           ) : (
             <span className="text-xs text-muted-foreground">
