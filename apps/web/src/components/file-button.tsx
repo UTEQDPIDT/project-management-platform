@@ -32,6 +32,7 @@ export default function FileButton({ file }: FileButtonProps) {
           variant="secondary"
           onClick={handleDownload}
           disabled={isLoading}
+          className="justify-start max-w-fit"
         >
           {isLoading ? (
             <LoadingMessage message="descargando" />
