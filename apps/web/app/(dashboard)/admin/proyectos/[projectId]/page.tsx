@@ -18,7 +18,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { useGetFilesForEntity } from '@/hooks/files';
+import { useFilesForEntity } from '@/hooks/files';
 import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
 import { useProductsByProject } from '@/hooks/products';
 import { useProject } from '@/hooks/projects';
@@ -46,7 +46,7 @@ const Page = () => {
     data: savedFiles,
     isLoading: loadingFiles,
     isError: errorFetchingFiles,
-  } = useGetFilesForEntity(projectId);
+  } = useFilesForEntity(projectId);
 
   // Manage file upload
   const uploadMultipleFiles = useUploadMultipleFiles();

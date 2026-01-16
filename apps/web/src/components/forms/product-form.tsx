@@ -34,7 +34,7 @@ import { Button } from '../ui/button';
 import { DialogClose } from '../ui/dialog';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/products';
 import { Input } from '../ui/input';
-import { useGetFilesForEntity } from '@/hooks/files';
+import { useFilesForEntity } from '@/hooks/files';
 
 interface Props {
   product?: IProduct;
@@ -49,7 +49,7 @@ export function ProductForm({ projectId, product }: Props) {
 
   let currentFile: IFile;
   if (product) {
-    const { data: files, isLoading: loadingFile } = useGetFilesForEntity(
+    const { data: files, isLoading: loadingFile } = useFilesForEntity(
       product?._id,
     );
 

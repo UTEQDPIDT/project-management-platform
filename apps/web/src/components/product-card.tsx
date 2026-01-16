@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import FileButton from './file-button';
-import { useGetFilesForEntity } from '@/hooks/files/use-get-files-for-entity';
+import { useFilesForEntity } from '@/hooks/files/use-files-for-entity';
 
 interface ProductCardProps {
   product: IProduct;
@@ -24,7 +24,7 @@ export default function ProductCard({
   enableOptions,
   options,
 }: ProductCardProps) {
-  const { data: files = [] } = useGetFilesForEntity(product._id);
+  const { data: files = [] } = useFilesForEntity(product._id);
   return (
     <Card className="gap-2">
       <CardHeader>
