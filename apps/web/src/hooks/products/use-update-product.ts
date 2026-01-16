@@ -7,7 +7,7 @@ export function useUpdateProduct() {
 
   return useMutation({
     mutationFn: updateProduct,
-    onSuccess: (updatedProduct) => {
+    onSuccess: ({ id }) => {
       // Invalidate all product-related queries
       queryClient.invalidateQueries({
         queryKey: ['products'],
@@ -21,7 +21,7 @@ export function useUpdateProduct() {
 
       // Invalidate file queries for this product
       queryClient.invalidateQueries({
-        queryKey: ['files', updatedProduct._id],
+        queryKey: ['files', id],
       });
 
       toast.success('Se ha actualizado el producto');
