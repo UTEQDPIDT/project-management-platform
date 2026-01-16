@@ -7,10 +7,6 @@ export const projectSchema = z.object({
     .string()
     .min(1, 'El proyecto debe tener un nombre')
     .max(200, 'Excede el máximo de 200 carecteres'),
-  summary: z
-    .string()
-    .min(1, 'El proyecto debe tener una descripción')
-    .max(255, 'Excede el máximo de 255 carecteres'),
   objective: z
     .string()
     .min(1, 'El proyecto debe tener un objetivo')
@@ -32,6 +28,6 @@ export const projectSchema = z.object({
     .min(5, 'El proyecto debe tener un mínimo de 5 actividades.'),
   team: mongoId.or(z.literal('')),
   relatedProjects: z.array(mongoId),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
+  startDate: z.date(),
+  endDate: z.date(),
 });

@@ -21,13 +21,6 @@ export class CreateProjectDto {
   name: string;
 
   @ApiProperty({
-    description: 'Resumen del proyecto.',
-  })
-  @IsString()
-  @MaxLength(500)
-  summary: string;
-
-  @ApiProperty({
     description: 'Objetivo principal del proyecto.',
   })
   @IsString()
