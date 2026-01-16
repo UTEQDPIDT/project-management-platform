@@ -36,9 +36,9 @@ export default function FileButton({ file }: FileButtonProps) {
           {isLoading ? (
             <LoadingMessage message="descargando" />
           ) : (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 overflow-x-hidden">
               <Paperclip />
-              <span className="line-clamp-1">{file.originalName}</span>
+              <span className="truncate">{file.originalName}</span>
             </div>
           )}
         </Button>
