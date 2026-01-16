@@ -11,7 +11,6 @@ import { Connection, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
 import { ProductsService } from '../products/products.service';
 import { ActivitiesService } from '../activities/activities.service';
-import { CreateActivityDto } from '../activities/dto/create-activity.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -34,7 +33,6 @@ export class ProjectsService {
         [
           {
             ...projectData,
-            activities: [],
             owner: userId,
             updatedBy: userId,
           },
@@ -54,11 +52,7 @@ export class ProjectsService {
         );
       }
 
-      await this.projectModel.updateOne(
-        { _id: projectId },
-        { $set: { activities: createdActivities.map((a) => a._id) } },
-        { session },
-      );
+      await this.projectModel.updateOne({ _id: projectId }, { session });
 
       await session.commitTransaction();
 
@@ -86,11 +80,7 @@ export class ProjectsService {
           { path: 'collaborators' },
         ],
       })
-      .populate({ path: 'relatedProjects', populate: [{ path: 'activities' }] })
-      .populate({
-        path: 'activities',
-        populate: [{ path: 'assignees' }],
-      })
+      .populate({ path: 'relatedProjects' })
       .populate('owner')
       .populate('updatedBy')
       .exec();
@@ -111,11 +101,7 @@ export class ProjectsService {
           { path: 'collaborators' },
         ],
       })
-      .populate({ path: 'relatedProjects', populate: [{ path: 'activities' }] })
-      .populate({
-        path: 'activities',
-        populate: [{ path: 'assignees' }],
-      })
+      .populate({ path: 'relatedProjects' })
       .populate('owner')
       .populate('updatedBy');
     if (!project) {
@@ -140,19 +126,13 @@ export class ProjectsService {
           { path: 'collaborators' },
         ],
       })
-      .populate({ path: 'relatedProjects', populate: [{ path: 'activities' }] })
-      .populate({
-        path: 'activities',
-        populate: [{ path: 'assignees' }],
-      })
+      .populate({ path: 'relatedProjects' })
       .populate('owner')
       .populate('updatedBy');
   }
 
   async findByTeam(teamId: string) {
-    return await this.projectModel
-      .find({ team: teamId })
-      .populate('activities');
+    return await this.projectModel.find({ team: teamId });
   }
 
   async update(id: string, updateProjectDto: UpdateProjectDto, userId: string) {
@@ -204,61 +184,6 @@ export class ProjectsService {
       await session.commitTransaction();
 
       return { message: 'Project deleted successfully' };
-    } catch (err: any) {
-      await session.abortTransaction();
-      throw new BadRequestException(err.message);
-    } finally {
-      session.endSession();
-    }
-  }
-
-  /**
-   * Activities Services
-   */
-  async createActivity(
-    projectId: string,
-    dto: CreateActivityDto,
-    userId: string,
-  ) {
-    const session = await this.connection.startSession();
-    session.startTransaction();
-
-    try {
-      const activity = await this.activitiesService.create(dto, userId, {
-        session,
-        projectId,
-      });
-
-      await this.projectModel.updateOne(
-        { _id: projectId },
-        { $push: { activities: activity._id }, $set: { updatedBy: userId } },
-        { session },
-      );
-
-      await session.commitTransaction();
-      return activity;
-    } catch (err: any) {
-      await session.abortTransaction();
-      throw new BadRequestException(err.message);
-    } finally {
-      session.endSession();
-    }
-  }
-
-  async deleteActivity(projectId: string, activityId: string, userId: string) {
-    const session = await this.connection.startSession();
-    session.startTransaction();
-
-    try {
-      await this.activitiesService.remove(activityId);
-      await this.projectModel.updateOne(
-        { _id: projectId },
-        { $pull: { activities: activityId }, $set: { updatedBy: userId } },
-        { session },
-      );
-
-      await session.commitTransaction();
-      return { message: 'Actividad eliminada del proyecto correctamente.' };
     } catch (err: any) {
       await session.abortTransaction();
       throw new BadRequestException(err.message);
