@@ -21,6 +21,8 @@ import { ProfileInfo } from './profile-info';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { downloadFile } from '@/services/files.service';
+import { useFilesForEntity } from '@/hooks/files';
+import { toast } from 'sonner';
 
 const columns: ColumnDef<IProduct>[] = [
   { accessorKey: 'name', header: 'Nombre' },
@@ -45,7 +47,7 @@ const columns: ColumnDef<IProduct>[] = [
   { accessorKey: 'coAuthor', header: 'Co Autor' },
   {
     accessorKey: 'owner',
-    header: 'Dueño',
+    header: 'Proprietario',
     cell: ({ row }) => {
       const { owner } = row.original;
 
@@ -62,7 +64,7 @@ const columns: ColumnDef<IProduct>[] = [
   },
   {
     accessorKey: 'createdAt',
-    header: 'Creado el',
+    header: 'Fecha de creación',
     cell: ({ row }) => {
       const { createdAt } = row.original;
       return (
@@ -74,13 +76,14 @@ const columns: ColumnDef<IProduct>[] = [
     id: 'actions',
     cell: ({ row }) => {
       const product = row.original;
-      //   const { file } = product;
+      const { data: files = [] } = useFilesForEntity(product._id);
 
       const handleDownload = async () => {
         try {
-          //   await downloadFile(file._id, file.name);
+          await downloadFile(files[0]._id, files[0].originalName);
         } catch (error) {
-          console.error('Failed to download file:', error);
+          toast.error('No se pudo descargar el archivo');
+          throw error;
         }
       };
 
