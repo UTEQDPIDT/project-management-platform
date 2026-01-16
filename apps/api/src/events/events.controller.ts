@@ -17,7 +17,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { CreateActivityDto } from '../activities/dto/create-activity.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
@@ -112,43 +111,6 @@ export class EventsController {
     @Req() req,
   ) {
     return this.eventsService.removeParticipant(id, userId, req.user.id);
-  }
-
-  /**
-   * ACTIVITIES
-   */
-  @ApiCreatedResponse({
-    description: 'Actividades agregadas correctamente al evento.',
-  })
-  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
-  @ApiBadRequestResponse({
-    description: 'Actividad no encontrada o no es válida.',
-  })
-  @UseGuards(JwtAuthGuard)
-  @Post(':id/activities')
-  addActivities(
-    @Param('id') id: string,
-    @Body() dto: CreateActivityDto,
-    @Req() req,
-  ) {
-    return this.eventsService.createActivity(id, dto, req.user.id);
-  }
-
-  @ApiOkResponse({
-    description: 'Actividad eliminada correctamente del evento.',
-  })
-  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
-  @ApiBadRequestResponse({
-    description: 'Actividad no encontrada en el evento.',
-  })
-  @UseGuards(JwtAuthGuard)
-  @Delete(':eventId/activities/:activityId')
-  removeActivity(
-    @Param('eventId') eventId: string,
-    @Param('activityId') activityId: string,
-    @Req() req,
-  ) {
-    return this.eventsService.deleteActivity(eventId, activityId, req.user.id);
   }
 
   /**
