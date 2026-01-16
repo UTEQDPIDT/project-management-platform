@@ -233,12 +233,16 @@ const columns: ColumnDef<IEvent>[] = [
     header: 'Informe',
     cell: ({ row }) => {
       const event = row.original;
-      const { data: files = [] } = useFilesForEntity(event._id);
+      const { data: files = [], isLoading } = useFilesForEntity(event._id);
+
+      console.log('Fetched file', files);
 
       return (
         <div>
-          {files.lenght ? (
-            <FileButton file={files[0]} />
+          {isLoading ? (
+            <LoadingMessage />
+          ) : files ? (
+            <FileButton file={files[0]} className="max-w-72" />
           ) : (
             <span className="text-sm text-muted-foreground">Vacío</span>
           )}
