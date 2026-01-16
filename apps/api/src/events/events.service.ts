@@ -9,7 +9,6 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { Event } from '../schemas/event.schema';
 import { FilesService } from '../files/files.service';
-import { ProductsService } from '../products/products.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { Product } from '../schemas/product.schema';
 
@@ -20,7 +19,6 @@ export class EventsService {
     @InjectConnection() private readonly connection: Connection,
     private readonly filesService: FilesService,
     private readonly activitiesService: ActivitiesService,
-    private readonly productsService: ProductsService,
   ) {}
 
   async create(
