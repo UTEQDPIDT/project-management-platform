@@ -8,8 +8,15 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: updateProduct,
     onSuccess: () => {
+      // Invalidate all product-related queries
       queryClient.invalidateQueries({
         queryKey: ['products'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['project-products'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['product'],
       });
       toast.success('Se ha actualizado el producto');
     },

@@ -8,8 +8,15 @@ export const useCreateProduct = () => {
   return useMutation({
     mutationFn: createProduct,
     onSuccess: () => {
+      // Invalidate all product-related queries
       queryClient.invalidateQueries({
         queryKey: ['products'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['project-products'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['product'],
       });
       toast.success('El producto ha sido creado');
     },

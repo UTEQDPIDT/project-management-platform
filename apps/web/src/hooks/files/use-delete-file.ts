@@ -14,6 +14,17 @@ export const useDeleteFile = () => {
       queryClient.invalidateQueries({
         queryKey: ['files', file.entityId],
       });
+
+      // Invalidate product queries to refresh product data
+      queryClient.invalidateQueries({
+        queryKey: ['product', file.entityId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['project-products'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['products'],
+      });
     },
     onError: () => {
       toast.error('No se pudo eliminar el archivo');
