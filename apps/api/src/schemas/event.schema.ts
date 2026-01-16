@@ -48,17 +48,17 @@ export class Event extends Document {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
   participants: User[];
 
+  @ApiProperty({ description: 'Productos del evento' })
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }] })
+  products?: Product[];
+
   @ApiProperty({ description: 'Indica si el evento es privado' })
   @Prop({ default: false })
   isPrivate: boolean;
 
-  @ApiProperty({ description: 'Actividades del evento' })
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }] })
-  activities: Activity[];
-
-  @ApiProperty({ description: 'Productos del evento' })
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }] })
-  products?: Product[];
+  @ApiProperty({ description: 'Indica si el evento acepta productos' })
+  @Prop({ default: false })
+  acceptsProducts: boolean;
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);
