@@ -241,7 +241,7 @@ const columns: ColumnDef<IEvent>[] = [
         <div>
           {isLoading ? (
             <LoadingMessage />
-          ) : files ? (
+          ) : files.length ? (
             <FileButton file={files[0]} className="max-w-72" />
           ) : (
             <span className="text-sm text-muted-foreground">Vacío</span>
