@@ -12,7 +12,7 @@ export const useUploadFile = () => {
       toast.success('Archivo subido correctamente');
 
       queryClient.invalidateQueries({
-        queryKey: ['files', file.entityId, file.entityType],
+        queryKey: ['files', file.entityId],
       });
 
       // Invalidate product queries to refresh product data
