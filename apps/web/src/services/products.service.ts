@@ -1,12 +1,6 @@
 import { api } from '@/lib/axios';
 
-const createProduct = async ({
-  projectId,
-  productData,
-}: {
-  projectId: string;
-  productData: any;
-}) => {
+const createProduct = async ({ productData }: { productData: any }) => {
   try {
     const { data } = await api.post(`/products`, productData);
     return data;

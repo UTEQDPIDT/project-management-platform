@@ -1,5 +1,5 @@
-import { IProduct } from '@repo/types';
-import { Download, Ellipsis } from 'lucide-react';
+import { IFile, IProduct } from '@repo/types';
+import { Ellipsis } from 'lucide-react';
 import { ReactNode } from 'react';
 import { ProfileInfo } from './profile-info';
 import { Badge } from './ui/badge';
@@ -10,6 +10,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import FileButton from './file-button';
+import { useFilesForEntity } from '@/hooks/files/use-files-for-entity';
 
 interface ProductCardProps {
   product: IProduct;
@@ -22,6 +24,7 @@ export default function ProductCard({
   enableOptions,
   options,
 }: ProductCardProps) {
+  const { data: files = [] } = useFilesForEntity(product._id);
   return (
     <Card className="gap-2">
       <CardHeader>
@@ -64,7 +67,7 @@ export default function ProductCard({
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="text-xs text-muted-foreground">Dueño</span>
+          <span className="text-xs text-muted-foreground">Proprietario</span>
 
           <ProfileInfo
             size="sm"
@@ -74,10 +77,17 @@ export default function ProductCard({
           />
         </div>
 
-        <div className="flex">
-          <Button size="sm" variant="outline">
-            <Download /> Archivo
-          </Button>
+        <div className="flex flex-col gap-2">
+          <span className="text-xs text-muted-foreground">Archivo</span>
+          {files && files.length > 0 ? (
+            files.map((file: IFile) => (
+              <FileButton key={file._id} file={file} />
+            ))
+          ) : (
+            <span className="text-xs text-muted-foreground">
+              No hay archivo
+            </span>
+          )}
         </div>
       </CardContent>
     </Card>

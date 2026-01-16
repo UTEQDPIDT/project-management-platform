@@ -75,7 +75,7 @@ const downloadFile = async (fileId: string, fileName: string) => {
     });
 
     // Create a blob URL and trigger download
-    const url = window.URL.createObjectURL(new Blob([data]));
+    const url = window.URL.createObjectURL(data);
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', fileName); // Use the actual filename

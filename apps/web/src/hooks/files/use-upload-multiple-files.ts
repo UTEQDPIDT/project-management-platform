@@ -13,6 +13,17 @@ export const useUploadMultipleFiles = () => {
       queryClient.invalidateQueries({
         queryKey: ['files', entityId],
       });
+
+      // Invalidate product queries to refresh product data
+      queryClient.invalidateQueries({
+        queryKey: ['product', entityId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['project-products'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['products'],
+      });
     },
     onError: () => {
       toast.error('No se subieron los archivos');

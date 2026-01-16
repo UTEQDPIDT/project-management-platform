@@ -97,7 +97,7 @@ export class ProductsController {
     @UploadedFile() file: Express.Multer.File,
     @Req() req,
   ) {
-    return this.productsService.update(id, updateProductDto, file, req.user.id);
+    return this.productsService.update(id, updateProductDto, req.user.id, file);
   }
 
   @ApiAcceptedResponse({

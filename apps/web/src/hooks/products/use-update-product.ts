@@ -7,10 +7,23 @@ export function useUpdateProduct() {
 
   return useMutation({
     mutationFn: updateProduct,
-    onSuccess: () => {
+    onSuccess: ({ id }) => {
+      // Invalidate all product-related queries
       queryClient.invalidateQueries({
         queryKey: ['products'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['project-products'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['product'],
+      });
+
+      // Invalidate file queries for this product
+      queryClient.invalidateQueries({
+        queryKey: ['files', id],
+      });
+
       toast.success('Se ha actualizado el producto');
     },
     onError: () => {

@@ -90,16 +90,23 @@ export class ProductsService {
   async update(
     id: string,
     updateProductDto: UpdateProductDto,
-    file: Express.Multer.File,
     userId: string,
+    file?: Express.Multer.File,
   ) {
     try {
-      // Delete previous files
-      const previousFiles = await this.filesService.findFilesForEntity(id);
-      await this.filesService.deleteFiles(previousFiles);
+      if (file) {
+        // Delete previous files
+        const previousFiles = await this.filesService.findFilesForEntity(id);
+        await this.filesService.deleteFiles(previousFiles);
 
-      // Upload new file
-      await this.filesService.uploadFile(file, id, EntityType.PRODUCT, userId);
+        // Upload new file
+        await this.filesService.uploadFile(
+          file,
+          id,
+          EntityType.PRODUCT,
+          userId,
+        );
+      }
 
       // Update product
       const updatedProduct = await this.productModel.findByIdAndUpdate(
