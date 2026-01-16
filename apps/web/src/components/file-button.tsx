@@ -15,12 +15,14 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { useDeleteFile } from '@/hooks/files';
+import { cn } from '@/lib/utils';
 
 type FileButtonProps = {
   file: IFile;
+  className?: string;
 };
 
-export default function FileButton({ file }: FileButtonProps) {
+export default function FileButton({ file, className }: FileButtonProps) {
   const deleteFile = useDeleteFile();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +50,7 @@ export default function FileButton({ file }: FileButtonProps) {
             variant="outline"
             onClick={handleDownload}
             disabled={isLoading}
-            className="justify-start max-w-fit"
+            className={cn(className)}
           >
             {isLoading ? (
               <LoadingMessage message="descargando" />
