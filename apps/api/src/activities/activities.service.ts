@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Activity } from '../schemas/activities.schema';
 import { ClientSession, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
-import { Priority } from '@repo/types';
+import { EntityType, Priority } from '@repo/types';
 
 @Injectable()
 export class ActivitiesService {
@@ -21,26 +21,19 @@ export class ActivitiesService {
   async create(
     createActivityDto: CreateActivityDto,
     userId: string,
-    options?: {
-      session?: ClientSession;
-      projectId?: string;
-      eventId?: string;
-    },
   ): Promise<Activity> {
     try {
       const createdActivity = new this.activityModel({
         ...createActivityDto,
         createdBy: userId,
-        projectId: options?.projectId,
-        eventId: options?.eventId,
       });
 
-      await createdActivity.save({ session: options?.session });
+      await createdActivity.save();
 
       return createdActivity;
     } catch (err: any) {
       throw new BadRequestException(
-        'Error al crear la actividad: ' + err.message,
+        err.message,
       );
     }
   }
@@ -48,15 +41,17 @@ export class ActivitiesService {
   async createOnBulk(
     createActivityDto: { name: string }[],
     userId: string,
+    entityId: string,
+    entityType: EntityType,
     session?: ClientSession,
-    projectId?: string,
   ) {
     try {
       const activities = await this.activityModel.insertMany(
         createActivityDto.map((activity) => ({
           name: activity.name,
           createdBy: userId,
-          projectId,
+          entityId,
+          entityType,
           priority: Priority.LOW,
         })),
         { session },
@@ -143,8 +138,8 @@ export class ActivitiesService {
     return { id, message: 'Activity deleted successfully' };
   }
 
-  async deleteManyByProject(projectId: string, session: ClientSession) {
-    const activities = await this.activityModel.find({ projectId }).exec();
+  async deleteManyByEntity(entityId: string, session: ClientSession) {
+    const activities = await this.activityModel.find({ entityId }).exec();
 
     const filesPerActivity = await Promise.all(
       activities.map((a) =>
@@ -156,22 +151,6 @@ export class ActivitiesService {
 
     await this.filesService.deleteFiles(files);
 
-    await this.activityModel.deleteMany({ projectId }, { session });
-  }
-
-  async deleteManyByEvent(eventId: string, session: ClientSession) {
-    const activities = await this.activityModel.find({ eventId }).exec();
-
-    const filesPerActivity = await Promise.all(
-      activities.map((a) =>
-        this.filesService.findFilesForEntity(a._id.toString()),
-      ),
-    );
-
-    const files = filesPerActivity.flat();
-
-    await this.filesService.deleteFiles(files);
-
-    await this.activityModel.deleteMany({ eventId }, { session });
+    await this.activityModel.deleteMany({ entityId }, { session });
   }
 }

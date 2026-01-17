@@ -176,7 +176,7 @@ export class ProjectsService {
       await this.productService.deleteMany(projectId, session);
 
       // Delete activities
-      await this.activitiesService.deleteManyByProject(projectId, session);
+      await this.activitiesService.deleteManyByEntity(projectId, session);
 
       // Delete project
       await this.projectModel.findByIdAndDelete(projectId, session);
