@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Priority, Status } from '@repo/types';
 import {
+    IsArray,
   IsBoolean,
   IsDate,
   IsEnum,
@@ -70,4 +71,14 @@ export class CreateActivityDto {
   @IsOptional()
   @IsDate()
   dueDateEnd?: Date;
+
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    required: false,
+    isArray: true
+  })
+  @IsOptional()
+  @IsArray()
+  files?: Express.Multer.File[];
 }
