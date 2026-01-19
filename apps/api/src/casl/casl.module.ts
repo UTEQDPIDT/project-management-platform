@@ -4,6 +4,6 @@ import { AbilitiesGuard } from './abilities.guard';
 
 @Module({
     providers: [AbilityFactory, AbilitiesGuard],
-    exports: [AbilityFactory],
+    exports: [AbilityFactory, AbilitiesGuard],
 })
 export class CaslModule {}
