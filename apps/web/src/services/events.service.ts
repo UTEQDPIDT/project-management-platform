@@ -1,5 +1,4 @@
 import { api } from '@/lib/axios';
-import { activityZodSchema } from '@/schemas/activity.schema';
 import { eventSchema } from '@/schemas/event.schema';
 import { IEvent } from '@repo/types';
 import { toast } from 'sonner';
@@ -63,50 +62,6 @@ const deleteEvent = async (eventId: string) => {
   } catch (err) {
     console.error(`Error deleting event with ID ${eventId}`, err);
     toast.error('No se ha eliminado el evento');
-  }
-};
-
-/**
- * ACTIVITIES
- */
-const createEventActivity = async ({
-  eventId,
-  activityData,
-}: {
-  eventId: string;
-  activityData: z.infer<typeof activityZodSchema>;
-}) => {
-  try {
-    const { status } = await api.post(
-      `/events/${eventId}/activities`,
-      activityData,
-    );
-    if (status === 200) {
-      toast.success('La actividad ha sido creada');
-    }
-  } catch (err) {
-    console.error('Error creating event activity', err);
-    toast.error('No se ha creado la actividad');
-  }
-};
-
-const deleteEventActivity = async ({
-  eventId,
-  activityId,
-}: {
-  eventId: string;
-  activityId: string;
-}) => {
-  try {
-    const { status } = await api.delete(
-      `/events/${eventId}/activities/${activityId}`,
-    );
-    if (status === 200) {
-      toast.success('Se ha eliminado la actividad');
-    }
-  } catch (err) {
-    console.error('Error deleting event activity', err);
-    toast.error('No se ha eliminado la actividad');
   }
 };
 
@@ -214,8 +169,6 @@ export {
   getEventById,
   updateEvent,
   deleteEvent,
-  createEventActivity,
-  deleteEventActivity,
   addParticipants,
   removeParticipant,
   registerParticipant,
