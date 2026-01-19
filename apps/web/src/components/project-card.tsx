@@ -1,14 +1,7 @@
 import { IProject, UserRole } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import {
-  Calendar,
-  Folder,
-  MoveRight,
-  Paperclip,
-  Shapes,
-  SquareCheckBig,
-} from 'lucide-react';
+import { Calendar, Folder, MoveRight, Paperclip, Shapes } from 'lucide-react';
 import Link from 'next/link';
 import AvatarRow from './avatar-row';
 import IconSquare from './icon-square';
@@ -20,8 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
-import { calculateProgress } from '@/lib/utils';
-import { Progress } from './ui/progress';
 import { useProjectCardData } from '@/hooks/projects';
 import { userProfile } from 'context/profile-provider';
 
@@ -58,17 +49,6 @@ function ProjectCardDefault({
       </CardHeader>
 
       <CardContent className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2.5 text-xs text-muted-foreground">
-          <div className="flex justify-between">
-            <span>Progreso</span>
-            <div className="flex">
-              <span>{calculateProgress(data.activities)}</span>
-              <span>%</span>
-            </div>
-          </div>
-          <Progress value={calculateProgress(data.activities)} />
-        </div>
-
         {data.startDate && (
           <div className="flex gap-1">
             <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
@@ -87,11 +67,7 @@ function ProjectCardDefault({
 
       <CardFooter className="border-t flex gap-3 justify-start items-center">
         <AvatarRow profiles={data.profiles} />
-        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-          <SquareCheckBig size={14} />
-          {data.activities.length}
-        </span>
-        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+        {/* <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
           <Shapes size={14} />
           {data.products?.length}
         </span>
@@ -102,7 +78,7 @@ function ProjectCardDefault({
         <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
           <Folder size={14} />
           {data.relatedProjects?.length}
-        </span>
+        </span> */}
       </CardFooter>
     </Card>
   );
@@ -129,18 +105,6 @@ function ProjectCardCompact({
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-col gap-2.5 text-xs text-muted-foreground">
-          <div className="flex justify-between">
-            <span>Progreso</span>
-            <div className="flex">
-              <span>{calculateProgress(data.activities)}</span>
-              <span>%</span>
-            </div>
-          </div>
-          <Progress value={calculateProgress(data.activities)} />
-        </div>
-      </CardContent>
     </Card>
   );
 }

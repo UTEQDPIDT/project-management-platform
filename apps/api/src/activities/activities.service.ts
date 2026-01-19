@@ -32,9 +32,7 @@ export class ActivitiesService {
 
       return createdActivity;
     } catch (err: any) {
-      throw new BadRequestException(
-        err.message,
-      );
+      throw new BadRequestException(err.message);
     }
   }
 
@@ -67,8 +65,17 @@ export class ActivitiesService {
     return this.activityModel.find().exec();
   }
 
+  async findByEntityId(entityId: string): Promise<Activity[]> {
+    const activities = await this.activityModel
+      .find({ entityId })
+      .populate('createdBy')
+      .populate('assignees')
+      .exec();
+    return activities;
+  }
+
   async findOne(id: string): Promise<Activity> {
-    const activity = this.activityModel.findById(id);
+    const activity = await this.activityModel.findById(id).exec();
     if (!activity) {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
     }

@@ -53,8 +53,6 @@ export class ProjectsService {
         );
       }
 
-      await this.projectModel.updateOne({ _id: projectId }, { session });
-
       await session.commitTransaction();
 
       return project;

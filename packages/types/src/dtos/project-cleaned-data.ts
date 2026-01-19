@@ -3,7 +3,6 @@ export type ProjectCleanedData = {
   team: string | undefined;
   activities: any;
   name: string;
-  summary: string;
   objective: string;
   trlRating: number;
   knowledgeAreas: string[];

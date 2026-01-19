@@ -13,7 +13,7 @@ import { Separator } from './ui/separator';
 import { ActivityForm } from './forms/activity-form';
 import { Button } from './ui/button';
 import { IActivity } from '@repo/types';
-import { useDeleteEventActivity } from '@/hooks/events';
+import { useDeleteActivity } from '@/hooks/activities';
 
 interface ProjectActivityMenu {
   eventId: string;
@@ -24,13 +24,10 @@ export default function EventActivityMenu({
   eventId,
   activity,
 }: ProjectActivityMenu) {
-  const deleteActivity = useDeleteEventActivity();
+  const deleteActivityMutation = useDeleteActivity();
 
   const handleDelete = () => {
-    deleteActivity.mutate({
-      eventId,
-      activityId: activity._id,
-    });
+    deleteActivityMutation.mutate(activity._id);
   };
 
   return (
@@ -47,7 +44,7 @@ export default function EventActivityMenu({
           </div>
           <Separator />
 
-          <ActivityForm activity={activity} eventId={activity.eventId} />
+          <ActivityForm activity={activity} eventId={activity.entityId} />
         </DialogContent>
       </Dialog>
 
@@ -73,7 +70,7 @@ export default function EventActivityMenu({
               <Button
                 onClick={handleDelete}
                 variant="destructive"
-                disabled={deleteActivity.isPending}
+                disabled={deleteActivityMutation.isPending}
               >
                 Eliminar
               </Button>

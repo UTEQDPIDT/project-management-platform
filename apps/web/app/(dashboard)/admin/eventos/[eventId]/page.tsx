@@ -35,6 +35,7 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
+import { useActivitiesByEntity } from '@/hooks/activities';
 import { useGetEventById } from '@/hooks/events';
 import { IActivity, IProduct, UserRole } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
@@ -54,6 +55,11 @@ const Page = () => {
     isLoading: loadingEvent,
     isError,
   } = useGetEventById(eventId);
+  const {
+    data: activities,
+    isLoading: loadingActivities,
+    isError: errorFetchingActivities,
+  } = useActivitiesByEntity(eventId);
 
   return (
     <div>
@@ -114,9 +120,13 @@ const Page = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-col gap-4">
-                      {event.activities?.length ? (
+                      {loadingActivities ? (
+                        <LoadingMessage />
+                      ) : errorFetchingActivities ? (
+                        <ErrorCard />
+                      ) : activities?.length ? (
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                          {event.activities.map((a: IActivity) => (
+                          {activities.map((a: IActivity) => (
                             <ActivityCard
                               key={a._id}
                               activity={a}

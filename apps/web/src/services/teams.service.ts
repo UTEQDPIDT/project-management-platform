@@ -38,15 +38,13 @@ const getByUser = async () => {
 };
 
 const createTeam = async (
-  teamData: Pick<
-    ITeam,
-    'teamName' | 'summary' | 'grade' | 'members' | 'collaborators' | 'isPrivate'
-  >,
+  teamData: Pick<ITeam, 'teamName' | 'summary' | 'grade' | 'isPrivate' | 'division'>
 ) => {
   try {
-    const { status } = await api.post('/teams', teamData);
+    const { status, data } = await api.post('/teams', teamData);
     if (status === 200 || status === 201 || status === 202) {
       toast.success('El equipo ha sido creado');
+      return data.id; // Return team ID for further member/collaborator addition
     }
   } catch (err) {
     console.error('Error creating team', err);
@@ -56,10 +54,7 @@ const createTeam = async (
 
 const updateTeam = async (
   teamId: string,
-  teamData: Pick<
-    ITeam,
-    'teamName' | 'summary' | 'grade' | 'members' | 'collaborators' | 'isPrivate'
-  >,
+  teamData: Pick<ITeam, 'teamName' | 'summary' | 'grade' | 'isPrivate'>,
 ) => {
   try {
     const { status } = await api.patch(`/teams/${teamId}`, teamData);
@@ -88,16 +83,15 @@ const deleteTeam = async (teamId: string) => {
 const addMembers = async (teamId: string, collaborators: string[]) => {
   try {
     const { status } = await api.post(
-      `/teams/${teamId}/collaborators`,
-      collaborators,
+      `/teams/${teamId}/members`,
+      { userIds: collaborators },
     );
-
     if (status === 200 || status === 201 || status === 202) {
-      toast.success('El miembro ha sido agregado');
+      toast.success('Miembros agregados');
     }
   } catch (err) {
-    console.error('Error adding collaborators', err);
-    toast.error('El miembro no ha sido agregado');
+    console.error('Error adding members', err);
+    toast.error('No se agregaron los miembros');
   }
 };
 
@@ -117,14 +111,14 @@ const addCollaborators = async (teamId: string, collaborators: string[]) => {
   try {
     const { status } = await api.post(
       `/teams/${teamId}/collaborators`,
-      collaborators,
+      { userIds: collaborators },
     );
     if (status === 200 || status === 201 || status === 202) {
-      toast.success('El colaborador ha sido agregado');
+      toast.success('Colaboradores agregados');
     }
   } catch (err) {
     console.error('Error adding collaborators', err);
-    toast.error('Se agrego al colaborador');
+    toast.error('No se agregaron los colaboradores');
   }
 };
 

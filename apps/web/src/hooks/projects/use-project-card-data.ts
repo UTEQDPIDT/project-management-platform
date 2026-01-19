@@ -8,12 +8,8 @@ export function useProjectCardData(project: IProject) {
     owner,
     _id,
     trlRating,
-    summary,
     startDate,
     endDate,
-    files,
-    activities,
-    products,
     relatedProjects,
   } = project;
 
@@ -36,20 +32,13 @@ export function useProjectCardData(project: IProject) {
     avatarUrl: owner.avatarUrl,
   });
 
-  const progress = calculateProgress(activities);
-
   return {
     id: _id,
     name,
     trlRating,
-    summary,
     startDate,
     endDate,
-    files,
-    activities,
-    products,
     relatedProjects,
     profiles,
-    progress,
   };
 }

@@ -1,11 +1,8 @@
 'use client';
 
-import { IActivity, IUser, Priority, Status } from '@repo/types';
-import {
-  useCreateActivity,
-  useProject,
-  useUpdateProjectActivity,
-} from '@/hooks/projects';
+import { IActivity, IUser, Priority, Status, EntityType } from '@repo/types';
+import { useCreateActivity, useUpdateActivity } from '@/hooks/activities';
+import { useProject } from '@/hooks/projects';
 import React, { useMemo } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -39,7 +36,6 @@ import { DialogClose } from '../ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { Command, CommandGroup, CommandItem } from '../ui/command';
-import { useCreateEventActivity, useRemoveAssignee } from '@/hooks/events';
 import LoadingMessage from '../loading-message';
 
 interface Props {
@@ -52,12 +48,8 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
   /**
    * Tanstack hooks
    */
-  // Project hooks
-  const createActivity = useCreateActivity();
-  const updateProjectActivity = useUpdateProjectActivity();
-  // Event hooks
-  const createEventActivity = useCreateEventActivity();
-  const updateEventActivity = useRemoveAssignee();
+  const createActivityMutation = useCreateActivity();
+  const updateActivityMutation = useUpdateActivity();
 
   const context = useMemo(() => {
     if (projectId) return 'project';
@@ -67,6 +59,10 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
   if (!context) {
     throw new Error('ActivityForm requires either a projectId or eventId');
   }
+
+  const entityId = projectId || eventId || '';
+  const entityType: EntityType =
+    context === 'project' ? EntityType.PROJECT : EntityType.EVENT;
 
   // Load project members (owner + team members).
   // `useProject` is safe to call with an empty id because it uses
@@ -92,10 +88,7 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
   }, [project]);
 
   const isSubmiting =
-    createActivity.isPending ||
-    updateProjectActivity.isPending ||
-    createEventActivity.isPending ||
-    updateEventActivity.isPending;
+    createActivityMutation.isPending || updateActivityMutation.isPending;
 
   const form = useForm({
     resolver: zodResolver(activityZodSchema),
@@ -125,36 +118,21 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
       const cleanedData = {
         ...data,
         description: data.description ? data.description?.trim() : undefined,
+        entityId,
+        entityType,
       };
 
       if (activity) {
         // UPDATE
-        if (context === 'project') {
-          updateProjectActivity.mutate({
-            activityId: activity._id,
-            activityData: cleanedData,
-          });
-        } else {
-          updateEventActivity.mutate({
-            activityId: activity._id,
-            activityData: cleanedData,
-          });
-        }
+        updateActivityMutation.mutate({
+          activityId: activity._id,
+          activityData: cleanedData,
+        });
       } else {
         // CREATE
-        if (context === 'project' && projectId) {
-          createActivity.mutate({
-            projectId,
-            activityData: cleanedData,
-          });
-        } else {
-          if (eventId) {
-            createEventActivity.mutate({
-              eventId,
-              activityData: cleanedData,
-            });
-          }
-        }
+        createActivityMutation.mutate({
+          activityData: cleanedData,
+        });
       }
     } catch (err) {
       console.error('Error on submit', err);

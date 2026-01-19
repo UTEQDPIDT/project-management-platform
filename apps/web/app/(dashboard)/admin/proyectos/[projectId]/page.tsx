@@ -18,6 +18,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { useActivitiesByEntity } from '@/hooks/activities';
 import { useFilesForEntity } from '@/hooks/files';
 import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
 import { useProductsByProject } from '@/hooks/products';
@@ -40,6 +41,11 @@ const Page = () => {
     isLoading: loadingProducts,
     isError: errorFetchingProducts,
   } = useProductsByProject(projectId);
+  const {
+    data: activities,
+    isLoading: loadingActivities,
+    isError: errorFetchingActivities,
+  } = useActivitiesByEntity(projectId);
 
   // Saved Project Files
   const {
@@ -92,15 +98,16 @@ const Page = () => {
           </Header>
 
           <PageContent className="items-center">
-            <ProjectInfoTable
-              project={project}
-              progress={calculateProgress(project.activities)}
-            />
-            <div className="w-full px-4 gap-6 flex flex-col">
-              <ActivitiesBoard
-                activities={project.activities}
-                projectId={projectId}
+            {loadingActivities ? (
+              <LoadingMessage />
+            ) : (
+              <ProjectInfoTable
+                project={project}
+                progress={calculateProgress(activities)}
               />
+            )}
+            <div className="w-full px-4 gap-6 flex flex-col">
+              <ActivitiesBoard activities={activities} projectId={projectId} />
               <ProductsBoard
                 products={products}
                 projectId={projectId}
