@@ -18,14 +18,54 @@ export type AppAbility = Ability<[Action, Subjects]>;
 @Injectable()
 export class AbilityFactory {
     defineAbility(user: User) {
-        const { can, cannot, build} = new AbilityBuilder(Ability as AbilityClass<AppAbility>);
+        const { can, build} = new AbilityBuilder(Ability as AbilityClass<AppAbility>);
 
-            if (user.role === 'ADMIN') {
-                can(Action.Manage, 'all'); // admins can do anything
-            } else {
-                can(Action.Read, User); // all users can read users
-                cannot(Action.Delete, User).because('Only admins can delete users'); // non-admins cannot delete users
+        //ADMINS        
+        if (user.role === 'ADMIN') {
+            can(Action.Manage, 'all'); // admins can do anything
         }
+
+        //USERS
+        if (user.role === 'USER') { // regular users
+            can([Action.Create, Action.Read, Action.Update, Action.Delete], [Activity, File, Product]); // users can create, read, update, and delete activities, files, and products
+
+            can([Action.Create, Action.Read, Action.Update], [Project]); // users can create, read, and update projects
+
+            can(Action.Read, [Event, User]); // users can read events and user info
+
+            can(Action.Update, User, { _id: user._id }); // users can update their own user info
+        }
+
+        //TEAM PERMISSIONS
+        can(Action.Manage, Team, {
+            memberships: {
+                $elemMatch: {
+                user: user._id,
+                role: 'OWNER',
+                status: 'ACTIVE',
+                },
+            },
+        });
+
+        can([Action.Read, Action.Update], Team, {
+            memberships: {
+                $elemMatch: {
+                user: user._id,
+                role: 'MEMBER',
+                status: 'ACTIVE',
+                },
+            },
+        });
+
+        can(Action.Read, Team, {
+            memberships: {
+                $elemMatch: {
+                user: user._id,
+                role: 'COLLABORATOR',
+                status: 'ACTIVE',
+                },
+            },
+        });
 
         return build({
             detectSubjectType: (item) => item.constructor as ExtractSubjectType<Subjects>,
