@@ -28,6 +28,7 @@ export class TeamsController {
   @ApiCreatedResponse({description: 'Colaborador agregado correctamente al equipo.'})
   @ApiNotFoundResponse({description: 'No se encontró el usuario para agregar como colaborador.'})
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(TeamResourceInterceptor)
   @CheckAbilities({ action: Action.Manage, subject: Team })
   @Post(':id/collaborators')
   addCollaborator(@Param('id') id: string, @Body('userIds') userIds: string[]) {
@@ -38,6 +39,7 @@ export class TeamsController {
   @ApiCreatedResponse({description: 'Miembro agregado correctamente al equipo.'})
   @ApiNotFoundResponse({description: 'No se encontró el usuario para agregar como miembro.'})
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(TeamResourceInterceptor)
   @CheckAbilities({ action: Action.Manage, subject: Team })
   @Post(':id/members')
   addMember(@Param('id') id: string, @Body('userIds') userIds: string[]) {
@@ -58,6 +60,7 @@ export class TeamsController {
   @ApiCreatedResponse({ description: 'Solicitud aceptada correctamente.'})
   @ApiNotFoundResponse({description: 'No se encontró la solicitud.'})
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(TeamResourceInterceptor)
   @CheckAbilities({ action: Action.Manage, subject: Team })
   @Post(':id/requests/accept')
   acceptRequest(@Param('id') id: string, @Body('userId') userId: string) {
@@ -68,6 +71,7 @@ export class TeamsController {
   @ApiCreatedResponse({ description: 'Solicitud rechazada correctamente.' })
   @ApiNotFoundResponse({description: 'No se encontró la solicitud.'})
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(TeamResourceInterceptor)
   @CheckAbilities({ action: Action.Manage, subject: Team })
   @Delete(':id/requests/:userId')
   rejectRequest(@Param('id') id: string, @Param('userId') userId: string) {
@@ -77,6 +81,7 @@ export class TeamsController {
   //OWNER, MEMBERS & COLLABORATORS ONLY
   @ApiOkResponse({ description: 'Lista de equipos obtenida correctamente.' })
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(TeamResourceInterceptor)
   @CheckAbilities({ action: Action.Read, subject: Team })
   @Get()
   findAll(@Req() req, @Query('isPrivate', new ParseBoolPipe({ optional: true })) isPrivate?: boolean) {
@@ -87,6 +92,7 @@ export class TeamsController {
   @ApiOkResponse({ description: 'Lista de equipos obtenida correctamente.' })
   @ApiUnauthorizedResponse({ description: 'Cookie expirada' })
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(TeamResourceInterceptor)
   @CheckAbilities({ action: Action.Read, subject: Team })
   @Get('by-user')
   findByUser(@Req() req) {
@@ -96,6 +102,9 @@ export class TeamsController {
   //OWNER, MEMBERS & COLLABORATORS ONLY
   @ApiOkResponse({ description: 'Equipo obtenido correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontró el equipo.' })
+  @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(TeamResourceInterceptor)
+  @CheckAbilities({ action: Action.Read, subject: Team })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.teamsService.findOne(id);
@@ -105,6 +114,7 @@ export class TeamsController {
   @ApiOkResponse({ description: 'Datos del equipo actualizado correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontró el equipo.' })
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(TeamResourceInterceptor)
   @CheckAbilities({ action: Action.Update, subject: Team })
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateTeamDto: UpdateTeamDto) {
@@ -115,6 +125,7 @@ export class TeamsController {
   @ApiOkResponse({description: 'Colaborador eliminado correctamente del equipo.'})
   @ApiNotFoundResponse({description: 'No se encontró el colaborador en el equipo.'})
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(TeamResourceInterceptor)
   @CheckAbilities({ action: Action.Manage, subject: Team })
   @Delete(':id/collaborators/:userId')
   removeCollaborator(@Param('id') id: string, @Param('userId') userId: string) {
@@ -125,6 +136,7 @@ export class TeamsController {
   @ApiOkResponse({ description: 'Miembro eliminado correctamente del equipo.' })
   @ApiNotFoundResponse({description: 'No se encontró el miembro en el equipo.'})
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(TeamResourceInterceptor)
   @CheckAbilities({ action: Action.Manage, subject: Team })
   @Delete(':id/members/:userId')
   removeMember(@Param('id') id: string, @Param('userId') userId: string) {
@@ -135,6 +147,7 @@ export class TeamsController {
   @ApiOkResponse({ description: 'Equipo eliminado correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontró el equipo.' })
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(TeamResourceInterceptor)
   @CheckAbilities({ action: Action.Manage, subject: Team })
   @Delete(':id')
   deleteTeam(@Param('id') id: string) {
