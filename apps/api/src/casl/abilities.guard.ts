@@ -14,11 +14,13 @@ export class AbilitiesGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         
         const requiredRules = this.reflector.get<RequiredRule[]>(CHECK_ABILITY_KEY, context.getHandler()) || [];
-        const { user } = context.switchToHttp().getRequest();
+        const request = context.switchToHttp().getRequest();
+        const user = request.user;
+        const resource = request.resource;
         const ability = this.abilityFactory.defineAbility(user);
 
         try {
-            requiredRules.forEach(rule => ForbiddenError.from(ability).throwUnlessCan(rule.action, rule.subject));
+            requiredRules.forEach(({ action, subject }) => ForbiddenError.from(ability).throwUnlessCan(action, resource ?? subject));
             return true;
         } catch (error) {
             if (error instanceof ForbiddenError) {
