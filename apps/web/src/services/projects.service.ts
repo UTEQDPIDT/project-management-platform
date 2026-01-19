@@ -70,54 +70,8 @@ const deleteProject = async (id: string) => {
       toast.success('El proyecto ha sido eliminado');
     }
   } catch (err) {
-    console.error('Error deleting project by ID', err);
     toast.error('El proyecto no ha sido eliminado');
-  }
-};
-
-/**
- * Activities
- */
-const createActivity = async ({
-  projectId,
-  activityData,
-}: {
-  projectId: string;
-  activityData: any;
-}) => {
-  try {
-    const { status } = await api.post(
-      `/projects/${projectId}/activities`,
-      activityData,
-    );
-
-    if (status === 200 || status === 201 || status === 202) {
-      toast.success('La actividad ha sido creada');
-    }
-  } catch (err) {
-    console.error('Error creating activity', err);
-    toast.error('No se ha creado la actividad');
-  }
-};
-
-const deleteActivity = async ({
-  projectId,
-  activityId,
-}: {
-  projectId: string;
-  activityId: string;
-}) => {
-  try {
-    const { status } = await api.delete(
-      `/projects/${projectId}/activities/${activityId}`,
-    );
-
-    if (status === 200 || status === 201 || status === 202) {
-      toast.success('La actividad ha sido eliminada');
-    }
-  } catch (err) {
-    console.error('Error deleting activity', err);
-    toast.error('No se ha eliminado la actividad');
+    throw err;
   }
 };
 
@@ -129,6 +83,4 @@ export {
   getProjectByTeam,
   updateProject,
   deleteProject,
-  createActivity,
-  deleteActivity,
 };
