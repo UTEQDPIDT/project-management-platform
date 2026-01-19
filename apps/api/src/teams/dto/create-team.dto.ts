@@ -10,6 +10,24 @@ import { TeamsGrade } from '@repo/types';
 import { ObjectId } from 'mongoose';
 
 export class CreateTeamDto {
+  @ApiPropertyOptional({
+    description: 'IDs de los usuarios que serán miembros del equipo.',
+    type: [String],
+    example: ['65a1b2c3d4e5f6a7b8c9d0e1'],
+  })
+  @IsOptional()
+  @IsMongoId({ each: true })
+  members?: string[];
+
+  @ApiPropertyOptional({
+    description: 'IDs de los usuarios que serán colaboradores del equipo.',
+    type: [String],
+    example: ['65a1b2c3d4e5f6a7b8c9d0e2'],
+  })
+  @IsOptional()
+  @IsMongoId({ each: true })
+  collaborators?: string[];
+
   @ApiProperty({
     description: 'El nombre del equipo.',
     example: 'Equipo DTAI',
