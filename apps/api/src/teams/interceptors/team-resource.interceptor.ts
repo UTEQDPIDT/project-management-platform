@@ -1,4 +1,4 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor, NotFoundException } from "@nestjs/common";
 import { Model } from "mongoose";
 import { Team } from "../../schemas";
 import { InjectModel } from "@nestjs/mongoose";
@@ -9,9 +9,17 @@ export class TeamResourceInterceptor implements NestInterceptor {
 
     async intercept(context: ExecutionContext, next: CallHandler) {
         const req = context.switchToHttp().getRequest();
-        if (req.params?.id) {
-            req.resource = await this.teamModel.findById(req.params.id);
+        const teamId = req.params?.id;
+        if (!teamId) {
+            return next.handle();
         }
-    return next.handle();
+
+        const team = await this.teamModel.findById(teamId).exec();
+        if(!team){
+            throw new NotFoundException('Team not found');
+        }
+        
+        req.resource = team;
+        return next.handle();
     } 
 }

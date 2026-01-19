@@ -30,7 +30,11 @@ export class AbilityFactory {
         if (user.role === 'USER') { // regular users
             can([Action.Create, Action.Read, Action.Update, Action.Delete], [Activity, File, Product]); // users can create, read, update, and delete activities, files, and products
 
-            can([Action.Create, Action.Read, Action.Update], Project); // users can create, read, and update projects
+            can([Action.Create, Action.Read], Project); // users can create and read projects
+
+            //Only project owners can update and delete their projects
+            can(Action.Update, Project, {owner: user._id});
+            can(Action.Delete, Project, {owner: user._id});
 
             can(Action.Read, [Event, User]); // users can read events and user info
 
