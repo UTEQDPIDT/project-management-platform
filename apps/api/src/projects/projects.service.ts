@@ -11,6 +11,7 @@ import { Connection, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
 import { ProductsService } from '../products/products.service';
 import { ActivitiesService } from '../activities/activities.service';
+import { EntityType } from '@repo/types';
 
 @Injectable()
 export class ProjectsService {
@@ -42,13 +43,13 @@ export class ProjectsService {
 
       const projectId = project._id;
 
-      let createdActivities = [];
       if (activities && activities.length) {
-        createdActivities = await this.activitiesService.createOnBulk(
+        await this.activitiesService.createOnBulk(
           activities,
           userId,
-          session,
           projectId.toString(),
+          EntityType.PROJECT,
+          session,
         );
       }
 

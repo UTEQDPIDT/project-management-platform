@@ -107,7 +107,7 @@ export class EventsService {
     session.startTransaction();
 
     try {
-      await this.activitiesService.deleteManyByEvent(eventId, session);
+      await this.activitiesService.deleteManyByEntity(eventId, session);
 
       await this.eventModel.findByIdAndDelete(eventId, { session });
 
