@@ -2,7 +2,7 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Priority, Status } from '@repo/types';
+import { EntityType, Priority, Status } from '@repo/types';
 
 @Schema({ timestamps: true })
 export class Activity extends Document {
@@ -24,7 +24,7 @@ export class Activity extends Document {
     enum: Object.values(Status),
     default: Status.PENDING,
   })
-  status?: Status;
+  status: Status;
 
   @ApiProperty({
     description: 'Sirve para filtrar las actividades completadas',
@@ -42,7 +42,7 @@ export class Activity extends Document {
 
   @ApiProperty({ description: 'Usuario que actualizo la actividad' })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  updatedBy?: User;
+  updatedBy: User;
 
   @ApiProperty({
     description:
@@ -55,13 +55,22 @@ export class Activity extends Document {
   @Prop()
   dueDateEnd?: Date;
 
-  @ApiPropertyOptional({ description: 'El ID del proyecto al que pertenece' })
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId })
-  projectId?: mongoose.Schema.Types.ObjectId;
+  @ApiPropertyOptional({
+    description: 'El ID de la entidad a la que pertenece la actividad.',
+  })
+  @Prop({ type: mongoose.Schema.Types.ObjectId })
+  entityId: mongoose.Schema.Types.ObjectId;
 
-  @ApiPropertyOptional({ description: 'El ID del evento al que pertenece' })
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId })
-  eventId?: mongoose.Schema.Types.ObjectId;
+  @ApiProperty({
+    description:
+      'Tipo de la entidad a la que pertenece la actividad: proyecto, evento, etc.',
+  })
+  @Prop({
+    type: String,
+    enum: Object.values(EntityType),
+    default: EntityType.PROJECT,
+  })
+  entityType: EntityType;
 }
 
 export const ActivitySchema = SchemaFactory.createForClass(Activity);

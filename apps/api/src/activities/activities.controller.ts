@@ -47,6 +47,16 @@ export class ActivitiesController {
   }
 
   @ApiAcceptedResponse({
+    description: 'Actividades por entidad obtenidas correctamente.',
+    type: [CreateActivityDto],
+  })
+  @ApiNotFoundResponse({ description: 'No se encontraron actividades.' })
+  @Get('entity/:entityId')
+  findByEntityId(@Param('entityId') entityId: string) {
+    return this.activitiesService.findByEntityId(entityId);
+  }
+
+  @ApiAcceptedResponse({
     description: 'Actividad obtenida correctamente.',
     type: CreateActivityDto,
   })

@@ -7,7 +7,6 @@ import { IUser } from './user.type';
 export interface IProject {
   _id: string;
   name: string;
-  summary: string;
   objective: string;
   trlRating?: number;
   knowledgeAreas?: SeedCategory[];
@@ -20,7 +19,6 @@ export interface IProject {
   owner: IUser;
   team?: ITeam;
   relatedProjects?: IProject[];
-  activities: IActivity[];
   updatedBy?: IUser;
   startDate: Date;
   endDate: Date;

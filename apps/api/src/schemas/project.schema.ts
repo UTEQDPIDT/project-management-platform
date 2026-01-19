@@ -20,12 +20,6 @@ export class Project extends Document {
   name: string;
 
   @ApiProperty({
-    description: 'Resumen del proyecto.',
-  })
-  @Prop({ required: true, maxLength: 500 })
-  summary: string;
-
-  @ApiProperty({
     description: 'Objetivo principal del proyecto.',
   })
   @Prop({ required: true, maxLength: 500 })
@@ -117,12 +111,6 @@ export class Project extends Document {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }] })
   relatedProjects?: Project[];
 
-  @ApiPropertyOptional({
-    description: 'Actividades relacionadas al proyecto.',
-  })
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }] })
-  activities?: Activity[];
-
   @ApiProperty({
     description: 'Quien actualiza el proyecto por ultima ocasion.',
   })
@@ -133,13 +121,13 @@ export class Project extends Document {
     description: 'Fecha de inicio del proyecto, esta será el inicio del plazo.',
   })
   @Prop()
-  startDate?: Date;
+  startDate: Date;
 
   @ApiPropertyOptional({
     description: 'Fecha final de vencimiento del proyecto',
   })
   @Prop()
-  endDate?: Date;
+  endDate: Date;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

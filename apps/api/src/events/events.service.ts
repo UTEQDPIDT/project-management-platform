@@ -9,9 +9,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { Event } from '../schemas/event.schema';
 import { FilesService } from '../files/files.service';
-import { ProductsService } from '../products/products.service';
 import { ActivitiesService } from '../activities/activities.service';
-import { CreateActivityDto } from '../activities/dto/create-activity.dto';
 import { Product } from '../schemas/product.schema';
 
 @Injectable()
@@ -21,7 +19,6 @@ export class EventsService {
     @InjectConnection() private readonly connection: Connection,
     private readonly filesService: FilesService,
     private readonly activitiesService: ActivitiesService,
-    private readonly productsService: ProductsService,
   ) {}
 
   async create(
@@ -50,7 +47,6 @@ export class EventsService {
       .populate('participants')
       .populate('createdBy')
       .populate('updatedBy')
-      .populate('activities')
       .populate({
         path: 'products',
         populate: [
@@ -68,7 +64,6 @@ export class EventsService {
       .populate('participants')
       .populate('createdBy')
       .populate('updatedBy')
-      .populate({ path: 'activities', populate: [{ path: 'assignees' }] })
       .populate('products')
       .populate({
         path: 'products',
@@ -112,7 +107,7 @@ export class EventsService {
     session.startTransaction();
 
     try {
-      await this.activitiesService.deleteManyByEvent(eventId, session);
+      await this.activitiesService.deleteManyByEntity(eventId, session);
 
       await this.eventModel.findByIdAndDelete(eventId, { session });
 
@@ -123,61 +118,6 @@ export class EventsService {
       await session.commitTransaction();
 
       return { id: eventId, message: 'Event deleted successfully' };
-    } catch (err: any) {
-      await session.abortTransaction();
-      throw new BadRequestException(err.message);
-    } finally {
-      session.endSession();
-    }
-  }
-
-  /**
-   * ACTIVITIES
-   */
-  async createActivity(
-    eventId: string,
-    dto: CreateActivityDto,
-    userId: string,
-  ) {
-    const session = await this.connection.startSession();
-    session.startTransaction();
-
-    try {
-      const activity = await this.activitiesService.create(dto, userId, {
-        session,
-        eventId,
-      });
-
-      await this.eventModel.updateOne(
-        { _id: eventId },
-        { $push: { activities: activity._id }, $set: { updatedBy: userId } },
-        { session },
-      );
-
-      await session.commitTransaction();
-      return activity;
-    } catch (err: any) {
-      await session.abortTransaction();
-      throw new BadRequestException(err.message);
-    } finally {
-      session.endSession();
-    }
-  }
-
-  async deleteActivity(eventId: string, activityId: string, userId: string) {
-    const session = await this.connection.startSession();
-    session.startTransaction();
-
-    try {
-      await this.activitiesService.remove(activityId);
-      await this.eventModel.updateOne(
-        { _id: eventId },
-        { $pull: { activities: activityId }, $set: { updatedBy: userId } },
-        { session },
-      );
-
-      await session.commitTransaction();
-      return { message: 'Actividad eliminada del proyecto correctamente.' };
     } catch (err: any) {
       await session.abortTransaction();
       throw new BadRequestException(err.message);

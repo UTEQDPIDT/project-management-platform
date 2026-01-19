@@ -5,14 +5,11 @@ import React from 'react';
 import LoadingMessage from './loading-message';
 import { DataTable } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
-import { IProject, SeedCategory } from '@repo/types';
+import { IProject } from '@repo/types';
 import { ProfileInfo } from './profile-info';
+import { calculateProgress, copyValue } from '@/lib/utils';
 import { Progress } from './ui/progress';
-import {
-  calculateProgress,
-  concatWithCommaAndDot,
-  copyValue,
-} from '@/lib/utils';
+import { useActivitiesByEntity } from '@/hooks/activities';
 import CopyButton from './ui/copy';
 import { Button } from './ui/button';
 import {
@@ -70,8 +67,10 @@ const columns: ColumnDef<IProject>[] = [
     id: 'progress',
     header: 'Progreso',
     cell: ({ row }) => {
-      const { activities } = row.original;
-      const progress = calculateProgress(activities);
+      const project = row.original;
+      const { data: activities, isLoading: loadingActivities } =
+        useActivitiesByEntity(project._id);
+      const progress = calculateProgress(activities ?? []);
 
       return (
         <div>
@@ -84,16 +83,6 @@ const columns: ColumnDef<IProject>[] = [
           </div>
         </div>
       );
-    },
-  },
-  {
-    accessorKey: 'activities',
-    header: 'Actividades',
-    cell: ({ row }) => {
-      const project = row.original;
-      const { activities } = project;
-
-      return <div>{activities?.length}</div>;
     },
   },
   {

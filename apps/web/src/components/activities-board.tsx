@@ -4,6 +4,7 @@ import { IActivity } from '@repo/types';
 import { ListTodo } from 'lucide-react';
 import { ActivityCard } from './activity-card';
 import IconSquare from './icon-square';
+import LoadingMessage from './loading-message';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './ui/dialog';
 import {
@@ -16,24 +17,28 @@ import {
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { ActivityForm } from './forms/activity-form';
-import { useDeleteActivity } from '@/hooks/projects';
 import ProjectActivityMenu from './project-activity-menu';
 
 interface Props {
   activities: IActivity[];
   projectId?: string;
+  isLoading?: boolean;
 }
 
-export function ActivitiesBoard({ activities, projectId }: Props) {
-  const pendingActivities = activities.filter(
+export function ActivitiesBoard({
+  activities = [],
+  projectId,
+  isLoading = false,
+}: Props) {
+  const pendingActivities = (activities ?? []).filter(
     (a: IActivity) => a.status === 'Pendiente',
   );
 
-  const inProgressActivities = activities.filter(
+  const inProgressActivities = (activities ?? []).filter(
     (a: IActivity) => a.status === 'En Progreso',
   );
 
-  const completedActivities = activities.filter(
+  const completedActivities = (activities ?? []).filter(
     (a: IActivity) => a.status === 'Completado',
   );
 
@@ -61,7 +66,11 @@ export function ActivitiesBoard({ activities, projectId }: Props) {
         </div>
       </CardHeader>
       <CardContent>
-        {pendingActivities.length > 0 ? (
+        {isLoading ? (
+          <LoadingMessage message="Cargando actividades" />
+        ) : pendingActivities.length > 0 ||
+          inProgressActivities.length > 0 ||
+          completedActivities.length > 0 ? (
           <div className="grid grid-cols-3 gap-5">
             <Card className="bg-gray-50 border-transparent shadow-none">
               <CardHeader>

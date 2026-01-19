@@ -1,5 +1,22 @@
 import { api } from '@/lib/axios';
-import { toast } from 'sonner';
+
+const createActivity = async ({ activityData }: { activityData: any }) => {
+  try {
+    const { data } = await api.post('/activities', activityData);
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getActivitiesByEntityId = async (entityId: string) => {
+  try {
+    const { data } = await api.get(`/activities/entity/${entityId}`);
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 const updateActivity = async ({
   activityId,
@@ -9,16 +26,11 @@ const updateActivity = async ({
   activityData: any;
 }) => {
   try {
-    const { status } = await api.patch(
-      `/activities/${activityId}`,
-      activityData,
-    );
-    if (status === 200 || status === 201 || status === 202) {
-      toast.success('Se actualizó la actividad');
-    }
+    const { data } = await api.patch(`/activities/${activityId}`, activityData);
+    return data;
   } catch (err) {
     console.error('Error updating activity', err);
-    toast.success('No se actualizó la actividad');
+    throw err;
   }
 };
 
@@ -50,4 +62,21 @@ const removeAssignee = async ({
   }
 };
 
-export { updateActivity, addAssignee, removeAssignee };
+const deleteActivity = async (activityId: string) => {
+  try {
+    const { data } = await api.delete(`/activities/${activityId}`);
+    return data;
+  } catch (err) {
+    console.error('Error deleting activity', err);
+    throw err;
+  }
+};
+
+export {
+  createActivity,
+  updateActivity,
+  addAssignee,
+  removeAssignee,
+  getActivitiesByEntityId,
+  deleteActivity,
+};
