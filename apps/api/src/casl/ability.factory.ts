@@ -1,6 +1,7 @@
 import { Ability, AbilityBuilder, AbilityClass, ExtractSubjectType, InferSubjects } from "@casl/ability";
 import { Injectable } from "@nestjs/common";
 import { User, Activity, Event, File, Product, Project, Team } from "../schemas/index";
+import { TeamUserRole, TeamUserStatus } from "@repo/types";
 
 
 export enum Action {
@@ -43,8 +44,8 @@ export class AbilityFactory {
             memberships: {
                 $elemMatch: {
                 user: user._id,
-                role: 'OWNER',
-                status: 'ACTIVE',
+                role: TeamUserRole.OWNER,
+                status: TeamUserStatus.ACTIVE,
                 },
             },
         });
@@ -53,8 +54,8 @@ export class AbilityFactory {
             memberships: {
                 $elemMatch: {
                 user: user._id,
-                role: 'MEMBER',
-                status: 'ACTIVE',
+                role: TeamUserRole.MEMBER,
+                status: TeamUserStatus.ACTIVE,
                 },
             },
         });
@@ -63,8 +64,8 @@ export class AbilityFactory {
             memberships: {
                 $elemMatch: {
                 user: user._id,
-                role: 'COLLABORATOR',
-                status: 'ACTIVE',
+                role: TeamUserRole.COLLABORATOR,
+                status: TeamUserStatus.ACTIVE,
                 },
             },
         });
