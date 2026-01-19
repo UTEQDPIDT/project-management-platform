@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { registerProducts } from '@/services/events.service';
+import { toast } from 'sonner';
 
 export function useRegisterProducts() {
   const queryClient = useQueryClient();
@@ -15,6 +16,8 @@ export function useRegisterProducts() {
     onSuccess: (_, { eventId }) => {
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
+      toast.success('Se agregaron los productos');
     },
+    onError: () => toast.error('No se agregaron los productos'),
   });
 }

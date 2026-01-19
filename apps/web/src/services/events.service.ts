@@ -1,18 +1,14 @@
 import { api } from '@/lib/axios';
 import { eventSchema } from '@/schemas/event.schema';
 import { IEvent } from '@repo/types';
-import { toast } from 'sonner';
 import z from 'zod';
 
 const createEvent = async (eventData: z.infer<typeof eventSchema>) => {
   try {
-    const { status } = await api.post('/events', eventData);
-    if (status === 200 || status === 201) {
-      toast.success('El evento ha sido creado');
-    }
+    const { data } = await api.post('/events', eventData);
+    return data;
   } catch (err) {
-    console.error('Error creating the event', err);
-    toast.error('No se ha creado el evento');
+    throw err;
   }
 };
 
@@ -21,8 +17,7 @@ const getAllEvents = async () => {
     const { data } = await api.get('/events');
     return data;
   } catch (err) {
-    console.error('Error fetching events', err);
-    toast.error('Error al solicitar eventos');
+    throw err;
   }
 };
 
@@ -31,7 +26,7 @@ const getEventById = async (eventId: string) => {
     const { data } = await api.get(`/events/${eventId}`);
     return data;
   } catch (err) {
-    console.error(`Error fetching event with ID ${eventId}`, err);
+    throw err;
   }
 };
 
@@ -43,25 +38,19 @@ const updateEvent = async ({
   eventData: IEvent;
 }) => {
   try {
-    const { status } = await api.patch(`/events/${eventId}`, eventData);
-    if (status === 200) {
-      toast.success('Se ha actualizado el evento');
-    }
+    const { data } = await api.patch(`/events/${eventId}`, eventData);
+    return data;
   } catch (err) {
-    console.error('Error updating event', err);
-    toast.error('No se ha actualizado el evento');
+    throw err;
   }
 };
 
 const deleteEvent = async (eventId: string) => {
   try {
-    const { status } = await api.delete(`/events/${eventId}`);
-    if (status === 200) {
-      toast.success('Se ha eliminado el evento');
-    }
+    const { data } = await api.delete(`/events/${eventId}`);
+    return data;
   } catch (err) {
-    console.error(`Error deleting event with ID ${eventId}`, err);
-    toast.error('No se ha eliminado el evento');
+    throw err;
   }
 };
 
@@ -76,13 +65,10 @@ const registerProducts = async ({
   products: string[];
 }) => {
   try {
-    const { status } = await api.patch(`/events/${eventId}/products`, products);
-    if (status === 200) {
-      toast.success('Se agregaron los productos');
-    }
+    const { data } = await api.patch(`/events/${eventId}/products`, products);
+    return data;
   } catch (err) {
-    console.error('Error adding products to event');
-    toast.error('No se agregaron los productos');
+    throw err;
   }
 };
 
@@ -94,15 +80,12 @@ const removeProduct = async ({
   productId: string;
 }) => {
   try {
-    const { status } = await api.delete(
+    const { data } = await api.delete(
       `/events/${eventId}/products/${productId}`,
     );
-    if (status === 200) {
-      toast.success('Se ha retirado el producto');
-    }
+    return data;
   } catch (err) {
-    toast.error('No se ha retirado el producto');
-    console.error('Error removing product from event');
+    throw err;
   }
 };
 
@@ -117,16 +100,13 @@ const addParticipants = async ({
   userIds: string[];
 }) => {
   try {
-    const { status } = await api.patch(
+    const { data } = await api.patch(
       `/events/${eventId}/participants`,
       userIds,
     );
-    if (status === 200) {
-      toast.success('Se han agregado participantes');
-    }
+    return data;
   } catch (err) {
-    console.error('Error adding participants', err);
-    toast.error('No se han agregado participantes');
+    throw err;
   }
 };
 
@@ -138,28 +118,21 @@ const removeParticipant = async ({
   userId: string;
 }) => {
   try {
-    const { status } = await api.delete(
+    const { data } = await api.delete(
       `/events/${eventId}/participants/${userId}`,
     );
-    if (status === 200) {
-      toast.success('Se ha expulsado al participante');
-    }
+    return data;
   } catch (err) {
-    console.error('Error removing participant', err);
-    toast.error('No se ha expulsado al participante');
+    throw err;
   }
 };
 
 const registerParticipant = async ({ eventId }: { eventId: string }) => {
   try {
-    const { status } = await api.patch(`/events/${eventId}/register`);
-
-    if (status === 200) {
-      toast.success('Se ha registrado al evento');
-    }
+    const { data } = await api.patch(`/events/${eventId}/register`);
+    return data;
   } catch (err) {
-    console.error('Error registering user');
-    toast.error('No se ha registrado el evento');
+    throw err;
   }
 };
 
