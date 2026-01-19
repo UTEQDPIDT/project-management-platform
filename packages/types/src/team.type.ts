@@ -2,10 +2,22 @@ import { SeedCategory } from './seed-category.type';
 import { TeamsGrade } from './enums/teams-grade.enum';
 import { IUser } from './user.type';
 
+export enum TeamMembershipRole {
+  OWNER = 'OWNER',
+  MEMBER = 'MEMBER',
+  COLLABORATOR = 'COLLABORATOR',
+}
+
+export enum TeamMembershipStatus {
+  ACTIVE = 'ACTIVE',
+  PENDING = 'PENDING',
+  REJECTED = 'REJECTED',
+}
+
 export interface ITeamMembership {
   user: IUser;
-  role: 'OWNER' | 'MEMBER' | 'COLLABORATOR';
-  status: 'ACTIVE' | 'PENDING' | 'REJECTED';
+  role: TeamMembershipRole;
+  status: TeamMembershipStatus;
   requestedAt?: Date;
   approvedAt?: Date;
 }
