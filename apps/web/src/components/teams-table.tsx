@@ -45,7 +45,6 @@ const columns: ColumnDef<ITeam>[] = [
     header: 'Divisón',
     cell: ({ row }) => {
       const { division } = row.original;
-
       return (
         <div>
           {division ? (
@@ -62,7 +61,6 @@ const columns: ColumnDef<ITeam>[] = [
     header: 'Grado',
     cell: ({ row }) => {
       const { grade } = row.original;
-
       return (
         <div>
           {grade === TeamsGrade.CONSOLIDADO ? (
@@ -75,12 +73,13 @@ const columns: ColumnDef<ITeam>[] = [
     },
   },
   {
-    accessorKey: 'owner',
+    id: 'owner',
     header: 'Dueño',
     cell: ({ row }) => {
-      const { owner } = row.original;
-
-      return (
+      const { memberships } = row.original;
+      const ownerMembership = memberships.find((m) => m.role === 'OWNER');
+      const owner = ownerMembership?.user;
+      return owner ? (
         <div className="min-w-56">
           <ProfileInfo
             size="sm"
@@ -90,6 +89,8 @@ const columns: ColumnDef<ITeam>[] = [
             avatarUrl={owner.avatarUrl}
           />
         </div>
+      ) : (
+        <span className="text-muted-foreground">Vacío</span>
       );
     },
   },
@@ -98,7 +99,6 @@ const columns: ColumnDef<ITeam>[] = [
     header: 'Acceso',
     cell: ({ row }) => {
       const { isPrivate } = row.original;
-
       return (
         <div>
           {isPrivate ? (
@@ -111,11 +111,13 @@ const columns: ColumnDef<ITeam>[] = [
     },
   },
   {
-    accessorKey: 'members',
+    id: 'members',
     header: 'Miembros',
     cell: ({ row }) => {
-      const { members } = row.original;
-
+      const { memberships } = row.original;
+      const members = memberships
+        .filter((m) => m.role === 'MEMBER')
+        .map((m) => m.user);
       return (
         <div>
           {members.length > 0 ? (
@@ -128,11 +130,13 @@ const columns: ColumnDef<ITeam>[] = [
     },
   },
   {
-    accessorKey: 'collaborators',
+    id: 'collaborators',
     header: 'Colaboradores',
     cell: ({ row }) => {
-      const { collaborators } = row.original;
-
+      const { memberships } = row.original;
+      const collaborators = memberships
+        .filter((m) => m.role === 'COLLABORATOR')
+        .map((m) => m.user);
       return (
         <div>
           {collaborators.length > 0 ? (
@@ -149,7 +153,6 @@ const columns: ColumnDef<ITeam>[] = [
     header: 'Creado el',
     cell: ({ row }) => {
       const { createdAt } = row.original;
-
       return (
         <div>
           {format(createdAt, "d 'de' MMM 'de' yyyy HH:mm", { locale: es })}
@@ -162,7 +165,6 @@ const columns: ColumnDef<ITeam>[] = [
     header: 'Actualizado el',
     cell: ({ row }) => {
       const { updatedAt } = row.original;
-
       return (
         <div>
           {format(updatedAt, "d 'de' MMM 'de' yyyy HH:mm", { locale: es })}
@@ -175,7 +177,6 @@ const columns: ColumnDef<ITeam>[] = [
     cell: ({ row }) => {
       const team = row.original;
       const deleteTeam = useDeleteTeam();
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

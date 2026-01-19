@@ -1,4 +1,4 @@
-import { BadgeVariants, ITeam, TeamsGrade } from '@repo/types';
+import { BadgeVariants, ITeam, ITeamMembership, TeamsGrade } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -23,10 +23,16 @@ export function TeamInfo({ team }: TeamInfoProps) {
     division,
     summary,
     createdAt,
-    owner,
     updatedAt,
     isPrivate,
+    memberships = [],
   } = team;
+
+  // Find owner from memberships
+  const ownerMembership = memberships.find(
+    (m: ITeamMembership) => m && m.role === 'OWNER' && m.user,
+  );
+  const owner = ownerMembership?.user;
 
   let badgeVariant:
     | 'default'
@@ -104,11 +110,17 @@ export function TeamInfo({ team }: TeamInfoProps) {
           <UserCircle size={14} /> Creado por
         </span>
         <div className="p-2 hover:bg-secondary rounded-md">
-          <ProfileInfo
-            size="sm"
-            givenName={owner.givenName}
-            familyName={owner.familyName}
-          />
+          {owner && typeof owner === 'object' && owner.givenName ? (
+            <ProfileInfo
+              size="sm"
+              givenName={owner.givenName}
+              familyName={owner.familyName || ''}
+              email={owner.email || ''}
+              avatarUrl={owner.avatarUrl || ''}
+            />
+          ) : (
+            <span className="text-gray-400">Vacío</span>
+          )}
         </div>
       </div>
 
