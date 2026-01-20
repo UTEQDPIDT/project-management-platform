@@ -168,10 +168,6 @@ export class TeamsService {
         status: 'ACTIVE',
       }));
 
-    if (!newMemberships.length) {
-      throw new BadRequestException('All users already belong to the team');
-    }
-
     await this.teamModel.findByIdAndUpdate(teamId, {
       $push: { memberships: { $each: newMemberships } },
     });
@@ -192,10 +188,6 @@ export class TeamsService {
         role: 'MEMBER',
         status: 'ACTIVE',
       }));
-
-    if (!newMemberships.length) {
-      throw new BadRequestException('All users already belong to the team');
-    }
 
     await this.teamModel.findByIdAndUpdate(teamId, {
       $push: { memberships: { $each: newMemberships } },
