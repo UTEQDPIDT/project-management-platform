@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -9,6 +9,7 @@ import { AbilitiesGuard } from '../casl/abilities.guard';
 import { CheckAbilities } from '../casl/abilities.decorator';
 import { Action } from '../casl/ability.factory';
 import { Project } from '../schemas';
+import { ProjectResourceInterceptor } from './interceptors/project-resource.interceptor';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -70,6 +71,7 @@ export class ProjectsController {
   @ApiNotFoundResponse({ description: 'No se encontro el proyecto.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(ProjectResourceInterceptor)
   @CheckAbilities({ action: Action.Update, subject: Project })
   @Patch(':id')
   @ApiConsumes('multipart/form-data')
@@ -82,6 +84,7 @@ export class ProjectsController {
   @ApiNotFoundResponse({ description: 'No se encontro el proyecto.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(ProjectResourceInterceptor)
   @CheckAbilities({ action: Action.Delete, subject: Project })
   @Delete(':id')
   remove(@Param('id') id: string) {

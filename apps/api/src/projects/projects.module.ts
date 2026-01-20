@@ -6,6 +6,7 @@ import { Project, ProjectSchema } from '../schemas/project.schema';
 import { FilesModule } from '../files/files.module';
 import { ProductsModule } from '../products/products.module';
 import { ActivitiesModule } from '../activities/activities.module';
+import { TeamResourceInterceptor } from '../teams/interceptors/team-resource.interceptor';
 
 @Module({
   imports: [
@@ -15,6 +16,6 @@ import { ActivitiesModule } from '../activities/activities.module';
     ActivitiesModule,
   ],
   controllers: [ProjectsController],
-  providers: [ProjectsService],
+  providers: [ProjectsService, TeamResourceInterceptor],
 })
 export class ProjectsModule {}
