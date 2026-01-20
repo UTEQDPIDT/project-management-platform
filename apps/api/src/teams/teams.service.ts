@@ -142,6 +142,9 @@ export class TeamsService {
         throw new NotFoundException(`Team with ID: ${id} not found`);
       }
 
+      await this.addMembers(id, updateTeamDto.members || []);
+      await this.addCollaborators(id, updateTeamDto.collaborators || []);
+
       return updatedTeam;
     } catch (err: any) {
       if (err.code === 11000) {

@@ -45,16 +45,7 @@ const Page = () => {
         ) : isError ? (
           <ErrorCard />
         ) : (
-          <UpdateTeamForm
-            _id={team._id}
-            teamName={team.teamName}
-            summary={team.summary}
-            division={team.division}
-            grade={team.grade}
-            members={team.members}
-            collaborators={team.collaborators}
-            isPrivate={team.isPrivate}
-          />
+          <UpdateTeamForm team={team} />
         )}
       </PageContent>
     </div>

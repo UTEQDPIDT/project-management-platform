@@ -151,8 +151,8 @@ export function CardMembers({
                   <DropdownMenuContent>
                     <Button
                       size="sm"
-                      className="w-full justify-start font-normal bg-transparent hover:bg-accent"
-                      variant="destructive"
+                      className="w-full justify-start font-normal bg-transparent hover:text-destructive-foreground"
+                      variant="ghost"
                       disabled={removeCollaborator.isPending}
                       onClick={() =>
                         removeCollaborator.mutate({

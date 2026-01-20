@@ -47,18 +47,7 @@ const Page = () => {
         ) : (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
             {teams.map((team: ITeam) => (
-              <TeamCard
-                key={team._id}
-                _id={team._id}
-                teamName={team.teamName}
-                summary={team.summary}
-                grade={team.grade}
-                division={team.division}
-                members={team.members}
-                collaborators={team.collaborators}
-                owner={team.owner}
-                userRequests={team.userRequests}
-              />
+              <TeamCard key={team._id} team={team} />
             ))}
           </div>
         )}

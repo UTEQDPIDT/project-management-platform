@@ -38,7 +38,10 @@ const getByUser = async () => {
 };
 
 const createTeam = async (
-  teamData: Pick<ITeam, 'teamName' | 'summary' | 'grade' | 'isPrivate' | 'division'>
+  teamData: Pick<
+    ITeam,
+    'teamName' | 'summary' | 'grade' | 'isPrivate' | 'division'
+  >,
 ) => {
   try {
     const { status, data } = await api.post('/teams', teamData);
@@ -82,10 +85,9 @@ const deleteTeam = async (teamId: string) => {
 
 const addMembers = async (teamId: string, collaborators: string[]) => {
   try {
-    const { status } = await api.post(
-      `/teams/${teamId}/members`,
-      { userIds: collaborators },
-    );
+    const { status } = await api.post(`/teams/${teamId}/members`, {
+      userIds: collaborators,
+    });
     if (status === 200 || status === 201 || status === 202) {
       toast.success('Miembros agregados');
     }
@@ -109,10 +111,9 @@ const removeMember = async (teamId: string, userId: string) => {
 
 const addCollaborators = async (teamId: string, collaborators: string[]) => {
   try {
-    const { status } = await api.post(
-      `/teams/${teamId}/collaborators`,
-      { userIds: collaborators },
-    );
+    const { status } = await api.post(`/teams/${teamId}/collaborators`, {
+      userIds: collaborators,
+    });
     if (status === 200 || status === 201 || status === 202) {
       toast.success('Colaboradores agregados');
     }

@@ -15,6 +15,7 @@ export enum TeamMembershipStatus {
 }
 
 export interface ITeamMembership {
+  _id: string;
   user: IUser;
   role: TeamMembershipRole;
   status: TeamMembershipStatus;
