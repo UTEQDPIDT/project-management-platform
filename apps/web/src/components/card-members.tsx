@@ -79,7 +79,7 @@ export function CardMembers({
         )}
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <span className="text-muted-foreground text-sm">Dueño</span>
+        <span className="text-muted-foreground text-sm">Proprietario</span>
         <ProfileInfo
           size="sm"
           givenName={owner!.user.givenName}

@@ -361,7 +361,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                               ) : (
                                 <div className="w-full select-none p-2 flex items-center justify-center">
                                   <span className="text-muted-foreground text-sm">
-                                    No se encontraron usuarios.
+                                    No hay más usuarios
                                   </span>
                                 </div>
                               )}
@@ -447,7 +447,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                               ) : (
                                 <div className="w-full select-none p-2 flex items-center justify-center">
                                   <span className="text-muted-foreground text-sm">
-                                    No se encontraron usuarios.
+                                    No hay más usuarios
                                   </span>
                                 </div>
                               )}
