@@ -442,13 +442,14 @@ export function CreateProjectForm() {
                                             : [...value, area._id],
                                         );
                                       }}
+                                      className="flex justify-between"
                                     >
+                                      {area.name}
                                       <Check
                                         className={`mr-2 h-4 w-4 ${
                                           selected ? 'opacity-100' : 'opacity-0'
                                         }`}
                                       />
-                                      {area.name}
                                     </CommandItem>
                                   );
                                 })
@@ -518,13 +519,14 @@ export function CreateProjectForm() {
                                             : [...value, area._id],
                                         );
                                       }}
+                                      className="flex justify-between"
                                     >
+                                      {area.name}
                                       <Check
                                         className={`mr-2 h-4 w-4 ${
                                           selected ? 'opacity-100' : 'opacity-0'
                                         }`}
                                       />
-                                      {area.name}
                                     </CommandItem>
                                   );
                                 })
@@ -594,13 +596,14 @@ export function CreateProjectForm() {
                                             : [...value, priority._id],
                                         );
                                       }}
+                                      className="flex justify-between"
                                     >
+                                      {priority.name}
                                       <Check
                                         className={`mr-2 h-4 w-4 ${
                                           selected ? 'opacity-100' : 'opacity-0'
                                         }`}
                                       />
-                                      {priority.name}
                                     </CommandItem>
                                   );
                                 })
@@ -670,13 +673,14 @@ export function CreateProjectForm() {
                                             : [...value, goal._id],
                                         );
                                       }}
+                                      className="flex justify-between"
                                     >
+                                      {goal.name}
                                       <Check
                                         className={`mr-2 h-4 w-4 ${
                                           selected ? 'opacity-100' : 'opacity-0'
                                         }`}
                                       />
-                                      {goal.name}
                                     </CommandItem>
                                   );
                                 })
@@ -749,13 +753,14 @@ export function CreateProjectForm() {
                                             : [...value, line._id],
                                         );
                                       }}
+                                      className="flex justify-between"
                                     >
+                                      {line.name}
                                       <Check
                                         className={`mr-2 h-4 w-4 ${
                                           selected ? 'opacity-100' : 'opacity-0'
                                         }`}
                                       />
-                                      {line.name}
                                     </CommandItem>
                                   );
                                 })
@@ -939,13 +944,14 @@ export function CreateProjectForm() {
                                             : [...value, project._id],
                                         );
                                       }}
+                                      className="flex justify-between"
                                     >
+                                      {project.name}
                                       <Check
                                         className={`mr-2 h-4 w-4 ${
                                           selected ? 'opacity-100' : 'opacity-0'
                                         }`}
                                       />
-                                      {project.name}
                                     </CommandItem>
                                   );
                                 })

@@ -67,6 +67,7 @@ export class ProjectsService {
   async findAll() {
     return await this.projectModel
       .find()
+      .populate('impactAreas')
       .populate('knowledgeAreas')
       .populate('prioritiesPND')
       .populate('sustainableObjectives')
@@ -84,6 +85,7 @@ export class ProjectsService {
   async findOne(id: string) {
     const project = await this.projectModel
       .findById(id)
+      .populate('impactAreas')
       .populate('knowledgeAreas')
       .populate('prioritiesPND')
       .populate('sustainableObjectives')
@@ -105,6 +107,7 @@ export class ProjectsService {
   async findByOwner(ownerId: string) {
     return await this.projectModel
       .find({ owner: ownerId })
+      .populate('impactAreas')
       .populate('knowledgeAreas')
       .populate('prioritiesPND')
       .populate('sustainableObjectives')
@@ -129,14 +132,10 @@ export class ProjectsService {
       throw new NotFoundException(`Project with ID: ${id} not found`);
     }
 
-    const updatedProject = await this.projectModel.findByIdAndUpdate(
-      id,
-      {
-        ...updateProjectDto,
-        updatedBy: userId,
-      },
-      { new: true },
-    );
+    await this.projectModel.findByIdAndUpdate(id, {
+      ...updateProjectDto,
+      updatedBy: userId,
+    });
 
     return { id, message: 'Project updated successfully' };
   }
