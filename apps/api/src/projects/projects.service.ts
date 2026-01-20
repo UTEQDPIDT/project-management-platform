@@ -73,11 +73,7 @@ export class ProjectsService {
       .populate('innovationLines')
       .populate({
         path: 'team',
-        populate: [
-          { path: 'owner' },
-          { path: 'members' },
-          { path: 'collaborators' },
-        ],
+        populate: [{ path: 'memberships.user' }],
       })
       .populate({ path: 'relatedProjects' })
       .populate('owner')
@@ -94,11 +90,7 @@ export class ProjectsService {
       .populate('innovationLines')
       .populate({
         path: 'team',
-        populate: [
-          { path: 'owner' },
-          { path: 'members' },
-          { path: 'collaborators' },
-        ],
+        populate: [{ path: 'memberships.user' }],
       })
       .populate({ path: 'relatedProjects' })
       .populate('owner')
@@ -119,11 +111,7 @@ export class ProjectsService {
       .populate('innovationLines')
       .populate({
         path: 'team',
-        populate: [
-          { path: 'owner' },
-          { path: 'members' },
-          { path: 'collaborators' },
-        ],
+        populate: [{ path: 'memberships.user' }],
       })
       .populate({ path: 'relatedProjects' })
       .populate('owner')
