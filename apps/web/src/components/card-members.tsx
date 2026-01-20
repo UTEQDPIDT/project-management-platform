@@ -1,5 +1,10 @@
 import { useRemoveCollaborator, useRemoveMember } from '@/hooks/team';
-import { ITeam, ITeamMembership, IUser, TeamMembershipRole } from '@repo/types';
+import {
+  ITeam,
+  ITeamMembership,
+  TeamMembershipRole,
+  TeamMembershipStatus,
+} from '@repo/types';
 import { ArrowUpRight, Ellipsis, UserMinus, Users } from 'lucide-react';
 import Link from 'next/link';
 import IconSquare from './icon-square';
@@ -34,13 +39,17 @@ export function CardMembers({
 
   const members = useMemo(() => {
     return team.memberships.filter(
-      (m: ITeamMembership) => m.role === TeamMembershipRole.MEMBER,
+      (m: ITeamMembership) =>
+        m.role === TeamMembershipRole.MEMBER &&
+        m.status === TeamMembershipStatus.ACTIVE,
     );
   }, [team.memberships]);
 
   const collaborators = useMemo(() => {
     return team.memberships.filter(
-      (m: ITeamMembership) => m.role === TeamMembershipRole.COLLABORATOR,
+      (m: ITeamMembership) =>
+        m.role === TeamMembershipRole.COLLABORATOR &&
+        m.status === TeamMembershipStatus.ACTIVE,
     );
   }, [team.memberships]);
 
