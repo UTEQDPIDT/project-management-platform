@@ -71,42 +71,11 @@ import { Separator } from '../ui/separator';
 import { TRLForm } from './trl-assesment-form';
 import { userProfile } from 'context/profile-provider';
 
-export function UpdateProjectForm({
-  _id: projectId,
-  name,
-  summary,
-  objective,
-  trlRating,
-  knowledgeAreas,
-  impactAreas,
-  prioritiesPND,
-  sustainableObjectives,
-  innovationLines,
-  impactLevel,
-  organization,
-  team,
-  relatedProjects,
-  startDate,
-  endDate,
-}: Pick<
-  IProject,
-  | '_id'
-  | 'name'
-  | 'summary'
-  | 'objective'
-  | 'trlRating'
-  | 'knowledgeAreas'
-  | 'impactAreas'
-  | 'prioritiesPND'
-  | 'sustainableObjectives'
-  | 'innovationLines'
-  | 'impactLevel'
-  | 'organization'
-  | 'team'
-  | 'relatedProjects'
-  | 'startDate'
-  | 'endDate'
->) {
+type UpdateProjectFormProps = {
+  project: IProject;
+};
+
+export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
   const router = useRouter();
   const { user } = userProfile();
   const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
@@ -135,23 +104,40 @@ export function UpdateProjectForm({
     resolver: zodResolver(updateProjectSchema),
     mode: 'onChange',
     defaultValues: {
-      name: name ? name : '',
-      summary: summary ? summary : '',
-      objective: objective ? objective : '',
-      trlRating: trlRating ? trlRating : 0,
-      knowledgeAreas: knowledgeAreas ? knowledgeAreas.map((k) => k._id) : [],
-      impactAreas: impactAreas ? impactAreas.map((a) => a._id) : [],
-      prioritiesPND: prioritiesPND ? prioritiesPND.map((p) => p._id) : [],
-      sustainableObjectives: sustainableObjectives
-        ? sustainableObjectives.map((o) => o._id)
+      name: typeof project?.name === 'string' ? project.name : '',
+      objective:
+        typeof project?.objective === 'string' ? project.objective : '',
+      trlRating: typeof project?.trlRating === 'number' ? project.trlRating : 0,
+      knowledgeAreas: Array.isArray(project?.knowledgeAreas)
+        ? project.knowledgeAreas.map((k) => k?._id).filter(Boolean)
         : [],
-      innovationLines: innovationLines ? innovationLines.map((l) => l._id) : [],
-      impactLevel: impactLevel ? impactLevel : ImpactLevel.LOCAL,
-      organization: organization ? organization : '',
-      team: team ? team._id : '',
-      relatedProjects: relatedProjects ? relatedProjects.map((p) => p._id) : [],
-      startDate: startDate ? new Date(startDate) : undefined,
-      endDate: endDate ? new Date(endDate) : undefined,
+      impactAreas: Array.isArray(project?.impactAreas)
+        ? project.impactAreas.map((a) => a?._id).filter(Boolean)
+        : [],
+      prioritiesPND: Array.isArray(project?.prioritiesPND)
+        ? project.prioritiesPND.map((p) => p?._id).filter(Boolean)
+        : [],
+      sustainableObjectives: Array.isArray(project?.sustainableObjectives)
+        ? project.sustainableObjectives.map((o) => o?._id).filter(Boolean)
+        : [],
+      innovationLines: Array.isArray(project?.innovationLines)
+        ? project.innovationLines.map((l) => l?._id).filter(Boolean)
+        : [],
+      impactLevel:
+        typeof project?.impactLevel === 'string'
+          ? project.impactLevel
+          : ImpactLevel.LOCAL,
+      organization:
+        typeof project?.organization === 'string' ? project.organization : '',
+      team:
+        project?.team && typeof project.team === 'object' && project.team._id
+          ? project.team._id
+          : '',
+      relatedProjects: Array.isArray(project?.relatedProjects)
+        ? project.relatedProjects.map((p) => p?._id).filter(Boolean)
+        : [],
+      startDate: project?.startDate ? new Date(project.startDate) : undefined,
+      endDate: project?.endDate ? new Date(project.endDate) : undefined,
     },
   });
 
@@ -167,9 +153,12 @@ export function UpdateProjectForm({
       };
       console.log(cleanedData);
 
-      updateProject.mutate({ projectId, projectData: cleanedData });
+      updateProject.mutate({
+        projectId: project._id,
+        projectData: cleanedData,
+      });
       form.reset();
-      router.push(`${rootUrl}/proyectos/${projectId}`);
+      router.push(`${rootUrl}/proyectos/${project._id}`);
     } catch (err) {
       console.error('Error cleaning data', err);
     }
@@ -209,35 +198,6 @@ export function UpdateProjectForm({
                       />
                       <InputGroupAddon align="inline-end">
                         {field.value?.length}/200
-                      </InputGroupAddon>
-                    </InputGroup>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                control={form.control}
-                name="summary"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldContent>
-                      <FieldLabel htmlFor={field.name}>Descripción*</FieldLabel>
-                      <FieldDescription>
-                        Describe brevemente el propósito del proyecto.
-                      </FieldDescription>
-                    </FieldContent>
-                    <InputGroup>
-                      <InputGroupTextarea
-                        {...field}
-                        id={field.name}
-                        aria-invalid={fieldState.invalid}
-                        placeholder="Una breve descripción del proyecto"
-                      />
-                      <InputGroupAddon align="block-end">
-                        {field.value?.length}/255
                       </InputGroupAddon>
                     </InputGroup>
                     {fieldState.invalid && (

@@ -1,5 +1,10 @@
 import { useRemoveCollaborator, useRemoveMember } from '@/hooks/team';
-import { ITeam, IUser } from '@repo/types';
+import {
+  ITeam,
+  ITeamMembership,
+  TeamMembershipRole,
+  TeamMembershipStatus,
+} from '@repo/types';
 import { ArrowUpRight, Ellipsis, UserMinus, Users } from 'lucide-react';
 import Link from 'next/link';
 import IconSquare from './icon-square';
@@ -9,10 +14,12 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { userProfile } from 'context/profile-provider';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
+import { useMemo } from 'react';
 
 export function CardMembers({
   team,
@@ -27,8 +34,28 @@ export function CardMembers({
   const { user } = userProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
+  const owner = team.memberships.find(
+    (m: ITeamMembership) => m.role === TeamMembershipRole.OWNER,
+  );
+
+  const members = useMemo(() => {
+    return team.memberships.filter(
+      (m: ITeamMembership) =>
+        m.role === TeamMembershipRole.MEMBER &&
+        m.status === TeamMembershipStatus.ACTIVE,
+    );
+  }, [team.memberships]);
+
+  const collaborators = useMemo(() => {
+    return team.memberships.filter(
+      (m: ITeamMembership) =>
+        m.role === TeamMembershipRole.COLLABORATOR &&
+        m.status === TeamMembershipStatus.ACTIVE,
+    );
+  }, [team.memberships]);
+
   return (
-    <Card className="w-full max-w-[500px]">
+    <Card className="w-full lg:max-w-96">
       <CardHeader className="flex justify-between">
         <div className="flex gap-3 items-center">
           <IconSquare color="blue">
@@ -53,45 +80,49 @@ export function CardMembers({
         )}
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <span className="text-muted-foreground text-sm">Dueño</span>
+        <span className="text-muted-foreground text-sm">Proprietario</span>
         <ProfileInfo
           size="sm"
-          givenName={team.owner.givenName}
-          familyName={team.owner.familyName}
-          email={team.owner.email}
-          avatarUrl={team.owner.avatarUrl}
+          givenName={owner!.user.givenName}
+          familyName={owner!.user.familyName}
+          email={owner!.user.email}
+          avatarUrl={owner!.user.avatarUrl}
         />
         <span className="text-muted-foreground text-sm">Miembros</span>
-        {team.members.length > 0 ? (
-          team.members?.map((m: IUser) => (
-            <div key={m._id} className="flex justify-between">
+        {members.length > 0 ? (
+          members?.map((m: ITeamMembership) => (
+            <div key={m.user._id} className="flex justify-between group">
               <ProfileInfo
                 size="sm"
-                givenName={m.givenName}
-                familyName={m.familyName}
-                email={m.email}
-                avatarUrl={m.avatarUrl}
+                givenName={m.user.givenName}
+                familyName={m.user.familyName}
+                email={m.user.email}
+                avatarUrl={m.user.avatarUrl}
               />
 
-              {user._id === team.owner._id && (
+              {user._id === owner!.user._id && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button size="icon-sm" variant="ghost">
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      className="opacity-0 group-hover:opacity-100"
+                    >
                       <Ellipsis />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <Button
-                      size="sm"
-                      className="w-full justify-start font-normal hover:text-destructive-foreground"
-                      variant="ghost"
+                    <DropdownMenuItem
                       disabled={removeMember.isPending}
                       onClick={() =>
-                        removeMember.mutate({ teamId: team._id, userId: m._id })
+                        removeMember.mutate({
+                          teamId: team._id,
+                          userId: m.user._id,
+                        })
                       }
                     >
                       <UserMinus /> Expulsar
-                    </Button>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
@@ -101,39 +132,40 @@ export function CardMembers({
           <span className="text-muted-foreground text-xs">No hay miembros</span>
         )}
         <span className="text-muted-foreground text-sm">Colaboradores</span>
-        {team.collaborators.length > 0 ? (
-          team.collaborators?.map((c: IUser) => (
-            <div key={c._id} className="flex justify-between">
+        {collaborators.length > 0 ? (
+          collaborators?.map((c: ITeamMembership) => (
+            <div key={c.user._id} className="flex justify-between group">
               <ProfileInfo
                 size="sm"
-                givenName={c.givenName}
-                familyName={c.familyName}
-                email={c.email}
-                avatarUrl={c.avatarUrl}
+                givenName={c.user.givenName}
+                familyName={c.user.familyName}
+                email={c.user.email}
+                avatarUrl={c.user.avatarUrl}
               />
 
-              {user._id === team.owner._id && (
+              {user._id === owner!.user._id && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button size="icon-sm" variant="ghost">
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      className="opacity-0 group-hover:opacity-100"
+                    >
                       <Ellipsis />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <Button
-                      size="sm"
-                      className="w-full justify-start font-normal bg-transparent hover:bg-accent"
-                      variant="destructive"
+                    <DropdownMenuItem
                       disabled={removeCollaborator.isPending}
                       onClick={() =>
                         removeCollaborator.mutate({
                           teamId: team._id,
-                          userId: c._id,
+                          userId: c.user._id,
                         })
                       }
                     >
                       <UserMinus /> Expulsar
-                    </Button>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}

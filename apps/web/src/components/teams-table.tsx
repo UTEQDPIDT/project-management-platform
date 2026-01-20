@@ -1,7 +1,12 @@
 'use client';
 
 import { useAllTeams, useDeleteTeam } from '@/hooks/team';
-import { ITeam, TeamsGrade } from '@repo/types';
+import {
+  ITeam,
+  TeamMembershipRole,
+  TeamMembershipStatus,
+  TeamsGrade,
+} from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
 import React from 'react';
 import { DataTable } from './ui/data-table';
@@ -37,15 +42,30 @@ import {
   DialogTrigger,
 } from './ui/dialog';
 import { copyValue } from '@/lib/utils';
+import CopyButton from './ui/copy';
 
 const columns: ColumnDef<ITeam>[] = [
-  { accessorKey: 'teamName', header: 'Nombre' },
+  {
+    accessorKey: 'teamName',
+    header: 'Nombre',
+    cell: ({ row }) => {
+      const { teamName } = row.original;
+      return (
+        <div className="max-w-96 flex items-center gap-1 group">
+          <span className="truncate">{teamName}</span>
+          <CopyButton
+            valueToCopy={teamName}
+            className="opacity-0 group-hover:opacity-100"
+          />
+        </div>
+      );
+    },
+  },
   {
     accessorKey: 'division',
     header: 'Divisón',
     cell: ({ row }) => {
       const { division } = row.original;
-
       return (
         <div>
           {division ? (
@@ -62,7 +82,6 @@ const columns: ColumnDef<ITeam>[] = [
     header: 'Grado',
     cell: ({ row }) => {
       const { grade } = row.original;
-
       return (
         <div>
           {grade === TeamsGrade.CONSOLIDADO ? (
@@ -75,12 +94,15 @@ const columns: ColumnDef<ITeam>[] = [
     },
   },
   {
-    accessorKey: 'owner',
-    header: 'Dueño',
+    id: 'owner',
+    header: 'Proprietario',
     cell: ({ row }) => {
-      const { owner } = row.original;
-
-      return (
+      const { memberships } = row.original;
+      const ownerMembership = memberships.find(
+        (m) => m.role === TeamMembershipRole.OWNER,
+      );
+      const owner = ownerMembership?.user;
+      return owner ? (
         <div className="min-w-56">
           <ProfileInfo
             size="sm"
@@ -90,6 +112,8 @@ const columns: ColumnDef<ITeam>[] = [
             avatarUrl={owner.avatarUrl}
           />
         </div>
+      ) : (
+        <span className="text-muted-foreground">Vacío</span>
       );
     },
   },
@@ -98,7 +122,6 @@ const columns: ColumnDef<ITeam>[] = [
     header: 'Acceso',
     cell: ({ row }) => {
       const { isPrivate } = row.original;
-
       return (
         <div>
           {isPrivate ? (
@@ -111,11 +134,17 @@ const columns: ColumnDef<ITeam>[] = [
     },
   },
   {
-    accessorKey: 'members',
+    id: 'members',
     header: 'Miembros',
     cell: ({ row }) => {
-      const { members } = row.original;
-
+      const { memberships } = row.original;
+      const members = memberships
+        .filter(
+          (m) =>
+            m.role === TeamMembershipRole.MEMBER &&
+            m.status === TeamMembershipStatus.ACTIVE,
+        )
+        .map((m) => m.user);
       return (
         <div>
           {members.length > 0 ? (
@@ -128,11 +157,17 @@ const columns: ColumnDef<ITeam>[] = [
     },
   },
   {
-    accessorKey: 'collaborators',
+    id: 'collaborators',
     header: 'Colaboradores',
     cell: ({ row }) => {
-      const { collaborators } = row.original;
-
+      const { memberships } = row.original;
+      const collaborators = memberships
+        .filter(
+          (m) =>
+            m.role === TeamMembershipRole.COLLABORATOR &&
+            m.status === TeamMembershipStatus.ACTIVE,
+        )
+        .map((m) => m.user);
       return (
         <div>
           {collaborators.length > 0 ? (
@@ -146,10 +181,9 @@ const columns: ColumnDef<ITeam>[] = [
   },
   {
     accessorKey: 'createdAt',
-    header: 'Creado el',
+    header: 'Fecha de creación',
     cell: ({ row }) => {
       const { createdAt } = row.original;
-
       return (
         <div>
           {format(createdAt, "d 'de' MMM 'de' yyyy HH:mm", { locale: es })}
@@ -159,10 +193,9 @@ const columns: ColumnDef<ITeam>[] = [
   },
   {
     accessorKey: 'updatedAt',
-    header: 'Actualizado el',
+    header: 'Fecha de actualización',
     cell: ({ row }) => {
       const { updatedAt } = row.original;
-
       return (
         <div>
           {format(updatedAt, "d 'de' MMM 'de' yyyy HH:mm", { locale: es })}
@@ -175,7 +208,6 @@ const columns: ColumnDef<ITeam>[] = [
     cell: ({ row }) => {
       const team = row.original;
       const deleteTeam = useDeleteTeam();
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -243,7 +275,7 @@ const columns: ColumnDef<ITeam>[] = [
 export default function TeamsTable() {
   const { data, isLoading } = useAllTeams();
   return (
-    <div className="max-w-6xl">
+    <div className="max-w-6xl w-full">
       {isLoading ? (
         <LoadingMessage message="Cargando equipos" />
       ) : (

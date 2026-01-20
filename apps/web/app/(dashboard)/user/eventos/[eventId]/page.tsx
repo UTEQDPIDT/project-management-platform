@@ -42,6 +42,7 @@ import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useAddAssignee } from '../../../../../src/hooks/events/use-add-assignee';
 import ErrorCard from '@/components/error-card';
+import { useActivitiesByEntity } from '@/hooks/activities';
 
 const Page = () => {
   /**
@@ -56,6 +57,11 @@ const Page = () => {
     isLoading: loadingEvent,
     isError,
   } = useGetEventById(eventId);
+  const {
+    data: activities,
+    isLoading: loadingActivities,
+    isError: errorFetchingActivities,
+  } = useActivitiesByEntity(eventId);
   const addAssignee = useAddAssignee();
   const removeAssignee = useRemoveAssignee();
 
@@ -115,9 +121,13 @@ const Page = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    {event.activities?.length ? (
+                    {loadingActivities ? (
+                      <LoadingMessage />
+                    ) : errorFetchingActivities ? (
+                      <ErrorCard />
+                    ) : activities?.length ? (
                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        {event.activities.map((a: IActivity) => (
+                        {activities.map((a: IActivity) => (
                           <ActivityCard
                             key={a._id}
                             activity={a}

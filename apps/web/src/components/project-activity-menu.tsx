@@ -13,7 +13,7 @@ import { Separator } from './ui/separator';
 import { ActivityForm } from './forms/activity-form';
 import { Button } from './ui/button';
 import { IActivity } from '@repo/types';
-import { useDeleteActivity } from '@/hooks/projects';
+import { useDeleteActivity } from '@/hooks/activities';
 
 interface ProjectActivityMenu {
   projectId: string;
@@ -27,7 +27,7 @@ export default function ProjectActivityMenu({
   const deleteActivity = useDeleteActivity();
 
   const handleDelete = () => {
-    deleteActivity.mutate({ projectId, activityId: activity._id });
+    deleteActivity.mutate(activity._id);
   };
 
   return (
@@ -44,11 +44,7 @@ export default function ProjectActivityMenu({
           </div>
           <Separator />
 
-          <ActivityForm
-            activity={activity}
-            projectId={activity.projectId}
-            eventId={activity.eventId}
-          />
+          <ActivityForm activity={activity} projectId={projectId} />
         </DialogContent>
       </Dialog>
 

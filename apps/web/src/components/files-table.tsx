@@ -3,7 +3,7 @@
 import React from 'react';
 import LoadingMessage from './loading-message';
 import { DataTable } from './ui/data-table';
-import { useGetFiles } from '@/hooks/files';
+import { useFiles } from '@/hooks/files';
 import { ColumnDef } from '@tanstack/react-table';
 import { IFile } from '@repo/types';
 import {
@@ -140,7 +140,7 @@ const columns: ColumnDef<IFile>[] = [
   },
 ];
 export default function FilesTable() {
-  const { data, isLoading } = useGetFiles();
+  const { data, isLoading } = useFiles();
 
   return (
     <div className="max-w-6xl w-full">

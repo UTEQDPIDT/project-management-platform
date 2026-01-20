@@ -2,16 +2,34 @@ import { SeedCategory } from './seed-category.type';
 import { TeamsGrade } from './enums/teams-grade.enum';
 import { IUser } from './user.type';
 
+export enum TeamMembershipRole {
+  OWNER = 'OWNER',
+  MEMBER = 'MEMBER',
+  COLLABORATOR = 'COLLABORATOR',
+}
+
+export enum TeamMembershipStatus {
+  ACTIVE = 'ACTIVE',
+  PENDING = 'PENDING',
+  REJECTED = 'REJECTED',
+}
+
+export interface ITeamMembership {
+  _id: string;
+  user: IUser;
+  role: TeamMembershipRole;
+  status: TeamMembershipStatus;
+  requestedAt?: Date;
+  approvedAt?: Date;
+}
+
 export interface ITeam {
   _id: string;
   teamName: string;
   summary?: string;
   division?: SeedCategory;
   grade: TeamsGrade;
-  owner: IUser;
-  collaborators: IUser[];
-  members: IUser[];
-  userRequests: IUser[];
+  memberships: ITeamMembership[];
   isPrivate: boolean;
   createdAt: Date;
   updatedAt: Date;

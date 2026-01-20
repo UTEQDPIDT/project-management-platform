@@ -8,6 +8,7 @@ import { PageContent } from '@/components/page-content';
 import { ProjectsBoard } from '@/components/projects-board';
 import { TeamInfo } from '@/components/team-info';
 import { TeamMenu } from '@/components/team-menu';
+import { TeamNotifications } from '@/components/team-notifications';
 import { TeamUserRequests } from '@/components/team-user-requests';
 import {
   Breadcrumb,
@@ -36,6 +37,12 @@ const Page = () => {
   const { data: projects, isLoading: loadingProjects } =
     useProjectsByTeam(teamId);
 
+  // Defensive: ensure memberships is always an array
+  const teamWithMemberships = {
+    ...team,
+    memberships: Array.isArray(team?.memberships) ? team.memberships : [],
+  };
+
   return (
     <div className="w-full h-full">
       {loadingTeam ? (
@@ -62,38 +69,15 @@ const Page = () => {
             </HeaderHeading>
 
             <HeaderAction>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon-sm">
-                    <Bell />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
-                  <Separator />
-                  {team.userRequests.length > 0 ? (
-                    <TeamUserRequests
-                      teamId={teamId}
-                      request={team.userRequests}
-                    />
-                  ) : (
-                    <div className="px-2 py-3">
-                      <span className="text-muted-foreground text-sm">
-                        No hay notificaciones
-                      </span>
-                    </div>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
+              <TeamNotifications team={team} />
               <TeamMenu teamId={teamId} name={team.teamName} />
             </HeaderAction>
           </Header>
 
           <PageContent>
-            <TeamInfo team={team} />
+            <TeamInfo team={teamWithMemberships} />
             <div className="w-full flex gap-4">
-              <CardMembers team={team} />
+              <CardMembers team={teamWithMemberships} />
               <ProjectsBoard loading={loadingProjects} projects={projects} />
             </div>
           </PageContent>

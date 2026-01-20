@@ -4,8 +4,6 @@ import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { Team } from './team.schema';
 import { Activity } from './activities.schema';
-import { Product } from './product.schema';
-import { File } from './file.schema';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { KnowledgeArea } from './knowledge-area.schema.seed';
 import { ThemedImpactArea } from './themed-impact-area.schema';
@@ -20,12 +18,6 @@ export class Project extends Document {
   })
   @Prop({ required: true })
   name: string;
-
-  @ApiProperty({
-    description: 'Resumen del proyecto.',
-  })
-  @Prop({ required: true, maxLength: 500 })
-  summary: string;
 
   @ApiProperty({
     description: 'Objetivo principal del proyecto.',
@@ -119,21 +111,6 @@ export class Project extends Document {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }] })
   relatedProjects?: Project[];
 
-  @ApiPropertyOptional({
-    description: 'Actividades relacionadas al proyecto.',
-  })
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }] })
-  activities?: Activity[];
-
-  @ApiPropertyOptional({
-    description: 'Productos relacionados al proyecto.',
-  })
-  @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
-    default: [],
-  })
-  products?: Product[];
-
   @ApiProperty({
     description: 'Quien actualiza el proyecto por ultima ocasion.',
   })
@@ -144,13 +121,13 @@ export class Project extends Document {
     description: 'Fecha de inicio del proyecto, esta será el inicio del plazo.',
   })
   @Prop()
-  startDate?: Date;
+  startDate: Date;
 
   @ApiPropertyOptional({
     description: 'Fecha final de vencimiento del proyecto',
   })
   @Prop()
-  endDate?: Date;
+  endDate: Date;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

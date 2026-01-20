@@ -5,14 +5,11 @@ import React from 'react';
 import LoadingMessage from './loading-message';
 import { DataTable } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
-import { IProject, SeedCategory } from '@repo/types';
+import { IProject } from '@repo/types';
 import { ProfileInfo } from './profile-info';
+import { calculateProgress, copyValue } from '@/lib/utils';
 import { Progress } from './ui/progress';
-import {
-  calculateProgress,
-  concatWithCommaAndDot,
-  copyValue,
-} from '@/lib/utils';
+import { useActivitiesByEntity } from '@/hooks/activities';
 import CopyButton from './ui/copy';
 import { Button } from './ui/button';
 import {
@@ -42,6 +39,7 @@ import Link from 'next/link';
 import { Badge } from './ui/badge';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useProductsByProject } from '@/hooks/products';
 
 const columns: ColumnDef<IProject>[] = [
   {
@@ -64,33 +62,15 @@ const columns: ColumnDef<IProject>[] = [
       );
     },
   },
-  {
-    accessorKey: 'owner',
-    header: 'Dueño',
-    cell: ({ row }) => {
-      const project = row.original;
-      const { owner } = project;
-
-      return (
-        <div className="w-52">
-          <ProfileInfo
-            size="sm"
-            givenName={owner.givenName}
-            familyName={owner.familyName}
-            email={owner.email}
-            avatarUrl={owner.avatarUrl}
-          />
-        </div>
-      );
-    },
-  },
   { accessorKey: 'trlRating', header: 'Nivel TRL' },
   {
     id: 'progress',
     header: 'Progreso',
     cell: ({ row }) => {
-      const { activities } = row.original;
-      const progress = calculateProgress(activities);
+      const project = row.original;
+      const { data: activities, isLoading: loadingActivities } =
+        useActivitiesByEntity(project._id);
+      const progress = calculateProgress(activities ?? []);
 
       return (
         <div>
@@ -106,22 +86,12 @@ const columns: ColumnDef<IProject>[] = [
     },
   },
   {
-    accessorKey: 'activities',
-    header: 'Actividades',
-    cell: ({ row }) => {
-      const project = row.original;
-      const { activities } = project;
-
-      return <div>{activities?.length}</div>;
-    },
-  },
-  {
-    accessorKey: 'products',
+    id: 'products',
     header: 'Productos',
     cell: ({ row }) => {
-      const { products } = row.original;
-
-      return <div>{products?.length}</div>;
+      const { _id } = row.original;
+      const { data: products, isLoading } = useProductsByProject(_id);
+      return <div>{isLoading ? <LoadingMessage /> : products.length}</div>;
     },
   },
   {
@@ -142,7 +112,26 @@ const columns: ColumnDef<IProject>[] = [
     },
   },
   { accessorKey: 'impactLevel', header: 'Nivel de Impacto' },
+  {
+    accessorKey: 'owner',
+    header: 'Proprietario',
+    cell: ({ row }) => {
+      const project = row.original;
+      const { owner } = project;
 
+      return (
+        <div className="w-52">
+          <ProfileInfo
+            size="sm"
+            givenName={owner.givenName}
+            familyName={owner.familyName}
+            email={owner.email}
+            avatarUrl={owner.avatarUrl}
+          />
+        </div>
+      );
+    },
+  },
   {
     id: 'actions',
     cell: ({ row }) => {
@@ -217,7 +206,7 @@ export default function ProjectsTable() {
   const { data: projects, isLoading: loadingProjects } = useAllProjects();
 
   return (
-    <div className="max-w-6xl">
+    <div className="max-w-6xl w-full">
       {loadingProjects ? (
         <LoadingMessage message="Cargando proyectos" />
       ) : (

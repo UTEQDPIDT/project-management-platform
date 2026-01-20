@@ -21,13 +21,6 @@ export class CreateProjectDto {
   name: string;
 
   @ApiProperty({
-    description: 'Resumen del proyecto.',
-  })
-  @IsString()
-  @MaxLength(500)
-  summary: string;
-
-  @ApiProperty({
     description: 'Objetivo principal del proyecto.',
   })
   @IsString()
@@ -121,13 +114,6 @@ export class CreateProjectDto {
   @IsOptional()
   @IsArray()
   activities: { name: string }[];
-
-  @ApiPropertyOptional({
-    description: 'Productos relacionados al proyecto.',
-  })
-  @IsOptional()
-  @IsMongoId({ each: true })
-  products: string[];
 
   @ApiPropertyOptional({
     description: 'Fecha de inicio del proyecto, esta será el inicio del plazo.',

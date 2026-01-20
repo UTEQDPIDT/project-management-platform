@@ -10,13 +10,21 @@ import {
 import { PageContent } from '@/components/page-content';
 import { Button } from '@/components/ui/button';
 import React from 'react';
-import { Plus } from 'lucide-react';
+import { Folder, Plus, Users } from 'lucide-react';
 import { useAllTeams } from '@/hooks/team';
 import LoadingMessage from '@/components/loading-message';
 import Link from 'next/link';
 import { ITeam } from '@repo/types';
 import TeamCard from '@/components/team-card';
 import ErrorCard from '@/components/error-card';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
 
 const Page = () => {
   const { data: teams, isLoading: loadingTeams, isError } = useAllTeams(false);
@@ -31,7 +39,7 @@ const Page = () => {
           </HeaderDescription>
         </HeaderHeading>
         <HeaderAction>
-          <Button asChild>
+          <Button size="sm" asChild>
             <Link href={'/user/equipos/crear'}>
               <Plus />
               Crear Equipo
@@ -44,23 +52,29 @@ const Page = () => {
           <LoadingMessage message="Cargando equipos" />
         ) : isError ? (
           <ErrorCard />
-        ) : (
+        ) : teams.length ? (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
             {teams.map((team: ITeam) => (
-              <TeamCard
-                key={team._id}
-                _id={team._id}
-                teamName={team.teamName}
-                summary={team.summary}
-                grade={team.grade}
-                division={team.division}
-                members={team.members}
-                collaborators={team.collaborators}
-                owner={team.owner}
-                userRequests={team.userRequests}
-              />
+              <TeamCard key={team._id} team={team} />
             ))}
           </div>
+        ) : (
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Users />
+              </EmptyMedia>
+              <EmptyTitle>No Hay Equipos</EmptyTitle>
+              <EmptyDescription>
+                No haz creado ningun equipo. Inicia creando tu primer equipo.
+              </EmptyDescription>
+              <EmptyContent>
+                <Button size="sm" asChild>
+                  <Link href={'/user/equipos/crear'}>Crear Equipo</Link>
+                </Button>
+              </EmptyContent>
+            </EmptyHeader>
+          </Empty>
         )}
       </PageContent>
     </div>

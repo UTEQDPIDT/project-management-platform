@@ -1,18 +1,19 @@
 'use client';
 
-import { ITeam } from '@repo/types';
 import { teamSchema } from '@/schemas/team.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-
 import { useDivisions } from '@/hooks/catalogs';
 import { useUpdateTeam } from '@/hooks/team';
-
-import { resolveEmails } from '@/services/users.service';
-
-import { SeedCategory, IResolvedEmail, TeamsGrade } from '@repo/types';
-import { PlusIcon, XIcon } from 'lucide-react';
+import {
+  SeedCategory,
+  TeamsGrade,
+  IUser,
+  UserType,
+  ITeam,
+  TeamMembershipRole,
+} from '@repo/types';
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
 import {
@@ -33,10 +34,18 @@ import {
   FieldSeparator,
   FieldSet,
 } from '../ui/field';
+import { useRouter } from 'next/navigation';
+import { userProfile } from 'context/profile-provider';
+import Link from 'next/link';
+import { getBaseUrlBasedOnRole } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Command, CommandGroup, CommandItem } from '../ui/command';
+import { ProfileInfo } from '../profile-info';
+import { useGetAllUsers } from '@/hooks/user';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupButton,
   InputGroupInput,
   InputGroupTextarea,
 } from '../ui/input-group';
@@ -48,115 +57,79 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Switch } from '../ui/switch';
-import { useRouter } from 'next/navigation';
-import { userProfile } from 'context/profile-provider';
-import Link from 'next/link';
-import { getBaseUrlBasedOnRole } from '@/lib/utils';
 
-export function UpdateTeamForm({
-  _id: teamId,
-  teamName,
-  summary,
-  division,
-  grade,
-  members,
-  collaborators,
-  isPrivate,
-}: Pick<
-  ITeam,
-  | '_id'
-  | 'teamName'
-  | 'summary'
-  | 'division'
-  | 'grade'
-  | 'members'
-  | 'collaborators'
-  | 'isPrivate'
->) {
+type UpdateTeamFormProps = {
+  team: ITeam;
+};
+
+export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
   const router = useRouter();
-
   const { user } = userProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   /**
-   * React Query Hooks
+   * Tanstack
    */
   const { data: divisions, isLoading: loadingDivisions } = useDivisions();
+  const { data: users, isLoading: loadingUsers } = useGetAllUsers();
   const updateTeam = useUpdateTeam();
+
+  // Extract members and collaborators by role from memberships
+  const memberIds = team.memberships
+    .filter((m) => m.role === TeamMembershipRole.MEMBER)
+    .map((m) => m.user?._id)
+    .filter(Boolean);
+  const collaboratorIds = team.memberships
+    .filter((m) => m.role === TeamMembershipRole.COLLABORATOR)
+    .map((m) => m.user?._id)
+    .filter(Boolean);
+
+  // Filter out the current user and users already in memberships
+  const existingUserIds = team.memberships
+    .map((m) => m.user?._id)
+    .filter(Boolean);
+  const usersWithoutCurrentUserAndMembers =
+    users?.filter(
+      (u: IUser) => u._id !== user._id && !existingUserIds.includes(u._id),
+    ) || [];
+  const teachersAndAdmins = usersWithoutCurrentUserAndMembers.filter(
+    (u: IUser) =>
+      u.type === UserType.MAESTRO || u.type === UserType.ADMINISTRATIVO,
+  );
+  const teachersAndStudents = usersWithoutCurrentUserAndMembers.filter(
+    (u: IUser) => u.type === UserType.MAESTRO || u.type === UserType.ESTUDIANTE,
+  );
 
   const form = useForm<z.infer<ReturnType<typeof teamSchema>>>({
     resolver: zodResolver(teamSchema(user.email)),
     mode: 'onChange',
     defaultValues: {
-      teamName: teamName || '',
-      summary: summary || '',
-      division: division?._id || '',
-      grade: grade || TeamsGrade.FORMACION,
-      members: members.map((m) => m.email) || [],
-      collaborators: collaborators.map((m) => m.email) || [],
-      isPrivate: isPrivate || true,
+      teamName: team.teamName || '',
+      summary: team.summary || '',
+      division: team.division?._id || '',
+      grade: team.grade || TeamsGrade.FORMACION,
+      members: memberIds,
+      collaborators: collaboratorIds,
+      isPrivate: team.isPrivate ?? true,
     },
   });
 
-  /**
-   * Array Fields
-   */
-  const {
-    fields: membersField,
-    append: addMember,
-    remove: removeMember,
-  } = useFieldArray({
-    control: form.control,
-    name: 'members',
-  });
-
-  const {
-    fields: collaboratorsField,
-    append: addCollaborator,
-    remove: removeCollaborator,
-  } = useFieldArray({
-    control: form.control,
-    name: 'collaborators',
-  });
-
-  /**
-   * Handlers
-   */
   const onSubmit = async (data: z.infer<ReturnType<typeof teamSchema>>) => {
     try {
-      let resolvedMembersEmails;
-      let membersIds;
-      let resolvedCollaboratorsEmails;
-      let collaboratorsIds;
-
-      if (data.members.length > 0) {
-        // resolve all emails -> userIds for members
-        resolvedMembersEmails = await resolveEmails(data.members);
-        // filter valid ids
-        membersIds = resolvedMembersEmails
-          .filter((m: IResolvedEmail) => m._id !== null)
-          .map((m: IResolvedEmail) => m._id);
-      }
-
-      if (data.collaborators.length > 0) {
-        resolvedCollaboratorsEmails = await resolveEmails(data.collaborators);
-
-        collaboratorsIds = resolvedCollaboratorsEmails
-          .filter((c: IResolvedEmail) => c._id !== null)
-          .map((c: IResolvedEmail) => c._id);
-      }
+      const divisionObj =
+        data.division && divisions
+          ? divisions.find((d: SeedCategory) => d._id === data.division)
+          : undefined;
 
       const cleanedData = {
         ...data,
         teamName: data.teamName,
         summary: data.summary === '' ? undefined : data.summary,
-        division: data.division === '' ? undefined : data.division,
-        members: data.members.length > 0 ? membersIds : [],
-        collaborators: data.collaborators.length > 0 ? collaboratorsIds : [],
+        division: divisionObj,
       };
-      updateTeam.mutate({ teamId, teamData: cleanedData });
+      updateTeam.mutate({ teamId: team._id, teamData: cleanedData });
       form.reset();
-      router.push(`${baseUrl}/equipos/${teamId}`);
+      router.push(`${baseUrl}/equipos/${team._id}`);
     } catch (err) {
       console.error('Error cleaning data', err);
     }
@@ -204,7 +177,6 @@ export function UpdateTeamForm({
                   </Field>
                 )}
               />
-
               <Controller
                 control={form.control}
                 name="summary"
@@ -223,7 +195,9 @@ export function UpdateTeamForm({
                         id={field.name}
                         aria-invalid={fieldState.invalid}
                         placeholder="e.g. Equipo centrado en fortalecer las habilidades de los estudiantes por medio de proyectos de alto impácto..."
+                        className="textarea"
                       />
+
                       <InputGroupAddon align="block-end">
                         {field.value?.length}/255
                       </InputGroupAddon>
@@ -234,7 +208,6 @@ export function UpdateTeamForm({
                   </Field>
                 )}
               />
-
               <Controller
                 control={form.control}
                 name="division"
@@ -270,7 +243,6 @@ export function UpdateTeamForm({
                   </Field>
                 )}
               />
-
               <Controller
                 control={form.control}
                 name="grade"
@@ -310,7 +282,6 @@ export function UpdateTeamForm({
             </FieldGroup>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader>
             <CardTitle>Integrantes</CardTitle>
@@ -318,7 +289,6 @@ export function UpdateTeamForm({
               Invita a personas a formar parte de tu equipo.
             </CardDescription>
           </CardHeader>
-
           <CardContent className="flex flex-col gap-6">
             <FieldSet>
               <FieldLegend variant="label" className="mb-2">
@@ -327,68 +297,84 @@ export function UpdateTeamForm({
               <FieldDescription>
                 Los miembros tienen acceso completo a los proyectos del equipo.
               </FieldDescription>
-              <FieldGroup className="gap-4">
-                {membersField.map((member, idx) => (
-                  <Controller
-                    key={member.id}
-                    control={form.control}
-                    name={`members.${idx}`}
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid}>
-                        <FieldContent>
-                          <InputGroup>
-                            <InputGroupInput
-                              {...field}
-                              id={`member-${idx}`}
-                              aria-label={`Member ${idx + 1}`}
-                              aria-invalid={fieldState.invalid}
-                              placeholder="nombre@uteq.edu.mx"
-                              type="email"
-                              autoComplete="email"
-                            />
-                            <InputGroupAddon align="inline-end">
-                              <InputGroupButton
-                                type="button"
-                                variant="ghost"
-                                size="icon-xs"
-                                onClick={() => removeMember(idx)}
-                                aria-label={`Remove member ${idx + 1}`}
-                              >
-                                <XIcon />
-                              </InputGroupButton>
-                            </InputGroupAddon>
-                          </InputGroup>
-                          {fieldState.invalid && (
-                            <FieldError errors={[fieldState.error]} />
-                          )}
-                        </FieldContent>
-                      </Field>
-                    )}
-                  />
-                ))}
-                {form.formState.errors.members?.root?.message && (
-                  <FieldError
-                    errors={[
-                      {
-                        message: form.formState.errors.members.root.message,
-                      },
-                    ]}
-                  />
-                )}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addMember('')}
-                >
-                  <PlusIcon />
-                  Añadir miembro
-                </Button>
-              </FieldGroup>
+              <Controller
+                control={form.control}
+                name="members"
+                render={({ field }) => {
+                  const value = field.value ?? [];
+                  return (
+                    <FieldGroup>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between font-normal"
+                          >
+                            {value.length ? (
+                              `${value.length} seleccionados`
+                            ) : (
+                              <span className="text-muted-foreground font-normal">
+                                Sin selección
+                              </span>
+                            )}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full md:w-xl max-h-96 overflow-y-auto p-0">
+                          <Command>
+                            <CommandGroup>
+                              {loadingUsers ? (
+                                <CommandItem disabled>
+                                  <LoadingMessage />
+                                </CommandItem>
+                              ) : teachersAndStudents?.length > 0 ? (
+                                teachersAndStudents.map((user: IUser) => {
+                                  const selected = value.includes(user._id);
+                                  return (
+                                    <CommandItem
+                                      key={user._id}
+                                      onSelect={() => {
+                                        field.onChange(
+                                          selected
+                                            ? value.filter(
+                                                (v) => v !== user._id,
+                                              )
+                                            : [...value, user._id],
+                                        );
+                                      }}
+                                      className="flex justify-between"
+                                    >
+                                      <ProfileInfo
+                                        givenName={user.givenName}
+                                        familyName={user.familyName}
+                                        avatarUrl={user.avatarUrl}
+                                        userType={user.type}
+                                        size="sm"
+                                      />
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
+                                      />
+                                    </CommandItem>
+                                  );
+                                })
+                              ) : (
+                                <div className="w-full select-none p-2 flex items-center justify-center">
+                                  <span className="text-muted-foreground text-sm">
+                                    No hay más usuarios
+                                  </span>
+                                </div>
+                              )}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FieldGroup>
+                  );
+                }}
+              />
             </FieldSet>
-
             <FieldSeparator />
-
             <FieldSet>
               <FieldLegend variant="label" className="mb-2">
                 Colaboradores
@@ -397,69 +383,85 @@ export function UpdateTeamForm({
                 Los colaboradores tienen acceso límitado a los contenidos del
                 equipo, solo podrán visualizar y descargar contenidos.
               </FieldDescription>
-              <FieldGroup className="gap-4">
-                {collaboratorsField.map((collaborator, idx) => (
-                  <Controller
-                    key={collaborator.id}
-                    control={form.control}
-                    name={`collaborators.${idx}`}
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid}>
-                        <FieldContent>
-                          <InputGroup>
-                            <InputGroupInput
-                              {...field}
-                              id={`collaborator-${idx}`}
-                              aria-label={`Colaborador ${idx + 1}`}
-                              aria-invalid={fieldState.invalid}
-                              placeholder="nombre@uteq.edu.mx"
-                              type="email"
-                              autoComplete="email"
-                            />
-                            <InputGroupAddon align="inline-end">
-                              <InputGroupButton
-                                type="button"
-                                variant="ghost"
-                                size="icon-xs"
-                                onClick={() => removeCollaborator(idx)}
-                                aria-label={`Remove collaborator ${idx + 1}`}
-                              >
-                                <XIcon />
-                              </InputGroupButton>
-                            </InputGroupAddon>
-                          </InputGroup>
-                          {fieldState.invalid && (
-                            <FieldError errors={[fieldState.error]} />
-                          )}
-                        </FieldContent>
-                      </Field>
-                    )}
-                  />
-                ))}
-                {form.formState.errors.collaborators?.root?.message && (
-                  <FieldError
-                    errors={[
-                      {
-                        message:
-                          form.formState.errors.collaborators.root.message,
-                      },
-                    ]}
-                  />
-                )}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addCollaborator('')}
-                >
-                  <PlusIcon />
-                  Añadir colaborador
-                </Button>
-              </FieldGroup>
+              <Controller
+                control={form.control}
+                name="collaborators"
+                render={({ field }) => {
+                  const value = field.value ?? [];
+                  return (
+                    <FieldGroup>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between font-normal"
+                          >
+                            {value.length ? (
+                              `${value.length} seleccionados`
+                            ) : (
+                              <span className="text-muted-foreground font-normal">
+                                Sin selección
+                              </span>
+                            )}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full md:w-xl max-h-96 overflow-y-auto p-0">
+                          <Command>
+                            <CommandGroup>
+                              {loadingUsers ? (
+                                <CommandItem disabled>
+                                  <LoadingMessage />
+                                </CommandItem>
+                              ) : teachersAndAdmins.length > 0 ? (
+                                teachersAndAdmins.map((user: IUser) => {
+                                  const selected = value.includes(user._id);
+                                  return (
+                                    <CommandItem
+                                      key={user._id}
+                                      onSelect={() => {
+                                        field.onChange(
+                                          selected
+                                            ? value.filter(
+                                                (v) => v !== user._id,
+                                              )
+                                            : [...value, user._id],
+                                        );
+                                      }}
+                                      className="flex justify-between"
+                                    >
+                                      <ProfileInfo
+                                        givenName={user.givenName}
+                                        familyName={user.familyName}
+                                        avatarUrl={user.avatarUrl}
+                                        userType={user.type}
+                                        size="sm"
+                                      />
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
+                                      />
+                                    </CommandItem>
+                                  );
+                                })
+                              ) : (
+                                <div className="w-full select-none p-2 flex items-center justify-center">
+                                  <span className="text-muted-foreground text-sm">
+                                    No hay más usuarios
+                                  </span>
+                                </div>
+                              )}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FieldGroup>
+                  );
+                }}
+              />
             </FieldSet>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader>
             <CardTitle>Ajustes</CardTitle>
@@ -502,10 +504,9 @@ export function UpdateTeamForm({
             </FieldGroup>
           </CardContent>
         </Card>
-
         <div className="flex gap-2">
           <Button asChild variant={'outline'} type="button">
-            <Link href={`${baseUrl}/equipos/${teamId}`}>Cancelar</Link>
+            <Link href={`${baseUrl}/equipos/${team._id}`}>Cancelar</Link>
           </Button>
           <Button type="submit" disabled={updateTeam.isPending}>
             {updateTeam.isPending ? (

@@ -101,7 +101,6 @@ export function CreateProjectForm() {
     mode: 'onChange',
     defaultValues: {
       name: '',
-      summary: '',
       objective: '',
       trlRating: 3,
       knowledgeAreas: [],
@@ -140,8 +139,8 @@ export function CreateProjectForm() {
       };
 
       createProject.mutate(cleanedData);
-      form.reset();
-      router.push(`${rootUrl}/proyectos`);
+      //   form.reset();
+      //   router.push(`${rootUrl}/proyectos`);
     } catch (err) {
       console.error('Error cleaning data', err);
     }
@@ -181,35 +180,6 @@ export function CreateProjectForm() {
                       />
                       <InputGroupAddon align="inline-end">
                         {field.value?.length}/200
-                      </InputGroupAddon>
-                    </InputGroup>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                control={form.control}
-                name="summary"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldContent>
-                      <FieldLabel htmlFor={field.name}>Descripción*</FieldLabel>
-                      <FieldDescription>
-                        Describe brevemente el propósito del proyecto.
-                      </FieldDescription>
-                    </FieldContent>
-                    <InputGroup>
-                      <InputGroupTextarea
-                        {...field}
-                        id={field.name}
-                        aria-invalid={fieldState.invalid}
-                        placeholder="Una breve descripción del proyecto"
-                      />
-                      <InputGroupAddon align="block-end">
-                        {field.value?.length}/255
                       </InputGroupAddon>
                     </InputGroup>
                     {fieldState.invalid && (

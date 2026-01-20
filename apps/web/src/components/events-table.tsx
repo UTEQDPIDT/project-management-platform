@@ -35,11 +35,29 @@ import { Badge } from './ui/badge';
 import Link from 'next/link';
 import AvatarRow from './avatar-row';
 import { ProfileInfo } from './profile-info';
+import CopyButton from './ui/copy';
+import { useFilesForEntity } from '@/hooks/files';
+import FileButton from './file-button';
 
 const columns: ColumnDef<IEvent>[] = [
   {
     accessorKey: 'name',
     header: 'Nombre',
+    cell: ({ row }) => {
+      const { name } = row.original;
+
+      return (
+        <div className="flex gap-1 items-center justify-center group">
+          <div className="max-w-72 truncate">
+            <span>{name}</span>
+          </div>
+          <CopyButton
+            valueToCopy={name}
+            className="group-hover:opacity-100 opacity-0"
+          />
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'isPrivate',
@@ -62,16 +80,6 @@ const columns: ColumnDef<IEvent>[] = [
   {
     accessorKey: 'type',
     header: 'Tipo',
-    cell: ({ row }) => {
-      const event = row.original;
-      const { type } = event;
-
-      return (
-        <div>
-          <Badge variant="outline">{type}</Badge>
-        </div>
-      );
-    },
   },
   {
     accessorKey: 'organization',
@@ -100,19 +108,17 @@ const columns: ColumnDef<IEvent>[] = [
     accessorKey: 'location',
     header: 'Ubicación',
     cell: ({ row }) => {
-      const location = String(row.getValue('location'));
+      const { location } = row.original;
 
       return (
-        <div className="flex gap-1 items-center justify-center">
-          <span>{location}</span>
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            title="Copiar la ubicación"
-            onClick={() => navigator.clipboard.writeText(location)}
-          >
-            <Copy />
-          </Button>
+        <div className="flex gap-1 items-center justify-center group">
+          <div className="max-w-72 truncate">
+            <span>{location}</span>
+          </div>
+          <CopyButton
+            valueToCopy={location}
+            className="group-hover:opacity-100 opacity-0"
+          />
         </div>
       );
     },
@@ -123,7 +129,15 @@ const columns: ColumnDef<IEvent>[] = [
     cell: ({ row }) => {
       const event = row.original;
       const { participants } = event;
-      return <AvatarRow profiles={participants} />;
+      return (
+        <div>
+          {participants.length ? (
+            <AvatarRow profiles={participants} />
+          ) : (
+            <span className="text-sm text-muted-foreground">Vacío</span>
+          )}
+        </div>
+      );
     },
   },
   {
@@ -167,7 +181,7 @@ const columns: ColumnDef<IEvent>[] = [
   },
   {
     accessorKey: 'createdAt',
-    header: 'Creado el',
+    header: 'Fecha de creación',
     cell: ({ row }) => {
       const date = format(
         row.getValue('createdAt'),
@@ -182,7 +196,7 @@ const columns: ColumnDef<IEvent>[] = [
   },
   {
     accessorKey: 'updatedBy',
-    header: 'Editado por',
+    header: 'Modificado por',
     cell: ({ row }) => {
       const event = row.original;
       const { createdBy: updatedBy } = event;
@@ -201,7 +215,7 @@ const columns: ColumnDef<IEvent>[] = [
   },
   {
     accessorKey: 'updatedAt',
-    header: 'Editado el',
+    header: 'Fecha de modificación',
     cell: ({ row }) => {
       const date = format(
         row.getValue('updatedAt'),
@@ -215,16 +229,20 @@ const columns: ColumnDef<IEvent>[] = [
     },
   },
   {
-    accessorKey: 'report',
-    header: 'Reporte',
+    id: 'report',
+    header: 'Informe',
     cell: ({ row }) => {
       const event = row.original;
-      const report = event.report;
+      const { data: files = [], isLoading } = useFilesForEntity(event._id);
+
+      console.log('Fetched file', files);
 
       return (
         <div>
-          {report ? (
-            <div>reporte</div>
+          {isLoading ? (
+            <LoadingMessage />
+          ) : files.length ? (
+            <FileButton file={files[0]} className="max-w-72" />
           ) : (
             <span className="text-sm text-muted-foreground">Vacío</span>
           )}
@@ -301,7 +319,7 @@ export function EventsTable() {
   const { data: events, isLoading: loadingEvents } = useGetAllEvents();
 
   return (
-    <div className="max-w-6xl">
+    <div className="max-w-6xl w-full">
       {loadingEvents ? (
         <LoadingMessage message="Cargando eventos" />
       ) : (

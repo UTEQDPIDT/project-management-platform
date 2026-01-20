@@ -6,7 +6,7 @@ import {
 } from '@/hooks/catalogs';
 import { productSchema } from '@/schemas/product.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CoAuthor, IProduct, SeedCategory } from '@repo/types';
+import { CoAuthor, IFile, IProduct, SeedCategory } from '@repo/types';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import LoadingMessage from '../loading-message';
@@ -22,7 +22,6 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-  InputGroupTextarea,
 } from '../ui/input-group';
 import {
   Select,
@@ -33,21 +32,12 @@ import {
 } from '../ui/select';
 import { Button } from '../ui/button';
 import { DialogClose } from '../ui/dialog';
-import { useCreateProduct } from '@/hooks/projects';
-import { useUpdateProduct } from '@/hooks/products';
+import { useCreateProduct, useUpdateProduct } from '@/hooks/products';
+import { Input } from '../ui/input';
+import { useFilesForEntity } from '@/hooks/files';
 
 interface Props {
-  product?: Pick<
-    IProduct,
-    | '_id'
-    | 'name'
-    | 'details'
-    | 'category'
-    | 'subcategory'
-    | 'coAuthor'
-    | 'owner'
-    | 'files'
-  >;
+  product?: IProduct;
   projectId: string;
 }
 
@@ -57,6 +47,17 @@ export function ProductForm({ projectId, product }: Props) {
   const { data: subcategories, isLoading: loadingSubcategories } =
     useProductSubcategories();
 
+  let currentFile: IFile;
+  if (product) {
+    const { data: files, isLoading: loadingFile } = useFilesForEntity(
+      product?._id,
+    );
+
+    currentFile = Array.isArray(files) ? files[0] : files;
+  }
+
+  // Safely get the first file if it's an array, or use it directly if it's an object
+
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
 
@@ -65,7 +66,6 @@ export function ProductForm({ projectId, product }: Props) {
     mode: 'onChange',
     defaultValues: {
       name: product?.name || '',
-      details: product?.details || '',
       category: product?.category._id || '',
       subcategory: product?.subcategory._id || '',
       coAuthor: product?.coAuthor || CoAuthor.A,
@@ -77,19 +77,24 @@ export function ProductForm({ projectId, product }: Props) {
    */
   const onSubmit = async (data: z.infer<typeof productSchema>) => {
     try {
-      const cleanedData = {
-        ...data,
-        details: data.details === '' ? undefined : data.details,
-      };
-      //   console.log('CLEAN DATA', cleanedData);
+      const formData = new FormData();
+      formData.append('name', data.name);
+      formData.append('category', data.category);
+      formData.append('subcategory', data.subcategory);
+      formData.append('coAuthor', data.coAuthor);
+      formData.append('projectId', projectId);
+
+      if (data.file) {
+        formData.append('file', data.file);
+      }
 
       if (product) {
         updateProduct.mutate({
           productId: product._id,
-          productData: cleanedData,
+          productData: formData,
         });
       } else {
-        createProduct.mutate({ projectId, productData: cleanedData });
+        createProduct.mutate({ productData: formData });
       }
     } catch (err) {
       console.error('Error on submit', err);
@@ -194,34 +199,10 @@ export function ProductForm({ projectId, product }: Props) {
 
         <Controller
           control={form.control}
-          name="details"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldContent>
-                <FieldLabel htmlFor={field.name}>Detalle</FieldLabel>
-              </FieldContent>
-              <InputGroup>
-                <InputGroupTextarea
-                  {...field}
-                  id={field.name}
-                  aria-invalid={fieldState.invalid}
-                  placeholder="Detalla el tipo de producto y autor"
-                />
-                <InputGroupAddon align="block-end">
-                  {field.value?.length}/255
-                </InputGroupAddon>
-              </InputGroup>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
-
-        <Controller
-          control={form.control}
           name="coAuthor"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Co Author</FieldLabel>
+              <FieldLabel htmlFor={field.name}>Tipo de Co Author</FieldLabel>
               <Select {...field} onValueChange={field.onChange}>
                 <SelectTrigger
                   id={field.name}
@@ -242,6 +223,50 @@ export function ProductForm({ projectId, product }: Props) {
             </Field>
           )}
         />
+
+        <Controller
+          control={form.control}
+          name="file"
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldContent>
+                <FieldLabel htmlFor={field.name}>
+                  Archivo {!product && '*'}
+                </FieldLabel>
+              </FieldContent>
+
+              {currentFile &&
+                typeof currentFile === 'object' &&
+                currentFile.originalName && (
+                  <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
+                    <p className="text-sm text-blue-700">
+                      <span className="font-medium">Archivo actual:</span>{' '}
+                      {currentFile.originalName}
+                    </p>
+                  </div>
+                )}
+
+              <Input
+                id={field.name}
+                name={field.name}
+                aria-invalid={fieldState.invalid}
+                type="file"
+                accept=".pdf"
+                onChange={(e) => field.onChange(e.target.files?.[0])}
+                onBlur={field.onBlur}
+                disabled={field.disabled}
+              />
+
+              {fieldState.invalid ? (
+                <FieldError errors={[fieldState.error]} />
+              ) : (
+                <FieldDescription>
+                  Solo se aceptan archivos PDF
+                </FieldDescription>
+              )}
+            </Field>
+          )}
+        />
       </FieldGroup>
 
       <div className="flex gap-2">
@@ -250,7 +275,9 @@ export function ProductForm({ projectId, product }: Props) {
             Cancelar
           </Button>
         </DialogClose>
-        <Button type="submit">{product ? 'Actualizar' : 'Crear'}</Button>
+        <DialogClose asChild>
+          <Button type="submit">{product ? 'Actualizar' : 'Crear'}</Button>
+        </DialogClose>
       </div>
     </form>
   );

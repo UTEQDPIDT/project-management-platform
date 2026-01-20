@@ -1,6 +1,5 @@
 import { IActivity } from './activity.type';
 import { ImpactLevel } from './enums/impact-level.enum';
-import { IProduct } from './product.type';
 import { SeedCategory } from './seed-category.type';
 import { ITeam } from './team.type';
 import { IUser } from './user.type';
@@ -8,7 +7,6 @@ import { IUser } from './user.type';
 export interface IProject {
   _id: string;
   name: string;
-  summary: string;
   objective: string;
   trlRating?: number;
   knowledgeAreas?: SeedCategory[];
@@ -21,8 +19,6 @@ export interface IProject {
   owner: IUser;
   team?: ITeam;
   relatedProjects?: IProject[];
-  activities: IActivity[];
-  products?: IProduct[];
   updatedBy?: IUser;
   startDate: Date;
   endDate: Date;

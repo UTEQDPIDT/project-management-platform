@@ -1,4 +1,4 @@
-import { Ability, AbilityBuilder, AbilityClass, ExtractSubjectType, InferSubjects } from "@casl/ability";
+import { AbilityBuilder, ExtractSubjectType, InferSubjects , MongoAbility, createMongoAbility} from "@casl/ability";
 import { Injectable } from "@nestjs/common";
 import { User, Activity, Event, File, Product, Project, Team } from "../schemas/index";
 import { TeamUserRole, TeamUserStatus } from "@repo/types";
@@ -10,16 +10,18 @@ export enum Action {
     Read = 'read',
     Update = 'update',
     Delete = 'delete',
+    UpdateContent = 'updateContent',
 }
 
 export type Subjects = InferSubjects<typeof User | typeof Activity | typeof Event | typeof File | typeof Product | typeof Project | typeof Team> | 'all';
 
-export type AppAbility = Ability<[Action, Subjects]>;
+export type AppAbility = MongoAbility<[Action, Subjects]>;
 
 @Injectable()
 export class AbilityFactory {
     defineAbility(user: User) {
-        const { can, build} = new AbilityBuilder(Ability as AbilityClass<AppAbility>);
+        const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
+
 
         //ADMINS        
         if (user.role === 'ADMIN') {
@@ -32,11 +34,11 @@ export class AbilityFactory {
 
             can([Action.Create, Action.Read], Project); // users can create and read projects
 
-            //Only project owners can update and delete their projects
-            can(Action.Update, Project, {owner: user._id});
-            can(Action.Delete, Project, {owner: user._id});
+            can([Action.Update, Action.Delete], Project, {owner: user._id}); //Only project owners can update and delete their projects
 
             can(Action.Read, [Event, User]); // users can read events and user info
+
+            can(Action.UpdateContent, Event, {participants: user._id} ); // users can update and delete events they are participating in
 
             can(Action.Create, Team); // users can create teams
 

@@ -59,6 +59,15 @@ const getAllFiles = async () => {
   }
 };
 
+const getFilesForEntity = async (entityId: string) => {
+  try {
+    const { data } = await api.get(`/files/for-entity/${entityId}`);
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const downloadFile = async (fileId: string, fileName: string) => {
   try {
     const { data } = await api.get(`/files/download/${fileId}`, {
@@ -66,7 +75,7 @@ const downloadFile = async (fileId: string, fileName: string) => {
     });
 
     // Create a blob URL and trigger download
-    const url = window.URL.createObjectURL(new Blob([data]));
+    const url = window.URL.createObjectURL(data);
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', fileName); // Use the actual filename
@@ -97,6 +106,7 @@ export {
   uploadFile,
   uploadMultipleFiles,
   getAllFiles,
+  getFilesForEntity,
   downloadFile,
   deleteFile,
 };
