@@ -211,17 +211,18 @@ export function ActivityCard({
           )}
         </Card>
       </SheetTrigger>
-      <SheetContent className="lg:min-w-[500px]">
+
+      <SheetContent>
         <SheetHeader>
           <SheetTitle className="text-lg">{activity.name}</SheetTitle>
           <SheetDescription>{activity.description}</SheetDescription>
         </SheetHeader>
 
-        <div className="flex flex-col gap-6 px-4">
+        <div className="flex flex-col gap-6 px-4 items-end">
           {enableOptions && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon-xs">
+                <Button variant="outline" size="icon-sm">
                   <Ellipsis />
                 </Button>
               </DropdownMenuTrigger>
@@ -235,11 +236,13 @@ export function ActivityCard({
             </DropdownMenu>
           )}
 
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <div className="text-sm text-muted-foreground w-20">Estado</div>
-              <Badge variant="blue">{activity.status}</Badge>
-            </div>
+          <div className="flex flex-col gap-4 w-full">
+            {showStatus && (
+              <div className="flex items-center gap-2">
+                <div className="text-sm text-muted-foreground w-20">Estado</div>
+                <Badge variant="blue">{activity.status}</Badge>
+              </div>
+            )}
 
             <div className="flex items-center gap-2">
               <div className="text-sm text-muted-foreground w-20">
@@ -265,30 +268,30 @@ export function ActivityCard({
               <div className="text-sm text-muted-foreground w-20">
                 Vencimiento
               </div>
-              <span>
-                {activity.dueDate ? (
-                  format(activity.dueDate, "'Vence el' d 'de' MMM 'de' yyyy", {
-                    locale: es,
-                  })
-                ) : (
-                  <span className="text-sm text-muted-foreground">
-                    Sin fecha
-                  </span>
-                )}
+              <span className="text-sm">
+                {activity.dueDate
+                  ? format(activity.dueDate, "d 'de' MMMM 'de' yyyy", {
+                      locale: es,
+                    })
+                  : 'Sin fecha'}
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="text-sm text-muted-foreground w-20">
-                Prioridad
+            {showPriority && (
+              <div className="flex items-center gap-2">
+                <div className="text-sm text-muted-foreground w-20">
+                  Prioridad
+                </div>
+                <Badge variant={priorityBadgeVariant}>
+                  {activity.priority}
+                </Badge>
               </div>
-              <Badge variant={priorityBadgeVariant}>{activity.priority}</Badge>
-            </div>
+            )}
           </div>
 
           <Separator />
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 w-full">
             <div className="w-full flex justify-between items-center">
               <h2 className="font-medium">Evidencias</h2>
               <Sheet>

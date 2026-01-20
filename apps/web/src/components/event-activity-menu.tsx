@@ -34,7 +34,7 @@ export default function EventActivityMenu({
     <div className="flex flex-col gap-1">
       {/* Edit */}
       <Dialog>
-        <DialogTrigger className="border-transparent w-full justify-start">
+        <DialogTrigger className="border-transparent w-full justify-start font-normal [&_svg:not([class*='text-'])]:text-muted-foreground">
           <Pencil /> Editar actividad
         </DialogTrigger>
         <DialogContent>
@@ -50,7 +50,7 @@ export default function EventActivityMenu({
 
       {/* Delete */}
       <Dialog>
-        <DialogTrigger className="border-transparent w-full justify-start hover:text-destructive-foreground">
+        <DialogTrigger className="border-transparent w-full justify-start hover:text-destructive-foreground font-normal [&_svg:not([class*='text-'])]:text-muted-foreground hover:[&>svg]:text-destructive-foreground">
           <Trash /> Eliminar actividad
         </DialogTrigger>
         <DialogContent className="gap-5">
