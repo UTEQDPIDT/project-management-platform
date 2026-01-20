@@ -4,10 +4,8 @@ import { teamSchema } from '@/schemas/team.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-
 import { useDivisions } from '@/hooks/catalogs';
 import { useCreateTeam } from '@/hooks/team';
-
 import { useGetAllUsers } from '@/hooks/user';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { IUser, SeedCategory, TeamsGrade, UserType } from '@repo/types';
@@ -82,6 +80,16 @@ export function CreateTeamForm() {
    * Array Fields
    */
   const { data: users, isLoading: loadingUsers } = useGetAllUsers();
+
+  // Filter out the current user from the list
+  const filteredUsers = users?.filter((u: IUser) => u._id !== user._id) || [];
+  const teachersAndAdmins = filteredUsers.filter(
+    (u: IUser) =>
+      u.type === UserType.MAESTRO || u.type === UserType.ADMINISTRATIVO,
+  );
+  const teachersAndStudents = filteredUsers.filter(
+    (u: IUser) => u.type === UserType.MAESTRO || u.type === UserType.ESTUDIANTE,
+  );
 
   /**
    * Handlers
@@ -278,12 +286,6 @@ export function CreateTeamForm() {
                   const value = field.value ?? [];
                   return (
                     <FieldGroup>
-                      <FieldContent>
-                        <FieldLabel>Miembros</FieldLabel>
-                        <FieldDescription>
-                          Selecciona los miembros del equipo.
-                        </FieldDescription>
-                      </FieldContent>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -308,8 +310,8 @@ export function CreateTeamForm() {
                                 <CommandItem disabled>
                                   <LoadingMessage />
                                 </CommandItem>
-                              ) : users?.length > 0 ? (
-                                users.map((user: IUser) => {
+                              ) : teachersAndStudents?.length > 0 ? (
+                                teachersAndStudents.map((user: IUser) => {
                                   const selected = value.includes(user._id);
                                   return (
                                     <CommandItem
@@ -323,15 +325,17 @@ export function CreateTeamForm() {
                                             : [...value, user._id],
                                         );
                                       }}
+                                      className="flex justify-between"
                                     >
-                                      <Check
-                                        className={`mr-2 h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
-                                      />
                                       <ProfileInfo
                                         givenName={user.givenName}
                                         familyName={user.familyName}
                                         avatarUrl={user.avatarUrl}
+                                        userType={user.type}
                                         size="sm"
+                                      />
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
                                       />
                                     </CommandItem>
                                   );
@@ -367,20 +371,8 @@ export function CreateTeamForm() {
                 render={({ field }) => {
                   const value = field.value ?? [];
                   // Only show users with UserType.MAESTRO or UserType.ADMINISTRATIVO
-                  const filteredUsers =
-                    users?.filter(
-                      (user: IUser) =>
-                        user.type === UserType.MAESTRO ||
-                        user.type === UserType.ADMINISTRATIVO,
-                    ) ?? [];
                   return (
                     <FieldGroup>
-                      <FieldContent>
-                        <FieldLabel>Colaboradores</FieldLabel>
-                        <FieldDescription>
-                          Selecciona los colaboradores del equipo.
-                        </FieldDescription>
-                      </FieldContent>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -405,8 +397,8 @@ export function CreateTeamForm() {
                                 <CommandItem disabled>
                                   <LoadingMessage />
                                 </CommandItem>
-                              ) : filteredUsers.length > 0 ? (
-                                filteredUsers.map((user: IUser) => {
+                              ) : teachersAndAdmins.length > 0 ? (
+                                teachersAndAdmins.map((user: IUser) => {
                                   const selected = value.includes(user._id);
                                   return (
                                     <CommandItem
@@ -420,15 +412,17 @@ export function CreateTeamForm() {
                                             : [...value, user._id],
                                         );
                                       }}
+                                      className="flex justify-between"
                                     >
-                                      <Check
-                                        className={`mr-2 h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
-                                      />
                                       <ProfileInfo
                                         givenName={user.givenName}
                                         familyName={user.familyName}
                                         avatarUrl={user.avatarUrl}
+                                        userType={user.type}
                                         size="sm"
+                                      />
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
                                       />
                                     </CommandItem>
                                   );
@@ -436,7 +430,7 @@ export function CreateTeamForm() {
                               ) : (
                                 <div className="w-full select-none p-2 flex items-center justify-center">
                                   <span className="text-muted-foreground text-sm">
-                                    No se encontraron usuarios.
+                                    No hay profesores.
                                   </span>
                                 </div>
                               )}

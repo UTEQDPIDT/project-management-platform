@@ -42,7 +42,6 @@ import {
   InputGroupInput,
   InputGroupTextarea,
 } from '../ui/input-group';
-import { Input } from '../ui/input';
 import {
   Select,
   SelectContent,
@@ -60,9 +59,18 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
   const router = useRouter();
   const { user } = userProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
+
+  /**
+   * Tanstack
+   */
   const { data: divisions, isLoading: loadingDivisions } = useDivisions();
   const { data: users, isLoading: loadingUsers } = useGetAllUsers();
   const updateTeam = useUpdateTeam();
+
+  // Filter out the current user from the list
+    const filteredUsers = users?.filter((u:IUser) => u._id !== user._id) || [];
+    const teachersAndAdmins = filteredUsers.filter((u:IUser) => u.type === UserType.MAESTRO || u.type === UserType.ADMINISTRATIVO);
+    const teachersAndStudents = filteredUsers.filter((u:IUser) => u.type === UserType.MAESTRO || u.type === UserType.ESTUDIANTE);
 
   // Extract members and collaborators by role from memberships
   const memberIds = team.memberships
@@ -302,8 +310,8 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                                 <CommandItem disabled>
                                   <LoadingMessage />
                                 </CommandItem>
-                              ) : users?.length > 0 ? (
-                                users.map((user: IUser) => {
+                              ) : teachersAndStudents?.length > 0 ? (
+                                teachersAndStudents.map((user: IUser) => {
                                   const selected = value.includes(user._id);
                                   return (
                                     <CommandItem
@@ -317,15 +325,17 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                                             : [...value, user._id],
                                         );
                                       }}
+                                      className='flex justify-between'
                                     >
-                                      <Check
-                                        className={`mr-2 h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
-                                      />
                                       <ProfileInfo
                                         givenName={user.givenName}
                                         familyName={user.familyName}
                                         avatarUrl={user.avatarUrl}
+                                        userType={user.type}
                                         size="sm"
+                                      />
+                                       <Check
+                                        className={`mr-2 h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
                                       />
                                     </CommandItem>
                                   );
@@ -360,13 +370,6 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                 name="collaborators"
                 render={({ field }) => {
                   const value = field.value ?? [];
-                  // Only show users with UserType.MAESTRO or UserType.ADMINISTRATIVO
-                  const filteredUsers =
-                    users?.filter(
-                      (user: IUser) =>
-                        user.type === UserType.MAESTRO ||
-                        user.type === UserType.ADMINISTRATIVO,
-                    ) ?? [];
                   return (
                     <FieldGroup>
                       <Popover>
@@ -393,8 +396,8 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                                 <CommandItem disabled>
                                   <LoadingMessage />
                                 </CommandItem>
-                              ) : filteredUsers.length > 0 ? (
-                                filteredUsers.map((user: IUser) => {
+                              ) : teachersAndAdmins.length > 0 ? (
+                                teachersAndAdmins.map((user: IUser) => {
                                   const selected = value.includes(user._id);
                                   return (
                                     <CommandItem
@@ -408,15 +411,17 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                                             : [...value, user._id],
                                         );
                                       }}
+                                      className='flex justify-between'
                                     >
-                                      <Check
-                                        className={`mr-2 h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
-                                      />
                                       <ProfileInfo
                                         givenName={user.givenName}
                                         familyName={user.familyName}
                                         avatarUrl={user.avatarUrl}
+                                        userType={user.type}
                                         size="sm"
+                                      />
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
                                       />
                                     </CommandItem>
                                   );

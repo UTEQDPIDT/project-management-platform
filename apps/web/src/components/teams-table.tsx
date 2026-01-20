@@ -1,7 +1,12 @@
 'use client';
 
 import { useAllTeams, useDeleteTeam } from '@/hooks/team';
-import { ITeam, TeamsGrade } from '@repo/types';
+import {
+  ITeam,
+  TeamMembershipRole,
+  TeamMembershipStatus,
+  TeamsGrade,
+} from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
 import React from 'react';
 import { DataTable } from './ui/data-table';
@@ -74,10 +79,12 @@ const columns: ColumnDef<ITeam>[] = [
   },
   {
     id: 'owner',
-    header: 'Dueño',
+    header: 'Proprietario',
     cell: ({ row }) => {
       const { memberships } = row.original;
-      const ownerMembership = memberships.find((m) => m.role === 'OWNER');
+      const ownerMembership = memberships.find(
+        (m) => m.role === TeamMembershipRole.OWNER,
+      );
       const owner = ownerMembership?.user;
       return owner ? (
         <div className="min-w-56">
@@ -116,7 +123,11 @@ const columns: ColumnDef<ITeam>[] = [
     cell: ({ row }) => {
       const { memberships } = row.original;
       const members = memberships
-        .filter((m) => m.role === 'MEMBER')
+        .filter(
+          (m) =>
+            m.role === TeamMembershipRole.MEMBER &&
+            m.status === TeamMembershipStatus.ACTIVE,
+        )
         .map((m) => m.user);
       return (
         <div>
@@ -135,7 +146,11 @@ const columns: ColumnDef<ITeam>[] = [
     cell: ({ row }) => {
       const { memberships } = row.original;
       const collaborators = memberships
-        .filter((m) => m.role === 'COLLABORATOR')
+        .filter(
+          (m) =>
+            m.role === TeamMembershipRole.COLLABORATOR &&
+            m.status === TeamMembershipStatus.ACTIVE,
+        )
         .map((m) => m.user);
       return (
         <div>
@@ -150,7 +165,7 @@ const columns: ColumnDef<ITeam>[] = [
   },
   {
     accessorKey: 'createdAt',
-    header: 'Creado el',
+    header: 'Fecha de creación',
     cell: ({ row }) => {
       const { createdAt } = row.original;
       return (
@@ -162,7 +177,7 @@ const columns: ColumnDef<ITeam>[] = [
   },
   {
     accessorKey: 'updatedAt',
-    header: 'Actualizado el',
+    header: 'Fecha de actualización',
     cell: ({ row }) => {
       const { updatedAt } = row.original;
       return (
