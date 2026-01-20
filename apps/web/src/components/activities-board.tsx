@@ -118,7 +118,10 @@ export function ActivitiesBoard({
                         activity={a}
                       />
                     }
+                    className="border-blue-200"
                     enableOptions
+                    showPriority
+                    showStatus
                   />
                 ))}
               </CardContent>
@@ -144,7 +147,10 @@ export function ActivitiesBoard({
                         activity={a}
                       />
                     }
+                    className="border-green-200"
                     enableOptions
+                    showPriority
+                    showStatus
                   />
                 ))}
               </CardContent>

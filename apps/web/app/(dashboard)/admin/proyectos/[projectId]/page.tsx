@@ -83,7 +83,7 @@ const Page = () => {
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                      <Link href="/user/proyectos">Proyectos</Link>
+                      <Link href="/admin/proyectos">Proyectos</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
