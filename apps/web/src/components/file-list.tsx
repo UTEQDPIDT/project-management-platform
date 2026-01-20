@@ -28,12 +28,17 @@ export const useFileContext = () => {
 type FileListProps = PropsWithChildren & {
   onDelete?: (fileId: string) => void;
   onDownload?: (fileId: string) => void;
+  className?: string;
 };
 
-export default function FileList({ children, ...handlers }: FileListProps) {
+export default function FileList({
+  children,
+  className,
+  ...handlers
+}: FileListProps) {
   return (
     <FileContext.Provider value={handlers}>
-      <ul className="space-y-2">{children}</ul>
+      <ul className={cn('space-y-2', className)}>{children}</ul>
     </FileContext.Provider>
   );
 }

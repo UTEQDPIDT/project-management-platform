@@ -35,7 +35,7 @@ export default function ProjectActivityMenu({
       {/* Edit */}
       <Dialog>
         <DialogTrigger className="border-transparent w-full justify-start">
-          <Pencil /> Editar
+          <Pencil /> Editar actividad
         </DialogTrigger>
         <DialogContent>
           <div className="flex gap-3 ">
@@ -51,7 +51,7 @@ export default function ProjectActivityMenu({
       {/* Delete */}
       <Dialog>
         <DialogTrigger className="border-transparent w-full justify-start hover:text-destructive-foreground">
-          <Trash /> Eliminar
+          <Trash /> Eliminar actividad
         </DialogTrigger>
         <DialogContent className="gap-5">
           <Badge variant="destructive">Eliminando</Badge>
