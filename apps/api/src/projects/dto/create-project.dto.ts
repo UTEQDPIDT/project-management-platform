@@ -35,12 +35,6 @@ export class CreateProjectDto {
   @Max(9)
   trlRating: number;
 
-  @ApiProperty({
-    description: 'Estado actual del proyecto.',
-  })
-  @IsEnum(Status)
-  status: Status;
-
   @ApiPropertyOptional({
     description: 'Áreas de conocimiento que alude el proyecto.',
   })
