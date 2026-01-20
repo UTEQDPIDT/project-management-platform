@@ -141,16 +141,6 @@ const columns: ColumnDef<IEvent>[] = [
     },
   },
   {
-    accessorKey: 'activities',
-    header: 'Actividades',
-    cell: ({ row }) => {
-      const event = row.original;
-      const { activities } = event;
-
-      return <div>{activities?.length}</div>;
-    },
-  },
-  {
     accessorKey: 'products',
     header: 'Productos',
     cell: ({ row }) => {
