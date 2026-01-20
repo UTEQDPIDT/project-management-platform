@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createTeam } from '@/services/teams.service';
+import { toast } from 'sonner';
 
 export function useCreateTeam() {
   const queryClient = useQueryClient();
@@ -8,6 +9,10 @@ export function useCreateTeam() {
     mutationFn: createTeam,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teams'] });
+      toast.success('El equipo ha sido creado');
+    },
+    onError: () => {
+      toast.error('No se creo el equipo');
     },
   });
 }

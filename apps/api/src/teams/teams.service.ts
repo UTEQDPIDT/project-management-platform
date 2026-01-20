@@ -14,16 +14,45 @@ export class TeamsService {
   constructor(@InjectModel(Team.name) private teamModel: Model<Team>) {}
 
   async create(createTeamDto: CreateTeamDto, userId: string) {
-    const createdTeam = await this.teamModel.create({
-      ...createTeamDto,
-      memberships: [
-        {
-          user: userId,
-          role: 'OWNER',
+    // Build memberships array
+    const memberships = [
+      {
+        user: userId,
+        role: 'OWNER',
+        status: 'ACTIVE',
+      },
+    ];
+
+    if (Array.isArray(createTeamDto.members)) {
+      memberships.push(
+        ...createTeamDto.members.map((id: string) => ({
+          user: id,
+          role: 'MEMBER',
           status: 'ACTIVE',
-        },
-      ],
-    });
+        })),
+      );
+    }
+
+    if (Array.isArray(createTeamDto.collaborators)) {
+      memberships.push(
+        ...createTeamDto.collaborators.map((id: string) => ({
+          user: id,
+          role: 'COLLABORATOR',
+          status: 'ACTIVE',
+        })),
+      );
+    }
+
+    const teamData = {
+      ...createTeamDto,
+      memberships,
+    };
+
+    // Remove members/collaborators from top-level dto before saving
+    delete teamData.members;
+    delete teamData.collaborators;
+
+    const createdTeam = await this.teamModel.create(teamData);
 
     return {
       id: createdTeam._id.toString(),
@@ -31,7 +60,13 @@ export class TeamsService {
     };
   }
 
-  async findAll({ userId, isPrivate }: { userId: string; isPrivate?: boolean }) {
+  async findAll({
+    userId,
+    isPrivate,
+  }: {
+    userId: string;
+    isPrivate?: boolean;
+  }) {
     const orConditions: any[] = [
       {
         memberships: {
@@ -47,18 +82,26 @@ export class TeamsService {
       orConditions.push({ isPrivate });
     }
 
-    return this.teamModel.find({ $or: orConditions });
+    return this.teamModel
+      .find({ $or: orConditions })
+      .populate('memberships.user')
+      .populate('division')
+      .exec();
   }
 
   async findByUser(userId: string) {
-    return this.teamModel.find({
-      memberships: {
-        $elemMatch: {
-          user: userId,
-          status: 'ACTIVE',
+    return this.teamModel
+      .find({
+        memberships: {
+          $elemMatch: {
+            user: userId,
+            status: 'ACTIVE',
+          },
         },
-      },
-    });
+      })
+      .populate('memberships.user')
+      .populate('division')
+      .exec();
   }
 
   async findOne(id: string): Promise<Team> {
@@ -68,8 +111,7 @@ export class TeamsService {
       .populate('memberships.user')
       .exec();
 
-    if (!team)
-      throw new NotFoundException(`Team with ID: ${id} not found`);
+    if (!team) throw new NotFoundException(`Team with ID: ${id} not found`);
 
     return team;
   }
@@ -96,8 +138,12 @@ export class TeamsService {
         .findByIdAndUpdate(id, updateTeamDto, { new: true })
         .exec();
 
-      if (!updatedTeam)
+      if (!updatedTeam) {
         throw new NotFoundException(`Team with ID: ${id} not found`);
+      }
+
+      await this.addMembers(id, updateTeamDto.members || []);
+      await this.addCollaborators(id, updateTeamDto.collaborators || []);
 
       return updatedTeam;
     } catch (err: any) {
@@ -112,21 +158,15 @@ export class TeamsService {
     const team = await this.teamModel.findById(teamId);
     if (!team) throw new NotFoundException();
 
-    const existingUserIds = team.memberships.map(m =>
-      m.user.toString(),
-    );
+    const existingUserIds = team.memberships.map((m) => m.user.toString());
 
     const newMemberships = userIds
-      .filter(id => !existingUserIds.includes(id))
-      .map(id => ({
+      .filter((id) => !existingUserIds.includes(id))
+      .map((id) => ({
         user: id,
         role: 'COLLABORATOR',
         status: 'ACTIVE',
       }));
-
-    if (!newMemberships.length) {
-      throw new BadRequestException('All users already belong to the team');
-    }
 
     await this.teamModel.findByIdAndUpdate(teamId, {
       $push: { memberships: { $each: newMemberships } },
@@ -139,21 +179,15 @@ export class TeamsService {
     const team = await this.teamModel.findById(teamId);
     if (!team) throw new NotFoundException();
 
-    const existingUserIds = team.memberships.map(m =>
-      m.user.toString(),
-    );
+    const existingUserIds = team.memberships.map((m) => m.user.toString());
 
     const newMemberships = userIds
-      .filter(id => !existingUserIds.includes(id))
-      .map(id => ({
+      .filter((id) => !existingUserIds.includes(id))
+      .map((id) => ({
         user: id,
         role: 'MEMBER',
         status: 'ACTIVE',
       }));
-
-    if (!newMemberships.length) {
-      throw new BadRequestException('All users already belong to the team');
-    }
 
     await this.teamModel.findByIdAndUpdate(teamId, {
       $push: { memberships: { $each: newMemberships } },
@@ -167,7 +201,7 @@ export class TeamsService {
     if (!team) throw new NotFoundException();
 
     const alreadyExists = team.memberships.some(
-      m => m.user.toString() === userId,
+      (m) => m.user.toString() === userId,
     );
 
     if (alreadyExists) {

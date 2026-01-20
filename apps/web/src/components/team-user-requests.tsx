@@ -1,15 +1,15 @@
 import { useAcceptRequest, useRejectRequest } from '@/hooks/team';
-import { IUser } from '@repo/types';
+import { ITeamMembership } from '@repo/types';
 import React from 'react';
 import { ProfileInfo } from './profile-info';
 import { Button } from './ui/button';
 
 export function TeamUserRequests({
   teamId,
-  request,
+  requests,
 }: {
   teamId: string;
-  request: IUser[];
+  requests: ITeamMembership[];
 }) {
   const acceptRequestMutation = useAcceptRequest();
   const rejectRequestMutation = useRejectRequest();
@@ -17,47 +17,49 @@ export function TeamUserRequests({
   return (
     <div className="flex flex-col px-2 pb-3 gap-3 overflow-y-auto max-h-96 snap-y">
       <span className="text-muted-foreground text-xs snap-start pt-4">
-        Solicitudes de acceso
+        {requests.length ? 'Solicitudes de acceso' : 'No hay solicitudes'}
       </span>
-      {request.map((user: IUser) => (
-        <div key={user._id} className="flex flex-col snap-start">
-          <div className="flex justify-between gap-4 items-center">
-            <ProfileInfo
-              givenName={user.givenName}
-              familyName={user.familyName}
-              email={user.email}
-              avatarUrl={user.avatarUrl}
-            />
-            <div className="flex gap-2">
-              <Button
-                disabled={rejectRequestMutation.isPending}
+      {requests?.length &&
+        requests.map((m: ITeamMembership) => (
+          <div key={m._id} className="flex flex-col snap-start">
+            <div className="flex justify-between gap-4 items-center">
+              <ProfileInfo
                 size="sm"
-                variant="outline"
-                onClick={() =>
-                  rejectRequestMutation.mutate({
-                    teamId: teamId,
-                    userId: user._id,
-                  })
-                }
-              >
-                Rechazar
-              </Button>
-              <Button
-                disabled={acceptRequestMutation.isPending}
-                size="sm"
-                onClick={() =>
-                  acceptRequestMutation.mutate({
-                    teamId: teamId,
-                    userId: user._id,
-                  })
-                }
-              >
-                Aceptar
-              </Button>
+                givenName={m.user.givenName}
+                familyName={m.user.familyName}
+                email={m.user.email}
+                avatarUrl={m.user.avatarUrl}
+              />
+              <div className="flex gap-2">
+                <Button
+                  disabled={rejectRequestMutation.isPending}
+                  size="xs"
+                  variant="outline"
+                  onClick={() =>
+                    rejectRequestMutation.mutate({
+                      teamId: teamId,
+                      userId: m.user._id,
+                    })
+                  }
+                >
+                  Rechazar
+                </Button>
+                <Button
+                  disabled={acceptRequestMutation.isPending}
+                  size="xs"
+                  onClick={() =>
+                    acceptRequestMutation.mutate({
+                      teamId: teamId,
+                      userId: m.user._id,
+                    })
+                  }
+                >
+                  Aceptar
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
     </div>
   );
 }

@@ -104,34 +104,40 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
     resolver: zodResolver(updateProjectSchema),
     mode: 'onChange',
     defaultValues: {
-      name: project.name ? project.name : '',
-      objective: project.objective ? project.objective : '',
-      trlRating: project.trlRating ? project.trlRating : 0,
-      knowledgeAreas: project.knowledgeAreas
-        ? project.knowledgeAreas.map((k) => k._id)
+      name: typeof project?.name === 'string' ? project.name : '',
+      objective:
+        typeof project?.objective === 'string' ? project.objective : '',
+      trlRating: typeof project?.trlRating === 'number' ? project.trlRating : 0,
+      knowledgeAreas: Array.isArray(project?.knowledgeAreas)
+        ? project.knowledgeAreas.map((k) => k?._id).filter(Boolean)
         : [],
-      impactAreas: project.impactAreas
-        ? project.impactAreas.map((a) => a._id)
+      impactAreas: Array.isArray(project?.impactAreas)
+        ? project.impactAreas.map((a) => a?._id).filter(Boolean)
         : [],
-      prioritiesPND: project.prioritiesPND
-        ? project.prioritiesPND.map((p) => p._id)
+      prioritiesPND: Array.isArray(project?.prioritiesPND)
+        ? project.prioritiesPND.map((p) => p?._id).filter(Boolean)
         : [],
-      sustainableObjectives: project.sustainableObjectives
-        ? project.sustainableObjectives.map((o) => o._id)
+      sustainableObjectives: Array.isArray(project?.sustainableObjectives)
+        ? project.sustainableObjectives.map((o) => o?._id).filter(Boolean)
         : [],
-      innovationLines: project.innovationLines
-        ? project.innovationLines.map((l) => l._id)
+      innovationLines: Array.isArray(project?.innovationLines)
+        ? project.innovationLines.map((l) => l?._id).filter(Boolean)
         : [],
-      impactLevel: project.impactLevel
-        ? project.impactLevel
-        : ImpactLevel.LOCAL,
-      organization: project.organization ? project.organization : '',
-      team: project.team ? project.team._id : '',
-      relatedProjects: project.relatedProjects
-        ? project.relatedProjects.map((p) => p._id)
+      impactLevel:
+        typeof project?.impactLevel === 'string'
+          ? project.impactLevel
+          : ImpactLevel.LOCAL,
+      organization:
+        typeof project?.organization === 'string' ? project.organization : '',
+      team:
+        project?.team && typeof project.team === 'object' && project.team._id
+          ? project.team._id
+          : '',
+      relatedProjects: Array.isArray(project?.relatedProjects)
+        ? project.relatedProjects.map((p) => p?._id).filter(Boolean)
         : [],
-      startDate: project.startDate ? new Date(project.startDate) : undefined,
-      endDate: project.endDate ? new Date(project.endDate) : undefined,
+      startDate: project?.startDate ? new Date(project.startDate) : undefined,
+      endDate: project?.endDate ? new Date(project.endDate) : undefined,
     },
   });
 

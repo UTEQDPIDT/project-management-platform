@@ -1,3 +1,4 @@
+import { UserType } from '@repo/types';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 
 export function ProfileInfo({
@@ -5,6 +6,7 @@ export function ProfileInfo({
   familyName,
   email,
   avatarUrl,
+  userType,
   size = 'default',
   className,
 }: {
@@ -12,6 +14,7 @@ export function ProfileInfo({
   familyName: string;
   email?: string;
   avatarUrl?: string;
+  userType?: UserType;
   size?: 'default' | 'sm' | 'lg';
   className?: string;
 }) {
@@ -31,6 +34,11 @@ export function ProfileInfo({
           </span>
         )}
       </div>
+      {userType && (
+        <span className="truncate text-xs text-muted-foreground">
+          {userType}
+        </span>
+      )}
     </div>
   );
 }

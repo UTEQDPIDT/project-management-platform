@@ -17,23 +17,13 @@ export const teamSchema = (ownerEmail: string) =>
       .optional(),
     grade: z.enum(TeamsGrade),
     collaborators: z
-      .array(
-        z
-          .string()
-          .email('Correo inválido')
-          .regex(uteqEmail, 'El correo debe ser institucional'),
-      )
+      .array(mongoId)
       .refine(
         (values) => !values.includes(ownerEmail),
         'No puedes agregarte a ti como colaborador.',
       ),
     members: z
-      .array(
-        z
-          .string()
-          .email('Correo inválido')
-          .regex(uteqEmail, 'El correo debe ser institucional'),
-      )
+      .array(mongoId)
       .refine(
         (values) => !values.includes(ownerEmail),
         'No puedes agregarte a ti como miembro.',
