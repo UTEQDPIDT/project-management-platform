@@ -1,7 +1,14 @@
 import { useSendJoinRequest } from '@/hooks/team';
-import { BadgeVariants, ITeam, TeamsGrade } from '@repo/types';
+import {
+  BadgeVariants,
+  ITeam,
+  ITeamMembership,
+  TeamMembershipRole,
+  TeamMembershipStatus,
+  TeamsGrade,
+} from '@repo/types';
 import { userProfile } from 'context/profile-provider';
-import { ArrowUpRight, User, UserPlus, Users } from 'lucide-react';
+import { ArrowUpRight, UserPlus, Users } from 'lucide-react';
 import Link from 'next/link';
 import AvatarRow from './avatar-row';
 import IconSquare from './icon-square';
@@ -18,28 +25,11 @@ import {
   CardTitle,
 } from './ui/card';
 
-export default function TeamCard({
-  _id: teamId,
-  teamName,
-  summary,
-  division,
-  grade,
-  collaborators,
-  members,
-  owner,
-  userRequests,
-}: Pick<
-  ITeam,
-  | '_id'
-  | 'teamName'
-  | 'summary'
-  | 'division'
-  | 'grade'
-  | 'collaborators'
-  | 'members'
-  | 'owner'
-  | 'userRequests'
->) {
+type TeamCardProps = {
+  team: ITeam;
+};
+
+export default function TeamCard({ team }: TeamCardProps) {
   /**
    * React Query
    */
@@ -51,19 +41,44 @@ export default function TeamCard({
   const { user } = userProfile();
 
   /**
+   * Extract owner, members, collaborators
+   */
+  const owner = team?.memberships.find(
+    (m: ITeamMembership) => m.role === TeamMembershipRole.OWNER,
+  );
+
+  const members = team?.memberships.filter(
+    (m: ITeamMembership) =>
+      m.role === TeamMembershipRole.MEMBER &&
+      m.status === TeamMembershipStatus.ACTIVE,
+  );
+
+  const collaborators = team?.memberships.filter(
+    (m: ITeamMembership) =>
+      m.role === TeamMembershipRole.COLLABORATOR &&
+      m.status === TeamMembershipStatus.ACTIVE,
+  );
+
+  /**
    * Conditionally render buttons
    */
   const currentUserId = user._id;
-  const isOwner = owner?._id === currentUserId;
-  const isMember = members.some((m) => m._id === currentUserId);
-  const isCollaborator = collaborators.some((c) => c._id === currentUserId);
-  const hasRequested = userRequests.some((c) => c._id === currentUserId);
+  const isOwner = owner?.user._id === currentUserId;
+  const isMember = members?.some(
+    (m: ITeamMembership) => m.user._id === currentUserId,
+  );
+  const isCollaborator = collaborators?.some(
+    (c: ITeamMembership) => c.user._id === currentUserId,
+  );
+  const hasRequested = team.memberships?.some(
+    (c: ITeamMembership) => c.user._id === currentUserId,
+  );
 
   const renderActionButton = () => {
     if (isOwner || isMember || isCollaborator) {
       return (
         <Button variant="ghost" size="sm" asChild>
-          <Link href={`/user/equipos/${teamId}`}>
+          <Link href={`/user/equipos/${team._id}`}>
             <span className="flex gap-1 items-center">
               Visitar
               <ArrowUpRight />
@@ -75,7 +90,7 @@ export default function TeamCard({
     if (!hasRequested) {
       return (
         <Button
-          onClick={() => sendJoinRequestMutation.mutate(teamId)}
+          onClick={() => sendJoinRequestMutation.mutate(team._id)}
           variant="outline"
           size="sm"
           disabled={sendJoinRequestMutation.isPending}
@@ -109,7 +124,7 @@ export default function TeamCard({
     | 'orange'
     | null
     | undefined;
-  switch (grade) {
+  switch (team.grade) {
     case TeamsGrade.FORMACION:
       badgeVariant = BadgeVariants.GRAY;
       break;
@@ -123,24 +138,26 @@ export default function TeamCard({
    */
   // 1. Deduplicate using user._id BEFORE mapping
   const uniqueUsers = Array.from(
-    new Map([...members, ...collaborators].map((u) => [u._id, u])).values(),
+    new Map(
+      [...members, ...collaborators].map((u) => [u.user._id, u]),
+    ).values(),
   );
 
   // 2. Extract only the fields needed for AvatarRow
   const profiles = uniqueUsers.map((u) => ({
-    givenName: u.givenName,
-    familyName: u.familyName,
-    avatarUrl: u.avatarUrl,
+    givenName: u.user.givenName,
+    familyName: u.user.familyName,
+    avatarUrl: u.user.avatarUrl,
   }));
 
   profiles.push({
-    givenName: owner.givenName,
-    familyName: owner.familyName,
-    avatarUrl: owner.avatarUrl,
+    givenName: owner!.user.givenName,
+    familyName: owner!.user.familyName,
+    avatarUrl: owner!.user.avatarUrl,
   });
 
   return (
-    <Card className="w-full gap-4">
+    <Card className="w-full gap-4 min-w-96">
       <CardHeader>
         <div className="flex justify-between">
           <div className="flex gap-2 items-start">
@@ -149,21 +166,21 @@ export default function TeamCard({
             </IconSquare>
             <div className="flex flex-col gap-1">
               <CardTitle className="line-clamp-1 leading-5">
-                {teamName}
+                {team.teamName}
               </CardTitle>
               <CardDescription className="text-xs line-clamp-1">
-                {division?.name}
+                {team.division?.name}
               </CardDescription>
             </div>
           </div>
           <Badge variant={badgeVariant} className="h-6">
-            {grade}
+            {team.grade}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-6 h-full">
         <CardDescription className="h-28 line-clamp-5">
-          {summary}
+          {team.summary}
         </CardDescription>
       </CardContent>
       <CardFooter className="flex border-t gap-2 justify-between items-center">
