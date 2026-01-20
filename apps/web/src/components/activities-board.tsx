@@ -91,6 +91,8 @@ export function ActivitiesBoard({
                       />
                     }
                     enableOptions
+                    showPriority
+                    showStatus
                   />
                 ))}
               </CardContent>
