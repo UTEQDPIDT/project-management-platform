@@ -59,8 +59,19 @@ export function CreateTeamForm() {
   /**
    * React Query Hooks
    */
+  const { data: users, isLoading: loadingUsers } = useGetAllUsers();
   const { data: divisions, isLoading: loadingDivisions } = useDivisions();
   const createTeamMutation = useCreateTeam();
+
+  // Filter out the current user from the list
+  const filteredUsers = users?.filter((u: IUser) => u._id !== user._id) || [];
+  const teachersAndAdmins = filteredUsers.filter(
+    (u: IUser) =>
+      u.type === UserType.MAESTRO || u.type === UserType.ADMINISTRATIVO,
+  );
+  const teachersAndStudents = filteredUsers.filter(
+    (u: IUser) => u.type === UserType.MAESTRO || u.type === UserType.ESTUDIANTE,
+  );
 
   const form = useForm<z.infer<ReturnType<typeof teamSchema>>>({
     resolver: zodResolver(teamSchema(user.email)),
@@ -75,21 +86,6 @@ export function CreateTeamForm() {
       isPrivate: true,
     },
   });
-
-  /**
-   * Array Fields
-   */
-  const { data: users, isLoading: loadingUsers } = useGetAllUsers();
-
-  // Filter out the current user from the list
-  const filteredUsers = users?.filter((u: IUser) => u._id !== user._id) || [];
-  const teachersAndAdmins = filteredUsers.filter(
-    (u: IUser) =>
-      u.type === UserType.MAESTRO || u.type === UserType.ADMINISTRATIVO,
-  );
-  const teachersAndStudents = filteredUsers.filter(
-    (u: IUser) => u.type === UserType.MAESTRO || u.type === UserType.ESTUDIANTE,
-  );
 
   /**
    * Handlers
