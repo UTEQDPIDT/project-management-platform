@@ -6,7 +6,14 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useDivisions } from '@/hooks/catalogs';
 import { useUpdateTeam } from '@/hooks/team';
-import { SeedCategory, TeamsGrade, IUser, UserType, ITeam } from '@repo/types';
+import {
+  SeedCategory,
+  TeamsGrade,
+  IUser,
+  UserType,
+  ITeam,
+  TeamMembershipRole,
+} from '@repo/types';
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
 import {
@@ -67,20 +74,31 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
   const { data: users, isLoading: loadingUsers } = useGetAllUsers();
   const updateTeam = useUpdateTeam();
 
-  // Filter out the current user from the list
-    const filteredUsers = users?.filter((u:IUser) => u._id !== user._id) || [];
-    const teachersAndAdmins = filteredUsers.filter((u:IUser) => u.type === UserType.MAESTRO || u.type === UserType.ADMINISTRATIVO);
-    const teachersAndStudents = filteredUsers.filter((u:IUser) => u.type === UserType.MAESTRO || u.type === UserType.ESTUDIANTE);
-
   // Extract members and collaborators by role from memberships
   const memberIds = team.memberships
-    .filter((m) => m.role === 'MEMBER')
+    .filter((m) => m.role === TeamMembershipRole.MEMBER)
     .map((m) => m.user?._id)
     .filter(Boolean);
   const collaboratorIds = team.memberships
-    .filter((m) => m.role === 'COLLABORATOR')
+    .filter((m) => m.role === TeamMembershipRole.COLLABORATOR)
     .map((m) => m.user?._id)
     .filter(Boolean);
+
+  // Filter out the current user and users already in memberships
+  const existingUserIds = team.memberships
+    .map((m) => m.user?._id)
+    .filter(Boolean);
+  const usersWithoutCurrentUserAndMembers =
+    users?.filter(
+      (u: IUser) => u._id !== user._id && !existingUserIds.includes(u._id),
+    ) || [];
+  const teachersAndAdmins = usersWithoutCurrentUserAndMembers.filter(
+    (u: IUser) =>
+      u.type === UserType.MAESTRO || u.type === UserType.ADMINISTRATIVO,
+  );
+  const teachersAndStudents = usersWithoutCurrentUserAndMembers.filter(
+    (u: IUser) => u.type === UserType.MAESTRO || u.type === UserType.ESTUDIANTE,
+  );
 
   const form = useForm<z.infer<ReturnType<typeof teamSchema>>>({
     resolver: zodResolver(teamSchema(user.email)),
@@ -325,7 +343,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                                             : [...value, user._id],
                                         );
                                       }}
-                                      className='flex justify-between'
+                                      className="flex justify-between"
                                     >
                                       <ProfileInfo
                                         givenName={user.givenName}
@@ -334,7 +352,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                                         userType={user.type}
                                         size="sm"
                                       />
-                                       <Check
+                                      <Check
                                         className={`mr-2 h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
                                       />
                                     </CommandItem>
@@ -411,7 +429,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                                             : [...value, user._id],
                                         );
                                       }}
-                                      className='flex justify-between'
+                                      className="flex justify-between"
                                     >
                                       <ProfileInfo
                                         givenName={user.givenName}
