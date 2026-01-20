@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import { useActivitiesByEntity } from '@/hooks/activities';
 import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
-import { useProductsByProject } from '@/hooks/products';
+import { useProjectProducts } from '@/hooks/products';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';
 import { EntityType } from '@repo/types';
@@ -41,7 +41,7 @@ const Page = () => {
     data: products,
     isLoading: loadingProducts,
     isError: errorFetchingProducts,
-  } = useProductsByProject(projectId);
+  } = useProjectProducts(projectId);
   const {
     data: activities,
     isLoading: loadingActivities,
