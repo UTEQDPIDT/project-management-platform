@@ -115,7 +115,6 @@ export function TeamInfo({ team }: TeamInfoProps) {
               size="sm"
               givenName={owner.givenName}
               familyName={owner.familyName || ''}
-              email={owner.email || ''}
               avatarUrl={owner.avatarUrl || ''}
             />
           ) : (

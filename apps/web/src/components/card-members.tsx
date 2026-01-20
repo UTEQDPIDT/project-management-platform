@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { userProfile } from 'context/profile-provider';
@@ -90,7 +91,7 @@ export function CardMembers({
         <span className="text-muted-foreground text-sm">Miembros</span>
         {members.length > 0 ? (
           members?.map((m: ITeamMembership) => (
-            <div key={m.user._id} className="flex justify-between">
+            <div key={m.user._id} className="flex justify-between group">
               <ProfileInfo
                 size="sm"
                 givenName={m.user.givenName}
@@ -102,15 +103,16 @@ export function CardMembers({
               {user._id === owner!.user._id && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button size="icon-sm" variant="ghost">
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      className="opacity-0 group-hover:opacity-100"
+                    >
                       <Ellipsis />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <Button
-                      size="sm"
-                      className="w-full justify-start font-normal hover:text-destructive-foreground"
-                      variant="ghost"
+                    <DropdownMenuItem
                       disabled={removeMember.isPending}
                       onClick={() =>
                         removeMember.mutate({
@@ -120,7 +122,7 @@ export function CardMembers({
                       }
                     >
                       <UserMinus /> Expulsar
-                    </Button>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
@@ -132,7 +134,7 @@ export function CardMembers({
         <span className="text-muted-foreground text-sm">Colaboradores</span>
         {collaborators.length > 0 ? (
           collaborators?.map((c: ITeamMembership) => (
-            <div key={c.user._id} className="flex justify-between">
+            <div key={c.user._id} className="flex justify-between group">
               <ProfileInfo
                 size="sm"
                 givenName={c.user.givenName}
@@ -144,15 +146,16 @@ export function CardMembers({
               {user._id === owner!.user._id && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button size="icon-sm" variant="ghost">
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      className="opacity-0 group-hover:opacity-100"
+                    >
                       <Ellipsis />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <Button
-                      size="sm"
-                      className="w-full justify-start font-normal bg-transparent hover:text-destructive-foreground"
-                      variant="ghost"
+                    <DropdownMenuItem
                       disabled={removeCollaborator.isPending}
                       onClick={() =>
                         removeCollaborator.mutate({
@@ -162,7 +165,7 @@ export function CardMembers({
                       }
                     >
                       <UserMinus /> Expulsar
-                    </Button>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}

@@ -22,7 +22,7 @@ const Page = () => {
           </HeaderDescription>
         </HeaderHeading>
         <HeaderAction>
-          <Button asChild>
+          <Button size="sm" asChild>
             <Link href="/admin/equipos/crear">Crear Equipo</Link>
           </Button>
         </HeaderAction>

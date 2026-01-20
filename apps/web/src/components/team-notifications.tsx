@@ -14,6 +14,7 @@ import {
 import { Button } from './ui/button';
 import { Bell } from 'lucide-react';
 import { TeamUserRequests } from './team-user-requests';
+import { request } from 'http';
 
 type TeamNotificationsProps = {
   team: ITeam;
@@ -30,7 +31,12 @@ export function TeamNotifications({ team }: TeamNotificationsProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon-sm">
-          <Bell />
+          <div className="relative">
+            {requests.length > 0 && (
+              <div className="rounded-full bg-red-500 aspect-square h-2 absolute top-0 right-0" />
+            )}
+            <Bell />
+          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

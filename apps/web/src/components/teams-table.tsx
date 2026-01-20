@@ -42,9 +42,25 @@ import {
   DialogTrigger,
 } from './ui/dialog';
 import { copyValue } from '@/lib/utils';
+import CopyButton from './ui/copy';
 
 const columns: ColumnDef<ITeam>[] = [
-  { accessorKey: 'teamName', header: 'Nombre' },
+  {
+    accessorKey: 'teamName',
+    header: 'Nombre',
+    cell: ({ row }) => {
+      const { teamName } = row.original;
+      return (
+        <div className="max-w-96 flex items-center gap-1 group">
+          <span className="truncate">{teamName}</span>
+          <CopyButton
+            valueToCopy={teamName}
+            className="opacity-0 group-hover:opacity-100"
+          />
+        </div>
+      );
+    },
+  },
   {
     accessorKey: 'division',
     header: 'Divisón',
