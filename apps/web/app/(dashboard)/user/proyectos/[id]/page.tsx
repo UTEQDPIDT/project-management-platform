@@ -3,11 +3,12 @@
 import { ActivitiesBoard } from '@/components/activities-board';
 import { CardMembers } from '@/components/card-members';
 import ErrorCard from '@/components/error-card';
+import FilesCard from '@/components/files-card';
 import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
 import { ProductsBoard } from '@/components/products-board';
-import ProjectInfoTable from '@/components/project-info';
+import { ProjectInfo } from '@/components/project-info';
 import { ProjectMenu } from '@/components/project-menu';
 import { ProjectsBoard } from '@/components/projects-board';
 import {
@@ -17,23 +18,55 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { useActivitiesByEntity } from '@/hooks/activities';
+import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
 import { useProductsByProject } from '@/hooks/products';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';
+import { EntityType } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 
 const Page = () => {
-  const { id } = useParams<{ id: string }>();
-  const { data: project, isLoading: loadingProject, isError } = useProject(id);
+  const { id: projectId } = useParams<{ id: string }>();
+  const { user } = userProfile();
+
+  // Tanstack
+  const {
+    data: project,
+    isLoading: loadingProject,
+    isError,
+  } = useProject(projectId);
   const {
     data: products,
     isLoading: loadingProducts,
     isError: errorFetchingProducts,
-  } = useProductsByProject(id);
+  } = useProductsByProject(projectId);
+  const {
+    data: activities,
+    isLoading: isLoadingActivities,
+    isError: isErrorInActivities,
+  } = useActivitiesByEntity(projectId);
+  const {
+    data: savedFiles,
+    isLoading: loadingFiles,
+    isError: errorFetchingFiles,
+  } = useFilesForEntity(projectId);
 
-  const { user } = userProfile();
+  // Manage file upload
+  const uploadMultipleFiles = useUploadMultipleFiles();
+  const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+  const handleUpload = () => {
+    uploadMultipleFiles.mutate({
+      files: filesToUpload,
+      entityId: projectId,
+      entityType: EntityType.PROJECT,
+    });
+
+    setFilesToUpload([]);
+  };
 
   return (
     <div className="w-full h-full">
@@ -62,21 +95,29 @@ const Page = () => {
 
             <HeaderAction>
               {user._id === project.owner._id && (
-                <ProjectMenu projectId={id} name={project.name} />
+                <ProjectMenu projectId={projectId} name={project.name} />
               )}
             </HeaderAction>
           </Header>
 
           <PageContent className="items-center">
-            <ProjectInfoTable
-              project={project}
-              progress={calculateProgress(project.activities)}
-            />
+            {isLoadingActivities ? (
+              <LoadingMessage />
+            ) : (
+              <ProjectInfo
+                project={project}
+                progress={calculateProgress(activities)}
+              />
+            )}
             <div className="w-full px-4 gap-6 flex flex-col">
-              <ActivitiesBoard activities={project.activities} projectId={id} />
+              <ActivitiesBoard
+                activities={activities}
+                projectId={projectId}
+                isLoading={isLoadingActivities}
+              />
               <ProductsBoard
                 products={products}
-                projectId={id}
+                projectId={projectId}
                 isLoading={loadingProducts}
                 isError={errorFetchingProducts}
               />
@@ -84,6 +125,18 @@ const Page = () => {
                 {project.team && <CardMembers team={project.team} redirect />}
                 {project.relatedProjects && (
                   <ProjectsBoard projects={project.relatedProjects} />
+                )}
+                {savedFiles && (
+                  <FilesCard
+                    savedFiles={savedFiles}
+                    filesToUpload={filesToUpload}
+                    setFilesToUpload={setFilesToUpload}
+                    onUpload={handleUpload}
+                    isLoading={loadingFiles}
+                    isError={errorFetchingFiles}
+                    isUploading={uploadMultipleFiles.isPending}
+                    accept=".pdf,.doc,.docx,.xlsx"
+                  />
                 )}
               </div>
             </div>

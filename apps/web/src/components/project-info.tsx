@@ -30,10 +30,7 @@ interface ProjectInfoProps {
   progress: number;
 }
 
-export default function ProjectInfoTable({
-  project,
-  progress,
-}: ProjectInfoProps) {
+export function ProjectInfo({ project, progress }: ProjectInfoProps) {
   const {
     name,
     startDate,
@@ -246,7 +243,7 @@ export default function ProjectInfoTable({
           <Folder size={14} /> Proyectos
         </span>
         <div className="p-2 hover:bg-secondary rounded-md">
-          {relatedProjects ? (
+          {relatedProjects?.length ? (
             relatedProjects.map((p: IProject) => (
               <Button key={p._id} size="xs" asChild variant="ghost">
                 <Link href={`/user/proyectos/${p._id}`}>
