@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addCollaborators } from '@/services/teams.service';
+import { toast } from 'sonner';
 
 export function useAddCollaborators() {
   const queryClient = useQueryClient();
@@ -14,6 +15,8 @@ export function useAddCollaborators() {
     }) => addCollaborators(teamId, collaborators),
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: ['team', teamId] });
+      toast.success('Colaboradores agregados');
     },
+    onError: () => toast.error('No se agregaron los colaboradores'),
   });
 }
