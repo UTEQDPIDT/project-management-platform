@@ -23,9 +23,26 @@ import { es } from 'date-fns/locale';
 import { downloadFile } from '@/services/files.service';
 import { useFilesForEntity } from '@/hooks/files';
 import { toast } from 'sonner';
+import CopyButton from './ui/copy';
 
 const columns: ColumnDef<IProduct>[] = [
-  { accessorKey: 'name', header: 'Nombre' },
+  {
+    accessorKey: 'name',
+    header: 'Nombre',
+    cell: ({ row }) => {
+      const { name } = row.original;
+      return (
+        <div className="flex max-w-96 group">
+          <span className="truncate">{name}</span>
+          <CopyButton
+            variant="ghost"
+            valueToCopy={name}
+            className="opacity-0 group-hover:opacity-100"
+          />
+        </div>
+      );
+    },
+  },
   {
     accessorKey: 'category',
     header: 'Catagoría',
