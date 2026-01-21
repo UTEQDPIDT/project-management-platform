@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { downloadFile } from '@/services/files.service';
-import { ChevronDown, Paperclip, Trash } from 'lucide-react';
+import { ChevronDown, Download, Paperclip, Trash } from 'lucide-react';
 import LoadingMessage from './loading-message';
 import { ButtonGroup } from './ui/button-group';
 import {
@@ -19,10 +19,15 @@ import { cn } from '@/lib/utils';
 
 type FileButtonProps = {
   file: IFile;
+  canDelete?: boolean;
   className?: string;
 };
 
-export default function FileButton({ file, className }: FileButtonProps) {
+export default function FileButton({
+  file,
+  canDelete = false,
+  className,
+}: FileButtonProps) {
   const deleteFile = useDeleteFile();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -74,9 +79,14 @@ export default function FileButton({ file, className }: FileButtonProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+            <DropdownMenuItem onClick={handleDownload} disabled={isLoading}>
+              <Download />
+              Descargar archivo
+            </DropdownMenuItem>
             <DropdownMenuItem
+              variant="destructive"
               onClick={handleDelete}
-              disabled={deleteFile.isPending}
+              disabled={deleteFile.isPending || !canDelete}
             >
               <Trash />
               Eliminar archivo
