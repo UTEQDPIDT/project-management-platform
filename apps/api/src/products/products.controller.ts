@@ -25,6 +25,8 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { FileValidationPipe } from '../common/pipes';
+import { FILE_MIME_TYPES } from '../common/constants';
 
 @ApiTags('Products')
 @Controller('products')
@@ -44,7 +46,10 @@ export class ProductsController {
   @Post()
   create(
     @Body() createProductDto: CreateProductDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new FileValidationPipe(5 * 1024 * 1024, [...FILE_MIME_TYPES.DOCUMENTS]),
+    )
+    file: Express.Multer.File,
     @Req() req,
   ) {
     return this.productsService.create(createProductDto, file, req.user.id);
@@ -85,7 +90,7 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard)
   @ApiConsumes('multipart/form-data')
   @ApiAcceptedResponse({
-    description: 'Productp actualizado correctamente.',
+    description: 'Producto actualizado correctamente.',
     type: UpdateProductDto,
   })
   @ApiNotFoundResponse({ description: 'No se encontro el producto.' })
@@ -94,7 +99,10 @@ export class ProductsController {
   update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new FileValidationPipe(5 * 1024 * 1024, [...FILE_MIME_TYPES.DOCUMENTS]),
+    )
+    file: Express.Multer.File,
     @Req() req,
   ) {
     return this.productsService.update(id, updateProductDto, req.user.id, file);
