@@ -6,7 +6,8 @@ import { Project, ProjectSchema } from '../schemas/project.schema';
 import { FilesModule } from '../files/files.module';
 import { ProductsModule } from '../products/products.module';
 import { ActivitiesModule } from '../activities/activities.module';
-import { TeamResourceInterceptor } from '../teams/interceptors/team-resource.interceptor';
+import { ProjectResourceInterceptor } from './interceptors/project-resource.interceptor';
+import { CaslModule } from '../casl/casl.module';
 
 @Module({
   imports: [
@@ -14,8 +15,9 @@ import { TeamResourceInterceptor } from '../teams/interceptors/team-resource.int
     FilesModule,
     ProductsModule,
     ActivitiesModule,
+    CaslModule
   ],
   controllers: [ProjectsController],
-  providers: [ProjectsService, TeamResourceInterceptor],
+  providers: [ProjectsService, ProjectResourceInterceptor],
 })
 export class ProjectsModule {}

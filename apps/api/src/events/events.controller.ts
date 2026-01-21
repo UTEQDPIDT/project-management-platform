@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -8,6 +8,7 @@ import { AbilitiesGuard } from '../casl/abilities.guard';
 import { CheckAbilities } from '../casl/abilities.decorator';
 import { Action } from '../casl/ability.factory';
 import { Event } from '../schemas/event.schema';
+import { EventResourceInterceptor } from './interceptors/event-resource.interceptor';
 
 @ApiTags('Events')
 @Controller('events')
@@ -66,8 +67,12 @@ export class EventsController {
   /**
    * PARTICIPANTS
    */
-  //TODO: Create a separate route for users to register themselves (for the sake of CASL permissions)
-  @UseGuards(JwtAuthGuard)
+  //PARTICIPANTS ONLY
+  @ApiCreatedResponse({ description: 'Participante agregado correctamente al evento.' })
+  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
+  @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(EventResourceInterceptor)
+  @CheckAbilities({ action: Action.UpdateContent, subject: Event })
   @Patch(':id/register')
   addParticipant(@Param('id') id, @Req() req) {
     return this.eventsService.addParticipant(id, req.user.id);
@@ -85,10 +90,12 @@ export class EventsController {
   }
 
   //TODO: Create a separate route for users to unregister themselves (for the sake of CASL permissions)
+  //ADMIN ONLY
   @ApiOkResponse({ description: 'Participante eliminado correctamente del evento.' })
   @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
   @ApiBadRequestResponse({ description: 'El usuario no es participante en el evento.' })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @CheckAbilities({ action: Action.Delete, subject: Event })
   @Delete(':id/participants/:userId')
   removeParticipant(@Param('id') id: string, @Param('userId') userId: string, @Req() req) {
     return this.eventsService.removeParticipant(id, userId, req.user.id);
@@ -103,6 +110,7 @@ export class EventsController {
   @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
   @ApiBadRequestResponse({ description: 'Producto no encontrado o no es válido.' })
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(EventResourceInterceptor)
   @CheckAbilities({ action: Action.UpdateContent, subject: Event })
   @Patch(':id/products')
   addProducts(@Param('id') id: string, @Body('products') productIds: string[], @Req() req) {
@@ -114,6 +122,7 @@ export class EventsController {
   @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
   @ApiBadRequestResponse({ description: 'Producto no encontrado en el evento.' })
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
+  @UseInterceptors(EventResourceInterceptor)
   @CheckAbilities({ action: Action.UpdateContent, subject: Event })
   @Delete(':id/products/:productId')
   removeProduct(@Param('id') id: string, @Param('productId') productId: string, @Req() req ) {

@@ -4,7 +4,6 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiAcceptedResponse, ApiCreatedResponse, ApiUnauthorizedResponse, ApiNotFoundResponse, ApiTags, ApiConsumes, ApiBadRequestResponse } from '@nestjs/swagger';
-import { CreateProductDto } from '../products/dto/create-product.dto';
 import { AbilitiesGuard } from '../casl/abilities.guard';
 import { CheckAbilities } from '../casl/abilities.decorator';
 import { Action } from '../casl/ability.factory';
