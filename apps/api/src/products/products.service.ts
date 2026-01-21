@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../schemas/product.schema';
 import { ClientSession, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
-import { EntityType } from '@repo/types';
+import { EntityType, FilePurpose } from '@repo/types';
 
 @Injectable()
 export class ProductsService {
@@ -37,6 +37,7 @@ export class ProductsService {
           file,
           product._id.toString(),
           EntityType.PRODUCT,
+          FilePurpose.GENERIC,
           userId,
         );
       }
@@ -104,6 +105,7 @@ export class ProductsService {
           file,
           id,
           EntityType.PRODUCT,
+          FilePurpose.GENERIC,
           userId,
         );
       }

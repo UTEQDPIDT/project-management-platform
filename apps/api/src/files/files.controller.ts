@@ -62,13 +62,14 @@ export class FilesController {
       file,
       body.entityId,
       body.entityType,
+      body.purpose,
       req.user.id,
     );
   }
 
   @ApiConsumes('multipart/form-data')
   @ApiCreatedResponse({
-    description: 'Se subiieron los archivos correctamente.',
+    description: 'Se subieron los archivos correctamente.',
     type: Array<File>,
   })
   @ApiUnauthorizedResponse({ description: 'No autorizado.' })
@@ -94,6 +95,7 @@ export class FilesController {
       files,
       body.entityId,
       body.entityType,
+      body.purpose,
       req.user.id,
     );
   }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { EntityType } from '@repo/types';
+import { EntityType, FilePurpose } from '@repo/types';
 import { IsEnum, IsMongoId } from 'class-validator';
 
 export class UploadFileDto {
@@ -17,4 +17,14 @@ export class UploadFileDto {
   })
   @IsEnum(EntityType)
   entityType: EntityType;
+
+  @ApiProperty({ enum: FilePurpose, description: 'El propósito del archivo.' })
+  @IsEnum(FilePurpose)
+  purpose: FilePurpose;
+
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+  })
+  file: any;
 }

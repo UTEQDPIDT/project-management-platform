@@ -1,6 +1,7 @@
 import { api } from '@/lib/axios';
 import {
   EntityType,
+  FilePurpose,
   UploadFilePayload,
   UploadMultipleFilesResponse,
 } from '@repo/types';
@@ -9,6 +10,7 @@ const uploadFile = async ({
   file,
   entityId,
   entityType,
+  purpose = FilePurpose.GENERIC,
 }: UploadFilePayload) => {
   try {
     const formData = new FormData();
@@ -16,6 +18,7 @@ const uploadFile = async ({
     formData.append('file', file);
     formData.append('entityId', entityId);
     formData.append('entityType', entityType);
+    formData.append('purpose', purpose);
 
     const { data } = await api.post('/files/upload', formData);
 
@@ -30,10 +33,12 @@ const uploadMultipleFiles = async ({
   files,
   entityId,
   entityType,
+  purpose = FilePurpose.GENERIC,
 }: {
   files: File[];
   entityId: string;
   entityType: EntityType;
+  purpose?: FilePurpose;
 }): Promise<UploadMultipleFilesResponse> => {
   try {
     const formData = new FormData();
@@ -41,6 +46,7 @@ const uploadMultipleFiles = async ({
     files.forEach((file) => formData.append('files', file));
     formData.append('entityId', entityId);
     formData.append('entityType', entityType);
+    formData.append('purpose', purpose);
 
     const { data } = await api.post('/files/upload/multiple', formData);
     return data;
