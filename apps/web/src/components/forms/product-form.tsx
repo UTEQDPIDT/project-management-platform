@@ -4,7 +4,7 @@ import {
   useProductCategories,
   useProductSubcategories,
 } from '@/hooks/catalogs';
-import { productSchema } from '@/schemas/product.schema';
+import { getProductSchema } from '@/schemas/product.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CoAuthor, IFile, IProduct, SeedCategory } from '@repo/types';
 import { Controller, useForm } from 'react-hook-form';
@@ -61,8 +61,10 @@ export function ProductForm({ projectId, product }: Props) {
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
 
+  const isSubmitting = createProduct.isPending || updateProduct.isPending;
+
   const form = useForm({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(getProductSchema(!!product)),
     mode: 'onChange',
     defaultValues: {
       name: product?.name || '',
@@ -75,7 +77,7 @@ export function ProductForm({ projectId, product }: Props) {
   /**
    * Handlers
    */
-  const onSubmit = async (data: z.infer<typeof productSchema>) => {
+  const onSubmit = async (data: z.infer<ReturnType<typeof getProductSchema>>) => {
     try {
       const formData = new FormData();
       formData.append('name', data.name);
@@ -95,6 +97,7 @@ export function ProductForm({ projectId, product }: Props) {
         });
       } else {
         createProduct.mutate({ productData: formData });
+        form.reset();
       }
     } catch (err) {
       console.error('Error on submit', err);
@@ -275,9 +278,9 @@ export function ProductForm({ projectId, product }: Props) {
             Cancelar
           </Button>
         </DialogClose>
-        <DialogClose asChild>
-          <Button type="submit">{product ? 'Actualizar' : 'Crear'}</Button>
-        </DialogClose>
+
+          <Button type="submit" disabled={isSubmitting}>{isSubmitting ? <LoadingMessage/> : product ? 'Actualizar' : 'Crear'}</Button>
+
       </div>
     </form>
   );

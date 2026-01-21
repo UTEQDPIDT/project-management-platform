@@ -47,24 +47,7 @@ const Page = () => {
         ) : isError ? (
           <ErrorCard />
         ) : (
-          <UpdateProjectForm
-            _id={projectId}
-            name={project.name}
-            summary={project.summary}
-            objective={project.objective}
-            organization={project.organization}
-            trlRating={project.trlRating}
-            startDate={project.startDate}
-            endDate={project.endDate}
-            impactLevel={project.impactLevel}
-            knowledgeAreas={project.knowledgeAreas}
-            impactAreas={project.impactAreas}
-            prioritiesPND={project.prioritiesPND}
-            sustainableObjectives={project.sustainableObjectives}
-            innovationLines={project.innovationLines}
-            team={project.team}
-            relatedProjects={project.relatedProjects}
-          />
+          <UpdateProjectForm project={project} />
         )}
       </PageContent>
     </div>

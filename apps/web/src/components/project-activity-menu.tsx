@@ -12,17 +12,20 @@ import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { ActivityForm } from './forms/activity-form';
 import { Button } from './ui/button';
+
 import { IActivity } from '@repo/types';
 import { useDeleteActivity } from '@/hooks/activities';
 
 interface ProjectActivityMenu {
   projectId: string;
   activity: IActivity;
+  activitiesLength: number;
 }
 
-export default function ProjectActivityMenu({
+export function ProjectActivityMenu({
   projectId,
   activity,
+  activitiesLength,
 }: ProjectActivityMenu) {
   const deleteActivity = useDeleteActivity();
 
@@ -34,7 +37,7 @@ export default function ProjectActivityMenu({
     <div className="flex flex-col gap-1">
       {/* Edit */}
       <Dialog>
-        <DialogTrigger className="border-transparent w-full justify-start">
+        <DialogTrigger className="border-transparent w-full justify-start font-normal">
           <Pencil /> Editar actividad
         </DialogTrigger>
         <DialogContent>
@@ -50,7 +53,10 @@ export default function ProjectActivityMenu({
 
       {/* Delete */}
       <Dialog>
-        <DialogTrigger className="border-transparent w-full justify-start hover:text-destructive-foreground">
+        <DialogTrigger
+          className="border-transparent w-full justify-start hover:text-destructive-foreground font-normal"
+          disabled={activitiesLength! <= 5}
+        >
           <Trash /> Eliminar actividad
         </DialogTrigger>
         <DialogContent className="gap-5">
@@ -70,7 +76,7 @@ export default function ProjectActivityMenu({
               <Button
                 onClick={handleDelete}
                 variant="destructive"
-                disabled={deleteActivity.isPending}
+                disabled={deleteActivity.isPending || activitiesLength! <= 5}
               >
                 Eliminar
               </Button>

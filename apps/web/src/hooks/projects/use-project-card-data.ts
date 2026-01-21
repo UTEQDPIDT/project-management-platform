@@ -1,5 +1,8 @@
 import { calculateProgress } from '@/lib/utils';
-import { IProject } from '@repo/types';
+import { IActivity, IProject, Status } from '@repo/types';
+import { useActivitiesByEntity } from '../activities';
+import { useProjectProducts } from '../products';
+import { useFilesForEntity } from '../files';
 
 export function useProjectCardData(project: IProject) {
   const {
@@ -13,24 +16,34 @@ export function useProjectCardData(project: IProject) {
     relatedProjects,
   } = project;
 
-  const members = team?.members ?? [];
-  const collaborators = team?.collaborators ?? [];
+  // Tanstack
+  const { data: activities } = useActivitiesByEntity(project._id);
+  const { data: products } = useProjectProducts(project._id);
+  const { data: files } = useFilesForEntity(project._id);
 
-  const uniqueUsers = Array.from(
-    new Map([...members, ...collaborators].map((u) => [u._id, u])).values(),
-  );
+  // Team memberships (new schema)
+  const memberships = team?.memberships ?? [];
+  const profiles = memberships
+    .map((m) => ({
+      givenName: m.user?.givenName,
+      familyName: m.user?.familyName,
+      avatarUrl: m.user?.avatarUrl,
+    }))
+    .filter((p) => p.givenName && p.familyName);
 
-  const profiles = uniqueUsers.map((u) => ({
-    givenName: u.givenName,
-    familyName: u.familyName,
-    avatarUrl: u.avatarUrl,
-  }));
+  // Always include owner
+  if (owner) {
+    profiles.push({
+      givenName: owner.givenName,
+      familyName: owner.familyName,
+      avatarUrl: owner.avatarUrl,
+    });
+  }
 
-  profiles.push({
-    givenName: owner.givenName,
-    familyName: owner.familyName,
-    avatarUrl: owner.avatarUrl,
-  });
+  // Progress calculation (by completed activities)
+  const completedActivities =
+    activities?.filter((a: IActivity) => a.status === Status.COMPLETED) ?? [];
+  const progress = calculateProgress(activities ?? []);
 
   return {
     id: _id,
@@ -40,5 +53,11 @@ export function useProjectCardData(project: IProject) {
     endDate,
     relatedProjects,
     profiles,
+    progress,
+    products,
+    files,
+    activities,
+    completedActivitiesCount: completedActivities.length,
+    totalActivitiesCount: activities?.length ?? 0,
   };
 }

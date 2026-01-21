@@ -104,36 +104,30 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
     resolver: zodResolver(updateProjectSchema),
     mode: 'onChange',
     defaultValues: {
-      name: typeof project?.name === 'string' ? project.name : '',
-      objective:
-        typeof project?.objective === 'string' ? project.objective : '',
-      trlRating: typeof project?.trlRating === 'number' ? project.trlRating : 0,
-      knowledgeAreas: Array.isArray(project?.knowledgeAreas)
+      name: project?.name ? project.name : '',
+      objective: project?.objective ? project.objective : '',
+      trlRating: project?.trlRating ? project.trlRating : 3,
+      knowledgeAreas: project?.knowledgeAreas
         ? project.knowledgeAreas.map((k) => k?._id).filter(Boolean)
         : [],
-      impactAreas: Array.isArray(project?.impactAreas)
+      impactAreas: project?.impactAreas
         ? project.impactAreas.map((a) => a?._id).filter(Boolean)
         : [],
-      prioritiesPND: Array.isArray(project?.prioritiesPND)
+      prioritiesPND: project?.prioritiesPND
         ? project.prioritiesPND.map((p) => p?._id).filter(Boolean)
         : [],
-      sustainableObjectives: Array.isArray(project?.sustainableObjectives)
+      sustainableObjectives: project?.sustainableObjectives
         ? project.sustainableObjectives.map((o) => o?._id).filter(Boolean)
         : [],
-      innovationLines: Array.isArray(project?.innovationLines)
+      innovationLines: project?.innovationLines
         ? project.innovationLines.map((l) => l?._id).filter(Boolean)
         : [],
-      impactLevel:
-        typeof project?.impactLevel === 'string'
-          ? project.impactLevel
-          : ImpactLevel.LOCAL,
-      organization:
-        typeof project?.organization === 'string' ? project.organization : '',
-      team:
-        project?.team && typeof project.team === 'object' && project.team._id
-          ? project.team._id
-          : '',
-      relatedProjects: Array.isArray(project?.relatedProjects)
+      impactLevel: project?.impactLevel
+        ? project.impactLevel
+        : ImpactLevel.LOCAL,
+      organization: project?.organization ? project.organization : '',
+      team: project?.team && project.team._id ? project.team._id : '',
+      relatedProjects: project?.relatedProjects
         ? project.relatedProjects.map((p) => p?._id).filter(Boolean)
         : [],
       startDate: project?.startDate ? new Date(project.startDate) : undefined,
@@ -157,7 +151,6 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
         projectId: project._id,
         projectData: cleanedData,
       });
-      form.reset();
       router.push(`${rootUrl}/proyectos/${project._id}`);
     } catch (err) {
       console.error('Error cleaning data', err);
@@ -461,7 +454,9 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                                               : [...value, area._id],
                                           );
                                         }}
+                                        className="flex justify-between"
                                       >
+                                        {area.name}
                                         <Check
                                           className={`mr-2 h-4 w-4 ${
                                             selected
@@ -469,7 +464,6 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                                               : 'opacity-0'
                                           }`}
                                         />
-                                        {area.name}
                                       </CommandItem>
                                     );
                                   },
@@ -540,13 +534,14 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                                             : [...value, area._id],
                                         );
                                       }}
+                                      className="flex justify-between"
                                     >
+                                      {area.name}
                                       <Check
                                         className={`mr-2 h-4 w-4 ${
                                           selected ? 'opacity-100' : 'opacity-0'
                                         }`}
                                       />
-                                      {area.name}
                                     </CommandItem>
                                   );
                                 })
@@ -619,7 +614,9 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                                               : [...value, priority._id],
                                           );
                                         }}
+                                        className="flex justify-between"
                                       >
+                                        {priority.name}
                                         <Check
                                           className={`mr-2 h-4 w-4 ${
                                             selected
@@ -627,7 +624,6 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                                               : 'opacity-0'
                                           }`}
                                         />
-                                        {priority.name}
                                       </CommandItem>
                                     );
                                   },
@@ -699,7 +695,9 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                                               : [...value, goal._id],
                                           );
                                         }}
+                                        className="flex justify-between"
                                       >
+                                        {goal.name}
                                         <Check
                                           className={`mr-2 h-4 w-4 ${
                                             selected
@@ -707,7 +705,6 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                                               : 'opacity-0'
                                           }`}
                                         />
-                                        {goal.name}
                                       </CommandItem>
                                     );
                                   },
@@ -782,7 +779,9 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                                               : [...value, line._id],
                                           );
                                         }}
+                                        className="flex justify-between"
                                       >
+                                        {line.name}
                                         <Check
                                           className={`mr-2 h-4 w-4 ${
                                             selected
@@ -790,7 +789,6 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                                               : 'opacity-0'
                                           }`}
                                         />
-                                        {line.name}
                                       </CommandItem>
                                     );
                                   },

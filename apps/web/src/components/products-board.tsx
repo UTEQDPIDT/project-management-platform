@@ -15,7 +15,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from './ui/empty';
-import { Separator } from './ui/separator';
 import LoadingMessage from './loading-message';
 import ErrorCard from './error-card';
 
@@ -49,7 +48,6 @@ export function ProductsBoard({
             </DialogTrigger>
             <DialogContent>
               <DialogTitle>Nuevo Producto</DialogTitle>
-              <Separator />
               <ProductForm projectId={projectId} />
             </DialogContent>
           </Dialog>

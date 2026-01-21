@@ -8,7 +8,7 @@ import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import LoadingMessage from '@/components/loading-message';
 import { PageContent } from '@/components/page-content';
 import { ProductsBoard } from '@/components/products-board';
-import ProjectInfoTable from '@/components/project-info';
+import { ProjectInfo } from '@/components/project-info';
 import { ProjectMenu } from '@/components/project-menu';
 import { ProjectsBoard } from '@/components/projects-board';
 import {
@@ -19,9 +19,8 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { useActivitiesByEntity } from '@/hooks/activities';
-import { useFilesForEntity } from '@/hooks/files';
-import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
-import { useProductsByProject } from '@/hooks/products';
+import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
+import { useProjectProducts } from '@/hooks/products';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress } from '@/lib/utils';
 import { EntityType } from '@repo/types';
@@ -31,6 +30,8 @@ import { useState } from 'react';
 
 const Page = () => {
   const { projectId } = useParams<{ projectId: string }>();
+
+  // Tanstack
   const {
     data: project,
     isLoading: loadingProject,
@@ -40,14 +41,12 @@ const Page = () => {
     data: products,
     isLoading: loadingProducts,
     isError: errorFetchingProducts,
-  } = useProductsByProject(projectId);
+  } = useProjectProducts(projectId);
   const {
     data: activities,
     isLoading: loadingActivities,
     isError: errorFetchingActivities,
   } = useActivitiesByEntity(projectId);
-
-  // Saved Project Files
   const {
     data: savedFiles,
     isLoading: loadingFiles,
@@ -83,7 +82,7 @@ const Page = () => {
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                      <Link href="/user/proyectos">Proyectos</Link>
+                      <Link href="/admin/proyectos">Proyectos</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
@@ -101,7 +100,7 @@ const Page = () => {
             {loadingActivities ? (
               <LoadingMessage />
             ) : (
-              <ProjectInfoTable
+              <ProjectInfo
                 project={project}
                 progress={calculateProgress(activities)}
               />
@@ -128,7 +127,7 @@ const Page = () => {
                     isLoading={loadingFiles}
                     isError={errorFetchingFiles}
                     isUploading={uploadMultipleFiles.isPending}
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf,.doc,.docx,.xlsx"
                   />
                 )}
               </div>

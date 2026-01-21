@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import FileButton from './file-button';
@@ -26,7 +27,7 @@ export default function ProductCard({
 }: ProductCardProps) {
   const { data: files = [] } = useFilesForEntity(product._id);
   return (
-    <Card className="gap-2">
+    <Card className="gap-2 group">
       <CardHeader>
         <div className="flex items-center justify-between gap-1">
           <div className="flex flex-col gap-1">
@@ -35,12 +36,16 @@ export default function ProductCard({
 
           {enableOptions && (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger
+                asChild
+                className="opacity-0 group-hover:opacity-100"
+              >
                 <Button variant="ghost" size="icon-sm">
                   <Ellipsis />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="flex flex-col items-start gap-1">
+                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                 {options}
               </DropdownMenuContent>
             </DropdownMenu>

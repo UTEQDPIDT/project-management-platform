@@ -17,7 +17,7 @@ import {
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { ActivityForm } from './forms/activity-form';
-import ProjectActivityMenu from './project-activity-menu';
+import { ProjectActivityMenu } from './project-activity-menu';
 
 interface Props {
   activities: IActivity[];
@@ -88,9 +88,12 @@ export function ActivitiesBoard({
                       <ProjectActivityMenu
                         projectId={projectId!}
                         activity={a}
+                        activitiesLength={activities.length}
                       />
                     }
                     enableOptions
+                    showPriority
+                    showStatus
                   />
                 ))}
               </CardContent>
@@ -114,9 +117,13 @@ export function ActivitiesBoard({
                       <ProjectActivityMenu
                         projectId={projectId!}
                         activity={a}
+                        activitiesLength={activities.length}
                       />
                     }
+                    className="border-blue-200"
                     enableOptions
+                    showPriority
+                    showStatus
                   />
                 ))}
               </CardContent>
@@ -140,9 +147,13 @@ export function ActivitiesBoard({
                       <ProjectActivityMenu
                         projectId={projectId!}
                         activity={a}
+                        activitiesLength={activities.length}
                       />
                     }
+                    className="border-green-200"
                     enableOptions
+                    showPriority
+                    showStatus
                   />
                 ))}
               </CardContent>

@@ -35,12 +35,6 @@ export class CreateProjectDto {
   @Max(9)
   trlRating: number;
 
-  @ApiProperty({
-    description: 'Estado actual del proyecto.',
-  })
-  @IsEnum(Status)
-  status: Status;
-
   @ApiPropertyOptional({
     description: 'Áreas de conocimiento que alude el proyecto.',
   })
@@ -55,7 +49,7 @@ export class CreateProjectDto {
   @IsMongoId({ each: true })
   @IsArray()
   @IsOptional()
-  impactAreas: string;
+  impactAreas: string[];
 
   @ApiPropertyOptional({
     description: 'Prioridades Nacionales.',
@@ -63,7 +57,7 @@ export class CreateProjectDto {
   @IsMongoId({ each: true })
   @IsArray()
   @IsOptional()
-  prioritiesPND: string;
+  prioritiesPND: string[];
 
   @ApiPropertyOptional({
     description: 'Objetivos sustentables a los que apunta el proyecto.',
@@ -71,7 +65,7 @@ export class CreateProjectDto {
   @IsMongoId({ each: true })
   @IsArray()
   @IsOptional()
-  sustainableObjectives: string;
+  sustainableObjectives: string[];
 
   @ApiPropertyOptional({
     description: 'Lineas de innovación a las que se alinea el proyecto.',

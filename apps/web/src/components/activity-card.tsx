@@ -159,7 +159,7 @@ export function ActivityCard({
       <SheetTrigger asChild>
         <Card
           className={cn(
-            'hover:shadow-lg hover:cursor-pointer group hover:bg-secondary',
+            'hover:shadow-lg hover:cursor-pointer group hover:bg-secondary gap-2',
             className,
           )}
         >
@@ -172,6 +172,10 @@ export function ActivityCard({
           </CardHeader>
 
           <CardContent className="flex flex-col gap-4">
+            {showPriority && (
+              <Badge variant={priorityBadgeVariant}>{activity.priority}</Badge>
+            )}
+
             {activity.assignees && activity.assignees.length > 0 && (
               <AvatarRow profiles={activity.assignees} />
             )}
@@ -193,10 +197,6 @@ export function ActivityCard({
                   </span>
                 )}
               </div>
-            )}
-
-            {showPriority && (
-              <Badge variant={priorityBadgeVariant}>{activity.priority}</Badge>
             )}
           </CardContent>
           {onAction && (

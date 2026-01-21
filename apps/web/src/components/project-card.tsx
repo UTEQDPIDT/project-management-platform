@@ -15,6 +15,7 @@ import {
 } from './ui/card';
 import { useProjectCardData } from '@/hooks/projects';
 import { userProfile } from 'context/profile-provider';
+import { Progress } from './ui/progress';
 
 type ProjectCardVariant = 'default' | 'compact';
 interface ProjectCardProps {
@@ -49,6 +50,19 @@ function ProjectCardDefault({
       </CardHeader>
 
       <CardContent className="flex flex-col gap-4">
+        {/* Progress Bar */}
+        <div className="w-full flex flex-col gap-1">
+          <div className="flex justify-between items-center text-xs">
+            <span>Progreso</span>
+            <span>{Math.round(data.progress)}%</span>
+          </div>
+          <Progress value={data.progress} />
+          <span className="text-xs text-muted-foreground">
+            {data.completedActivitiesCount} de {data.totalActivitiesCount}{' '}
+            actividades completadas
+          </span>
+        </div>
+
         {data.startDate && (
           <div className="flex gap-1">
             <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
@@ -65,9 +79,9 @@ function ProjectCardDefault({
         )}
       </CardContent>
 
-      <CardFooter className="border-t flex gap-3 justify-start items-center">
+      <CardFooter className="flex gap-3 justify-start items-center">
         <AvatarRow profiles={data.profiles} />
-        {/* <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+        <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
           <Shapes size={14} />
           {data.products?.length}
         </span>
@@ -78,7 +92,7 @@ function ProjectCardDefault({
         <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
           <Folder size={14} />
           {data.relatedProjects?.length}
-        </span> */}
+        </span>
       </CardFooter>
     </Card>
   );
@@ -105,6 +119,20 @@ function ProjectCardCompact({
           </div>
         </div>
       </CardHeader>
+      <CardContent>
+        {/* Progress Bar */}
+        <div className="w-full flex flex-col gap-1">
+          <div className="flex justify-between items-center text-xs">
+            <span>Progreso</span>
+            <span>{Math.round(data.progress)}%</span>
+          </div>
+          <Progress value={data.progress} />
+          <span className="text-xs text-muted-foreground">
+            {data.completedActivitiesCount} de {data.totalActivitiesCount}{' '}
+            actividades completadas
+          </span>
+        </div>
+      </CardContent>
     </Card>
   );
 }

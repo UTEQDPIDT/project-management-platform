@@ -3,7 +3,6 @@ import { ImpactLevel } from '@repo/types';
 import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { Team } from './team.schema';
-import { Activity } from './activities.schema';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { KnowledgeArea } from './knowledge-area.schema.seed';
 import { ThemedImpactArea } from './themed-impact-area.schema';
@@ -48,6 +47,8 @@ export class Project extends Document {
       { type: mongoose.Schema.Types.ObjectId, ref: ThemedImpactArea.name },
     ],
   })
+  impactAreas: ThemedImpactArea[];
+
   @ApiPropertyOptional({
     description: 'Prioridades Nacionales (referencia al catálogo).',
   })

@@ -149,7 +149,7 @@ export default function EventInfoCard({ event }: EventInfoCardProps) {
             <div className="flex justify-between gap-3">
               <span className="text-muted-foreground w-24">Informe</span>
               {files.length ? (
-                <FileButton file={files[0]} className="max-w-52" />
+                <FileButton canDelete file={files[0]} className="max-w-52" />
               ) : (
                 <Dialog>
                   <DialogTrigger className="border h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">

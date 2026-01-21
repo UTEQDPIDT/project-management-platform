@@ -39,7 +39,7 @@ import Link from 'next/link';
 import { Badge } from './ui/badge';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useProductsByProject } from '@/hooks/products';
+import { useProjectProducts } from '@/hooks/products';
 
 const columns: ColumnDef<IProject>[] = [
   {
@@ -90,7 +90,7 @@ const columns: ColumnDef<IProject>[] = [
     header: 'Productos',
     cell: ({ row }) => {
       const { _id } = row.original;
-      const { data: products, isLoading } = useProductsByProject(_id);
+      const { data: products, isLoading } = useProjectProducts(_id);
       return <div>{isLoading ? <LoadingMessage /> : products.length}</div>;
     },
   },
