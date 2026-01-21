@@ -15,7 +15,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from './ui/empty';
-import { Separator } from './ui/separator';
 import LoadingMessage from './loading-message';
 import ErrorCard from './error-card';
 
