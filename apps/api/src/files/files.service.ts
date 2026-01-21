@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { File } from '../schemas/file.schema';
 import { mongo } from 'mongoose';
-import { EntityType } from '@repo/types';
+import { EntityType, FilePurpose } from '@repo/types';
 
 @Injectable()
 export class FilesService {
@@ -28,6 +28,7 @@ export class FilesService {
     file: Express.Multer.File,
     entityId: string,
     entityType: EntityType,
+    purpose: FilePurpose,
     userId: string,
   ) {
     if (!file) {
@@ -45,6 +46,7 @@ export class FilesService {
         mimetype: file.mimetype,
         entityId,
         entityType,
+        purpose,
         owner: userId,
         url: `/files/${gridFsId}`,
         gridFsId,
@@ -63,6 +65,7 @@ export class FilesService {
     files: Express.Multer.File[],
     entityId: string,
     entityType: EntityType,
+    purpose: FilePurpose,
     userId: string,
   ) {
     if (!files || files.length === 0) {
@@ -77,6 +80,7 @@ export class FilesService {
           file,
           entityId,
           entityType,
+          purpose,
           userId,
         );
 
