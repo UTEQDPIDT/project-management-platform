@@ -18,7 +18,13 @@ export class UploadFileDto {
   @IsEnum(EntityType)
   entityType: EntityType;
 
-  @ApiProperty({ description: 'El propósito del archivo.' })
+  @ApiProperty({ enum: FilePurpose, description: 'El propósito del archivo.' })
   @IsEnum(FilePurpose)
   purpose: FilePurpose;
+
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+  })
+  file: any;
 }
