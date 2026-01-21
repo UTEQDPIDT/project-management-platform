@@ -49,7 +49,6 @@ export function ProductsBoard({
             </DialogTrigger>
             <DialogContent>
               <DialogTitle>Nuevo Producto</DialogTitle>
-              <Separator />
               <ProductForm projectId={projectId} />
             </DialogContent>
           </Dialog>

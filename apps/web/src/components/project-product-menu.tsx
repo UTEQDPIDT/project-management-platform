@@ -34,24 +34,20 @@ export default function ProjectProductMenu({
     <div className="flex flex-col gap-1 max-w-fit">
       {/* Edit */}
       <Dialog>
-        <DialogTrigger className="border-transparent justify-start">
-          <Pencil /> Editar
+        <DialogTrigger className="border-transparent justify-start font-normal">
+          <Pencil /> Editar producto
         </DialogTrigger>
         <DialogContent>
-          <div className="flex gap-3 ">
             <Badge variant="orange">Editando</Badge>
             <DialogTitle className="line-clamp-1">{product.name}</DialogTitle>
-          </div>
-          <Separator />
-
           <ProductForm product={product} projectId={projectId} />
         </DialogContent>
       </Dialog>
 
       {/* Delete */}
       <Dialog>
-        <DialogTrigger className="border-transparent justify-start hover:text-destructive-foreground">
-          <Trash /> Eliminar
+        <DialogTrigger className="border-transparent justify-start font-normal hover:text-destructive-foreground">
+          <Trash /> Eliminar producto
         </DialogTrigger>
         <DialogContent className="gap-5">
           <Badge variant="destructive">Eliminando</Badge>
