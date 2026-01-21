@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
-import { EntityType } from '@repo/types';
+import { EntityType, FilePurpose } from '@repo/types';
 
 @Schema({ timestamps: true })
 export class File extends Document {
@@ -40,9 +40,21 @@ export class File extends Document {
   })
   entityId: mongoose.Types.ObjectId;
 
-  @ApiProperty({})
+  @ApiProperty({
+    description: 'El tipo de entidad propietaria del archivo.',
+    enum: EntityType,
+  })
   @Prop({ type: String, enum: EntityType, required: true })
   entityType: EntityType;
+
+  @ApiProperty({ description: 'El propósito del archivo.', enum: FilePurpose })
+  @Prop({
+    type: String,
+    enum: FilePurpose,
+    required: true,
+    default: FilePurpose.GENERIC,
+  })
+  purpose: FilePurpose;
 
   @ApiProperty({ description: 'El usuario que subió el archivo' })
   @Prop({
