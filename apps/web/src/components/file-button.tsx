@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { downloadFile } from '@/services/files.service';
-import { ChevronDown, Download, Paperclip, Trash } from 'lucide-react';
+import { ChevronDown, Download, Trash } from 'lucide-react';
 import LoadingMessage from './loading-message';
 import { ButtonGroup } from './ui/button-group';
 import {
@@ -61,7 +61,7 @@ export default function FileButton({
               <LoadingMessage message="descargando" />
             ) : (
               <div className="flex items-center gap-1 overflow-x-hidden">
-                <Paperclip />
+                <Download />
                 <span className="truncate">{file.originalName}</span>
               </div>
             )}
