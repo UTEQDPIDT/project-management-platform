@@ -1,16 +1,13 @@
-export const ALLOWED_MIME_TYPES = [
-  // Images
-  'image/png',
-  'image/jpeg',
+// src/common/constants/file-mime-types.ts
+export const FILE_MIME_TYPES = {
+  IMAGES: ['image/png', 'image/jpeg'],
 
-  // PDFs
-  'application/pdf',
+  DOCUMENTS: ['application/pdf'],
 
-  // Word
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-
-  // Excel
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-];
+  OFFICE: [
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ],
+} as const;
