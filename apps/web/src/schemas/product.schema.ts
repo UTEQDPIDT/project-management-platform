@@ -12,8 +12,8 @@ export const getProductSchema = (isUpdate: boolean) =>
       ? z
           .instanceof(File)
           .refine(
-            (file) => file.size <= 5 * 1024 * 1024,
-            'El archivo pesa más de 5 MB',
+            (file) => file.size <= 2 * 1024 * 1024,
+            'El archivo pesa más de 2 MB',
           )
           .refine(
             (file) => file.type === 'application/pdf',
