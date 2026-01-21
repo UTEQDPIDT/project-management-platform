@@ -28,6 +28,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { File } from '../schemas/file.schema';
 import { FilesService } from './files.service';
 import { UploadFileDto } from './dto/upload-file.dto';
+import { FileValidationPipe } from '../common/pipes';
+import { ALLOWED_MIME_TYPES } from '../common/constants';
 
 @ApiTags('files')
 @Controller('files')
@@ -45,7 +47,8 @@ export class FilesController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(new FileValidationPipe(5 * 1024 * 1024, ALLOWED_MIME_TYPES))
+    file: Express.Multer.File,
     @Body() body: UploadFileDto,
     @Req() req,
   ) {
@@ -70,7 +73,8 @@ export class FilesController {
   @Post('upload/multiple')
   @UseInterceptors(FilesInterceptor('files'))
   uploadMultiple(
-    @UploadedFiles() files: Array<Express.Multer.File>,
+    @UploadedFiles(new FileValidationPipe(5 * 1024 * 1024, ALLOWED_MIME_TYPES))
+    files: Array<Express.Multer.File>,
     @Body() body: UploadFileDto,
     @Req() req,
   ) {
