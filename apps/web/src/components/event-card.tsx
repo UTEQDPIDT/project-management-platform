@@ -122,12 +122,9 @@ export function EventCard({ event }: EventCardProps) {
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 h-full text-sm text-muted-foreground">
-        <div className="flex gap-2">
-          <Info className="shrink-0" size={14} />
-          <CardDescription className="h-26 line-clamp-5">
-            {event.summary}
-          </CardDescription>
-        </div>
+        <CardDescription className="h-26 line-clamp-5">
+          {event.summary}
+        </CardDescription>
 
         <div className="flex gap-2 group items-center">
           <MapPin className="shrink-0" size={14} />

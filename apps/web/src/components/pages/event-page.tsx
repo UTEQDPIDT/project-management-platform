@@ -3,7 +3,6 @@
 import { ActivityCard } from '@/components/activity-card';
 import ErrorCard from '@/components/error-card';
 import EventActivityMenu from '@/components/event-activity-menu';
-import EventInfoCard from '@/components/event-info-card';
 import { EventMenu } from '@/components/event-menu';
 import EventProductMenu from '@/components/event-product-menu';
 import FilesCard from '@/components/files-card';
@@ -53,6 +52,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { EventInfo } from '../event-info';
+import RegisterProductsForm from '../forms/register-product-form';
 
 const EventPage = () => {
   const { user } = userProfile();
@@ -177,12 +177,7 @@ const EventPage = () => {
                               key={a._id}
                               activity={a}
                               enableOptions={user.role === UserRole.ADMIN}
-                              options={
-                                <EventActivityMenu
-                                  eventId={eventId}
-                                  activity={a}
-                                />
-                              }
+                              options={<EventActivityMenu activity={a} />}
                             />
                           ))}
                         </div>
@@ -207,12 +202,26 @@ const EventPage = () => {
                 {event.acceptsProducts && (
                   <Card className="w-full">
                     <CardHeader>
-                      <div className="flex gap-3 items-center">
-                        <IconSquare color="orange">
-                          <Shapes />
-                        </IconSquare>
+                      <div className="flex gap-4 justify-between items-center">
+                        <div className="flex gap-3 items-center">
+                          <IconSquare color="orange">
+                            <Shapes />
+                          </IconSquare>
 
-                        <CardTitle>Productos</CardTitle>
+                          <CardTitle>Productos</CardTitle>
+                        </div>
+                        <Dialog>
+                          <DialogTrigger className="h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
+                            Agregar Productos
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogTitle>Agregar Productos</DialogTitle>
+                            <RegisterProductsForm
+                              eventId={eventId}
+                              products={event.products}
+                            />
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </CardHeader>
                     <CardContent>
