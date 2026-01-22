@@ -8,6 +8,7 @@ import {
 import { PageContent } from '@/components/page-content';
 import TeamsTable from '@/components/teams-table';
 import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 
@@ -22,8 +23,10 @@ const Page = () => {
           </HeaderDescription>
         </HeaderHeading>
         <HeaderAction>
-          <Button size="sm" asChild>
-            <Link href="/admin/equipos/crear">Crear Equipo</Link>
+          <Button asChild>
+            <Link href="/admin/equipos/crear">
+              <Plus /> Crear Equipo
+            </Link>
           </Button>
         </HeaderAction>
       </Header>

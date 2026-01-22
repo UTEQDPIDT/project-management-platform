@@ -20,12 +20,14 @@ import { cn } from '@/lib/utils';
 type FileButtonProps = {
   file: IFile;
   canDelete?: boolean;
+  size?: 'xs' | 'sm';
   className?: string;
 };
 
 export default function FileButton({
   file,
   canDelete = false,
+  size = 'xs',
   className,
 }: FileButtonProps) {
   const deleteFile = useDeleteFile();
@@ -51,7 +53,7 @@ export default function FileButton({
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            size="sm"
+            size={size}
             variant="outline"
             onClick={handleDownload}
             disabled={isLoading}
@@ -72,7 +74,11 @@ export default function FileButton({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon-sm" aria-label="Más opciones">
+          <Button
+            variant="outline"
+            size={`icon-${size}`}
+            aria-label="Más opciones"
+          >
             <ChevronDown />
           </Button>
         </DropdownMenuTrigger>
