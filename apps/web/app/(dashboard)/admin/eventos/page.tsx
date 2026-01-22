@@ -9,6 +9,7 @@ import {
 } from '@/components/header';
 import { PageContent } from '@/components/page-content';
 import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Page() {
@@ -23,7 +24,9 @@ export default function Page() {
         </HeaderHeading>
         <HeaderAction>
           <Button asChild>
-            <Link href="/admin/eventos/crear">Crear Evento</Link>
+            <Link href="/admin/eventos/crear">
+              <Plus /> Crear Evento
+            </Link>
           </Button>
         </HeaderAction>
       </Header>

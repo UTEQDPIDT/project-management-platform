@@ -9,7 +9,7 @@ import {
 } from '@/components/header';
 import { PageContent } from '@/components/page-content';
 import { Button } from '@/components/ui/button';
-import { Folder } from 'lucide-react';
+import { Folder, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useProjectsByOwner } from '@/hooks/projects/use-projects-by-owner';
 import LoadingMessage from '@/components/loading-message';
@@ -44,7 +44,9 @@ const Page = () => {
 
         <HeaderAction>
           <Button asChild>
-            <Link href={'/user/proyectos/crear'}>Crear Proyecto</Link>
+            <Link href={'/user/proyectos/crear'}>
+              <Plus /> Crear Proyecto
+            </Link>
           </Button>
         </HeaderAction>
       </Header>

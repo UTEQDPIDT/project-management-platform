@@ -39,7 +39,7 @@ const Page = () => {
           </HeaderDescription>
         </HeaderHeading>
         <HeaderAction>
-          <Button size="sm" asChild>
+          <Button asChild>
             <Link href={'/user/equipos/crear'}>
               <Plus />
               Crear Equipo

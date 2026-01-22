@@ -10,6 +10,7 @@ import { PageContent } from '@/components/page-content';
 import { ProductsTable } from '@/components/products-table';
 import ProjectsTable from '@/components/projects-table';
 import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
 const Page = () => {
@@ -24,7 +25,9 @@ const Page = () => {
         </HeaderHeading>
         <HeaderAction>
           <Button asChild>
-            <Link href="/admin/proyectos/crear">Crear Proyecto</Link>
+            <Link href="/admin/proyectos/crear">
+              <Plus /> Crear Proyecto
+            </Link>
           </Button>
         </HeaderAction>
       </Header>

@@ -102,7 +102,10 @@ FileList.Actions = function FileActions({ fileId }: { fileId: string }) {
             <Download /> Descargar archivo
           </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={() => onDelete?.(fileId)}>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => onDelete?.(fileId)}
+          >
             <Trash /> Eliminar archivo
           </DropdownMenuItem>
         </DropdownMenuContent>

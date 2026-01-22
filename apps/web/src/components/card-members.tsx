@@ -113,6 +113,7 @@ export function CardMembers({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <DropdownMenuItem
+                      variant="destructive"
                       disabled={removeMember.isPending}
                       onClick={() =>
                         removeMember.mutate({
