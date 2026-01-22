@@ -4,7 +4,7 @@ export function NavLogo() {
   return (
     <div className="w-full flex items-center justify-start gap-3 select-none h-10">
       <Image
-        width={100}
+        width={80}
         height={50}
         className="shrink-0"
         src="/prep-logo-negro.svg"
