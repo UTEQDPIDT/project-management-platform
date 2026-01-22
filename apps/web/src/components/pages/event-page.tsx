@@ -150,16 +150,18 @@ const EventPage = () => {
 
                         <CardTitle>Actividades</CardTitle>
                       </div>
-                      <Dialog>
-                        <DialogTrigger className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
-                          Crear
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogTitle>Nueva Actividad</DialogTitle>
-                          <Separator />
-                          <ActivityForm eventId={eventId} />
-                        </DialogContent>
-                      </Dialog>
+                      {user.role === UserRole.ADMIN && (
+                        <Dialog>
+                          <DialogTrigger className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
+                            Crear
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogTitle>Nueva Actividad</DialogTitle>
+                            <Separator />
+                            <ActivityForm eventId={eventId} />
+                          </DialogContent>
+                        </Dialog>
+                      )}
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -202,46 +204,51 @@ const EventPage = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="w-full">
-                  <CardHeader>
-                    <div className="flex gap-3 items-center">
-                      <IconSquare color="orange">
-                        <Shapes />
-                      </IconSquare>
+                {event.acceptsProducts && (
+                  <Card className="w-full">
+                    <CardHeader>
+                      <div className="flex gap-3 items-center">
+                        <IconSquare color="orange">
+                          <Shapes />
+                        </IconSquare>
 
-                      <CardTitle>Productos</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {event.products.length > 0 ? (
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        {event.products.map((p: IProduct) => (
-                          <ProductCard
-                            key={p._id}
-                            product={p}
-                            enableOptions
-                            options={
-                              <EventProductMenu eventId={eventId} product={p} />
-                            }
-                          />
-                        ))}
+                        <CardTitle>Productos</CardTitle>
                       </div>
-                    ) : (
-                      <Empty>
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon">
-                            <Shapes />
-                          </EmptyMedia>
-                          <EmptyTitle>No Hay Productos</EmptyTitle>
-                          <EmptyDescription>
-                            No se ha agregado ningún producto. Debes esperar a
-                            que los asistentes seleccionen sus productos.
-                          </EmptyDescription>
-                        </EmptyHeader>
-                      </Empty>
-                    )}
-                  </CardContent>
-                </Card>
+                    </CardHeader>
+                    <CardContent>
+                      {event.products.length > 0 ? (
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                          {event.products.map((p: IProduct) => (
+                            <ProductCard
+                              key={p._id}
+                              product={p}
+                              enableOptions
+                              options={
+                                <EventProductMenu
+                                  eventId={eventId}
+                                  product={p}
+                                />
+                              }
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <Empty>
+                          <EmptyHeader>
+                            <EmptyMedia variant="icon">
+                              <Shapes />
+                            </EmptyMedia>
+                            <EmptyTitle>No Hay Productos</EmptyTitle>
+                            <EmptyDescription>
+                              No se ha agregado ningún producto. Debes esperar a
+                              que los asistentes seleccionen sus productos.
+                            </EmptyDescription>
+                          </EmptyHeader>
+                        </Empty>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </div>
           </PageContent>
