@@ -16,14 +16,10 @@ import { IActivity } from '@repo/types';
 import { useDeleteActivity } from '@/hooks/activities';
 
 interface ProjectActivityMenu {
-  eventId: string;
   activity: IActivity;
 }
 
-export default function EventActivityMenu({
-  eventId,
-  activity,
-}: ProjectActivityMenu) {
+export default function EventActivityMenu({ activity }: ProjectActivityMenu) {
   const deleteActivityMutation = useDeleteActivity();
 
   const handleDelete = () => {

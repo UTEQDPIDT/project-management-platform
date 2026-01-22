@@ -38,6 +38,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from './ui/empty';
+import { useAddAssignee } from '@/hooks/activities';
 
 type FileCardProps = {
   savedFiles: IFile[];
@@ -62,6 +63,8 @@ export default function FilesCard({
 }: FileCardProps) {
   const deleteFileMutation = useDeleteFile();
 
+  const addAssigne = useAddAssignee();
+
   const handleDelete = (fileId: string) => {
     deleteFileMutation.mutate({ fileId });
   };
@@ -76,7 +79,7 @@ export default function FilesCard({
   return (
     <Card className="w-full max-w-md min-w-80">
       <CardHeader>
-        <div className="flex gap-4 justify-between">
+        <div className="flex gap-4 justify-between items-center">
           <div className="flex gap-2 items-center">
             <IconSquare color="indigo">
               <Paperclip />

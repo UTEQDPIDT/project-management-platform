@@ -44,7 +44,7 @@ const addAssignee = async ({
   try {
     await api.patch(`/activities/${activityId}/add-assignee`, { userId });
   } catch (err) {
-    console.error('Error assigning user to activity');
+    throw err;
   }
 };
 

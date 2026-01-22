@@ -10,6 +10,7 @@ import {
   MoveRight,
   Paperclip,
   Upload,
+  UserPlus,
   X,
 } from 'lucide-react';
 import AvatarRow from './avatar-row';
@@ -74,12 +75,11 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from './ui/empty';
+import { useAddAssignee, useRemoveAssignee } from '@/hooks/activities';
+import { userProfile } from 'context/profile-provider';
 
 interface Props {
   activity: IActivity;
-  buttonText?: string;
-  buttonIcon?: ReactNode;
-  onAction?: () => void;
   options?: ReactNode;
   enableOptions?: boolean;
   showStatus?: boolean;
@@ -89,23 +89,31 @@ interface Props {
 
 export function ActivityCard({
   activity,
-  buttonText = 'Accion',
-  buttonIcon,
-  onAction,
   options,
   enableOptions,
   showStatus,
   showPriority,
   className,
 }: Props) {
+  const { user } = userProfile();
+
+  // Tanstack
   const {
     data: files,
     isLoading: isLoadingFiles,
     isError: isErrorFetchingFiles,
   } = useFilesForEntity(activity._id);
   const uploadFiles = useUploadMultipleFiles();
-
   const deleteFileMutation = useDeleteFile();
+  const addAssignee = useAddAssignee();
+  const removeAssignee = useRemoveAssignee();
+
+  const handleAddAssignee = () => {
+    addAssignee.mutate({ activityId: activity._id, userId: user._id });
+  };
+  const handleRemoveAssignee = () => {
+    removeAssignee.mutate({ activityId: activity._id, userId: user._id });
+  };
 
   const handleDelete = (fileId: string) => {
     deleteFileMutation.mutate({ fileId });
@@ -199,16 +207,6 @@ export function ActivityCard({
               </div>
             )}
           </CardContent>
-          {onAction && (
-            <CardFooter className="flex justify-end">
-              <CardAction className="z-50">
-                <Button variant="outline" onClick={onAction} size="xs">
-                  {buttonIcon}
-                  {buttonText}
-                </Button>
-              </CardAction>
-            </CardFooter>
-          )}
         </Card>
       </SheetTrigger>
 
@@ -222,7 +220,7 @@ export function ActivityCard({
           {enableOptions && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon-sm">
+                <Button variant="ghost" size="icon-xs">
                   <Ellipsis />
                 </Button>
               </DropdownMenuTrigger>
@@ -251,6 +249,11 @@ export function ActivityCard({
               {activity.assignees && (
                 <AvatarRow profiles={activity.assignees} />
               )}
+              {!activity.assignees?.some((a) => a._id === user._id) && (
+                <Button onClick={handleAddAssignee} variant="ghost" size="xs">
+                  <UserPlus /> Asignarse
+                </Button>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -261,6 +264,7 @@ export function ActivityCard({
                 size="sm"
                 givenName={activity.createdBy.givenName}
                 familyName={activity.createdBy.familyName}
+                avatarUrl={activity.createdBy.avatarUrl}
               />
             </div>
 
