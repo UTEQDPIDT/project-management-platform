@@ -12,7 +12,7 @@ export default function AvatarRow({ profiles }: AvatarRowProps) {
   const extraCount = profiles.length - maxVisible;
 
   return (
-    <div className="flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background *:data-[slot=avatar]:grayscale">
+    <div className="flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background">
       {visibleProfiles.map((p, index) => (
         <Avatar size="sm" key={index}>
           <AvatarImage src={p.avatarUrl} alt={p.givenName} />
