@@ -74,7 +74,7 @@ export default function FilesCard({
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md min-w-80">
       <CardHeader>
         <div className="flex gap-4 justify-between">
           <div className="flex gap-2 items-center">

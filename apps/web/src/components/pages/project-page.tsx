@@ -22,16 +22,18 @@ import { useActivitiesByEntity } from '@/hooks/activities';
 import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
 import { useProjectProducts } from '@/hooks/products';
 import { useProject } from '@/hooks/projects';
-import { calculateProgress } from '@/lib/utils';
+import { calculateProgress, getBaseUrlBasedOnRole } from '@/lib/utils';
 import { EntityType } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 
-const Page = () => {
-  const { id: projectId } = useParams<{ id: string }>();
+const ProjectPage = () => {
   const { user } = userProfile();
+  const baseUrl = getBaseUrlBasedOnRole(user.role);
+
+  const { projectId } = useParams<{ projectId: string }>();
 
   // Tanstack
   const {
@@ -46,8 +48,8 @@ const Page = () => {
   } = useProjectProducts(projectId);
   const {
     data: activities,
-    isLoading: isLoadingActivities,
-    isError: isErrorInActivities,
+    isLoading: loadingActivities,
+    isError: errorFetchingActivities,
   } = useActivitiesByEntity(projectId);
   const {
     data: savedFiles,
@@ -84,24 +86,24 @@ const Page = () => {
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                      <Link href="/user/proyectos">Proyectos</Link>
+                      <Link href={`${baseUrl}/proyectos`}>Proyectos</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
-                  <BreadcrumbItem>{project.name}</BreadcrumbItem>
+                  <BreadcrumbItem>
+                    {loadingProject ? 'Cargando...' : project.name}
+                  </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
             </HeaderHeading>
 
             <HeaderAction>
-              {user._id === project.owner._id && (
-                <ProjectMenu projectId={projectId} name={project.name} />
-              )}
+              <ProjectMenu projectId={projectId} name={project.name} />
             </HeaderAction>
           </Header>
 
           <PageContent className="items-center">
-            {isLoadingActivities ? (
+            {loadingActivities ? (
               <LoadingMessage />
             ) : (
               <ProjectInfo
@@ -110,11 +112,7 @@ const Page = () => {
               />
             )}
             <div className="w-full px-4 gap-6 flex flex-col">
-              <ActivitiesBoard
-                activities={activities}
-                projectId={projectId}
-                isLoading={isLoadingActivities}
-              />
+              <ActivitiesBoard activities={activities} projectId={projectId} />
               <ProductsBoard
                 products={products}
                 projectId={projectId}
@@ -146,4 +144,4 @@ const Page = () => {
     </div>
   );
 };
-export default Page;
+export default ProjectPage;
