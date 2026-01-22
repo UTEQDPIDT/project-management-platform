@@ -131,9 +131,10 @@ export const getBaseUrlBasedOnRole = (userRole: string) => {
 };
 
 /**
- * Trims a file name from the middle if it exceeds 50 characters.
- * Keeps the first 25 and last 25 characters, joined by '...'.
+ * Trims a file name from the middle if it exceeds a number of characters.
+ * Keeps the first and last characters, joined by '...'.
  * @param {string} fileName - The file name to trim.
+ * @param {number} [maxLength=50] - The maximum allowed length of the file name.
  * @returns {string} The trimmed file name.
  */
 export function trimFileNameMiddle(
