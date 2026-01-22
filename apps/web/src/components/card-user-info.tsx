@@ -1,4 +1,4 @@
-import { IUser, UserType } from '@repo/types';
+import { IUser, UserRole, UserType } from '@repo/types';
 import {
   Card,
   CardContent,
@@ -31,6 +31,7 @@ import {
   DropdownMenuItem,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
+import CopyButton from './ui/copy';
 
 interface CardUserInfoProps {
   profile: IUser;
@@ -96,7 +97,7 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
               <Badge variant={badgeVariant}>{type}</Badge>
             </div>
           </div>
-          {user._id === profile._id && (
+          {(user._id === profile._id || user.role === UserRole.ADMIN) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon-sm">
@@ -140,14 +141,28 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
             <TableRow>
               <TableCell className="text-gray-500 px-4">Nombre</TableCell>
               <TableCell>
-                {givenName} {familyName}
+                <div className="flex items-center gap-1 group">
+                  {givenName} {familyName}
+                  <CopyButton
+                    valueToCopy={givenName + ' ' + familyName}
+                    className="opacity-0 group-hover:opacity-100"
+                  />
+                </div>
               </TableCell>
             </TableRow>
             <TableRow>
               <TableCell className="text-gray-500 px-4">
                 Correo electrónico
               </TableCell>
-              <TableCell>{email}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1 group">
+                  {email}
+                  <CopyButton
+                    valueToCopy={email}
+                    className="opacity-0 group-hover:opacity-100"
+                  />
+                </div>
+              </TableCell>
             </TableRow>
             {dateOfBirth && (
               <TableRow>
@@ -189,7 +204,13 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                   </TableCell>
                   <TableCell>
                     {matricula ? (
-                      matricula
+                      <div className="flex items-center gap-1 group">
+                        {matricula}
+                        <CopyButton
+                          valueToCopy={matricula}
+                          className="opacity-0 group-hover:opacity-100"
+                        />
+                      </div>
                     ) : (
                       <span className="text-muted-foreground">Vacío</span>
                     )}
@@ -229,7 +250,13 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                 </TableCell>
                 <TableCell>
                   {employeeNumber ? (
-                    employeeNumber
+                    <div className="flex items-center gap-1 group">
+                      {employeeNumber}
+                      <CopyButton
+                        valueToCopy={employeeNumber}
+                        className="opacity-0 group-hover:opacity-100"
+                      />
+                    </div>
                   ) : (
                     <span className="text-muted-foreground">Vacío</span>
                   )}
