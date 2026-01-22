@@ -52,6 +52,7 @@ import { ListTodo, Shapes } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
+import { EventInfo } from '../event-info';
 
 const EventPage = () => {
   const { user } = userProfile();
@@ -117,10 +118,9 @@ const EventPage = () => {
           </Header>
 
           <PageContent>
+            <EventInfo event={event} />
             <div className="w-full flex gap-6 lg:gap-4 flex-col lg:flex-row">
               <div className="w-full lg:max-w-sm flex flex-col gap-6">
-                <EventInfoCard event={event} />
-
                 {(user.role === UserRole.ADMIN ||
                   user.type === UserType.MAESTRO ||
                   user.type === UserType.ADMINISTRATIVO) && (
