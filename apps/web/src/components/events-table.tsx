@@ -213,7 +213,7 @@ const columns: ColumnDef<IEvent>[] = [
     },
   },
   {
-    id: 'report',
+    id: 'technical-report',
     header: 'Informe Técnico',
     cell: ({ row }) => {
       const event = row.original;
@@ -237,7 +237,7 @@ const columns: ColumnDef<IEvent>[] = [
     },
   },
   {
-    id: 'report',
+    id: 'financial-report',
     header: 'Informe Financiero',
     cell: ({ row }) => {
       const event = row.original;
