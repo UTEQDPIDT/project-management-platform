@@ -183,7 +183,7 @@ export default function TeamCard({ team }: TeamCardProps) {
           {team.summary}
         </CardDescription>
       </CardContent>
-      <CardFooter className="flex border-t gap-2 justify-between items-center">
+      <CardFooter className="flex gap-2 justify-between items-center">
         <div>
           <AvatarRow profiles={profiles} />
         </div>

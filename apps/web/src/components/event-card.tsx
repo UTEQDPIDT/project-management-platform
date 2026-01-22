@@ -26,6 +26,7 @@ import {
 } from './ui/card';
 import CopyButton from './ui/copy';
 import { useRegisterParticipant } from '@/hooks/events';
+import { useActivitiesByEntity } from '@/hooks/activities';
 
 interface EventCardProps {
   event: IEvent;
@@ -40,6 +41,7 @@ export function EventCard({ event }: EventCardProps) {
   /**
    * Tanstack
    */
+  const { data: activities } = useActivitiesByEntity(event._id);
   const registerParticipant = useRegisterParticipant();
 
   /**
@@ -156,13 +158,13 @@ export function EventCard({ event }: EventCardProps) {
           )}
         </div>
       </CardContent>
-      <CardFooter className="flex border-t gap-3 justify-between items-center">
+      <CardFooter className="flex gap-3 justify-between items-center">
         <div className="flex gap-3">
           <AvatarRow profiles={event.participants} />
 
           <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
             <CheckSquare size={14} />
-            {event.activities?.length}
+            {activities?.length}
           </span>
 
           <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
