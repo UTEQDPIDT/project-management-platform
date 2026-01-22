@@ -138,7 +138,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
           <BookOpen size={14} className="shrink-0" /> Áreas de Conocimiento
         </span>
         <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
-          {knowledgeAreas ? (
+          {knowledgeAreas?.length ? (
             <span>
               {concatWithCommaAndDot(
                 knowledgeAreas.map((a: SeedCategory) => a.name),
@@ -155,7 +155,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
           <FoldVertical size={14} className="shrink-0" /> Impactos Transversales
         </span>
         <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
-          {impactAreas ? (
+          {impactAreas?.length ? (
             <span>
               {concatWithCommaAndDot(
                 impactAreas.map((a: SeedCategory) => a.name),
@@ -172,7 +172,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
           <Leaf size={14} className="shrink-0" /> Objetivos Sustentables
         </span>
         <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
-          {sustainableObjectives ? (
+          {sustainableObjectives?.length ? (
             <span>
               {concatWithCommaAndDot(
                 sustainableObjectives.map((o: SeedCategory) => o.name),
@@ -190,7 +190,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
           Prioridades PND
         </span>
         <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
-          {prioritiesPND ? (
+          {prioritiesPND?.length ? (
             <span>
               {concatWithCommaAndDot(
                 prioritiesPND.map((p: SeedCategory) => p.name),
@@ -208,7 +208,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
           LIIADTs
         </span>
         <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
-          {innovationLines ? (
+          {innovationLines?.length ? (
             <span>
               {concatWithCommaAndDot(
                 innovationLines.map((l: SeedCategory) => l.name),
@@ -267,6 +267,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
             size="sm"
             givenName={owner.givenName}
             familyName={owner.familyName}
+            avatarUrl={owner.avatarUrl}
           />
         </div>
       </div>
@@ -292,6 +293,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
               size="sm"
               givenName={updatedBy.givenName}
               familyName={updatedBy.familyName}
+              avatarUrl={updatedBy.avatarUrl}
             />
           )}
         </div>
