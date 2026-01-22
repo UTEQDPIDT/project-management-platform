@@ -129,3 +129,20 @@ export const getBaseUrlBasedOnRole = (userRole: string) => {
   const baseUrl = userRole === UserRole.ADMIN ? '/admin' : '/user';
   return baseUrl;
 };
+
+/**
+ * Trims a file name from the middle if it exceeds 50 characters.
+ * Keeps the first 25 and last 25 characters, joined by '...'.
+ * @param {string} fileName - The file name to trim.
+ * @returns {string} The trimmed file name.
+ */
+export function trimFileNameMiddle(
+  fileName: string,
+  maxLength: number = 50,
+): string {
+  if (fileName.length <= maxLength) return fileName;
+  const keepLength = Math.floor((maxLength - 3) / 2);
+  const start = fileName.slice(0, keepLength + 1);
+  const end = fileName.slice(-keepLength);
+  return `${start}...${end}`;
+}
