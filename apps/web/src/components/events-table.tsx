@@ -1,7 +1,7 @@
 'use client';
 
 import { useDeleteEvent, useGetAllEvents } from '@/hooks/events';
-import { IEvent } from '@repo/types';
+import { FilePurpose, IEvent, IFile } from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from './ui/data-table';
 import LoadingMessage from './loading-message';
@@ -16,13 +16,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
-import {
-  Copy,
-  ExternalLink,
-  MoreHorizontal,
-  Pencil,
-  Trash,
-} from 'lucide-react';
+import { ExternalLink, MoreHorizontal, Pencil, Trash } from 'lucide-react';
 import {
   Dialog,
   DialogClose,
@@ -220,19 +214,45 @@ const columns: ColumnDef<IEvent>[] = [
   },
   {
     id: 'report',
-    header: 'Informe',
+    header: 'Informe Técnico',
     cell: ({ row }) => {
       const event = row.original;
       const { data: files = [], isLoading } = useFilesForEntity(event._id);
 
-      console.log('Fetched file', files);
+      const technicalReport = files.find(
+        (file: IFile) => file.purpose === FilePurpose.EVENT_TECHNICAL_REPORT,
+      );
 
       return (
         <div>
           {isLoading ? (
             <LoadingMessage />
-          ) : files.length ? (
-            <FileButton file={files[0]} className="max-w-72" />
+          ) : technicalReport ? (
+            <FileButton canDelete file={technicalReport} className="max-w-72" />
+          ) : (
+            <span className="text-sm text-muted-foreground">Vacío</span>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    id: 'report',
+    header: 'Informe Financiero',
+    cell: ({ row }) => {
+      const event = row.original;
+      const { data: files = [], isLoading } = useFilesForEntity(event._id);
+
+      const financialReport = files.find(
+        (file: IFile) => file.purpose === FilePurpose.EVENT_FINANCIAL_REPORT,
+      );
+
+      return (
+        <div>
+          {isLoading ? (
+            <LoadingMessage />
+          ) : financialReport ? (
+            <FileButton canDelete file={financialReport} className="max-w-72" />
           ) : (
             <span className="text-sm text-muted-foreground">Vacío</span>
           )}

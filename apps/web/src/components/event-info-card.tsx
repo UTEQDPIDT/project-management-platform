@@ -1,6 +1,6 @@
 'use client';
 
-import { EntityType, IEvent, UserRole } from '@repo/types';
+import { EntityType, FilePurpose, IEvent, IFile, UserRole } from '@repo/types';
 import React, { useCallback, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import IconSquare from './icon-square';
@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Button } from './ui/button';
 import { userProfile } from 'context/profile-provider';
-import { useFilesForEntity, useUploadFile } from '@/hooks/files';
+import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
 import FileButton from './file-button';
 import {
   Dialog,
@@ -31,7 +31,6 @@ import {
   FileUploadTrigger,
 } from './ui/file-upload';
 import { toast } from 'sonner';
-import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
 
 interface EventInfoCardProps {
   event: IEvent;
@@ -39,33 +38,60 @@ interface EventInfoCardProps {
 
 export default function EventInfoCard({ event }: EventInfoCardProps) {
   const { user } = userProfile();
+
   const { data: files = [], isLoading, isError } = useFilesForEntity(event._id);
   const uploadFiles = useUploadMultipleFiles();
 
-  // Handle file upload
-  const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+  // Filter files for technical and financial reports
+  const technicalReport = files.find(
+    (file: IFile) => file.purpose === FilePurpose.EVENT_TECHNICAL_REPORT,
+  );
+  const financialReport = files.find(
+    (file: IFile) => file.purpose === FilePurpose.EVENT_FINANCIAL_REPORT,
+  );
 
-  const onFileValidate = useCallback(
+  // Handle file upload state
+  const [technicalReportToUpload, setTechnicalReportToUpload] = useState<
+    File[]
+  >([]);
+  const [financialReportToUpload, setFinancialReportToUpload] = useState<
+    File[]
+  >([]);
+
+  // Validation for technical report upload
+  const onTechnicalFileValidate = useCallback(
     (file: File): string | null => {
-      // Validate max files
-      if (files.length >= 1) {
+      if (technicalReport) {
         return 'Sólo puedes subir un archivo';
       }
-
-      // Validate file type (only images)
       if (!file.type.endsWith('pdf')) {
         return 'Solo se aceptan PDFs';
       }
-
-      // Validate file size (max 2MB)
-      const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+      const MAX_SIZE = 2 * 1024 * 1024;
       if (file.size > MAX_SIZE) {
         return `El peso del archivo no debe exceder ${MAX_SIZE / (1024 * 1024)}MB`;
       }
-
       return null;
     },
-    [files],
+    [technicalReport],
+  );
+
+  // Validation for financial report upload
+  const onFinancialFileValidate = useCallback(
+    (file: File): string | null => {
+      if (financialReport) {
+        return 'Sólo puedes subir un archivo';
+      }
+      if (!file.type.endsWith('pdf')) {
+        return 'Solo se aceptan PDFs';
+      }
+      const MAX_SIZE = 2 * 1024 * 1024;
+      if (file.size > MAX_SIZE) {
+        return `El peso del archivo no debe exceder ${MAX_SIZE / (1024 * 1024)}MB`;
+      }
+      return null;
+    },
+    [financialReport],
   );
 
   const onFileReject = useCallback((file: File, message: string) => {
@@ -74,12 +100,26 @@ export default function EventInfoCard({ event }: EventInfoCardProps) {
     });
   }, []);
 
-  const handleFileUpload = () => {
+  const handleTechnicalReportUpload = () => {
     uploadFiles.mutate({
-      files: filesToUpload,
+      files: technicalReportToUpload,
       entityId: event._id,
       entityType: EntityType.EVENT,
+      purpose: FilePurpose.EVENT_TECHNICAL_REPORT,
     });
+
+    setTechnicalReportToUpload([]);
+  };
+
+  const handleFinancialReportUpload = () => {
+    uploadFiles.mutate({
+      files: financialReportToUpload,
+      entityId: event._id,
+      entityType: EntityType.EVENT,
+      purpose: FilePurpose.EVENT_FINANCIAL_REPORT,
+    });
+
+    setFinancialReportToUpload([]);
   };
 
   return (
@@ -146,78 +186,165 @@ export default function EventInfoCard({ event }: EventInfoCardProps) {
           </div>
 
           {user.role === UserRole.ADMIN && (
-            <div className="flex justify-between gap-3">
-              <span className="text-muted-foreground w-24">Informe</span>
-              {files.length ? (
-                <FileButton canDelete file={files[0]} className="max-w-52" />
-              ) : (
-                <Dialog>
-                  <DialogTrigger className="border h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
-                    <Upload />
-                    Subir Informe
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogTitle>Informe del Evento</DialogTitle>
+            <>
+              <div className="flex justify-between gap-3">
+                <span className="text-muted-foreground w-24">
+                  Informe Técnico
+                </span>
+                {technicalReport ? (
+                  <FileButton
+                    canDelete
+                    file={technicalReport}
+                    className="max-w-52"
+                  />
+                ) : (
+                  <Dialog>
+                    <DialogTrigger className="border h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
+                      <Upload />
+                      Subir Informe
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogTitle>Informe Técnico del Evento</DialogTitle>
 
-                    <FileUpload
-                      value={filesToUpload}
-                      onValueChange={setFilesToUpload}
-                      onFileValidate={onFileValidate}
-                      onFileReject={onFileReject}
-                      accept="application/pdf"
-                      maxFiles={1}
-                    >
-                      <FileUploadDropzone>
-                        <div className="flex flex-col items-center gap-1">
-                          <div className="flex items-center justify-center rounded-full border p-2.5">
-                            <Upload className="size-6 text-muted-foreground" />
+                      <FileUpload
+                        value={technicalReportToUpload}
+                        onValueChange={setTechnicalReportToUpload}
+                        onFileValidate={onTechnicalFileValidate}
+                        onFileReject={onFileReject}
+                        accept="application/pdf"
+                        maxFiles={1}
+                      >
+                        <FileUploadDropzone>
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="flex items-center justify-center rounded-full border p-2.5">
+                              <Upload className="size-6 text-muted-foreground" />
+                            </div>
+                            <p className="font-medium text-sm">
+                              Arrastra el archivo aquí
+                            </p>
+                            <p className="text-muted-foreground text-xs">
+                              o haz click para buscar (max 2 MB)
+                            </p>
                           </div>
-                          <p className="font-medium text-sm">
-                            Arrastra archivos aquí
-                          </p>
-                          <p className="text-muted-foreground text-xs">
-                            o haz click para buscar (max 2 MB)
-                          </p>
-                        </div>
-                        <FileUploadTrigger>
-                          <Button size="sm" variant="outline">
-                            Buscar
+                          <FileUploadTrigger>
+                            <Button size="sm" variant="outline">
+                              Buscar
+                            </Button>
+                          </FileUploadTrigger>
+                        </FileUploadDropzone>
+
+                        <FileUploadList>
+                          {technicalReportToUpload.map((file, index) => (
+                            <FileUploadItem
+                              key={`${file.name}-${file.lastModified}-${index}`}
+                              value={file}
+                            >
+                              <FileUploadItemPreview />
+                              <FileUploadItemMetadata />
+                              <FileUploadItemDelete asChild>
+                                <Button variant="ghost" size="icon-xs">
+                                  <X />
+                                </Button>
+                              </FileUploadItemDelete>
+                            </FileUploadItem>
+                          ))}
+                        </FileUploadList>
+                      </FileUpload>
+
+                      <div className="flex gap-2">
+                        <DialogClose asChild>
+                          <Button variant="outline">Cerrar</Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                          <Button onClick={handleTechnicalReportUpload}>
+                            Subir Informe
                           </Button>
-                        </FileUploadTrigger>
-                      </FileUploadDropzone>
+                        </DialogClose>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
+              </div>
 
-                      <FileUploadList>
-                        {filesToUpload.map((file, index) => (
-                          <FileUploadItem
-                            key={`${file.name}-${file.lastModified}-${index}`}
-                            value={file}
-                          >
-                            <FileUploadItemPreview />
-                            <FileUploadItemMetadata />
-                            <FileUploadItemDelete asChild>
-                              <Button variant="ghost" size="icon-xs">
-                                <X />
-                              </Button>
-                            </FileUploadItemDelete>
-                          </FileUploadItem>
-                        ))}
-                      </FileUploadList>
-                    </FileUpload>
+              <div className="flex justify-between gap-3">
+                <span className="text-muted-foreground w-24">
+                  Informe Financiero
+                </span>
+                {financialReport ? (
+                  <FileButton
+                    canDelete
+                    file={financialReport}
+                    className="max-w-52"
+                  />
+                ) : (
+                  <Dialog>
+                    <DialogTrigger className="border h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
+                      <Upload />
+                      Subir Informe
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogTitle>Informe Financiero del Evento</DialogTitle>
 
-                    <div className="flex gap-2">
-                      <DialogClose asChild>
-                        <Button variant="outline">Cerrar</Button>
-                      </DialogClose>
-                      <DialogClose asChild>
-                        <Button onClick={handleFileUpload}>
-                          Subir Informe
-                        </Button>
-                      </DialogClose>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              )}
-            </div>
+                      <FileUpload
+                        value={financialReportToUpload}
+                        onValueChange={setFinancialReportToUpload}
+                        onFileValidate={onFinancialFileValidate}
+                        onFileReject={onFileReject}
+                        accept="application/pdf"
+                        maxFiles={1}
+                      >
+                        <FileUploadDropzone>
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="flex items-center justify-center rounded-full border p-2.5">
+                              <Upload className="size-6 text-muted-foreground" />
+                            </div>
+                            <p className="font-medium text-sm">
+                              Arrastra el archivo aquí
+                            </p>
+                            <p className="text-muted-foreground text-xs">
+                              o haz click para buscar (max 2 MB)
+                            </p>
+                          </div>
+                          <FileUploadTrigger>
+                            <Button size="sm" variant="outline">
+                              Buscar
+                            </Button>
+                          </FileUploadTrigger>
+                        </FileUploadDropzone>
+
+                        <FileUploadList>
+                          {financialReportToUpload.map((file, index) => (
+                            <FileUploadItem
+                              key={`${file.name}-${file.lastModified}-${index}`}
+                              value={file}
+                            >
+                              <FileUploadItemPreview />
+                              <FileUploadItemMetadata />
+                              <FileUploadItemDelete asChild>
+                                <Button variant="ghost" size="icon-xs">
+                                  <X />
+                                </Button>
+                              </FileUploadItemDelete>
+                            </FileUploadItem>
+                          ))}
+                        </FileUploadList>
+                      </FileUpload>
+
+                      <div className="flex gap-2">
+                        <DialogClose asChild>
+                          <Button variant="outline">Cerrar</Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                          <Button onClick={handleFinancialReportUpload}>
+                            Subir Informe
+                          </Button>
+                        </DialogClose>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
+              </div>
+            </>
           )}
         </div>
       </CardContent>
