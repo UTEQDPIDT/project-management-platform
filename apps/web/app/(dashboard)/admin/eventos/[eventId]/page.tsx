@@ -6,6 +6,7 @@ import EventActivityMenu from '@/components/event-activity-menu';
 import EventInfoCard from '@/components/event-info-card';
 import { EventMenu } from '@/components/event-menu';
 import EventProductMenu from '@/components/event-product-menu';
+import FilesCard from '@/components/files-card';
 import { ActivityForm } from '@/components/forms/activity-form';
 import { Header, HeaderAction, HeaderHeading } from '@/components/header';
 import IconSquare from '@/components/icon-square';
@@ -37,11 +38,13 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { useActivitiesByEntity } from '@/hooks/activities';
 import { useGetEventById } from '@/hooks/events';
-import { IActivity, IProduct, UserRole } from '@repo/types';
+import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
+import { EntityType, IActivity, IProduct, UserRole } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
 import { ListTodo, Shapes } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 
 const Page = () => {
   const { user } = userProfile();
@@ -60,6 +63,23 @@ const Page = () => {
     isLoading: loadingActivities,
     isError: errorFetchingActivities,
   } = useActivitiesByEntity(eventId);
+  const {
+    data: files,
+    isLoading: loadingFiles,
+    isError: errorFetchingFiles,
+  } = useFilesForEntity(eventId);
+  const uploadFiles = useUploadMultipleFiles();
+
+  // File upload
+  const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+
+  const handleFileUpload = () => {
+    uploadFiles.mutate({
+      files: filesToUpload,
+      entityId: eventId,
+      entityType: EntityType.EVENT,
+    });
+  };
 
   return (
     <div>
@@ -92,6 +112,16 @@ const Page = () => {
             <div className="w-full flex gap-6 lg:gap-4 flex-col lg:flex-row">
               <div className="w-full lg:max-w-sm flex flex-col gap-6">
                 <EventInfoCard event={event} />
+                <FilesCard
+                  savedFiles={files}
+                  isLoading={loadingFiles}
+                  isError={errorFetchingFiles}
+                  filesToUpload={filesToUpload}
+                  setFilesToUpload={setFilesToUpload}
+                  onUpload={handleFileUpload}
+                  isUploading={uploadFiles.isPending}
+                  accept="pdf"
+                />
                 <ParticipantsCard event={event} />
               </div>
 
