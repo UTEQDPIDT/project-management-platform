@@ -164,10 +164,12 @@ export function EventCard({ event }: EventCardProps) {
             {activities?.length}
           </span>
 
-          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-            <Shapes size={14} />
-            {event.products?.length}
-          </span>
+          {event.acceptsProducts && (
+            <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+              <Shapes size={14} />
+              {event.products?.length}
+            </span>
+          )}
         </div>
         <CardAction>{renderActionButton()}</CardAction>
       </CardFooter>
