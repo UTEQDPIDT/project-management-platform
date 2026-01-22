@@ -16,7 +16,13 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
-import { ExternalLink, MoreHorizontal, Pencil, Trash } from 'lucide-react';
+import {
+  Copy,
+  ExternalLink,
+  MoreHorizontal,
+  Pencil,
+  Trash,
+} from 'lucide-react';
 import {
   Dialog,
   DialogClose,
@@ -32,6 +38,7 @@ import { ProfileInfo } from './profile-info';
 import CopyButton from './ui/copy';
 import { useFilesForEntity } from '@/hooks/files';
 import FileButton from './file-button';
+import { copyValue } from '@/lib/utils';
 
 const columns: ColumnDef<IEvent>[] = [
   {
@@ -284,6 +291,9 @@ const columns: ColumnDef<IEvent>[] = [
               <Link href={`/admin/eventos/${event._id}`}>
                 <ExternalLink /> Visitar evento
               </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => copyValue(event._id)}>
+              <Copy /> Copiar ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
