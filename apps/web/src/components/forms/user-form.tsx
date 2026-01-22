@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { DialogClose } from '../ui/dialog';
+import { toast } from 'sonner';
 
 export default function UserForm({ profile }: { profile: IUser }) {
   /**
@@ -50,6 +51,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
 
   const form = useForm({
     resolver: zodResolver(updateUserSchema),
+    mode: 'onChange',
     defaultValues: {
       sex: profile.sex || Sex.HOMBRE,
       state: profile.state || State.QRO,
@@ -79,7 +81,8 @@ export default function UserForm({ profile }: { profile: IUser }) {
   };
 
   const onError = (errors: any) => {
-    console.log('FORM ERRORS:', errors);
+    // console.log('FORM ERRORS:', errors);
+    toast.error('Por favor corrige los errores en el formulario');
   };
 
   /**
@@ -410,15 +413,13 @@ export default function UserForm({ profile }: { profile: IUser }) {
               </Button>
             </DialogClose>
 
-            <DialogClose asChild>
-              <Button disabled={updateUserMutation.isPending} type="submit">
-                {updateUserMutation.isPending ? (
-                  <LoadingMessage message="Guardando" />
-                ) : (
-                  'Guardar'
-                )}
-              </Button>
-            </DialogClose>
+            <Button disabled={updateUserMutation.isPending} type="submit">
+              {updateUserMutation.isPending ? (
+                <LoadingMessage message="Guardando" />
+              ) : (
+                'Guardar'
+              )}
+            </Button>
           </div>
         </FieldGroup>
       </form>

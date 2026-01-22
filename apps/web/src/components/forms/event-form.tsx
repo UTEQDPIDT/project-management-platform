@@ -48,6 +48,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Switch } from '../ui/switch';
+import { toast } from 'sonner';
 
 interface EventFormProps {
   event?: IEvent;
@@ -131,7 +132,7 @@ export default function EventForm({ event }: EventFormProps) {
   };
 
   const onError = (errors: any) => {
-    console.log('FORM ERRORS', errors);
+    toast.error('Por favor corrige los errores en el formulario');
   };
 
   return (

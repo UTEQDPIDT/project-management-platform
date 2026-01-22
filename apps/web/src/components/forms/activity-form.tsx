@@ -37,6 +37,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { Command, CommandGroup, CommandItem } from '../ui/command';
 import LoadingMessage from '../loading-message';
+import { toast } from 'sonner';
 
 interface Props {
   activity?: IActivity;
@@ -140,7 +141,7 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
   };
 
   const onError = (erros: any) => {
-    console.log('FORM ERRORS', erros);
+    toast.error('Por favor corrige los errores en el formulario');
   };
 
   return (
