@@ -1,7 +1,12 @@
 'use client';
 
+import { useAddAssignee } from '@/hooks/activities';
+import { useDeleteFile, useFilesForEntity } from '@/hooks/files';
+import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
 import { cn } from '@/lib/utils';
+import { downloadFile } from '@/services/files.service';
 import { EntityType, IActivity, IFile } from '@repo/types';
+import { userProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -13,48 +18,28 @@ import {
   UserPlus,
   X,
 } from 'lucide-react';
+import { ReactNode, useState } from 'react';
 import AvatarRow from './avatar-row';
-import { Badge, badgeVariants } from './ui/badge';
+import ErrorCard from './error-card';
+import FileList from './file-list';
+import LoadingMessage from './loading-message';
+import { ProfileInfo } from './profile-info';
+import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { ReactNode, useState } from 'react';
 import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from './ui/sheet';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from './ui/dialog';
-import { ProfileInfo } from './profile-info';
-import FileList from './file-list';
-import { Separator } from './ui/separator';
-import { useDeleteFile, useFilesForEntity } from '@/hooks/files';
-import LoadingMessage from './loading-message';
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from './ui/empty';
 import {
   FileUpload,
   FileUploadDropzone,
@@ -65,18 +50,17 @@ import {
   FileUploadList,
   FileUploadTrigger,
 } from './ui/file-upload';
-import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
-import ErrorCard from './error-card';
-import { downloadFile } from '@/services/files.service';
+import { Separator } from './ui/separator';
 import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from './ui/empty';
-import { useAddAssignee, useRemoveAssignee } from '@/hooks/activities';
-import { userProfile } from 'context/profile-provider';
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from './ui/sheet';
 
 interface Props {
   activity: IActivity;
@@ -106,13 +90,9 @@ export function ActivityCard({
   const uploadFiles = useUploadMultipleFiles();
   const deleteFileMutation = useDeleteFile();
   const addAssignee = useAddAssignee();
-  const removeAssignee = useRemoveAssignee();
 
   const handleAddAssignee = () => {
     addAssignee.mutate({ activityId: activity._id, userId: user._id });
-  };
-  const handleRemoveAssignee = () => {
-    removeAssignee.mutate({ activityId: activity._id, userId: user._id });
   };
 
   const handleDelete = (fileId: string) => {
@@ -299,12 +279,14 @@ export function ActivityCard({
             <div className="w-full flex justify-between items-center">
               <h2 className="font-medium">Evidencias</h2>
               <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Upload />
-                    Subir
-                  </Button>
-                </SheetTrigger>
+                {activity.assignees?.some((a) => a._id === user._id) && (
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Upload />
+                      Subir
+                    </Button>
+                  </SheetTrigger>
+                )}
 
                 <SheetContent className="flex h-dvh flex-col">
                   <SheetHeader>

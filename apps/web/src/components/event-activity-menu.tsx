@@ -1,4 +1,11 @@
+import { useDeleteActivity, useRemoveAssignee } from '@/hooks/activities';
+import { IActivity, IUser } from '@repo/types';
+import { userProfile } from 'context/profile-provider';
+import { Pencil, Trash, UserMinus } from 'lucide-react';
 import React from 'react';
+import { ActivityForm } from './forms/activity-form';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 import {
   Dialog,
   DialogClose,
@@ -7,30 +14,32 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './ui/dialog';
-import { Pencil, Trash } from 'lucide-react';
-import { Badge } from './ui/badge';
+import { DropdownMenuItem } from './ui/dropdown-menu';
 import { Separator } from './ui/separator';
-import { ActivityForm } from './forms/activity-form';
-import { Button } from './ui/button';
-import { IActivity } from '@repo/types';
-import { useDeleteActivity } from '@/hooks/activities';
 
 interface ProjectActivityMenu {
   activity: IActivity;
 }
 
 export default function EventActivityMenu({ activity }: ProjectActivityMenu) {
+  const { user } = userProfile();
+
   const deleteActivityMutation = useDeleteActivity();
+  const removeAssignee = useRemoveAssignee();
 
   const handleDelete = () => {
     deleteActivityMutation.mutate(activity._id);
+  };
+
+  const handleRemoveAssignee = () => {
+    removeAssignee.mutate({ activityId: activity._id, userId: user._id });
   };
 
   return (
     <div className="flex flex-col gap-1">
       {/* Edit */}
       <Dialog>
-        <DialogTrigger className="border-transparent w-full justify-start font-normal [&_svg:not([class*='text-'])]:text-muted-foreground">
+        <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground px-0 border-transparent w-full h-8 justify-start font-normal">
           <Pencil /> Editar actividad
         </DialogTrigger>
         <DialogContent>
@@ -44,9 +53,15 @@ export default function EventActivityMenu({ activity }: ProjectActivityMenu) {
         </DialogContent>
       </Dialog>
 
+      {activity.assignees?.some((a: IUser) => a._id === user?._id) && (
+        <DropdownMenuItem onClick={handleRemoveAssignee}>
+          <UserMinus /> Salir de la actividad
+        </DropdownMenuItem>
+      )}
+
       {/* Delete */}
       <Dialog>
-        <DialogTrigger className="border-transparent w-full justify-start hover:text-destructive-foreground font-normal [&_svg:not([class*='text-'])]:text-muted-foreground hover:[&>svg]:text-destructive-foreground">
+        <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
           <Trash /> Eliminar actividad
         </DialogTrigger>
         <DialogContent className="gap-5">
