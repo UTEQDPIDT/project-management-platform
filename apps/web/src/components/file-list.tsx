@@ -1,6 +1,6 @@
 'use client';
 
-import { cn, formatFileSize } from '@/lib/utils';
+import { cn, formatFileSize, trimFileNameMiddle } from '@/lib/utils';
 import { IFile, UserRole } from '@repo/types';
 import { Download, FileText, Image, MoreHorizontal, Trash } from 'lucide-react';
 import { PropsWithChildren, createContext, useContext } from 'react';
@@ -91,7 +91,9 @@ FileList.Item = function FileListItem({
       <div className="flex gap-2 items-center">
         {handleFileIcon()}
         <div className="flex flex-col gap-1">
-          <span className="text-sm truncate">{file.originalName}</span>
+          <span className="text-sm">
+            {trimFileNameMiddle(file.originalName, 30)}
+          </span>
           <span className="text-xs text-muted-foreground">
             {formatFileSize(file.size)}
           </span>
