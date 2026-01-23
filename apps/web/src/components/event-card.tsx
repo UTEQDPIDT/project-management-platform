@@ -104,7 +104,7 @@ export function EventCard({ event }: EventCardProps) {
       <CardHeader>
         <div className="flex justify-between">
           <div className="flex gap-2 items-start">
-            <IconSquare color="blue">
+            <IconSquare color="green">
               <Calendar />
             </IconSquare>
             <div className="flex flex-col gap-1">

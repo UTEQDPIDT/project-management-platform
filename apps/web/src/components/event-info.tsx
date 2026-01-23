@@ -223,7 +223,7 @@ export function EventInfo({ event }: EventInfoProps) {
                 />
               ) : (
                 <Dialog>
-                  <DialogTrigger className="border h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
+                  <DialogTrigger className="border h-7 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
                     <Upload />
                     Subir Informe
                   </DialogTrigger>
@@ -304,7 +304,7 @@ export function EventInfo({ event }: EventInfoProps) {
                 />
               ) : (
                 <Dialog>
-                  <DialogTrigger className="border h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
+                  <DialogTrigger className="border h-7 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
                     <Upload />
                     Subir Informe
                   </DialogTrigger>
