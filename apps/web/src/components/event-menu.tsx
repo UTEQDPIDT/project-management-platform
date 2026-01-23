@@ -5,6 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { DoorOpen, Ellipsis, Pencil, Trash } from 'lucide-react';
@@ -49,20 +50,17 @@ export function EventMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
+          <DropdownMenuLabel>Acciones</DropdownMenuLabel>
           {user.role === UserRole.ADMIN ? (
             <div className="flex flex-col gap-1">
-              <Button
-                className="font-normal w-full justify-start"
-                variant="ghost"
-                asChild
-              >
+              <DropdownMenuItem asChild>
                 <Link href={`/admin/eventos/${eventId}/editar`}>
                   <Pencil />
                   Editar evento
                 </Link>
-              </Button>
+              </DropdownMenuItem>
               <Dialog>
-                <DialogTrigger className="font-normal border-transparent hover:text-destructive-foreground w-full justify-start">
+                <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
                   <Trash /> Eliminar evento
                 </DialogTrigger>
                 <DialogContent>

@@ -5,6 +5,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
@@ -25,6 +26,7 @@ import { useDeleteTeam } from '@/hooks/team';
 import { useRouter } from 'next/navigation';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { userProfile } from 'context/profile-provider';
+import { UserRole } from '@repo/types';
 
 export function TeamMenu({ teamId, name }: { teamId: string; name: string }) {
   const deleteTeam = useDeleteTeam();
@@ -42,45 +44,45 @@ export function TeamMenu({ teamId, name }: { teamId: string; name: string }) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuGroup>
-          <Button
-            className="font-normal w-full justify-start"
-            variant="ghost"
-            asChild
-          >
-            <Link href={`${baseUrl}/equipos/${teamId}/editar`}>
-              <Pencil />
-              Editar
-            </Link>
-          </Button>
-          <Dialog>
-            <DialogTrigger className="font-normal border-transparent hover:text-destructive-foreground w-full justify-start">
-              <Trash /> Eliminar
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Eliminar: {name}</DialogTitle>
-                <DialogDescription>
-                  ¿Seguro deseas eliminar el equipo? Esta es una acción
-                  irreversible.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Cancelar</Button>
-                </DialogClose>
-                <Button
-                  disabled={deleteTeam.isPending}
-                  variant="destructive"
-                  onClick={() => {
-                    deleteTeam.mutate(teamId);
-                    router.push(`${baseUrl}/equipos`);
-                  }}
-                >
-                  Eliminar
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          {user.role === UserRole.ADMIN && (
+            <>
+              <DropdownMenuItem asChild>
+                <Link href={`${baseUrl}/equipos/${teamId}/editar`}>
+                  <Pencil />
+                  Editar equipo
+                </Link>
+              </DropdownMenuItem>
+              <Dialog>
+                <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
+                  <Trash /> Eliminar equipo
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Eliminar: {name}</DialogTitle>
+                    <DialogDescription>
+                      ¿Seguro deseas eliminar el equipo? Esta es una acción
+                      irreversible.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="outline">Cancelar</Button>
+                    </DialogClose>
+                    <Button
+                      disabled={deleteTeam.isPending}
+                      variant="destructive"
+                      onClick={() => {
+                        deleteTeam.mutate(teamId);
+                        router.push(`${baseUrl}/equipos`);
+                      }}
+                    >
+                      Eliminar
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

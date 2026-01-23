@@ -97,9 +97,11 @@ const ProjectPage = () => {
               </Breadcrumb>
             </HeaderHeading>
 
-            <HeaderAction>
-              <ProjectMenu projectId={projectId} name={project.name} />
-            </HeaderAction>
+            {user._id === project.owner._id && (
+              <HeaderAction>
+                <ProjectMenu projectId={projectId} name={project.name} />
+              </HeaderAction>
+            )}
           </Header>
 
           <PageContent className="items-center">

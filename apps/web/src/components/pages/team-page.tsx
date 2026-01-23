@@ -19,6 +19,7 @@ import {
 import { useProjectsByTeam } from '@/hooks/projects';
 import { useTeam } from '@/hooks/team';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
+import { ITeamMembership, TeamMembershipRole } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -32,11 +33,9 @@ const TeamPage = () => {
   const { data: projects, isLoading: loadingProjects } =
     useProjectsByTeam(teamId);
 
-  // Defensive: ensure memberships is always an array
-  const teamWithMemberships = {
-    ...team,
-    memberships: Array.isArray(team?.memberships) ? team.memberships : [],
-  };
+  const ownerId = team?.memberships.filter(
+    (m: ITeamMembership) => m.role === TeamMembershipRole.OWNER,
+  )[0]?.user._id;
 
   return (
     <div className="w-full h-full">
@@ -63,16 +62,18 @@ const TeamPage = () => {
               </Breadcrumb>
             </HeaderHeading>
 
-            <HeaderAction>
-              <TeamNotifications team={team} />
-              <TeamMenu teamId={teamId} name={team.teamName} />
-            </HeaderAction>
+            {user._id === ownerId && (
+              <HeaderAction>
+                <TeamNotifications team={team} />
+                <TeamMenu teamId={teamId} name={team.teamName} />
+              </HeaderAction>
+            )}
           </Header>
 
           <PageContent>
-            <TeamInfo team={teamWithMemberships} />
+            <TeamInfo team={team} />
             <div className="w-full flex gap-4">
-              <CardMembers team={teamWithMemberships} />
+              <CardMembers team={team} />
               <ProjectsBoard loading={loadingProjects} projects={projects} />
             </div>
           </PageContent>
