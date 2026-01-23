@@ -50,9 +50,10 @@ import { userProfile } from 'context/profile-provider';
 import { ListTodo, Shapes } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { EventInfo } from '../event-info';
 import RegisterProductsForm from '../forms/register-product-form';
+import { toast } from 'sonner';
 
 const EventPage = () => {
   const { user } = userProfile();
@@ -89,6 +90,26 @@ const EventPage = () => {
       entityType: EntityType.EVENT,
     });
   };
+
+  const onFileValidate = useCallback(
+    (file: File): string | null => {
+      if (!file.type.endsWith('pdf')) {
+        return 'Solo se aceptan PDFs';
+      }
+      const MAX_SIZE = 5 * 1024 * 1024;
+      if (file.size > MAX_SIZE) {
+        return `El peso del archivo no debe exceder ${MAX_SIZE / (1024 * 1024)}MB`;
+      }
+      return null;
+    },
+    [filesToUpload],
+  );
+
+  const onFileReject = useCallback((file: File, message: string) => {
+    toast(message, {
+      description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" fue rechazado`,
+    });
+  }, []);
 
   return (
     <div>
@@ -131,8 +152,10 @@ const EventPage = () => {
                     filesToUpload={filesToUpload}
                     setFilesToUpload={setFilesToUpload}
                     onUpload={handleFileUpload}
+                    onFileValidate={onFileValidate}
+                    onFileReject={onFileReject}
                     isUploading={uploadFiles.isPending}
-                    accept="pdf"
+                    accept=".pdf"
                   />
                 )}
 
