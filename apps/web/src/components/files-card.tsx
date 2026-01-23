@@ -44,6 +44,8 @@ type FileCardProps = {
   savedFiles: IFile[];
   filesToUpload: File[];
   setFilesToUpload: Dispatch<SetStateAction<File[]>>;
+  onFileReject?: (file: File, message: string) => void;
+  onFileValidate?: (file: File) => string | null | undefined;
   onUpload?: () => void;
   accept?: string;
   isLoading?: boolean;
@@ -55,6 +57,8 @@ export default function FilesCard({
   savedFiles,
   filesToUpload,
   setFilesToUpload,
+  onFileReject,
+  onFileValidate,
   onUpload,
   accept,
   isLoading,
@@ -106,6 +110,8 @@ export default function FilesCard({
                 <FileUpload
                   value={filesToUpload}
                   onValueChange={setFilesToUpload}
+                  onFileValidate={onFileValidate}
+                  onFileReject={onFileReject}
                   maxSize={5 * 1024 * 1024}
                   accept={accept}
                   multiple

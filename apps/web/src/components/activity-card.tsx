@@ -305,7 +305,9 @@ export function ActivityCard({
                       value={filesToUpload}
                       onValueChange={setFilesToUpload}
                       maxSize={5 * 1024 * 1024}
-                      accept={'/images/*,application/pdf'}
+                      accept={
+                        '.pdf, .doc, .docx, .xls, .xlsx, .png, .jpg, .jpeg'
+                      }
                       multiple
                     >
                       <FileUploadDropzone>
