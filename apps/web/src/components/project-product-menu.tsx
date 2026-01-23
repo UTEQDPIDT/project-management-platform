@@ -1,4 +1,9 @@
-import React from 'react';
+import { useDeleteProduct } from '@/hooks/products';
+import { IProduct } from '@repo/types';
+import { Pencil, Trash } from 'lucide-react';
+import { ProductForm } from './forms/product-form';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 import {
   Dialog,
   DialogClose,
@@ -7,13 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './ui/dialog';
-import { Pencil, Trash } from 'lucide-react';
-import { Badge } from './ui/badge';
-import { Separator } from './ui/separator';
-import { ProductForm } from './forms/product-form';
-import { Button } from './ui/button';
-import { useDeleteProduct } from '@/hooks/products';
-import { IProduct } from '@repo/types';
 
 interface ProjectProductMenuProps {
   projectId: string;
@@ -34,19 +32,19 @@ export default function ProjectProductMenu({
     <div className="flex flex-col gap-1 max-w-fit">
       {/* Edit */}
       <Dialog>
-        <DialogTrigger className="border-transparent justify-start font-normal">
+        <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground px-0 h-8 border-transparent w-full justify-start font-normal">
           <Pencil /> Editar producto
         </DialogTrigger>
         <DialogContent>
-            <Badge variant="orange">Editando</Badge>
-            <DialogTitle className="line-clamp-1">{product.name}</DialogTitle>
+          <Badge variant="orange">Editando</Badge>
+          <DialogTitle className="line-clamp-1">{product.name}</DialogTitle>
           <ProductForm product={product} projectId={projectId} />
         </DialogContent>
       </Dialog>
 
       {/* Delete */}
       <Dialog>
-        <DialogTrigger className="border-transparent justify-start font-normal hover:text-destructive-foreground">
+        <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
           <Trash /> Eliminar producto
         </DialogTrigger>
         <DialogContent className="gap-5">

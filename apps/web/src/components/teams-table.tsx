@@ -238,9 +238,8 @@ const columns: ColumnDef<ITeam>[] = [
               className="hover:text-destructive-foreground"
             >
               <Dialog>
-                <DialogTrigger className="group items-center justify-start p-0 font-normal hover:text-destructive-foreground">
-                  <Trash className="text-muted-foreground group-hover:text-destructive-foreground" />{' '}
-                  Eliminar equipo
+                <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
+                  <Trash /> Eliminar equipo
                 </DialogTrigger>
                 <DialogContent>
                   <Badge variant="destructive">Eliminando</Badge>
