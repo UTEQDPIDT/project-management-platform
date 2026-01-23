@@ -1,7 +1,7 @@
 'use client';
 
 import { cn, formatFileSize } from '@/lib/utils';
-import { IFile } from '@repo/types';
+import { IFile, UserRole } from '@repo/types';
 import { Download, FileText, Image, MoreHorizontal, Trash } from 'lucide-react';
 import { PropsWithChildren, createContext, useContext } from 'react';
 import { Button } from './ui/button';
@@ -12,9 +12,14 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 
+import { IUser } from '@repo/types';
+import { userProfile } from 'context/profile-provider';
+
 type FileContextValue = {
   onDelete?: (fileId: string) => void;
   onDownload?: (fileId: string) => void;
+  currentUser: IUser;
+  isAdmin: boolean;
 };
 
 const FileContext = createContext<FileContextValue | null>(null);
@@ -28,16 +33,28 @@ export const useFileContext = () => {
 type FileListProps = PropsWithChildren & {
   onDelete?: (fileId: string) => void;
   onDownload?: (fileId: string) => void;
+  isAdmin?: boolean;
   className?: string;
+  files?: IFile[];
 };
 
 export default function FileList({
   children,
   className,
+  isAdmin,
+  files,
   ...handlers
 }: FileListProps) {
+  const { user: currentUser } = userProfile();
+
   return (
-    <FileContext.Provider value={handlers}>
+    <FileContext.Provider
+      value={{
+        ...handlers,
+        currentUser,
+        isAdmin: currentUser?.role === UserRole.ADMIN,
+      }}
+    >
       <ul className={cn('space-y-2', className)}>{children}</ul>
     </FileContext.Provider>
   );
@@ -74,7 +91,7 @@ FileList.Item = function FileListItem({
       <div className="flex gap-2 items-center">
         {handleFileIcon()}
         <div className="flex flex-col gap-1">
-          <span className="text-sm line-clamp-1">{file.originalName}</span>
+          <span className="text-sm truncate">{file.originalName}</span>
           <span className="text-xs text-muted-foreground">
             {formatFileSize(file.size)}
           </span>
@@ -85,8 +102,12 @@ FileList.Item = function FileListItem({
   );
 };
 
-FileList.Actions = function FileActions({ fileId }: { fileId: string }) {
-  const { onDelete, onDownload } = useFileContext();
+FileList.Actions = function FileActions({ file }: { file: IFile }) {
+  const { onDelete, onDownload, currentUser, isAdmin } = useFileContext();
+
+  const canDelete: boolean =
+    isAdmin ||
+    (currentUser && file.owner && currentUser._id === file.owner._id);
 
   return (
     <div className="flex gap-2">
@@ -98,13 +119,14 @@ FileList.Actions = function FileActions({ fileId }: { fileId: string }) {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="flex flex-col gap-1">
-          <DropdownMenuItem onClick={() => onDownload?.(fileId)}>
+          <DropdownMenuItem onClick={() => onDownload?.(file._id)}>
             <Download /> Descargar archivo
           </DropdownMenuItem>
 
           <DropdownMenuItem
             variant="destructive"
-            onClick={() => onDelete?.(fileId)}
+            onClick={() => (canDelete ? onDelete?.(file._id) : undefined)}
+            disabled={!canDelete}
           >
             <Trash /> Eliminar archivo
           </DropdownMenuItem>

@@ -55,7 +55,6 @@ const columns: ColumnDef<IProject>[] = [
           </div>
           <CopyButton
             valueToCopy={name}
-            variant="outline"
             className=" opacity-0 group-hover:opacity-100"
           />
         </div>

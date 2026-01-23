@@ -51,7 +51,7 @@ const columns: ColumnDef<ITeam>[] = [
     cell: ({ row }) => {
       const { teamName } = row.original;
       return (
-        <div className="max-w-96 flex items-center gap-1 group">
+        <div className="max-w-96 truncate flex items-center gap-1 group">
           <span className="truncate">{teamName}</span>
           <CopyButton
             valueToCopy={teamName}

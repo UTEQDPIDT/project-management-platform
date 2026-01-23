@@ -376,7 +376,7 @@ export function ActivityCard({
                 {files.length ? (
                   files.map((file: IFile) => (
                     <FileList.Item key={file._id} file={file}>
-                      <FileList.Actions fileId={file._id} />
+                      <FileList.Actions file={file} />
                     </FileList.Item>
                   ))
                 ) : (

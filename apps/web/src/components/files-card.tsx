@@ -171,7 +171,7 @@ export default function FilesCard({
           <FileList onDelete={handleDelete} onDownload={handleDownload}>
             {savedFiles.map((f: IFile) => (
               <FileList.Item key={f._id} file={f}>
-                <FileList.Actions fileId={f._id} />
+                <FileList.Actions file={f} />
               </FileList.Item>
             ))}
           </FileList>
