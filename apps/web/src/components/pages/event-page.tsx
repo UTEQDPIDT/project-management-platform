@@ -176,7 +176,7 @@ const EventPage = () => {
                             <ActivityCard
                               key={a._id}
                               activity={a}
-                              enableOptions={user.role === UserRole.ADMIN}
+                              enableOptions
                               options={<EventActivityMenu activity={a} />}
                             />
                           ))}

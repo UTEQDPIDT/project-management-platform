@@ -192,28 +192,32 @@ export function ActivityCard({
 
       <SheetContent>
         <SheetHeader>
-          <SheetTitle className="text-lg">{activity.name}</SheetTitle>
-          <SheetDescription>{activity.description}</SheetDescription>
+          <div className="pr-2 flex flex-col gap-2 relative">
+            <SheetTitle className="text-lg h-20">{activity.name}</SheetTitle>
+            <SheetDescription>{activity.description}</SheetDescription>
+            {enableOptions && (
+              <div className="absolute top-0 right-6 h-[100px]">
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    asChild
+                    className="text-muted-foreground hover:text-neutral-800 [svg]:size-4"
+                  >
+                    <Ellipsis />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="flex flex-col items-start gap-1"
+                  >
+                    <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                    {options}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+          </div>
         </SheetHeader>
 
         <div className="flex flex-col gap-6 px-4 items-end">
-          {enableOptions && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-xs">
-                  <Ellipsis />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="flex flex-col items-start gap-1"
-              >
-                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                {options}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-
           <div className="flex flex-col gap-4 w-full">
             {showStatus && (
               <div className="flex items-center gap-2">

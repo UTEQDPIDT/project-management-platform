@@ -1,5 +1,5 @@
 import { useDeleteActivity, useRemoveAssignee } from '@/hooks/activities';
-import { IActivity, IUser } from '@repo/types';
+import { IActivity, IUser, UserRole } from '@repo/types';
 import { userProfile } from 'context/profile-provider';
 import { Pencil, Trash, UserMinus } from 'lucide-react';
 import React from 'react';
@@ -37,58 +37,65 @@ export default function EventActivityMenu({ activity }: ProjectActivityMenu) {
 
   return (
     <div className="flex flex-col gap-1">
-      {/* Edit */}
-      <Dialog>
-        <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground px-0 border-transparent w-full h-8 justify-start font-normal">
-          <Pencil /> Editar actividad
-        </DialogTrigger>
-        <DialogContent>
-          <div className="flex gap-3 ">
-            <Badge variant="orange">Editando</Badge>
-            <DialogTitle className="line-clamp-1">{activity.name}</DialogTitle>
-          </div>
-          <Separator />
-
-          <ActivityForm activity={activity} eventId={activity.entityId} />
-        </DialogContent>
-      </Dialog>
-
       {activity.assignees?.some((a: IUser) => a._id === user?._id) && (
         <DropdownMenuItem onClick={handleRemoveAssignee}>
           <UserMinus /> Salir de la actividad
         </DropdownMenuItem>
       )}
 
-      {/* Delete */}
-      <Dialog>
-        <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
-          <Trash /> Eliminar actividad
-        </DialogTrigger>
-        <DialogContent className="gap-5">
-          <Badge variant="destructive">Eliminando</Badge>
-          <DialogTitle>{activity.name}</DialogTitle>
-          <DialogDescription>
-            ¿Seguro que deseas eliminar la actividad? Esta es una operación
-            irreversible, una vez eliminada la actividad no se podrá recuperar.
-          </DialogDescription>
+      {user.role === UserRole.ADMIN && (
+        <>
+          {/* Edit */}
+          <Dialog>
+            <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground px-0 border-transparent w-full h-8 justify-start font-normal">
+              <Pencil /> Editar actividad
+            </DialogTrigger>
+            <DialogContent>
+              <div className="flex gap-3 ">
+                <Badge variant="orange">Editando</Badge>
+                <DialogTitle className="line-clamp-1">
+                  {activity.name}
+                </DialogTitle>
+              </div>
+              <Separator />
 
-          <div className="flex gap-2">
-            <DialogClose asChild>
-              <Button variant="outline">Cancelar</Button>
-            </DialogClose>
+              <ActivityForm activity={activity} eventId={activity.entityId} />
+            </DialogContent>
+          </Dialog>
 
-            <DialogClose asChild>
-              <Button
-                onClick={handleDelete}
-                variant="destructive"
-                disabled={deleteActivityMutation.isPending}
-              >
-                Eliminar
-              </Button>
-            </DialogClose>
-          </div>
-        </DialogContent>
-      </Dialog>
+          {/* Delete */}
+          <Dialog>
+            <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
+              <Trash /> Eliminar actividad
+            </DialogTrigger>
+            <DialogContent className="gap-5">
+              <Badge variant="destructive">Eliminando</Badge>
+              <DialogTitle>{activity.name}</DialogTitle>
+              <DialogDescription>
+                ¿Seguro que deseas eliminar la actividad? Esta es una operación
+                irreversible, una vez eliminada la actividad no se podrá
+                recuperar.
+              </DialogDescription>
+
+              <div className="flex gap-2">
+                <DialogClose asChild>
+                  <Button variant="outline">Cancelar</Button>
+                </DialogClose>
+
+                <DialogClose asChild>
+                  <Button
+                    onClick={handleDelete}
+                    variant="destructive"
+                    disabled={deleteActivityMutation.isPending}
+                  >
+                    Eliminar
+                  </Button>
+                </DialogClose>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
     </div>
   );
 }
