@@ -3,13 +3,6 @@ import { Folder, Plus } from 'lucide-react';
 import IconSquare from './icon-square';
 import { ProjectCard } from './project-card';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from './ui/empty';
 import LoadingMessage from './loading-message';
 import ErrorCard from './error-card';
 import { Button } from './ui/button';
