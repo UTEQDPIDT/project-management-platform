@@ -70,6 +70,7 @@ import {
 import { Separator } from '../ui/separator';
 import { TRLForm } from './trl-assesment-form';
 import { userProfile } from 'context/profile-provider';
+import { toast } from 'sonner';
 
 type UpdateProjectFormProps = {
   project: IProject;
@@ -158,7 +159,7 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
   };
 
   const onError = (errors: any) => {
-    console.log('FORM ERRORS', errors);
+    toast.error('Por favor corrige los errores en el formulario');
   };
 
   return (

@@ -48,6 +48,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Switch } from '../ui/switch';
+import { toast } from 'sonner';
 
 interface EventFormProps {
   event?: IEvent;
@@ -102,6 +103,7 @@ export default function EventForm({ event }: EventFormProps) {
       startDate: event?.startDate ? new Date(event.startDate) : undefined,
       endDate: event?.endDate ? new Date(event.endDate) : undefined,
       isPrivate: event?.isPrivate || false,
+      acceptsProducts: event?.acceptsProducts || false,
       participants: event?.participants
         ? event.participants.map((p: IUser) => p._id)
         : [],
@@ -131,7 +133,7 @@ export default function EventForm({ event }: EventFormProps) {
   };
 
   const onError = (errors: any) => {
-    console.log('FORM ERRORS', errors);
+    toast.error('Por favor corrige los errores en el formulario');
   };
 
   return (
@@ -432,6 +434,40 @@ export default function EventForm({ event }: EventFormProps) {
                     <FieldDescription>
                       Al hacer el evento privado, los asistentes solo podrán
                       participar siendo invitados.
+                    </FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </FieldContent>
+                  <Switch
+                    id={field.name}
+                    name={field.name}
+                    checked={field.value}
+                    onCheckedChange={onChange}
+                    aria-invalid={fieldState.invalid}
+                  />
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="acceptsProducts"
+              render={({
+                field: { onChange, onBlur, ...field },
+                fieldState,
+              }) => (
+                <Field
+                  orientation={'horizontal'}
+                  data-invalid={fieldState.invalid}
+                >
+                  <FieldContent>
+                    <FieldLabel htmlFor={field.name}>
+                      Acepta Productos
+                    </FieldLabel>
+                    <FieldDescription>
+                      Al activar esta opción, los asistentes podrán seleccionar
+                      productos para presentar en el evento.
                     </FieldDescription>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />

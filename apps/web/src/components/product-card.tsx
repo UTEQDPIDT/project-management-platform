@@ -27,7 +27,7 @@ export default function ProductCard({
 }: ProductCardProps) {
   const { data: files = [] } = useFilesForEntity(product._id);
   return (
-    <Card className="gap-2 group">
+    <Card className="gap-2 group w-full min-w-72 max-w-96">
       <CardHeader>
         <div className="flex items-center justify-between gap-1">
           <div className="flex flex-col gap-1">
@@ -86,7 +86,7 @@ export default function ProductCard({
           <span className="text-xs text-muted-foreground">Archivo</span>
           {files && files.length > 0 ? (
             files.map((file: IFile) => (
-              <FileButton key={file._id} file={file} className="max-w-72" />
+              <FileButton key={file._id} file={file} className="max-w-52" />
             ))
           ) : (
             <span className="text-xs text-muted-foreground">

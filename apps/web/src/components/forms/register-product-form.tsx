@@ -133,14 +133,14 @@ export default function RegisterProductsForm({
                                     : [...value, product._id],
                                 );
                               }}
+                              className="flext justify-between"
                             >
+                              {product.name}
                               <Check
                                 className={`mr-2 h-4 w-4 ${
                                   selected ? 'opacity-100' : 'opacity-0'
                                 }`}
                               />
-
-                              <span>{product.name}</span>
                             </CommandItem>
                           );
                         })

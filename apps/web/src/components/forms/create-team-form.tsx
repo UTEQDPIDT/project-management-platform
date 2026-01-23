@@ -50,6 +50,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Switch } from '../ui/switch';
+import { toast } from 'sonner';
 
 export function CreateTeamForm() {
   const router = useRouter();
@@ -112,7 +113,7 @@ export function CreateTeamForm() {
   };
 
   const onError = (errors: any) => {
-    console.log('FORM ERRORS', errors);
+    toast.error('Por favor corrige los errores en el formulario');
   };
 
   return (

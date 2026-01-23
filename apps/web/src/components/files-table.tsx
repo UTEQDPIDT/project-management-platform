@@ -1,39 +1,35 @@
 'use client';
 
-import React from 'react';
-import LoadingMessage from './loading-message';
-import { DataTable } from './ui/data-table';
 import { useFiles } from '@/hooks/files';
-import { ColumnDef } from '@tanstack/react-table';
+import { copyValue, formatFileSize, trimFileNameMiddle } from '@/lib/utils';
+import { downloadFile } from '@/services/files.service';
 import { IFile } from '@repo/types';
+import { ColumnDef } from '@tanstack/react-table';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { Copy, Download, MoreHorizontal } from 'lucide-react';
+import LoadingMessage from './loading-message';
+import { ProfileInfo } from './profile-info';
+import { Button } from './ui/button';
+import { DataTable } from './ui/data-table';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from './ui/dialog';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Copy, Download, MoreHorizontal, Trash } from 'lucide-react';
-import Link from 'next/link';
-import { copyValue, formatFileSize } from '@/lib/utils';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { ProfileInfo } from './profile-info';
-import { downloadFile } from '@/services/files.service';
 
 const columns: ColumnDef<IFile>[] = [
-  { accessorKey: 'originalName', header: 'Nombre' },
+  {
+    accessorKey: 'originalName',
+    header: 'Nombre',
+    cell: ({ row }) => {
+      const { originalName, _id } = row.original;
+
+      return <div>{trimFileNameMiddle(originalName)}</div>;
+    },
+  },
   {
     accessorKey: 'size',
     header: 'Tamaño de archivo',

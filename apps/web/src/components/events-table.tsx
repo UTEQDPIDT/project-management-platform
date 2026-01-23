@@ -16,7 +16,13 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
-import { ExternalLink, MoreHorizontal, Pencil, Trash } from 'lucide-react';
+import {
+  Copy,
+  ExternalLink,
+  MoreHorizontal,
+  Pencil,
+  Trash,
+} from 'lucide-react';
 import {
   Dialog,
   DialogClose,
@@ -32,6 +38,7 @@ import { ProfileInfo } from './profile-info';
 import CopyButton from './ui/copy';
 import { useFilesForEntity } from '@/hooks/files';
 import FileButton from './file-button';
+import { copyValue } from '@/lib/utils';
 
 const columns: ColumnDef<IEvent>[] = [
   {
@@ -41,7 +48,7 @@ const columns: ColumnDef<IEvent>[] = [
       const { name } = row.original;
 
       return (
-        <div className="flex gap-1 items-center justify-center group">
+        <div className="flex gap-1 items-center justify-start group">
           <div className="max-w-72 truncate">
             <span>{name}</span>
           </div>
@@ -285,14 +292,17 @@ const columns: ColumnDef<IEvent>[] = [
                 <ExternalLink /> Visitar evento
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => copyValue(event._id)}>
+              <Copy /> Copiar ID
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               asChild
               className="hover:text-destructive-foreground"
             >
               <Dialog>
-                <DialogTrigger className="group items-center justify-start p-0 font-normal hover:text-destructive-foreground">
-                  <Trash className="text-muted-foreground group-hover:text-destructive-foreground" />{' '}
+                <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
+                  <Trash />
                   Eliminar evento
                 </DialogTrigger>
                 <DialogContent>

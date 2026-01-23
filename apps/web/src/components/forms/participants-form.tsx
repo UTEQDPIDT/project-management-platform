@@ -108,18 +108,19 @@ export function ParticipantsForm({
                                     : [...value, user._id],
                                 );
                               }}
+                              className="flex justify-between items-center"
                             >
-                              <Check
-                                className={`mr-2 h-4 w-4 ${
-                                  selected ? 'opacity-100' : 'opacity-0'
-                                }`}
-                              />
-
                               <ProfileInfo
                                 givenName={user.givenName}
                                 familyName={user.familyName}
                                 avatarUrl={user.avatarUrl}
+                                userType={user.type}
                                 size="sm"
+                              />
+                              <Check
+                                className={`mr-2 h-4 w-4 ${
+                                  selected ? 'opacity-100' : 'opacity-0'
+                                }`}
                               />
                             </CommandItem>
                           );

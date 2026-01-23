@@ -10,6 +10,7 @@ import { IEvent, IUser, UserRole } from '@repo/types';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
@@ -39,7 +40,7 @@ export default function ParticipantsCard({
   return (
     <Card className={cn(className)}>
       <CardHeader>
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <div className="flex gap-3 items-center">
             <IconSquare color="blue">
               <Users />
@@ -50,12 +51,11 @@ export default function ParticipantsCard({
 
           {user.role === UserRole.ADMIN && (
             <Dialog>
-              <DialogTrigger className="h-7 px-3 hover:bg-secondary/90 border">
+              <DialogTrigger className="h-8 px-3 hover:bg-secondary/90 border">
                 <Settings /> Gestionar
               </DialogTrigger>
               <DialogContent>
                 <DialogTitle>Gestionar Participantes</DialogTitle>
-                <Separator />
                 <ParticipantsForm
                   eventId={event._id}
                   participants={event.participants}
@@ -70,7 +70,7 @@ export default function ParticipantsCard({
         {event.participants.length > 0 ? (
           <div className="flex flex-col gap-3">
             {event.participants.map((p: IUser) => (
-              <div key={p._id} className="flex justify-between">
+              <div key={p._id} className="flex justify-between group">
                 <ProfileInfo
                   size="sm"
                   givenName={p.givenName}
@@ -82,15 +82,17 @@ export default function ParticipantsCard({
                 {user.role === UserRole.ADMIN && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button size="icon-sm" variant="ghost">
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        className="opacity-0 group-hover:opacity-100"
+                      >
                         <MoreHorizontal />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <Button
-                        size="sm"
-                        className="w-full justify-start font-normal bg-transparent hover:text-destructive-foreground"
-                        variant="ghost"
+                      <DropdownMenuItem
+                        variant="destructive"
                         disabled={false}
                         onClick={() => {
                           removeParticipant.mutate({
@@ -100,7 +102,7 @@ export default function ParticipantsCard({
                         }}
                       >
                         <UserMinus /> Expulsar
-                      </Button>
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}

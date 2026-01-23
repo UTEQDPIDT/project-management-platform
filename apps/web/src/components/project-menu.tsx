@@ -4,6 +4,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Ellipsis, Pencil, Trash } from 'lucide-react';
@@ -43,21 +44,22 @@ export function ProjectMenu({
           <Ellipsis />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuGroup>
+          <DropdownMenuLabel>Acciones</DropdownMenuLabel>
           <Button
-            className="font-normal w-full justify-start"
+            className="has-[>svg]:px-2 [&_svg]:text-muted-foreground px-0 h-8 border-transparent w-full justify-start font-normal"
             variant="ghost"
             asChild
           >
             <Link href={`${rootUrl}/proyectos/${projectId}/editar`}>
               <Pencil />
-              Editar
+              Editar proyecto
             </Link>
           </Button>
           <Dialog>
-            <DialogTrigger className="font-normal border-transparent hover:text-destructive-foreground w-full justify-start">
-              <Trash /> Eliminar
+            <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
+              <Trash /> Eliminar proyecto
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>

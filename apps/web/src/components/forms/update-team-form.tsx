@@ -57,6 +57,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Switch } from '../ui/switch';
+import { toast } from 'sonner';
 
 type UpdateTeamFormProps = {
   team: ITeam;
@@ -136,7 +137,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
   };
 
   const onError = (errors: any) => {
-    console.log('FORM ERRORS', errors);
+    toast.error('Por favor corrige los errores en el formulario');
   };
 
   return (

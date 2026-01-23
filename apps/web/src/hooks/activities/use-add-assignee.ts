@@ -7,9 +7,7 @@ export function useAddAssignee() {
   return useMutation({
     mutationFn: addAssignee,
     onSuccess: () => {
-      // Invalidate event queries (all event details) and the events list
-      queryClient.invalidateQueries({ queryKey: ['event'] });
-      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['activities'] });
     },
   });
 }

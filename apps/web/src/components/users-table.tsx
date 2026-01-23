@@ -5,7 +5,7 @@ import React from 'react';
 import LoadingMessage from './loading-message';
 import { DataTable } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
-import { IUser, UserRole, UserType } from '@repo/types';
+import { IUser, UserType } from '@repo/types';
 import { Badge } from './ui/badge';
 import CopyButton from './ui/copy';
 import { format } from 'date-fns';
@@ -93,7 +93,6 @@ const columns: ColumnDef<IUser>[] = [
           <span>{email}</span>
           <CopyButton
             className="opacity-0 group-hover:opacity-100"
-            variant="outline"
             valueToCopy={email}
           />
         </div>

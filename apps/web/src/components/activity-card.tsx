@@ -1,7 +1,12 @@
 'use client';
 
+import { useAddAssignee } from '@/hooks/activities';
+import { useDeleteFile, useFilesForEntity } from '@/hooks/files';
+import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
 import { cn } from '@/lib/utils';
+import { downloadFile } from '@/services/files.service';
 import { EntityType, IActivity, IFile } from '@repo/types';
+import { userProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -10,50 +15,31 @@ import {
   MoveRight,
   Paperclip,
   Upload,
+  UserPlus,
   X,
 } from 'lucide-react';
+import { ReactNode, useState } from 'react';
 import AvatarRow from './avatar-row';
-import { Badge, badgeVariants } from './ui/badge';
+import ErrorCard from './error-card';
+import FileList from './file-list';
+import LoadingMessage from './loading-message';
+import { ProfileInfo } from './profile-info';
+import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { ReactNode, useState } from 'react';
 import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from './ui/sheet';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from './ui/dialog';
-import { ProfileInfo } from './profile-info';
-import FileList from './file-list';
-import { Separator } from './ui/separator';
-import { useDeleteFile, useFilesForEntity } from '@/hooks/files';
-import LoadingMessage from './loading-message';
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from './ui/empty';
 import {
   FileUpload,
   FileUploadDropzone,
@@ -64,22 +50,20 @@ import {
   FileUploadList,
   FileUploadTrigger,
 } from './ui/file-upload';
-import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
-import ErrorCard from './error-card';
-import { downloadFile } from '@/services/files.service';
+import { Separator } from './ui/separator';
 import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from './ui/empty';
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from './ui/sheet';
 
 interface Props {
   activity: IActivity;
-  buttonText?: string;
-  buttonIcon?: ReactNode;
-  onAction?: () => void;
   options?: ReactNode;
   enableOptions?: boolean;
   showStatus?: boolean;
@@ -89,23 +73,27 @@ interface Props {
 
 export function ActivityCard({
   activity,
-  buttonText = 'Accion',
-  buttonIcon,
-  onAction,
   options,
   enableOptions,
   showStatus,
   showPriority,
   className,
 }: Props) {
+  const { user } = userProfile();
+
+  // Tanstack
   const {
     data: files,
     isLoading: isLoadingFiles,
     isError: isErrorFetchingFiles,
   } = useFilesForEntity(activity._id);
   const uploadFiles = useUploadMultipleFiles();
-
   const deleteFileMutation = useDeleteFile();
+  const addAssignee = useAddAssignee();
+
+  const handleAddAssignee = () => {
+    addAssignee.mutate({ activityId: activity._id, userId: user._id });
+  };
 
   const handleDelete = (fileId: string) => {
     deleteFileMutation.mutate({ fileId });
@@ -199,43 +187,37 @@ export function ActivityCard({
               </div>
             )}
           </CardContent>
-          {onAction && (
-            <CardFooter className="flex justify-end">
-              <CardAction className="z-50">
-                <Button variant="outline" onClick={onAction} size="xs">
-                  {buttonIcon}
-                  {buttonText}
-                </Button>
-              </CardAction>
-            </CardFooter>
-          )}
         </Card>
       </SheetTrigger>
 
       <SheetContent>
         <SheetHeader>
-          <SheetTitle className="text-lg">{activity.name}</SheetTitle>
-          <SheetDescription>{activity.description}</SheetDescription>
+          <div className="pr-2 flex flex-col gap-2 relative">
+            <SheetTitle className="text-lg h-20">{activity.name}</SheetTitle>
+            <SheetDescription>{activity.description}</SheetDescription>
+            {enableOptions && (
+              <div className="absolute top-0 right-6 h-[100px]">
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    asChild
+                    className="text-muted-foreground hover:text-neutral-800 [svg]:size-4"
+                  >
+                    <Ellipsis />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="flex flex-col items-start gap-1"
+                  >
+                    <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                    {options}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+          </div>
         </SheetHeader>
 
         <div className="flex flex-col gap-6 px-4 items-end">
-          {enableOptions && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon-sm">
-                  <Ellipsis />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="flex flex-col items-start gap-1"
-              >
-                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                {options}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-
           <div className="flex flex-col gap-4 w-full">
             {showStatus && (
               <div className="flex items-center gap-2">
@@ -251,6 +233,11 @@ export function ActivityCard({
               {activity.assignees && (
                 <AvatarRow profiles={activity.assignees} />
               )}
+              {!activity.assignees?.some((a) => a._id === user._id) && (
+                <Button onClick={handleAddAssignee} variant="ghost" size="xs">
+                  <UserPlus /> Asignarse
+                </Button>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -261,6 +248,7 @@ export function ActivityCard({
                 size="sm"
                 givenName={activity.createdBy.givenName}
                 familyName={activity.createdBy.familyName}
+                avatarUrl={activity.createdBy.avatarUrl}
               />
             </div>
 
@@ -295,12 +283,14 @@ export function ActivityCard({
             <div className="w-full flex justify-between items-center">
               <h2 className="font-medium">Evidencias</h2>
               <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Upload />
-                    Subir
-                  </Button>
-                </SheetTrigger>
+                {activity.assignees?.some((a) => a._id === user._id) && (
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Upload />
+                      Subir
+                    </Button>
+                  </SheetTrigger>
+                )}
 
                 <SheetContent className="flex h-dvh flex-col">
                   <SheetHeader>
@@ -386,7 +376,7 @@ export function ActivityCard({
                 {files.length ? (
                   files.map((file: IFile) => (
                     <FileList.Item key={file._id} file={file}>
-                      <FileList.Actions fileId={file._id} />
+                      <FileList.Actions file={file} />
                     </FileList.Item>
                   ))
                 ) : (

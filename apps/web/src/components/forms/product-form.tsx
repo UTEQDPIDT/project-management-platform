@@ -35,6 +35,7 @@ import { DialogClose } from '../ui/dialog';
 import { useCreateProduct, useUpdateProduct } from '@/hooks/products';
 import { Input } from '../ui/input';
 import { useFilesForEntity } from '@/hooks/files';
+import { toast } from 'sonner';
 
 interface Props {
   product?: IProduct;
@@ -77,7 +78,9 @@ export function ProductForm({ projectId, product }: Props) {
   /**
    * Handlers
    */
-  const onSubmit = async (data: z.infer<ReturnType<typeof getProductSchema>>) => {
+  const onSubmit = async (
+    data: z.infer<ReturnType<typeof getProductSchema>>,
+  ) => {
     try {
       const formData = new FormData();
       formData.append('name', data.name);
@@ -105,7 +108,7 @@ export function ProductForm({ projectId, product }: Props) {
   };
 
   const onError = (erros: any) => {
-    console.log('FORM ERRORS', erros);
+    toast.error('Por favor corrige los errores en el formulario');
   };
 
   return (
@@ -279,8 +282,9 @@ export function ProductForm({ projectId, product }: Props) {
           </Button>
         </DialogClose>
 
-          <Button type="submit" disabled={isSubmitting}>{isSubmitting ? <LoadingMessage/> : product ? 'Actualizar' : 'Crear'}</Button>
-
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? <LoadingMessage /> : product ? 'Actualizar' : 'Crear'}
+        </Button>
       </div>
     </form>
   );

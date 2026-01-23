@@ -14,5 +14,6 @@ export const eventSchema = z.object({
   location: z.string().min(1, 'El evento debe tener una ubicación.'),
   type: z.enum(EventType),
   isPrivate: z.boolean(),
+  acceptsProducts: z.boolean(),
   participants: z.array(mongoId),
 });

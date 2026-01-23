@@ -26,6 +26,7 @@ import {
 } from './ui/card';
 import CopyButton from './ui/copy';
 import { useRegisterParticipant } from '@/hooks/events';
+import { useActivitiesByEntity } from '@/hooks/activities';
 
 interface EventCardProps {
   event: IEvent;
@@ -40,6 +41,7 @@ export function EventCard({ event }: EventCardProps) {
   /**
    * Tanstack
    */
+  const { data: activities } = useActivitiesByEntity(event._id);
   const registerParticipant = useRegisterParticipant();
 
   /**
@@ -102,7 +104,7 @@ export function EventCard({ event }: EventCardProps) {
       <CardHeader>
         <div className="flex justify-between">
           <div className="flex gap-2 items-start">
-            <IconSquare color="blue">
+            <IconSquare color="green">
               <Calendar />
             </IconSquare>
             <div className="flex flex-col gap-1">
@@ -120,12 +122,9 @@ export function EventCard({ event }: EventCardProps) {
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 h-full text-sm text-muted-foreground">
-        <div className="flex gap-2">
-          <Info className="shrink-0" size={14} />
-          <CardDescription className="h-26 line-clamp-5">
-            {event.summary}
-          </CardDescription>
-        </div>
+        <CardDescription className="h-26 line-clamp-5">
+          {event.summary}
+        </CardDescription>
 
         <div className="flex gap-2 group items-center">
           <MapPin className="shrink-0" size={14} />
@@ -156,19 +155,21 @@ export function EventCard({ event }: EventCardProps) {
           )}
         </div>
       </CardContent>
-      <CardFooter className="flex border-t gap-3 justify-between items-center">
+      <CardFooter className="flex gap-3 justify-between items-center">
         <div className="flex gap-3">
           <AvatarRow profiles={event.participants} />
 
           <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
             <CheckSquare size={14} />
-            {event.activities?.length}
+            {activities?.length}
           </span>
 
-          <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
-            <Shapes size={14} />
-            {event.products?.length}
-          </span>
+          {event.acceptsProducts && (
+            <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+              <Shapes size={14} />
+              {event.products?.length}
+            </span>
+          )}
         </div>
         <CardAction>{renderActionButton()}</CardAction>
       </CardFooter>

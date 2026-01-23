@@ -24,7 +24,6 @@ import {
 } from '@repo/types';
 import { Check, ChevronsUpDown, XIcon } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
@@ -70,13 +69,12 @@ import {
 } from '../ui/select';
 import { Separator } from '../ui/separator';
 import { TRLForm } from './trl-assesment-form';
+import { toast } from 'sonner';
 import { userProfile } from 'context/profile-provider';
 
 export function CreateProjectForm() {
-  const router = useRouter();
   const { user } = userProfile();
   const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
-
   /**
    * React Query Hooks
    */
@@ -139,15 +137,13 @@ export function CreateProjectForm() {
       };
 
       createProject.mutate(cleanedData);
-      //   form.reset();
-      //   router.push(`${rootUrl}/proyectos`);
     } catch (err) {
       console.error('Error cleaning data', err);
     }
   };
 
   const onError = (errors: any) => {
-    console.log('FORM ERRORS', errors);
+    toast.error('Por favor corrige los errores en el formulario');
   };
 
   return (

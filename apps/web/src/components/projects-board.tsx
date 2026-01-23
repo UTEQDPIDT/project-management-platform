@@ -43,7 +43,7 @@ export function ProjectsBoard({
         ) : error ? (
           <ErrorCard />
         ) : projects.length > 0 ? (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             {projects.map((p: IProject) => (
               <ProjectCard key={p._id} project={p} variant="compact" />
             ))}

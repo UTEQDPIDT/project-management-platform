@@ -104,7 +104,7 @@ function ProjectCardCompact({
   data: ReturnType<typeof useProjectCardData>;
 }) {
   return (
-    <Card className="hover:shadow-xl">
+    <Card className="hover:shadow-xl w-full min-w-52">
       <CardHeader>
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
