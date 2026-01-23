@@ -2,6 +2,7 @@ import { AbilityBuilder, ExtractSubjectType, InferSubjects , MongoAbility, creat
 import { Injectable } from "@nestjs/common";
 import { User, Activity, Event, File, Product, Project, Team } from "../schemas/index";
 import { TeamUserRole, TeamUserStatus } from "@repo/types";
+import { $elemMatch } from "@ucast/mongo2js";
 
 
 export enum Action {
@@ -31,54 +32,32 @@ export class AbilityFactory {
 
         //USERS
         if (user.role === 'USER') { // regular users
-            can([Action.Create, Action.Read, Action.Update, Action.UpdateContent, Action.Delete], [Activity, File, Product]); // users can create, read, update, and delete activities, files, and products
+            can([Action.Create, Action.Read, Action.Update, Action.UpdateContent, Action.Delete], [File, Product]); // users can create, read, update, and delete activities, files, and products
 
+            //PROJECT PERMISSIONS
             can([Action.Create, Action.Read], Project); // users can create and read projects
+            can(Action.Manage, Project, {owner: user._id}); //Only project owners can update and delete their projects
 
-            can([Action.Update, Action.Delete], Project, {owner: user._id}); //Only project owners can update and delete their projects
-
+            //EVENT PERMISSIONS
+            can(Action.Manage, Event, { createdBy: user._id }); // users can manage events they created
             can(Action.Read, [Event, User]); // users can read events and user info
-
-            can([Action.ReadSelf, Action.Update], User, { _id: user._id }); // users can read and update their own user info
-
             can(Action.UpdateContent, Event, {participants: user._id} ); // users can update and delete events they are participating in
 
+            //USER PERMISSIONS
+            can([Action.ReadSelf, Action.Update], User, { _id: user._id }); // users can read and update their own user info
+            
+            //TEAM PERMISSION
             can(Action.Create, Team); // users can create teams
+            can(Action.Manage, Team, {memberships: {$elemMatch: {user: user._id, role: TeamUserRole.OWNER, status: TeamUserStatus.ACTIVE}}}); //Only team owners can manage their teams
+            can([Action.Read, Action.Update], Team, {memberships: {$elemMatch: {user: user._id, role: TeamUserRole.MEMBER, status: TeamUserStatus.ACTIVE}}}); //Team members can read and update their teams
+            can(Action.Read, Team, {memberships: {$elemMatch: {user: user._id, role: TeamUserRole.COLLABORATOR, status: TeamUserStatus.ACTIVE}}}); //Team collaborators can read their teams
 
-            can(Action.Update, User, { _id: user._id }); // users can update their own user info
+            //ACTIVITY PERMISSIONS
+            //can([Action.Read, Action.UpdateContent], Activity); // users can read activities & add themselves as assignees on activities related to events or projects they are part of
+            can(Action.Manage, Activity, { createdBy: user._id }); // users manage activities they created
         }
 
-        //TEAM PERMISSIONS
-        can(Action.Manage, Team, {
-            memberships: {
-                $elemMatch: {
-                user: user._id,
-                role: TeamUserRole.OWNER,
-                status: TeamUserStatus.ACTIVE,
-                },
-            },
-        });
-
-        can([Action.Read, Action.Update], Team, {
-            memberships: {
-                $elemMatch: {
-                user: user._id,
-                role: TeamUserRole.MEMBER,
-                status: TeamUserStatus.ACTIVE,
-                },
-            },
-        });
-
-        can(Action.Read, Team, {
-            memberships: {
-                $elemMatch: {
-                user: user._id,
-                role: TeamUserRole.COLLABORATOR,
-                status: TeamUserStatus.ACTIVE,
-                },
-            },
-        });
-
+    
         return build({
             detectSubjectType: (item) => item.constructor as ExtractSubjectType<Subjects>,
         });

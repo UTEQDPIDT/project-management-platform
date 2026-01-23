@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -10,31 +6,69 @@ import { Activity } from '../schemas/activities.schema';
 import { ClientSession, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
 import { EntityType, Priority } from '@repo/types';
+import { ForbiddenError } from '@casl/ability';
+import { AbilityFactory, Action } from '../casl/ability.factory';
+import { EventsService } from '../events/events.service';
+import { ProjectsService } from '../projects/projects.service';
+import { User } from '../schemas';
 
 @Injectable()
 export class ActivitiesService {
   constructor(
     @InjectModel(Activity.name) private activityModel: Model<Activity>,
     private readonly filesService: FilesService,
+    private readonly eventsService: EventsService,
+    private readonly projectsService: ProjectsService,
+    private readonly abilityFactory: AbilityFactory,
   ) {}
 
-  async create(
-    createActivityDto: CreateActivityDto,
-    userId: string,
-  ): Promise<Activity> {
-    try {
-      const createdActivity = new this.activityModel({
-        ...createActivityDto,
-        createdBy: userId,
-      });
+async create(
+  createActivityDto: CreateActivityDto,
+  user: User,
+): Promise<Activity> {
+  try {
+    const ability = this.abilityFactory.defineAbility(user);
 
-      await createdActivity.save();
+     //EVENT activity
+    if (createActivityDto.entityType === EntityType.EVENT) {
+      const event = await this.eventsService.findOne(createActivityDto.entityId.toString());
 
-      return createdActivity;
-    } catch (err: any) {
-      throw new BadRequestException(err.message);
+      if (!event) {
+        throw new NotFoundException('Event not found');
+      }
+
+      ForbiddenError.from(ability).throwUnlessCan(
+        Action.UpdateContent,
+        event,
+      );
     }
+
+    //PROJECT activity
+    if (createActivityDto.entityType === EntityType.PROJECT) {
+      const project = await this.projectsService.findOne(createActivityDto.entityId.toString());
+
+      if (!project || !project.team) {
+        throw new NotFoundException('Project or team not found');
+      }
+
+      ForbiddenError.from(ability).throwUnlessCan(
+        Action.UpdateContent,
+        project.team,
+      );
+    }
+
+    const createdActivity = new this.activityModel({
+      ...createActivityDto,
+      createdBy: user._id,
+    });
+
+    await createdActivity.save();
+    return createdActivity;
+  } catch (err: any) {
+    throw new BadRequestException(err.message);
   }
+}
+
 
   async createOnBulk(
     createActivityDto: { name: string }[],
