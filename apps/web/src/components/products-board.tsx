@@ -43,7 +43,7 @@ export function ProductsBoard({
             <CardTitle>Productos</CardTitle>
           </div>
           <Dialog>
-            <DialogTrigger className="h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
+            <DialogTrigger className="h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
               Crear
             </DialogTrigger>
             <DialogContent>
