@@ -27,6 +27,7 @@ import {
 import CopyButton from './ui/copy';
 import { useRegisterParticipant } from '@/hooks/events';
 import { useActivitiesByEntity } from '@/hooks/activities';
+import { getBaseUrlBasedOnRole } from '@/lib/utils';
 
 type EventCardVariant = 'default' | 'compact';
 interface EventCardProps {
@@ -35,6 +36,7 @@ interface EventCardProps {
 }
 function EventCardCompact({ event }: { event: IEvent }) {
   const { user } = userProfile();
+  const baseUrl = getBaseUrlBasedOnRole(user.role);
   // Participants for AvatarRow
   const profiles =
     event.participants?.map((u: IUser) => ({
@@ -66,19 +68,12 @@ function EventCardCompact({ event }: { event: IEvent }) {
 
   return (
     <Link
-      href={`/user/eventos/${event._id}`}
+      href={`${baseUrl}/eventos/${event._id}`}
       className="w-full max-w-52 shrink-0 h-36"
     >
-      <Card className="hover:shadow-xl w-full max-w-52 shrink-0 h-36">
+      <Card className="hover:shadow-xl w-full max-w-52 gap-4 shrink-0 h-36">
         <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle className="line-clamp-1 leading-5">
-              {event.name}
-            </CardTitle>
-            <Badge variant={badgeVariant} className="h-6">
-              {event.isPrivate ? 'Privado' : 'Público'}
-            </Badge>
-          </div>
+          <CardTitle className="line-clamp-1 leading-5">{event.name}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-1 items-center text-xs text-muted-foreground">
@@ -107,8 +102,9 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
   if (variant === 'compact') {
     return <EventCardCompact event={event} />;
   }
-  // ...existing code...
+
   const { user } = userProfile();
+  const baseUrl = getBaseUrlBasedOnRole(user.role);
   const { data: activities } = useActivitiesByEntity(event._id);
   const registerParticipant = useRegisterParticipant();
   const currentUserId = user._id;
@@ -120,7 +116,7 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
     if (isOwner || isParticipant) {
       return (
         <Button variant="ghost" size="sm" asChild>
-          <Link href={`/user/eventos/${event._id}`}>
+          <Link href={`${baseUrl}/eventos/${event._id}`}>
             <span className="flex gap-1 items-center">
               Visitar
               <ArrowUpRight />

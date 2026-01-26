@@ -2,7 +2,7 @@ import { IEvent, UserRole } from '@repo/types';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import IconSquare from './icon-square';
-import { Calendar, ExternalLink, Plus } from 'lucide-react';
+import { ArrowUpRight, Calendar, Plus } from 'lucide-react';
 import LoadingMessage from './loading-message';
 import ErrorCard from './error-card';
 import { EventCard } from './event-card';
@@ -84,7 +84,7 @@ export default function EventsBoard({
                 <EmptyContent>
                   <Button asChild variant="link">
                     <Link href={`${baseUrl}/eventos`}>
-                      Ir a eventos <ExternalLink />
+                      Ir a eventos <ArrowUpRight />
                     </Link>
                   </Button>
                 </EmptyContent>

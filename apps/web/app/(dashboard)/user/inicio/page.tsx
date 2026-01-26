@@ -1,5 +1,6 @@
 'use client';
 
+import EventsBoard from '@/components/events-board';
 import {
   Header,
   HeaderDescription,
@@ -9,6 +10,7 @@ import {
 import { PageContent } from '@/components/page-content';
 import { ProjectsBoard } from '@/components/projects-board';
 import TeamsBoard from '@/components/teams-board';
+import { useEventsByUser } from '@/hooks/events';
 import { useProjectsByOwner } from '@/hooks/projects';
 import { useTeamsByUser } from '@/hooks/team';
 import { userProfile } from 'context/profile-provider';
@@ -26,6 +28,11 @@ const Page = () => {
     isLoading: loadingTeams,
     isError: errorFetchingTeams,
   } = useTeamsByUser();
+  const {
+    data: events,
+    isLoading: loadingEvents,
+    isError: errorFetchingEvents,
+  } = useEventsByUser();
 
   return (
     <div>
@@ -45,6 +52,11 @@ const Page = () => {
           teams={teams}
           isLoading={loadingTeams}
           isError={errorFetchingTeams}
+        />
+        <EventsBoard
+          events={events}
+          isLoading={loadingEvents}
+          isError={errorFetchingEvents}
         />
       </PageContent>
     </div>
