@@ -81,6 +81,18 @@ export class EventsService {
     return event;
   }
 
+  /**
+   * Fetch all events where a user is owner or participant
+   */
+  async findByUser(userId: string) {
+    return this.eventModel
+      .find({
+        $or: [{ createdBy: userId }, { participants: userId }],
+      })
+      .populate('participants')
+      .exec();
+  }
+
   async update(id: string, updateEventDto: UpdateEventDto, usedId: string) {
     try {
       const updatedEvent = this.eventModel.findByIdAndUpdate(id, {

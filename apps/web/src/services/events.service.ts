@@ -30,6 +30,15 @@ const getEventById = async (eventId: string) => {
   }
 };
 
+const getEventsByUser = async () => {
+  try {
+    const { data } = await api.get('/events/by-user');
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
 const updateEvent = async ({
   eventId,
   eventData,
@@ -147,4 +156,5 @@ export {
   registerParticipant,
   registerProducts,
   removeProduct,
+  getEventsByUser,
 };
