@@ -8,7 +8,9 @@ import {
 } from '@/components/header';
 import { PageContent } from '@/components/page-content';
 import { ProjectsBoard } from '@/components/projects-board';
+import TeamsBoard from '@/components/teams-board';
 import { useProjectsByOwner } from '@/hooks/projects';
+import { useTeamsByUser } from '@/hooks/team';
 import { userProfile } from 'context/profile-provider';
 import React from 'react';
 
@@ -19,6 +21,11 @@ const Page = () => {
     isLoading: loadingProjects,
     isError: errorFetchingProjects,
   } = useProjectsByOwner();
+  const {
+    data: teams,
+    isLoading: loadingTeams,
+    isError: errorFetchingTeams,
+  } = useTeamsByUser();
 
   return (
     <div>
@@ -33,6 +40,11 @@ const Page = () => {
           projects={projects}
           loading={loadingProjects}
           error={errorFetchingProjects}
+        />
+        <TeamsBoard
+          teams={teams}
+          isLoading={loadingTeams}
+          isError={errorFetchingTeams}
         />
       </PageContent>
     </div>

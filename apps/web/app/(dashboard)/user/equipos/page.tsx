@@ -15,7 +15,7 @@ import { useAllTeams } from '@/hooks/team';
 import LoadingMessage from '@/components/loading-message';
 import Link from 'next/link';
 import { ITeam } from '@repo/types';
-import TeamCard from '@/components/team-card';
+import {TeamCard} from '@/components/team-card';
 import ErrorCard from '@/components/error-card';
 import {
   Empty,

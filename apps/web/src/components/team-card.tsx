@@ -24,12 +24,15 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
+import { getBaseUrlBasedOnRole } from '@/lib/utils';
 
-type TeamCardProps = {
+type TeamCardVariant = 'default' | 'compact';
+interface TeamCardProps {
   team: ITeam;
-};
+  variant?: TeamCardVariant;
+}
 
-export default function TeamCard({ team }: TeamCardProps) {
+function TeamCardDefault({ team }: { team: ITeam }) {
   /**
    * React Query
    */
@@ -39,6 +42,11 @@ export default function TeamCard({ team }: TeamCardProps) {
    * Context
    */
   const { user } = userProfile();
+
+  /**
+   * Get base URL
+   */
+  const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   /**
    * Extract owner, members, collaborators
@@ -78,7 +86,7 @@ export default function TeamCard({ team }: TeamCardProps) {
     if (isOwner || isMember || isCollaborator) {
       return (
         <Button variant="ghost" size="sm" asChild>
-          <Link href={`/user/equipos/${team._id}`}>
+          <Link href={`${baseUrl}/equipos/${team._id}`}>
             <span className="flex gap-1 items-center">
               Visitar
               <ArrowUpRight />
@@ -191,4 +199,90 @@ export default function TeamCard({ team }: TeamCardProps) {
       </CardFooter>
     </Card>
   );
+}
+
+function TeamCardCompact({ team }: { team: ITeam }) {
+  /**
+   * Context
+   */
+  const { user } = userProfile();
+  const baseUrl = getBaseUrlBasedOnRole(user.role);
+
+  const owner = team?.memberships.find(
+    (m: ITeamMembership) => m.role === TeamMembershipRole.OWNER,
+  );
+  const members = team?.memberships.filter(
+    (m: ITeamMembership) =>
+      m.role === TeamMembershipRole.MEMBER &&
+      m.status === TeamMembershipStatus.ACTIVE,
+  );
+  const collaborators = team?.memberships.filter(
+    (m: ITeamMembership) =>
+      m.role === TeamMembershipRole.COLLABORATOR &&
+      m.status === TeamMembershipStatus.ACTIVE,
+  );
+  // Deduplicate users for AvatarRow
+  const uniqueUsers = Array.from(
+    new Map(
+      [...members, ...collaborators].map((u) => [u.user._id, u]),
+    ).values(),
+  );
+  const profiles = uniqueUsers.map((u) => ({
+    givenName: u.user.givenName,
+    familyName: u.user.familyName,
+    avatarUrl: u.user.avatarUrl,
+  }));
+  if (owner) {
+    profiles.push({
+      givenName: owner.user.givenName,
+      familyName: owner.user.familyName,
+      avatarUrl: owner.user.avatarUrl,
+    });
+  }
+  let badgeVariant:
+    | 'default'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
+    | 'green'
+    | 'gray'
+    | 'pruple'
+    | 'orange'
+    | null
+    | undefined;
+  switch (team.grade) {
+    case TeamsGrade.FORMACION:
+      badgeVariant = BadgeVariants.GRAY;
+      break;
+    case TeamsGrade.CONSOLIDADO:
+      badgeVariant = BadgeVariants.GREEN;
+      break;
+  }
+  return (
+    <Link
+      href={`${baseUrl}/equipos/${team._id}`}
+      className="w-full max-w-52 shrink-0 h-36"
+    >
+      <Card className="hover:shadow-xl w-full max-w-52 shrink-0 h-36">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle className="line-clamp-1 leading-5">
+              {team.teamName}
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent></CardContent>
+        <CardFooter>
+          <AvatarRow profiles={profiles} />
+        </CardFooter>
+      </Card>
+    </Link>
+  );
+}
+
+export function TeamCard({ team, variant = 'default' }: TeamCardProps) {
+  if (variant === 'compact') {
+    return <TeamCardCompact team={team} />;
+  }
+  return <TeamCardDefault team={team} />;
 }
