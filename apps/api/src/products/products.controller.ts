@@ -23,7 +23,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from '../common/pipes';
 import { FILE_MIME_TYPES } from '../common/constants';
@@ -33,7 +32,6 @@ import { FILE_MIME_TYPES } from '../common/constants';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @UseGuards(JwtAuthGuard)
   @ApiConsumes('multipart/form-data')
   @ApiCreatedResponse({
     description: 'Producto creado correctamente',
@@ -87,7 +85,6 @@ export class ProductsController {
     return this.productsService.findByUser(userId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @ApiConsumes('multipart/form-data')
   @ApiAcceptedResponse({
     description: 'Producto actualizado correctamente.',
@@ -114,7 +111,6 @@ export class ProductsController {
   })
   @ApiNotFoundResponse({ description: 'No se encontro el producto.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado' })
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     await this.productsService.remove(id);

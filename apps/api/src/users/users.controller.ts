@@ -20,7 +20,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 
 @ApiTags('Users')
 @Controller('users')
@@ -55,7 +54,7 @@ export class UsersController {
     return this.usersService.resolveEmails(emails);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ description: 'Perfil de usuario obtenido correctamente.' })
   @Get('profile')
   getProfile(@Req() req) {
     return this.usersService.findOne(req.user.id);
@@ -71,7 +70,6 @@ export class UsersController {
   @ApiOkResponse({ description: 'Usuario actualizado correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontro al usuario.' })
   @ApiUnauthorizedResponse({ description: 'Las credenciales son incorrectas.' })
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);

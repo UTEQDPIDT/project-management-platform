@@ -24,7 +24,6 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { Response } from 'express';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { File } from '../schemas/file.schema';
 import { FilesService } from './files.service';
 import { UploadFileDto } from './dto/upload-file.dto';
@@ -43,7 +42,6 @@ export class FilesController {
   })
   @ApiUnauthorizedResponse({ description: 'No autorizado.' })
   @ApiBadRequestResponse({ description: 'No se proporcionó el archivo.' })
-  @UseGuards(JwtAuthGuard)
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
@@ -76,7 +74,6 @@ export class FilesController {
   @ApiBadRequestResponse({
     description: 'Ocurrió un error al subir los archivos.',
   })
-  @UseGuards(JwtAuthGuard)
   @Post('upload/multiple')
   @UseInterceptors(FilesInterceptor('files'))
   uploadMultiple(
