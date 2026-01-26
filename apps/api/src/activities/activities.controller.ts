@@ -7,7 +7,6 @@ import {
   Patch,
   Post,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiAcceptedResponse,
@@ -16,7 +15,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { ActivitiesService } from './activities.service';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
@@ -31,7 +29,6 @@ export class ActivitiesController {
     type: CreateActivityDto,
   })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createActivityDto: CreateActivityDto, @Req() req) {
     return this.activitiesService.create(createActivityDto, req.user.id);
@@ -72,7 +69,6 @@ export class ActivitiesController {
   })
   @ApiNotFoundResponse({ description: 'No se encontro la actividad.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -87,7 +83,6 @@ export class ActivitiesController {
   })
   @ApiNotFoundResponse({ description: 'No se encontro la actividad.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
   @Patch(':id/add-assignee')
   addAssignee(
     @Param('id') id: string,
@@ -102,7 +97,6 @@ export class ActivitiesController {
   })
   @ApiNotFoundResponse({ description: 'No se encontro la actividad.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
   @Patch(':id/remove-assignee')
   removeAssignee(
     @Param('id') id: string,
