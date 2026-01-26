@@ -21,7 +21,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 
 @ApiTags('Teams')
 @Controller('teams')
@@ -30,7 +29,6 @@ export class TeamsController {
 
   @ApiCreatedResponse({ description: 'Equipo creado correctamente.' })
   @Post()
-  @UseGuards(JwtAuthGuard)
   create(@Body() createTeamDto: CreateTeamDto, @Req() req) {
     return this.teamsService.create(createTeamDto, req.user.id);
   }
@@ -63,7 +61,6 @@ export class TeamsController {
   @ApiNotFoundResponse({
     description: 'No se encontró el usuario para enviar la solicitud.',
   })
-  @UseGuards(JwtAuthGuard)
   @Post(':id/requests')
   sendRequest(@Param('id') id: string, @Req() req) {
     return this.teamsService.sendTeamRequest(id, req.user.id);
@@ -88,7 +85,6 @@ export class TeamsController {
   }
 
   @ApiOkResponse({ description: 'Lista de equipos obtenida correctamente.' })
-  @UseGuards(JwtAuthGuard)
   @Get()
   findAll(
     @Req() req,
@@ -100,7 +96,6 @@ export class TeamsController {
 
   @ApiOkResponse({ description: 'Lista de equipos obtenida correctamente.' })
   @ApiUnauthorizedResponse({ description: 'Cookie expirada' })
-  @UseGuards(JwtAuthGuard)
   @Get('by-user')
   findByUser(@Req() req) {
     return this.teamsService.findByUser(req.user.id);

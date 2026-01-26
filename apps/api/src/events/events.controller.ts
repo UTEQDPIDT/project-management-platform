@@ -17,7 +17,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventsService } from './events.service';
@@ -29,7 +28,6 @@ export class EventsController {
 
   @ApiCreatedResponse({ description: 'Evento creado correctamente.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createEventDto: CreateEventDto, @Req() req) {
     return this.eventsService.create(createEventDto, req.user.id);
@@ -46,7 +44,6 @@ export class EventsController {
     description: 'Lista de eventos del usuario obtenida correctamente.',
   })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
   @Get('by-user')
   findByUser(@Req() req) {
     return this.eventsService.findByUser(req.user.id);
@@ -64,7 +61,6 @@ export class EventsController {
     type: UpdateEventDto,
   })
   @ApiNotFoundResponse({ description: 'Evento no encontrado' })
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -84,7 +80,6 @@ export class EventsController {
   /**
    * PARTICIPANTS
    */
-  @UseGuards(JwtAuthGuard)
   @Patch(':id/register')
   addParticipant(@Param('id') id, @Req() req) {
     return this.eventsService.addParticipant(id, req.user.id);
@@ -97,7 +92,6 @@ export class EventsController {
   @ApiBadRequestResponse({
     description: 'Usuario no encontrado / ya es participante',
   })
-  @UseGuards(JwtAuthGuard)
   @Patch(':id/participants')
   addParticipants(
     @Param('id') id: string,
@@ -114,7 +108,6 @@ export class EventsController {
   @ApiBadRequestResponse({
     description: 'El usuario no es participante en el evento.',
   })
-  @UseGuards(JwtAuthGuard)
   @Delete(':id/participants/:userId')
   removeParticipant(
     @Param('id') id: string,
@@ -134,7 +127,6 @@ export class EventsController {
   @ApiBadRequestResponse({
     description: 'Producto no encontrado o no es válido.',
   })
-  @UseGuards(JwtAuthGuard)
   @Patch(':id/products')
   addProducts(
     @Param('id') id: string,
@@ -151,7 +143,6 @@ export class EventsController {
   @ApiBadRequestResponse({
     description: 'Producto no encontrado en el evento.',
   })
-  @UseGuards(JwtAuthGuard)
   @Delete(':id/products/:productId')
   removeProduct(
     @Param('id') id: string,

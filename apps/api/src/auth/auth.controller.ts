@@ -2,7 +2,7 @@ import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
+import { Public } from '../common/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -14,20 +14,27 @@ export class AuthController {
     return this.authService.refreshToken(req.user._id, req.user.role);
   }
 
+  @Public()
   @UseGuards(GoogleAuthGuard)
   @Get('google/login')
   googleLogin() {}
 
+  @Public()
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
     try {
       if (!req.user) {
         console.error('No user found in request after Google OAuth');
-        return res.redirect('http://localhost:3000/auth/error?message=authentication_failed');
+        return res.redirect(
+          'http://localhost:3000/auth/error?message=authentication_failed',
+        );
       }
 
-      const response = await this.authService.login(req.user._id, req.user.role);
+      const response = await this.authService.login(
+        req.user._id,
+        req.user.role,
+      );
 
       res.cookie('accessToken', response.accessToken, {
         httpOnly: true,
@@ -54,7 +61,7 @@ export class AuthController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @Post('logout')
   async signOut(@Req() req, @Res() res) {
     await this.authService.signOut(req.user.id);

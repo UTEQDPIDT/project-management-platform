@@ -12,7 +12,6 @@ import {
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import {
   ApiAcceptedResponse,
   ApiCreatedResponse,
@@ -33,7 +32,6 @@ export class ProjectsController {
     type: CreateProjectDto,
   })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
   @Post()
   @ApiConsumes('multipart/form-data')
   create(@Body() createProjectDto: CreateProjectDto, @Req() req) {
@@ -51,7 +49,6 @@ export class ProjectsController {
 
   @ApiAcceptedResponse({ description: 'Proyectos encontrados por dueño.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
   @Get('/by-owner')
   findByOwner(@Req() req) {
     return this.projectsService.findByOwner(req.user.id);
@@ -82,7 +79,6 @@ export class ProjectsController {
   })
   @ApiNotFoundResponse({ description: 'No se encontro el proyecto.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   @ApiConsumes('multipart/form-data')
   update(
