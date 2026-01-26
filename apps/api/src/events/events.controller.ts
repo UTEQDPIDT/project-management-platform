@@ -41,6 +41,17 @@ export class EventsController {
     return this.eventsService.findAll();
   }
 
+  // Place this route BEFORE ':id' to avoid route collision
+  @ApiOkResponse({
+    description: 'Lista de eventos del usuario obtenida correctamente.',
+  })
+  @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
+  @UseGuards(JwtAuthGuard)
+  @Get('by-user')
+  findByUser(@Req() req) {
+    return this.eventsService.findByUser(req.user.id);
+  }
+
   @ApiOkResponse({ description: 'Evento obtenido correctamente.' })
   @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
   @Get(':id')

@@ -1,26 +1,26 @@
-import { IProject } from '@repo/types';
-import { Folder, Plus } from 'lucide-react';
-import IconSquare from './icon-square';
-import { ProjectCard } from './project-card';
+import { getBaseUrlBasedOnRole } from '@/lib/utils';
+import { ITeam } from '@repo/types';
+import { userProfile } from 'context/profile-provider';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import IconSquare from './icon-square';
+import { Plus, Users } from 'lucide-react';
 import LoadingMessage from './loading-message';
 import ErrorCard from './error-card';
-import { Button } from './ui/button';
 import Link from 'next/link';
-import { userProfile } from 'context/profile-provider';
-import { getBaseUrlBasedOnRole } from '@/lib/utils';
+import { Button } from './ui/button';
+import { TeamCard } from './team-card';
 
-interface ProjectsBoardProps {
-  projects: IProject[];
-  loading?: boolean;
-  error?: boolean;
-}
+type TeamsBoardProps = {
+  teams: ITeam[];
+  isLoading?: boolean;
+  isError?: boolean;
+};
 
-export function ProjectsBoard({
-  projects,
-  loading,
-  error,
-}: ProjectsBoardProps) {
+export default function TeamsBoard({
+  teams,
+  isLoading,
+  isError,
+}: TeamsBoardProps) {
   const { user } = userProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
@@ -29,30 +29,30 @@ export function ProjectsBoard({
       <CardHeader>
         <div className="flex justify-between ">
           <div className="flex gap-3 items-center">
-            <IconSquare color="purple">
-              <Folder />
+            <IconSquare color="blue">
+              <Users />
             </IconSquare>
 
-            <CardTitle>Proyectos</CardTitle>
+            <CardTitle>Equipos</CardTitle>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        {loading ? (
+        {isLoading ? (
           <LoadingMessage message="Cargando Proyectos" />
-        ) : error ? (
+        ) : isError ? (
           <ErrorCard />
         ) : (
           <div className="flex flex-wrap items-center justify-center gap-4">
-            {projects.length &&
-              projects.map((p: IProject) => (
-                <ProjectCard key={p._id} project={p} variant="compact" />
+            {teams.length &&
+              teams.map((t: ITeam) => (
+                <TeamCard key={t._id} team={t} variant="compact" />
               ))}
-            <Link href={`${baseUrl}/proyectos/crear`} className="w-52 h-36">
+            <Link href={`${baseUrl}/equipos/crear`} className="w-52 h-36">
               <Card className="w-full hover:shadow-xl min-w-52 shrink-0 flex items-center justify-center h-full">
                 <CardContent>
                   <Button variant="ghost" disabled>
-                    <Plus /> Nuevo Proyecto
+                    <Plus /> Nuevo Equipo
                   </Button>
                 </CardContent>
               </Card>
