@@ -28,31 +28,94 @@ import CopyButton from './ui/copy';
 import { useRegisterParticipant } from '@/hooks/events';
 import { useActivitiesByEntity } from '@/hooks/activities';
 
+type EventCardVariant = 'default' | 'compact';
 interface EventCardProps {
   event: IEvent;
+  variant?: EventCardVariant;
+}
+function EventCardCompact({ event }: { event: IEvent }) {
+  const { user } = userProfile();
+  // Participants for AvatarRow
+  const profiles =
+    event.participants?.map((u: IUser) => ({
+      givenName: u.givenName,
+      familyName: u.familyName,
+      avatarUrl: u.avatarUrl,
+    })) || [];
+
+  let badgeVariant:
+    | 'default'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
+    | 'green'
+    | 'gray'
+    | 'purple'
+    | 'orange'
+    | 'blue'
+    | null
+    | undefined;
+  switch (event.isPrivate) {
+    case true:
+      badgeVariant = BadgeVariants.PURPLE;
+      break;
+    case false:
+      badgeVariant = BadgeVariants.BLUE;
+      break;
+  }
+
+  return (
+    <Link
+      href={`/user/eventos/${event._id}`}
+      className="w-full max-w-52 shrink-0 h-36"
+    >
+      <Card className="hover:shadow-xl w-full max-w-52 shrink-0 h-36">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle className="line-clamp-1 leading-5">
+              {event.name}
+            </CardTitle>
+            <Badge variant={badgeVariant} className="h-6">
+              {event.isPrivate ? 'Privado' : 'Público'}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-1 items-center text-xs text-muted-foreground">
+            <Calendar size={14} />
+            {event.endDate ? (
+              <span>
+                {format(event.startDate, "d 'de' MMMM", { locale: es })} -{' '}
+                {format(event.endDate, "d 'de' MMMM", { locale: es })}
+              </span>
+            ) : (
+              <span>
+                {format(event.startDate, "d 'de' MMMM", { locale: es })}
+              </span>
+            )}
+          </div>
+        </CardContent>
+        <CardFooter>
+          <AvatarRow profiles={profiles} />
+        </CardFooter>
+      </Card>
+    </Link>
+  );
 }
 
-export function EventCard({ event }: EventCardProps) {
-  /**
-   * Context
-   */
+export function EventCard({ event, variant = 'default' }: EventCardProps) {
+  if (variant === 'compact') {
+    return <EventCardCompact event={event} />;
+  }
+  // ...existing code...
   const { user } = userProfile();
-
-  /**
-   * Tanstack
-   */
   const { data: activities } = useActivitiesByEntity(event._id);
   const registerParticipant = useRegisterParticipant();
-
-  /**
-   * Conditionally render buttons
-   */
   const currentUserId = user._id;
   const isOwner = event.createdBy._id === currentUserId;
   const isParticipant = event.participants.some(
     (p: IUser) => p._id === currentUserId,
   );
-
   const renderActionButton = () => {
     if (isOwner || isParticipant) {
       return (
@@ -77,7 +140,6 @@ export function EventCard({ event }: EventCardProps) {
       );
     }
   };
-
   let badgeVariant:
     | 'default'
     | 'secondary'
@@ -98,7 +160,6 @@ export function EventCard({ event }: EventCardProps) {
       badgeVariant = BadgeVariants.BLUE;
       break;
   }
-
   return (
     <Card className="w-full gap-4 min-w-96">
       <CardHeader>
@@ -125,7 +186,6 @@ export function EventCard({ event }: EventCardProps) {
         <CardDescription className="h-26 line-clamp-5">
           {event.summary}
         </CardDescription>
-
         <div className="flex gap-2 group items-center">
           <MapPin className="shrink-0" size={14} />
           <span>{event.location}</span>
@@ -134,7 +194,6 @@ export function EventCard({ event }: EventCardProps) {
             className="group-hover:opacity-100 opacity-0"
           />
         </div>
-
         <div className="flex gap-2 items-center">
           <Calendar size={14} />
           {event.endDate ? (
@@ -158,12 +217,10 @@ export function EventCard({ event }: EventCardProps) {
       <CardFooter className="flex gap-3 justify-between items-center">
         <div className="flex gap-3">
           <AvatarRow profiles={event.participants} />
-
           <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
             <CheckSquare size={14} />
             {activities?.length}
           </span>
-
           {event.acceptsProducts && (
             <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
               <Shapes size={14} />
