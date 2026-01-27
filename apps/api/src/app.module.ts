@@ -15,11 +15,23 @@ import { ActivitiesModule } from './activities/activities.module';
 import { ProjectsModule } from './projects/projects.module';
 import { EventsModule } from './events/events.module';
 import { CaslModule } from './casl/casl.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // Permite acceso a las variables de entorno en toda la app
+    }),
+
+    // Rate Limiting
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60,
+          limit: 30,
+        },
+      ],
     }),
 
     MongooseModule.forRoot(process.env.MONGODB_URI),
@@ -33,7 +45,7 @@ import { CaslModule } from './casl/casl.module';
     SeedModule,
 
     CatalogsModule,
-    
+
     FilesModule,
 
     ProductsModule,
@@ -47,7 +59,7 @@ import { CaslModule } from './casl/casl.module';
     CaslModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule implements OnModuleInit {
   constructor(private readonly seedService: SeedService) {}

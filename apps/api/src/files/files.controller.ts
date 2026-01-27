@@ -29,12 +29,14 @@ import { FilesService } from './files.service';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { FileValidationPipe } from '../common/pipes';
 import { FILE_MIME_TYPES } from '../common/constants';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('files')
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
+  @Throttle({ default: { limit: 5, ttl: 60 } })
   @ApiConsumes('multipart/form-data')
   @ApiCreatedResponse({
     description: 'Se subió el archivo correctamente.',
@@ -65,6 +67,7 @@ export class FilesController {
     );
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60 } })
   @ApiConsumes('multipart/form-data')
   @ApiCreatedResponse({
     description: 'Se subieron los archivos correctamente.',
@@ -120,6 +123,7 @@ export class FilesController {
     return this.filesService.getFileMetadata(id);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60 } })
   @ApiOkResponse({ description: 'Stream del archivo' })
   @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
   @Get('stream/:id')
