@@ -5,6 +5,8 @@ import { MulterModule } from '@nestjs/platform-express';
 import multer from 'multer';
 import { MongooseModule } from '@nestjs/mongoose';
 import { File, FileSchema } from '../schemas/file.schema';
+import { FileResourceInterceptor } from './interceptors/file-resource.interceptor';
+import { CaslModule } from '../casl/casl.module';
 
 @Module({
   imports: [
@@ -12,9 +14,10 @@ import { File, FileSchema } from '../schemas/file.schema';
       storage: multer.memoryStorage(),
     }),
     MongooseModule.forFeature([{ name: File.name, schema: FileSchema }]),
+    CaslModule,
   ],
   controllers: [FilesController],
-  providers: [FilesService],
+  providers: [FilesService, FileResourceInterceptor],
   exports: [FilesService],
 })
 export class FilesModule {}

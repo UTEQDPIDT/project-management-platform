@@ -1,33 +1,15 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Req,
-  Res,
-  UploadedFile,
-  UploadedFiles,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Req, Res, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import {
-  ApiConsumes,
-  ApiCreatedResponse,
-  ApiResponse,
-  ApiNotFoundResponse,
-  ApiTags,
-  ApiUnauthorizedResponse,
-  ApiBadRequestResponse,
-  ApiOkResponse,
-} from '@nestjs/swagger';
+import { ApiConsumes, ApiCreatedResponse, ApiResponse, ApiNotFoundResponse, ApiTags, ApiUnauthorizedResponse, ApiBadRequestResponse, ApiOkResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { File } from '../schemas/file.schema';
 import { FilesService } from './files.service';
 import { UploadFileDto } from './dto/upload-file.dto';
+import { FileResourceInterceptor } from './interceptors/file-resource.interceptor';
+import { AbilitiesGuard } from '../casl/abilities.guard';
+import { CheckAbilities } from '../casl/abilities.decorator';
+import { Action } from '../casl/ability.factory';
 
 @ApiTags('files')
 @Controller('files')
@@ -35,64 +17,40 @@ export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @ApiConsumes('multipart/form-data')
-  @ApiCreatedResponse({
-    description: 'Se subió el archivo correctamente.',
-    type: File,
-  })
+  @ApiCreatedResponse({ description: 'Se subió el archivo correctamente.', type: File })
   @ApiUnauthorizedResponse({ description: 'No autorizado.' })
   @ApiBadRequestResponse({ description: 'No se proporcionó el archivo.' })
   @UseGuards(JwtAuthGuard)
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() body: UploadFileDto,
-    @Req() req,
-  ) {
-    return this.filesService.uploadFile(
-      file,
-      body.entityId,
-      body.entityType,
-      req.user.id,
-    );
+  @UseInterceptors(FileInterceptor('file'), FileResourceInterceptor)
+  uploadFile(@UploadedFile() file: Express.Multer.File, @Body() body: UploadFileDto, @Req() req) {
+    return this.filesService.uploadFile(file, body.entityId, body.entityType, req.user.id);
   }
 
   @ApiConsumes('multipart/form-data')
-  @ApiCreatedResponse({
-    description: 'Se subiieron los archivos correctamente.',
-    type: Array<File>,
-  })
+  @ApiCreatedResponse({description: 'Se subiieron los archivos correctamente.', type: Array<File>})
   @ApiUnauthorizedResponse({ description: 'No autorizado.' })
-  @ApiBadRequestResponse({
-    description: 'Ocurrió un error al subir los archivos.',
-  })
+  @ApiBadRequestResponse({description: 'Ocurrió un error al subir los archivos.'})
   @UseGuards(JwtAuthGuard)
   @Post('upload/multiple')
-  @UseInterceptors(FilesInterceptor('files'))
-  uploadMultiple(
-    @UploadedFiles() files: Array<Express.Multer.File>,
-    @Body() body: UploadFileDto,
-    @Req() req,
-  ) {
-    return this.filesService.uploadFiles(
-      files,
-      body.entityId,
-      body.entityType,
-      req.user.id,
-    );
+  @UseInterceptors(FilesInterceptor('files'), FileResourceInterceptor)
+  uploadMultiple(@UploadedFiles() files: Array<Express.Multer.File>, @Body() body: UploadFileDto, @Req() req) {
+    return this.filesService.uploadFiles(files, body.entityId, body.entityType, req.user.id);
   }
 
   @ApiOkResponse({ description: 'Lista de archivos' })
   @ApiResponse({ status: 500, description: 'Error en el servidor' })
+  @UseGuards(AbilitiesGuard)
+  @CheckAbilities({action: Action.Read, subject: File})
   @Get()
   findAll() {
     return this.filesService.findAll();
   }
 
-  @ApiOkResponse({
-    description: 'Lista de archivos encontrados por el ID de la entidad padre',
-  })
+  @ApiOkResponse({description: 'Lista de archivos encontrados por el ID de la entidad padre'})
   @ApiResponse({ status: 500, description: 'Error en el servidor' })
+  @UseGuards(AbilitiesGuard)
+  @CheckAbilities({action: Action.Read, subject: File})
   @Get('/for-entity/:entityId')
   findFilesForEntity(@Param('entityId') entityId: string) {
     return this.filesService.findFilesForEntity(entityId);
@@ -100,6 +58,8 @@ export class FilesController {
 
   @ApiOkResponse({ description: 'Metadatos del archivo' })
   @ApiNotFoundResponse({ description: 'Metadatos no encontrados' })
+  @UseGuards(AbilitiesGuard)
+  @CheckAbilities({action: Action.Read, subject: File})
   @Get('metadata/:id')
   getFileMetadata(@Param('id') id: string) {
     return this.filesService.getFileMetadata(id);
@@ -107,17 +67,19 @@ export class FilesController {
 
   @ApiOkResponse({ description: 'Stream del archivo' })
   @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
+  @UseGuards(AbilitiesGuard)
+  @CheckAbilities({action: Action.Read, subject: File})
   @Get('stream/:id')
   async getFile(@Param('id') id: string, @Res() res: Response) {
     const { stream } = await this.filesService.getStream(id);
-
     stream.on('error', () => res.status(404).send('File not found'));
-
     stream.pipe(res);
   }
 
   @ApiOkResponse({ description: 'Descarga del archivo' })
   @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
+  @UseGuards(AbilitiesGuard)
+  @CheckAbilities({action: Action.Read, subject: File})
   @Get('download/:id')
   async downloadFile(@Param('id') id: string, @Res() res: Response) {
     try {
@@ -147,6 +109,7 @@ export class FilesController {
 
   @ApiOkResponse({ description: 'Archivo eliminado correctamente' })
   @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
+  @UseInterceptors(FileResourceInterceptor)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.filesService.deleteFile(id);
@@ -154,6 +117,7 @@ export class FilesController {
 
   @ApiOkResponse({ description: 'Archivo eliminado correctamente' })
   @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
+  @UseInterceptors(FileResourceInterceptor)
   @Delete('/by-owner/:ownerId')
   removeByOwner(@Param('ownerId') ownerId: string) {
     return this.filesService.deleteFilesByOwner(ownerId);
