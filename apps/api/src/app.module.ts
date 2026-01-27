@@ -24,6 +24,7 @@ import { APP_GUARD } from '@nestjs/core';
       isGlobal: true, // Permite acceso a las variables de entorno en toda la app
     }),
 
+    // Rate Limiting
     ThrottlerModule.forRoot({
       throttlers: [
         {
