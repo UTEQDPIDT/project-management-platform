@@ -51,7 +51,9 @@ export function ProjectActivityMenu({
         </DialogTrigger>
         <DialogContent>
           <Badge variant="orange">Editando</Badge>
-          <DialogTitle className="line-clamp-1">{activity.name}</DialogTitle>
+          <DialogTitle className="line-clamp-1 h-5">
+            {activity.name}
+          </DialogTitle>
 
           <ActivityForm activity={activity} projectId={projectId} />
         </DialogContent>
