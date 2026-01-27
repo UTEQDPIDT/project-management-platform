@@ -37,7 +37,7 @@ export default function ProjectProductMenu({
         </DialogTrigger>
         <DialogContent>
           <Badge variant="orange">Editando</Badge>
-          <DialogTitle className="line-clamp-1">{product.name}</DialogTitle>
+          <DialogTitle className="line-clamp-1 h-5">{product.name}</DialogTitle>
           <ProductForm product={product} projectId={projectId} />
         </DialogContent>
       </Dialog>

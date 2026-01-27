@@ -50,11 +50,8 @@ export function ProjectActivityMenu({
           <Pencil /> Editar actividad
         </DialogTrigger>
         <DialogContent>
-          <div className="flex gap-3 ">
-            <Badge variant="orange">Editando</Badge>
-            <DialogTitle className="line-clamp-1">{activity.name}</DialogTitle>
-          </div>
-          <Separator />
+          <Badge variant="orange">Editando</Badge>
+          <DialogTitle className="line-clamp-1">{activity.name}</DialogTitle>
 
           <ActivityForm activity={activity} projectId={projectId} />
         </DialogContent>

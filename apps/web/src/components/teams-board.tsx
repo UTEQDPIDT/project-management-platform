@@ -39,12 +39,12 @@ export default function TeamsBoard({
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <LoadingMessage message="Cargando Proyectos" />
+          <LoadingMessage message="Cargando Equipos" />
         ) : isError ? (
           <ErrorCard />
         ) : (
           <div className="flex flex-wrap items-center justify-center gap-4">
-            {teams.length &&
+            {teams.length > 0 &&
               teams.map((t: ITeam) => (
                 <TeamCard key={t._id} team={t} variant="compact" />
               ))}
