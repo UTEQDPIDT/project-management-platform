@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -19,7 +21,9 @@ export class ProjectsService {
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(Project.name) private projectModel: Model<Project>,
     private readonly productService: ProductsService,
+    @Inject(forwardRef(() => ActivitiesService))
     private readonly activitiesService: ActivitiesService,
+    @Inject(forwardRef(() => FilesService))
     private readonly filesService: FilesService,
   ) {}
 

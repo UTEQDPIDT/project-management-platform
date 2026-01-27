@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { EventsController } from './events.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -11,11 +11,12 @@ import { EventResourceInterceptor } from './interceptors/event-resource.intercep
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Event.name, schema: EventSchema }]),
-    FilesModule,
-    ActivitiesModule,
+    forwardRef(() => FilesModule),
+    forwardRef(() => ActivitiesModule),
     CaslModule
   ],
   controllers: [EventsController],
   providers: [EventsService, EventResourceInterceptor],
+  exports: [EventsService],
 })
 export class EventsModule {}

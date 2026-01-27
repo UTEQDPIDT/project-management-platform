@@ -2,8 +2,6 @@ import { AbilityBuilder, ExtractSubjectType, InferSubjects , MongoAbility, creat
 import { Injectable } from "@nestjs/common";
 import { User, Activity, Event, File, Product, Project, Team } from "../schemas/index";
 import { TeamUserRole, TeamUserStatus } from "@repo/types";
-import { $elemMatch } from "@ucast/mongo2js";
-
 
 export enum Action {
     Manage = 'manage', // wildcard for any action

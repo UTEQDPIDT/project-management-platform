@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -16,8 +16,11 @@ import { User } from '../schemas';
 export class ActivitiesService {
   constructor(
     @InjectModel(Activity.name) private activityModel: Model<Activity>,
+    @Inject(forwardRef(() => FilesService))
     private readonly filesService: FilesService,
+    @Inject(forwardRef(() => EventsService))
     private readonly eventsService: EventsService,
+    @Inject(forwardRef(() => ProjectsService))
     private readonly projectsService: ProjectsService,
     private readonly abilityFactory: AbilityFactory,
   ) {}

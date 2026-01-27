@@ -1,14 +1,18 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from '../schemas/product.schema';
 import { FilesModule } from '../files/files.module';
+import { ProjectsModule } from '../projects/projects.module';
+import { CaslModule } from '../casl/casl.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
-    FilesModule,
+    forwardRef(() => ProjectsModule),
+    forwardRef(() => FilesModule),
+    CaslModule,
   ],
   controllers: [ProductsController],
   providers: [ProductsService],
