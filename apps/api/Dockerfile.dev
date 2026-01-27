@@ -1,11 +1,9 @@
 # -------------------------
 # Base Stage
 # -------------------------
-FROM node:20-alpine AS base
+FROM node:20-alpine
 RUN apk update && apk add --no-cache libc6-compat bash
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
 
 WORKDIR /app
 
@@ -13,14 +11,10 @@ WORKDIR /app
 # Install dependencies
 # -------------------------
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-# Copy shared packages
 COPY packages ./packages
-# Copy source code
 COPY apps/api ./apps/api
 
 RUN pnpm install
-
-WORKDIR /app/apps/api
 
 # -------------------------
 # Expose port
@@ -28,6 +22,7 @@ WORKDIR /app/apps/api
 EXPOSE 3001
 
 # -------------------------
-# Command for development
+# Run Nest from app root
 # -------------------------
+WORKDIR /app/apps/api
 CMD ["pnpm", "dev"]
