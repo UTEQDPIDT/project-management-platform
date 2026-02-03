@@ -1,12 +1,16 @@
-import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, NotFoundException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
+import { UsersService } from '../users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
@@ -61,4 +65,23 @@ export class AuthController {
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
   }
+
+    @Post('dev-login')
+  async devLogin(@Body('email') email: string) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new ForbiddenException('Dev login disabled in production');
+    }
+
+    const user = await this.usersService.findByEmail(email);
+    if (!user) throw new NotFoundException('User not found');
+
+    return this.authService.login(user._id.toString(), user.role);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  me(@Req() req) {
+    return req.user;
+  }
+
 }

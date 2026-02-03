@@ -41,7 +41,7 @@ export class AbilityFactory {
 
             //EVENT PERMISSIONS
             can(Action.Manage, Event, { createdBy: user._id }); // users can manage events they created
-            can(Action.Read, [Event, User]); // users can read events and user info
+            can(Action.Read, Event); // users can read events and user info
             can(Action.UpdateContent, Event, {participants: user._id} ); // users can update and delete events they are participating in
 
             //USER PERMISSIONS
