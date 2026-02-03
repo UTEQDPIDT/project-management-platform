@@ -1,0 +1,13 @@
+name: Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - feature/setup-deployment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo the message
+        run: echo 'Deployment pipeline'
