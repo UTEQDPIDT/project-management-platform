@@ -1,10 +1,10 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AbilityFactory } from '../casl/ability.factory';
-import { User } from '../schemas';
+import { AbilityFactory } from '../../casl/ability.factory';
+import { User } from '../../schemas';
 import { ForbiddenError } from '@casl/ability';
-import { Action } from '../casl/ability.factory';
+import { Action } from '../../casl/ability.factory';
 
 @Injectable()
 export class UserResourceInterceptor implements NestInterceptor {

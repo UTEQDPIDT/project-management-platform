@@ -6,6 +6,7 @@ import { Product, ProductSchema } from '../schemas/product.schema';
 import { FilesModule } from '../files/files.module';
 import { ProjectsModule } from '../projects/projects.module';
 import { CaslModule } from '../casl/casl.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CaslModule } from '../casl/casl.module';
     forwardRef(() => ProjectsModule),
     forwardRef(() => FilesModule),
     CaslModule,
+    UsersModule,
   ],
   controllers: [ProductsController],
   providers: [ProductsService],

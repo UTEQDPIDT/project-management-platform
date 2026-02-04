@@ -11,6 +11,7 @@ import { ProjectsModule } from '../projects/projects.module';
 import { EventsModule } from '../events/events.module';
 import { ActivitiesModule } from '../activities/activities.module';
 import { ProductsModule } from '../products/products.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ProductsModule } from '../products/products.module';
     }),
     MongooseModule.forFeature([{ name: File.name, schema: FileSchema }]),
     CaslModule,
+    UsersModule,
     forwardRef(() => ProjectsModule),
     forwardRef(() => EventsModule),
     forwardRef(() => ActivitiesModule),

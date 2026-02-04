@@ -8,6 +8,7 @@ import { ActivityResourceInterceptor } from './interceptors/activity-resource.in
 import { CaslModule } from '../casl/casl.module';
 import { EventsModule } from '../events/events.module';
 import { ProjectsModule } from '../projects/projects.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ProjectsModule } from '../projects/projects.module';
       { name: Activity.name, schema: ActivitySchema },
     ]),
     CaslModule,
+    UsersModule,
     forwardRef(() => FilesModule),
     forwardRef(() => EventsModule),
     forwardRef(() => ProjectsModule)

@@ -8,6 +8,7 @@ import { ProductsModule } from '../products/products.module';
 import { ActivitiesModule } from '../activities/activities.module';
 import { ProjectResourceInterceptor } from './interceptors/project-resource.interceptor';
 import { CaslModule } from '../casl/casl.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { CaslModule } from '../casl/casl.module';
     forwardRef(() => FilesModule),
     forwardRef(() => ActivitiesModule),
     forwardRef(() => ProductsModule),
-    CaslModule
+    CaslModule,
+    UsersModule,
   ],
   controllers: [ProjectsController],
   providers: [ProjectsService, ProjectResourceInterceptor],

@@ -8,7 +8,7 @@ import { AbilitiesGuard } from '../casl/abilities.guard';
 import { CheckAbilities } from '../casl/abilities.decorator';
 import { Action } from '../casl/ability.factory';
 import { User } from '../schemas/user.schema';
-import { UserResourceInterceptor } from './user-resource.interceptor';
+import { UserResourceInterceptor } from './interceptors/user-resource.interceptor';
 
 @ApiTags('Users')
 @Controller('users')
