@@ -10,4 +10,4 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Echo the message
-        run: echo 'Deployment pipeline'
+        run: echo 'Running on github-runner'
