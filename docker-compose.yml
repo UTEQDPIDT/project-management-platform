@@ -1,37 +1,30 @@
 services:
-  # web:
-  #   container_name: web
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/web/Dockerfile.dev
-  #   restart: always
-  #   ports:
-  #     - 3000:3000
-  #   environment:
-  #     - WATCHPACK_POLLING=true
-  #     - CHOKIDAR_USEPOLLING=true
-  #     - CHOKIDAR_INTERVAL=300
-  #     - NEXT_TELEMETRY_DISABLED=1
-  #     - TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling
-  #   volumes:
-  #     - ./apps/web:/app/apps/web # Mount local WEB source code
-  #     - /app/apps/web/node_modules # Prevent overwriting node_modules
-  #     - ./packages:/app/packages # Mount shared packages (optional, for monorepo)
-  #   depends_on:
-  #     - api
-  #   networks:
-  #     - app_network
+  web:
+    container_name: web
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=https://prep.uteq.edu.mx/api
+    depends_on:
+      - api
+    networks:
+      - app_network
 
   api:
     container_name: api
     build:
       context: .
-      dockerfile: ./apps/api/Dockerfile.dev
+      dockerfile: ./apps/api/Dockerfile
     restart: always
     ports:
       - 3001:3001
     env_file:
-      - ./apps/api/.env
+      - ./apps/api/.env.production
     depends_on:
       - mongodb
     networks:
@@ -54,11 +47,9 @@ services:
       - app_network
     healthcheck:
       test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]}) }" | mongosh --port 27017 --quiet
-      interval: 5s
+      interval: 10s
       timeout: 30s
-      start_period: 0s
-      start_interval: 1s
-      retries: 30
+      retries: 5
 
 networks:
   app_network:
