@@ -12,13 +12,33 @@ jobs:
       - name: Echo the message
         run: echo 'Running on github-runner service'
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
+      - name: Create Environment Files
+        run: |
+          #API Env
+          echo "PORT=${{ secrets.PORT }}" > ./apps/api/.env.production
+          echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> ./apps/api/.env.production
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> ./apps/api/.env.production
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> ./apps/api/.env.production
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> ./apps/api/.env.production
+          echo "GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}" >> ./apps/api/.env.production
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> ./apps/api/.env.production
+          echo "JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}" >> ./apps/api/.env.production
+          echo "REFRESH_JWT_SECRET=${{ secrets.REFRESH_JWT_SECRET }}" >> ./apps/api/.env.production
+          echo "REFRESH_JWT_EXPIRES_IN=${{ secrets.REFRESH_JWT_EXPIRES_IN }}" >> ./apps/api/.env.production
+          echo "SEED_PASSWORD=${{ secrets.SEED_PASSWORD }}" >> ./apps/api/.env.production
 
+          # WEB Env
+          echo "NEXT_PRIVATE_JWT_SECRET=${{ secrets.NEXT_PRIVATE_JWT_SECRET }}" > ./apps/web/.env.production
+          echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.BACKEND_URL }}" >> ./apps/web/.env.production
+
+          # Root Env (Credentials for MongoDB)
+          echo "MONGO_USER=${{ secrets.MONGO_USER }}" > ./.env
+          echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> ./.env
       - name: Build and Restart Services
         run: |
           # --build: asegura que el código nuevo de apps/api y apps/web se compile
           # --remove-orphans: limpia contenedores antiguos que ya no existan en el compose
           docker compose up -d --build --remove-orphans
-
       - name: Cleanup old images
         run: docker image prune -f
