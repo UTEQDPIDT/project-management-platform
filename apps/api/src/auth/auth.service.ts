@@ -86,6 +86,10 @@ export class AuthService {
     return await this.userService.create(googleUser);
   }
 
+  async validateUser(email: string) {
+    return await this.userService.findByEmail(email);
+  }
+
   async signOut(userId: string) {
     await this.userService.updateHashedRefreshToken(userId, null);
   }
