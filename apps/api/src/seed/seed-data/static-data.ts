@@ -295,9 +295,9 @@ export const initialUsers: Partial<CreateUserDto>[] = [
     role: UserRole.USER,
   },
   {
-    givenName: 'Laboratorio',
-    familyName: 'Realidad Aumentada',
-    email: 'laboratoriorealidadaumentada@uteq.edu.mx',
+    givenName: 'Yara Odeth',
+    familyName: 'Sainz García',
+    email: 'yara.sainz@uteq.edu.mx',
     role: UserRole.USER,
   },
 ];
