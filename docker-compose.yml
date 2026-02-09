@@ -36,16 +36,29 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
-    command: ['mongod', '--replSet', 'rs0', '--bind_ip_all']
+    command:
+      [
+        'mongod',
+        '--replSet',
+        'rs0',
+        '--bind_ip_all',
+        '--keyFile',
+        '/data/configdb/mongodb.key',
+      ]
     volumes:
       - mongodb_data:/data/db
+      - ./mongodb.key:/data/configdb/mongodb.key
     networks:
       - app_network
     healthcheck:
-      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]}) }" | mongosh --port 27017 --quiet
+      test: |
+        mongosh --host mongodb:27017 --quiet \
+        -u "${MONGO_USER}" -p "${MONGO_PASSWORD}" --authenticationDatabase admin \
+        --eval "try { rs.status().ok } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]}).ok }" | grep 1
       interval: 10s
-      timeout: 30s
+      timeout: 10s
       retries: 5
+      start_period: 30s
 
 networks:
   app_network:
