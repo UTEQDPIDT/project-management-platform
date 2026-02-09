@@ -85,7 +85,7 @@ RUN addgroup --system app && adduser --system --ingroup app app
 COPY --from=installer-production --chown=app:app /app/ ./
 
 # copy build output
-COPY --from=builder --chown=app:app /app/dist ./dist
+COPY --from=builder --chown=app:app /app/apps/api/dist ./dist
 
 USER app
 
