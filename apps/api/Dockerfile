@@ -71,9 +71,6 @@ RUN ls -la /app && echo "Checking for turbo.json in builder:" && test -f /app/tu
 # build api package with turbo
 RUN pnpm turbo build --filter=api
 
-# List the contents of the app directory to debug
-RUN ls -R /app
-
 # -------------------------
 # Runner Stage: runner will use the builder output, and use only the node_modules for production to reduce the size of the final image
 # -------------------------
@@ -88,7 +85,7 @@ RUN addgroup --system app && adduser --system --ingroup app app
 COPY --from=installer-production --chown=app:app /app/ ./
 
 # copy build output
-COPY --from=builder --chown=app:app /app/apps/api/dist ./dist
+COPY --from=builder --chown=app:app /app/apps/api/dist/src ./
 
 USER app
 
@@ -96,4 +93,4 @@ USER app
 EXPOSE 3001
 
 # commands to run app
-CMD ["node", "dist/main.js"]
+CMD ["node", "main.js"]
