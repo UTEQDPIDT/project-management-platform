@@ -39,6 +39,6 @@ jobs:
         run: |
           # --build: asegura que el código nuevo de apps/api y apps/web se compile
           # --remove-orphans: limpia contenedores antiguos que ya no existan en el compose
-          docker compose up -d --build --remove-orphans
+          docker-compose up -d --build --remove-orphans
       - name: Cleanup old images
         run: docker image prune -f
