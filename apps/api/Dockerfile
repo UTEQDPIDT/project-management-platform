@@ -34,7 +34,7 @@ RUN pnpm install --frozen-lockfile
 COPY --from=prune /app/out/full/ ./
 
 # Re-install to include turbo CLI
-RUN pnpm install --frozen-lockfile
+# RUN pnpm install --frozen-lockfile
 
 # Verify turbo.json exists
 RUN ls -la /app && echo "Checking for turbo.json:" && test -f /app/turbo.json && echo "turbo.json found" || echo "turbo.json NOT found"
@@ -73,6 +73,9 @@ RUN ls -la /app && echo "Checking for turbo.json in builder:" && test -f /app/tu
 
 # build api package with turbo
 RUN pnpm turbo build --filter=api
+
+# List the contents of the app directory to debug
+RUN ls -R /app
 
 # -------------------------
 # Runner Stage: runner will use the builder output, and use only the node_modules for production to reduce the size of the final image
