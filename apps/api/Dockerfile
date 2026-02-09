@@ -47,8 +47,9 @@ ENV NODE_ENV=production
 # Security: create non-root user
 RUN addgroup --system app && adduser --system --ingroup app app
 
-# Copy production dependencies and package.json from the production installer stage
-COPY --from=installer-production --chown=app:app /app/ ./
+# Copy only the production node_modules to reduce image size
+COPY --from=builder --chown=app:app /app/ ./
+RUN pnpm prune --prod
 
 # copy build output
 COPY --from=builder --chown=app:app /app/apps/api/dist/src ./
