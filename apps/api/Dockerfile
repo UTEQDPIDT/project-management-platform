@@ -43,6 +43,7 @@ RUN pnpm turbo build --filter=api
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+ENV CI=true
 
 # Security: create non-root user
 RUN addgroup --system app && adduser --system --ingroup app app
