@@ -49,7 +49,7 @@ RUN pnpm turbo build --filter=web
 # -------------------------
 # Production runtime image
 # -------------------------
-FROM base AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 # Don't run production as root for security reasons
@@ -60,10 +60,10 @@ RUN addgroup --system --gid 1001 nodejs \
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
-COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=installer --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 
 USER nextjs
 
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node", "apps/web/server.js"]
