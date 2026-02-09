@@ -81,13 +81,11 @@ ENV NODE_ENV=production
 # Security: create non-root user
 RUN addgroup --system app && adduser --system --ingroup app app
 
-# Copy production dependencies
-COPY --from=installer-production --chown=app:app /app/node_modules ./node_modules
-COPY --from=installer-production --chown=app:app /app/apps/api/node_modules ./apps/api/node_modules
+# Copy production dependencies and package.json from the production installer stage
+COPY --from=installer-production --chown=app:app /app/ ./
 
 # copy build output
 COPY --from=builder --chown=app:app /app/apps/api/dist ./dist
-COPY --from=builder --chown=app:app /app/apps/api/package.json ./package.json
 
 USER app
 
