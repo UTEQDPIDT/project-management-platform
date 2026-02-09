@@ -42,6 +42,7 @@ RUN ls -la /app && echo "Checking for turbo.json:" && test -f /app/turbo.json &&
 FROM base AS installer-production
 WORKDIR /app
 COPY --from=prune /app/out/full/ .
+COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN pnpm install --prod --frozen-lockfile
 
 # -------------------------
