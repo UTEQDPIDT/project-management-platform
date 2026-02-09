@@ -1,5 +1,6 @@
 'use client';
 
+import MockLoginForm from '@/components/forms/mock-login-form';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -13,13 +14,13 @@ import { FaGoogle } from 'react-icons/fa';
 
 export default function Home() {
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:3001/api/auth/google/login';
+    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/google/login`;
   };
 
   return (
     <div>
       <main className="flex justify-center items-center w-full h-screen">
-        <Card>
+        <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Ingresa a tu cuenta</CardTitle>
             <CardDescription>
@@ -27,12 +28,13 @@ export default function Home() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <CardAction>
+            <MockLoginForm />
+            {/* <CardAction>
               <Button onClick={handleGoogleLogin}>
                 <FaGoogle />
                 Iniciar sesión con Google
               </Button>
-            </CardAction>
+            </CardAction> */}
           </CardContent>
         </Card>
       </main>
