@@ -80,7 +80,7 @@ ENV NODE_ENV=production
 RUN addgroup --system app && adduser --system --ingroup app app
 
 # Copy production dependencies and package.json from the production installer stage
-COPY --from=installer-production --chown=app:app /app/ ./
+COPY --from=builder --chown=app:app /app/ ./
 
 # copy build output
 COPY --from=builder --chown=app:app /app/apps/api/dist/src ./
