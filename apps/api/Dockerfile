@@ -18,10 +18,11 @@ COPY . .
 RUN turbo prune api --docker
 
 # -------------------------
-# Install Dev dependencies
+# Builder Stage
 # -------------------------
-FROM base AS installer
+FROM base AS builder
 WORKDIR /app
+
 # Copy package.json files for workspace resolution
 COPY --from=prune /app/out/json/ ./
 COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
@@ -32,39 +33,6 @@ RUN pnpm install --frozen-lockfile
 
 # Copy source code (this should include turbo.json)
 COPY --from=prune /app/out/full/ ./
-
-# Verify turbo.json exists
-RUN ls -la /app && echo "Checking for turbo.json:" && test -f /app/turbo.json && echo "turbo.json found" || echo "turbo.json NOT found"
-
-# -------------------------
-# Production Installer: This Step only installs Production dependencies only
-# -------------------------
-FROM base AS installer-production
-WORKDIR /app
-COPY --from=prune /app/out/full/ .
-COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-RUN pnpm install --prod --frozen-lockfile
-
-# -------------------------
-# Remote Caching from turborepo
-# -------------------------
-# Uncomment and use build args to enable remote caching
-# ARG TURBO_TEAM
-# ENV TURBO_TEAM=$TURBO_TEAM
-
-# ARG TURBO_TOKEN
-# ENV TURBO_TOKEN=$TURBO_TOKEN
-
-# -------------------------
-# Builder Stage
-# -------------------------
-FROM base AS builder
-WORKDIR /app
-# Copy everything from installer (which should include turbo.json)
-COPY --from=installer /app/ ./
-
-# Verify turbo.json exists before building
-RUN ls -la /app && echo "Checking for turbo.json in builder:" && test -f /app/turbo.json && echo "turbo.json found" || echo "turbo.json NOT found"
 
 # build api package with turbo
 RUN pnpm turbo build --filter=api
@@ -80,7 +48,7 @@ ENV NODE_ENV=production
 RUN addgroup --system app && adduser --system --ingroup app app
 
 # Copy production dependencies and package.json from the production installer stage
-COPY --from=builder --chown=app:app /app/ ./
+COPY --from=installer-production --chown=app:app /app/ ./
 
 # copy build output
 COPY --from=builder --chown=app:app /app/apps/api/dist/src ./
