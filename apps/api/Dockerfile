@@ -79,19 +79,15 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Security: create non-root user
-RUN addgroup --system app
-RUN adduser --system --ingroup app app
+RUN addgroup --system app && adduser --system --ingroup app app
 
 # Copy production dependencies
-COPY --from=installer-production /app/node_modules ./node_modules
-COPY --from=installer-production /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=installer-production --chown=app:app /app/node_modules ./node_modules
+COPY --from=installer-production --chown=app:app /app/apps/api/node_modules ./apps/api/node_modules
 
 # copy build output
-COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/apps/api/package.json ./package.json
-
-# fix ownership so non-root user can run the app
-RUN chown -R app:app /app
+COPY --from=builder --chown=app:app /app/apps/api/dist ./dist
+COPY --from=builder --chown=app:app /app/apps/api/package.json ./package.json
 
 USER app
 
