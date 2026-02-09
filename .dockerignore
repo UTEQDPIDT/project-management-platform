@@ -7,4 +7,5 @@ out
 *.md
 .env
 data
+mongodb.key
 **/node_modules

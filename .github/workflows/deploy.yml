@@ -38,12 +38,15 @@ jobs:
       - name: Create MongoDB KeyFile from Secret
         run: |
           echo "${{ secrets.MONGO_KEYFILE }}" > ./mongodb.key
-          sudo chown 999:999 ./mongodb.key
-          sudo chmod 400 ./mongodb.key
       - name: Build and Restart Services
         run: |
           # --build: asegura que el código nuevo de apps/api y apps/web se compile
           # --remove-orphans: limpia contenedores antiguos que ya no existan en el compose
           docker-compose up -d --build --remove-orphans
+      - name: Set Keyfile Permissions
+        run: |
+          container_id=$(docker-compose ps -q mongodb)
+          docker exec "$container_id" chmod 400 /data/configdb/mongodb.key
+          docker exec --user root "$container_id" chown 999:999 /data/configdb/mongodb.key
       - name: Cleanup old images
         run: docker image prune -f
