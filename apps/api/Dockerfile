@@ -33,6 +33,9 @@ RUN pnpm install --frozen-lockfile
 # Copy source code (this should include turbo.json)
 COPY --from=prune /app/out/full/ ./
 
+# Re-install to include turbo CLI
+RUN pnpm install --frozen-lockfile
+
 # Verify turbo.json exists
 RUN ls -la /app && echo "Checking for turbo.json:" && test -f /app/turbo.json && echo "turbo.json found" || echo "turbo.json NOT found"
 
