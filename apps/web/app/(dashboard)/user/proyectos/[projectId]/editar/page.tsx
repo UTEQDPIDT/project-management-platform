@@ -18,8 +18,8 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 const Page = () => {
-  const { id } = useParams<{ id: string }>();
-  const { data: project, isLoading, isError } = useProject(id);
+  const { projectId } = useParams<{ projectId: string }>();
+  const { data: project, isLoading, isError } = useProject(projectId);
 
   return (
     <div>
@@ -30,7 +30,7 @@ const Page = () => {
         </HeaderHeading>
         <HeaderAction>
           <Button asChild variant="ghost">
-            <Link href={`/user/proyectos/${id}`}>
+            <Link href={`/user/proyectos/${projectId}`}>
               <ArrowLeft />
               Cancelar
             </Link>
@@ -45,24 +45,7 @@ const Page = () => {
         ) : isError ? (
           <ErrorCard />
         ) : (
-          <UpdateProjectForm
-            _id={id}
-            name={project.name}
-            summary={project.summary}
-            objective={project.objective}
-            organization={project.organization}
-            trlRating={project.trlRating}
-            startDate={project.startDate}
-            endDate={project.endDate}
-            impactLevel={project.impactLevel}
-            knowledgeAreas={project.knowledgeAreas}
-            impactAreas={project.impactAreas}
-            prioritiesPND={project.prioritiesPND}
-            sustainableObjectives={project.sustainableObjectives}
-            innovationLines={project.innovationLines}
-            team={project.team}
-            relatedProjects={project.relatedProjects}
-          />
+          <UpdateProjectForm project={project} />
         )}
       </PageContent>
     </div>
