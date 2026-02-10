@@ -2,12 +2,7 @@
   "extends": "@repo/typescript-config/nestjs.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": ".",
-    "paths": {
-      "@repo/types": ["../../packages/types/src"],
-      "@repo/types/*": ["../../packages/types/src/*"]
-    }
+    "baseUrl": "."
   },
-  "include": ["src/**/*", "test/**/*"],
-  "references": [{ "path": "../../packages/types" }]
+  "include": ["src/**/*", "test/**/*"]
 }
