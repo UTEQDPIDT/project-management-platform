@@ -8,5 +8,6 @@
       "@repo/types/*": ["../../packages/types/src/*"]
     }
   },
+  "include": ["src/**/*", "test/**/*"],
   "references": [{ "path": "../../packages/types" }]
 }
