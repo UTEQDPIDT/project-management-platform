@@ -55,7 +55,7 @@ services:
     healthcheck:
       test: |
         mongosh --host mongodb:27017 --quiet \
-        -u "${MONGO_USER}" -p "${MONGO_PASSWORD}" --authenticationDatabase admin \
+        -u "$$MONGO_USER" -p "$$MONGO_PASSWORD" --authenticationDatabase admin \
         --eval "try { rs.status().ok } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]}).ok }" | grep 1
       interval: 10s
       timeout: 10s
