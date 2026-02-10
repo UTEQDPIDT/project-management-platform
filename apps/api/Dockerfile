@@ -34,9 +34,9 @@ RUN addgroup --system app && adduser --system --ingroup app app
 COPY --from=prune /app/out/json/ ./
 COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 
-# 2. Instalamos SOLO dependencias de producción
-# Esto es más seguro que hacer 'prune --prod' sobre el builder sucio
-RUN pnpm install --prod --frozen-lockfile
+# 2. Instalamos SOLO dependencias de producción, ignorando los scripts (como 'prepare')
+# Esto es seguro porque ya hemos compilado todo en la etapa 'builder'
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
 # 3. Copiamos el build de la API
 # Nota: NestJS suele compilar a apps/api/dist.
