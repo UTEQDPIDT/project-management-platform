@@ -12,14 +12,13 @@ COPY . .
 RUN turbo prune web --docker
 
 FROM base AS installer
-WORKDIR /app
 
-# Copiamos primero el pnpm-lock.yaml y todo el código podado
 COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=prune /app/out/full/ ./
+COPY --from=prune /app/out/json/ .
 
-# Instalamos las dependencias. El script 'prepare' se ejecutará aquí.
 RUN pnpm install --frozen-lockfile
+
+COPY --from=prune /app/out/full/ ./
 
 # Uncomment and use build args to enable remote caching
 # ARG TURBO_TEAM
