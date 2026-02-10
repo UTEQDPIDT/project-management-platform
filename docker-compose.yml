@@ -10,7 +10,8 @@ services:
     environment:
       - NODE_ENV=production
     depends_on:
-      - api
+      api:
+        condition: service_started
     networks:
       - app_network
 
@@ -25,7 +26,8 @@ services:
     env_file:
       - ./apps/api/.env.production
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     networks:
       - app_network
 
