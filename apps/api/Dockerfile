@@ -17,10 +17,8 @@ WORKDIR /app
 COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=prune /app/out/full/ ./
 
-# Ahora instalamos las dependencias. El script 'prepare' en @repo/types se ejecutará aquí.
 RUN pnpm install --frozen-lockfile
 
-# Construimos la aplicación 'api'
 RUN pnpm turbo build --filter=api
 
 FROM base AS runner
@@ -34,13 +32,14 @@ RUN addgroup --system app && adduser --system --ingroup app app
 COPY --from=prune /app/out/json/ ./
 COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 
-# 2. Instalamos SOLO dependencias de producción, ignorando los scripts (como 'prepare')
-# Esto es seguro porque ya hemos compilado todo en la etapa 'builder'
-RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+# 2. Instalamos dependencias de producción
+RUN pnpm install --prod --frozen-lockfile
 
-# 3. Copiamos el build de la API
-# Nota: NestJS suele compilar a apps/api/dist.
-# Lo copiamos manteniendo la estructura para que encuentre node_modules
+# 4. Copiamos el paquete de tipos
+COPY --from=builder /app/packages/types/dist ./packages/types/dist
+COPY --from=builder /app/packages/types/package.json ./packages/types/package.json
+
+# 4. Copiamos el build de la API
 COPY --from=builder --chown=app:app /app/apps/api/dist/apps/api/src/ ./apps/api/dist/src
 
 USER app
