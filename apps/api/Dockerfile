@@ -47,4 +47,4 @@ USER app
 EXPOSE 3001
 
 # Ejecutamos desde la raíz del workspace para que la resolución de módulos de PNPM funcione
-CMD ["node", "apps/api/dist/src/main.js"]
+CMD ["node", "apps/api/dist/main.js"]
