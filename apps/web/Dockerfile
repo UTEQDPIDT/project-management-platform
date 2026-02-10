@@ -1,6 +1,3 @@
-# -------------------------
-# Base Stage
-# -------------------------
 FROM node:20-alpine AS base
 RUN apk update
 RUN apk add --no-cache libc6-compat
@@ -9,33 +6,21 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 WORKDIR /app
 
-# -------------------------
-# Prune Stage
-# -------------------------
 FROM base AS prune
 RUN pnpm add -g turbo
 COPY . .
 RUN turbo prune web --docker
 
-# -------------------------
-# Install dependencies
-# -------------------------
 FROM base AS installer
 WORKDIR /app
-# Copy package.json files for workspace resolution
-COPY --from=prune /app/out/json/ ./
+
+# Copiamos primero el pnpm-lock.yaml y todo el código podado
 COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=prune /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
-
-# Install dependencies
-RUN pnpm install --frozen-lockfile
-
-# Copy source code and turbo config
 COPY --from=prune /app/out/full/ ./
 
-# -------------------------
-# Remote Caching from turborepo
-# -------------------------
+# Instalamos las dependencias. El script 'prepare' se ejecutará aquí.
+RUN pnpm install --frozen-lockfile
+
 # Uncomment and use build args to enable remote caching
 # ARG TURBO_TEAM
 # ENV TURBO_TEAM=$TURBO_TEAM
@@ -46,9 +31,6 @@ COPY --from=prune /app/out/full/ ./
 # Build the application
 RUN pnpm turbo build --filter=web
 
-# -------------------------
-# Production runtime image
-# -------------------------
 FROM node:20-alpine AS runner
 WORKDIR /app
 
