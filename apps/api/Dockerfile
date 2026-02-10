@@ -1,64 +1,48 @@
-# -------------------------
-# Base Stage
-# -------------------------
 FROM node:20-alpine AS base
-RUN apk update
-RUN apk add --no-cache libc6-compat
+RUN apk update && apk add --no-cache libc6-compat
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN pnpm add -g turbo
 
-# -------------------------
-# Prune Stage
-# -------------------------
 FROM base AS prune
 WORKDIR /app
 COPY . .
 RUN turbo prune api --docker
 
-# -------------------------
-# Builder Stage
-# -------------------------
 FROM base AS builder
 WORKDIR /app
 
-# Copy package.json files for workspace resolution
 COPY --from=prune /app/out/json/ ./
 COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=prune /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
-
-# Install all dependencies (including dev)
+# IMPORTANTE: Instalar todas las dependencias para poder buildear
 RUN pnpm install --frozen-lockfile
 
-# Copy source code (this should include turbo.json)
 COPY --from=prune /app/out/full/ ./
-
-# build api package with turbo
 RUN pnpm turbo build --filter=api
 
-# -------------------------
-# Runner Stage: runner will use the builder output, and use only the node_modules for production to reduce the size of the final image
-# -------------------------
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-ENV CI=true
 
-# Security: create non-root user
+# Crear usuario de seguridad
 RUN addgroup --system app && adduser --system --ingroup app app
 
-# Copy only the production node_modules to reduce image size
-COPY --from=builder --chown=app:app /app/ ./
-RUN pnpm prune --prod
+# 1. Copiamos los archivos de workspace y el lock
+COPY --from=prune /app/out/json/ ./
+COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 
-# copy build output
-COPY --from=builder --chown=app:app /app/apps/api/dist/src ./
+# 2. Instalamos SOLO dependencias de producción
+# Esto es más seguro que hacer 'prune --prod' sobre el builder sucio
+RUN pnpm install --prod --frozen-lockfile
+
+# 3. Copiamos el build de la API
+# Nota: NestJS suele compilar a apps/api/dist.
+# Lo copiamos manteniendo la estructura para que encuentre node_modules
+COPY --from=builder --chown=app:app /app/apps/api/dist ./apps/api/dist
 
 USER app
-
-# expose app port
 EXPOSE 3001
 
-# commands to run app
-CMD ["node", "main.js"]
+# Ejecutamos desde la raíz del workspace para que la resolución de módulos de PNPM funcione
+CMD ["node", "apps/api/dist/src/main.js"]
