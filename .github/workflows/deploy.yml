@@ -9,8 +9,6 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - name: Echo the message
-        run: echo 'Running pipeline'
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Create Environment Files
