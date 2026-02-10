@@ -10,9 +10,7 @@ const nextConfig = {
   // Enable standalone output for Docker (only for production builds)
   output: 'standalone',
   transpilePackages: ['@repo/types'],
-  experimental: {
-    outputFileTracingRoot: path.join(__dirname, '../../'),
-  },
+  outputFileTracingRoot: path.join(__dirname, '../../'),
 };
 
 export default nextConfig;
