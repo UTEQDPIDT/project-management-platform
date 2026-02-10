@@ -13,12 +13,14 @@ RUN turbo prune api --docker
 FROM base AS builder
 WORKDIR /app
 
-COPY --from=prune /app/out/json/ ./
+# Copiamos primero el pnpm-lock.yaml y todo el código podado (incluye los package.json y tsconfig.json)
 COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-# IMPORTANTE: Instalar todas las dependencias para poder buildear
+COPY --from=prune /app/out/full/ ./
+
+# Ahora instalamos las dependencias. El script 'prepare' en @repo/types se ejecutará aquí.
 RUN pnpm install --frozen-lockfile
 
-COPY --from=prune /app/out/full/ ./
+# Construimos la aplicación 'api'
 RUN pnpm turbo build --filter=api
 
 FROM base AS runner
