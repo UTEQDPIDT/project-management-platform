@@ -41,7 +41,7 @@ RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 # 3. Copiamos el build de la API
 # Nota: NestJS suele compilar a apps/api/dist.
 # Lo copiamos manteniendo la estructura para que encuentre node_modules
-COPY --from=builder --chown=app:app /app/apps/api/dist/apps/api/dist ./apps/api/dist
+COPY --from=builder --chown=app:app /app/apps/api/dist/ ./apps/api/dist/
 
 USER app
 EXPOSE 3001
