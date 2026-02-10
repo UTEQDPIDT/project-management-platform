@@ -1,6 +1,6 @@
 FROM node:20-alpine AS base
 RUN apk update && apk add --no-cache libc6-compat
-RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.21.0 --activate
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN pnpm add -g turbo
