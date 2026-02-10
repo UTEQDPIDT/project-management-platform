@@ -62,7 +62,7 @@ async create(
 
     const createdActivity = new this.activityModel({
       ...createActivityDto,
-      createdBy: user._id,
+      createdBy: user._id || user.id,
     });
 
     await createdActivity.save();

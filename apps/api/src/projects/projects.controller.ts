@@ -9,6 +9,7 @@ import { CheckAbilities } from '../casl/abilities.decorator';
 import { Action } from '../casl/ability.factory';
 import { Project } from '../schemas';
 import { ProjectResourceInterceptor } from './interceptors/project-resource.interceptor';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -21,7 +22,6 @@ export class ProjectsController {
   @UseGuards(JwtAuthGuard, AbilitiesGuard)
   @CheckAbilities({ action: Action.Create, subject: Project })
   @Post()
-  @ApiConsumes('multipart/form-data')
   create(@Body() createProjectDto: CreateProjectDto, @Req() req) {
     return this.projectsService.create(createProjectDto, req.user.id);
   }
