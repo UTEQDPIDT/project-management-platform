@@ -40,7 +40,25 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
     volumes:
       - mongodb_data:/data/db
-    command: ['--replSet', 'rs0', '--bind_ip_all']
+      - ./mongodb.key:/data/configdb/mongodb.key:ro
+    entrypoint:
+      - bash
+      - -c
+      - |
+        cp /data/configdb/mongodb.key /tmp/mongodb.key
+        chmod 400 /tmp/mongodb.key
+        chown 999:999 /tmp/mongodb.key
+        exec docker-entrypoint.sh "$$@"
+      - --
+    command:
+      [
+        'mongod',
+        '--replSet',
+        'rs0',
+        '--bind_ip_all',
+        '--keyFile',
+        '/tmp/mongodb.key',
+      ]
     networks:
       - app_network
     healthcheck:
