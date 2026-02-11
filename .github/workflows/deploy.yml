@@ -36,9 +36,6 @@ jobs:
           # Root Env (Credentials for MongoDB)
           echo "MONGO_USER=${{ secrets.MONGO_USER }}" > ./.env
           echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> ./.env
-      - name: Create MongoDB KeyFile from Secret
-        run: |
-          echo "${{ secrets.MONGO_KEYFILE }}" > ./mongodb.key
       - name: Build and Restart Services
         run: |
           # --build: asegura que el código nuevo de apps/api y apps/web se compile
@@ -47,7 +44,7 @@ jobs:
       - name: Initialize Replica Set
         run: |
           echo "Esperando a que Mongo despierte..."
-          sleep 20
-          docker exec mongodb mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]})" || echo "Ya estaba inicializado"
+          sleep 10
+          docker exec mongodb mongosh -u "${{ secrets.MONGO_USER }}" -p "${{ secrets.MONGO_PASSWORD }}" --authenticationDatabase admin --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]})" || echo "Ya estaba inicializado"
       - name: Cleanup old images
         run: docker image prune -f

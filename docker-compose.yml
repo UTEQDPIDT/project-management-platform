@@ -38,24 +38,21 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
-    user: root
-    command: >
-      bash -c "
-      chmod 400 /data/configdb/mongodb.key &&
-      chown 999:999 /data/configdb/mongodb.key &&
-      exec gosu mongodb mongod --replSet rs0 --bind_ip_all --keyFile /data/configdb/mongodb.key
-      "
     volumes:
       - mongodb_data:/data/db
-      - ./mongodb.key:/data/configdb/mongodb.key
+    command: ['--replSet', 'rs0', '--bind_ip_all']
     networks:
       - app_network
     healthcheck:
-      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
+      test:
+        [
+          'CMD-SHELL',
+          'mongosh -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "db.adminCommand(''ping'')"',
+        ]
       interval: 5s
       timeout: 5s
-      retries: 5
-      start_period: 20s
+      retries: 10
+      start_period: 30s
 
 networks:
   app_network:
