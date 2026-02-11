@@ -79,7 +79,7 @@ type UpdateProjectFormProps = {
 export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
   const router = useRouter();
   const { user } = userProfile();
-  const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
+  const baseUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
 
   /**
    * React Query Hooks
@@ -152,7 +152,7 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
         projectId: project._id,
         projectData: cleanedData,
       });
-      router.push(`${rootUrl}/proyectos/${project._id}`);
+      router.push(`${baseUrl}/proyectos/${project._id}`);
     } catch (err) {
       console.error('Error cleaning data', err);
     }
@@ -939,7 +939,7 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
 
         <div className="flex gap-2">
           <Button variant={'outline'} type="button" asChild>
-            <Link href="/user/proyectos">Cancelar</Link>
+            <Link href={`${baseUrl}/proyectos`}>Cancelar</Link>
           </Button>
           <Button type="submit" disabled={updateProject.isPending}>
             {updateProject.isPending ? (
