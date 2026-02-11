@@ -38,14 +38,14 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_KEYFILE_CONTENT=${MONGO_KEYFILE}
     volumes:
       - mongodb_data:/data/db
-      - ./mongodb.key:/data/configdb/mongodb.key:ro
     entrypoint:
       - bash
       - -c
       - |
-        cp /data/configdb/mongodb.key /tmp/mongodb.key
+        echo "$$MONGO_KEYFILE_CONTENT" > /tmp/mongodb.key
         chmod 400 /tmp/mongodb.key
         chown 999:999 /tmp/mongodb.key
         exec docker-entrypoint.sh "$$@"

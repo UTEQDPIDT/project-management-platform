@@ -36,10 +36,7 @@ jobs:
           # Root Env (Credentials for MongoDB)
           echo "MONGO_USER=${{ secrets.MONGO_USER }}" > ./.env
           echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> ./.env
-      - name: Create MongoDB KeyFile from Secret
-        run: |
-          echo "${{ secrets.MONGO_KEYFILE }}" > ./mongodb.key
-          chmod 400 ./mongodb.key
+          echo "MONGO_KEYFILE=${{ secrets.MONGO_KEYFILE }}" >> ./.env
       - name: Build and Restart Services
         run: |
           # --build: asegura que el código nuevo de apps/api y apps/web se compile
