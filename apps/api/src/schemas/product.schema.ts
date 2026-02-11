@@ -24,7 +24,12 @@ export class Product extends Document {
   })
   subcategory: ProductSubcategory;
 
-  @Prop({ required: false, enum: CoAuthor, default: CoAuthor.A })
+  @Prop({
+    required: false,
+    type: String,
+    enum: Object.values(CoAuthor),
+    default: CoAuthor.A,
+  })
   coAuthor: CoAuthor;
 
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })

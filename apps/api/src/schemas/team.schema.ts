@@ -38,7 +38,8 @@ export class Team extends Document {
   division: Division;
 
   @Prop({
-    enum: TeamsGrade,
+    type: String,
+    enum: Object.values(TeamsGrade),
     default: TeamsGrade.FORMACION,
   })
   @ApiProperty({
@@ -47,8 +48,7 @@ export class Team extends Document {
   grade: TeamsGrade;
 
   @Prop({ type: [TeamMembership], default: [] })
-memberships: TeamMembership[];
-
+  memberships: TeamMembership[];
 
   @ApiProperty({ description: 'Indica si el equipo es privado' })
   @Prop({ default: false })

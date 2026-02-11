@@ -12,7 +12,7 @@ export class User extends Document {
     default: UserRole.USER,
     enum: UserRole,
   })
-  @Prop({ enum: UserRole, default: UserRole.USER })
+  @Prop({ type: String, enum: Object.values(UserRole), default: UserRole.USER })
   role: UserRole;
 
   @ApiPropertyOptional({
@@ -20,7 +20,11 @@ export class User extends Document {
     default: UserType.ESTUDIANTE,
     enum: UserType,
   })
-  @Prop({ enum: UserType, default: UserType.ESTUDIANTE })
+  @Prop({
+    type: String,
+    enum: Object.values(UserType),
+    default: UserType.ESTUDIANTE,
+  })
   type: UserType;
 
   @ApiProperty({
@@ -52,7 +56,7 @@ export class User extends Document {
     default: Sex.HOMBRE,
     enum: Sex,
   })
-  @Prop({ enum: Sex, default: Sex.HOMBRE })
+  @Prop({ type: String, enum: Object.values(Sex), default: Sex.HOMBRE })
   sex: Sex;
 
   @ApiPropertyOptional({
@@ -60,7 +64,7 @@ export class User extends Document {
     default: State.QRO,
     enum: State,
   })
-  @Prop({ enum: State, default: State.QRO })
+  @Prop({ type: String, enum: Object.values(State), default: State.QRO })
   state: State;
 
   @ApiProperty({
@@ -108,7 +112,11 @@ export class User extends Document {
     default: CareerLevel.LICENCIATURA,
     enum: CareerLevel,
   })
-  @Prop({ enum: CareerLevel, default: CareerLevel.LICENCIATURA })
+  @Prop({
+    type: String,
+    enum: Object.values(CareerLevel),
+    default: CareerLevel.LICENCIATURA,
+  })
   careerLevel: CareerLevel;
 
   @ApiPropertyOptional({
