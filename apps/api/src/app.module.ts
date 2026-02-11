@@ -1,7 +1,7 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -34,7 +34,32 @@ import { APP_GUARD } from '@nestjs/core';
       ],
     }),
 
-    MongooseModule.forRoot(process.env.MONGODB_URI),
+    MongooseModule.forRootAsync({
+      // Inyectamos ConfigService para leer las variables de forma limpia
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const user = configService.get<string>('MONGO_USER');
+        const pass = configService.get<string>('MONGO_PASSWORD');
+        const host = configService.get<string>('MONGO_HOST') || 'mongodb:27017';
+        const db =
+          configService.get<string>('MONGO_DB_NAME') || 'uteq_prep_database';
+
+        // Si no hay usuario (caso de desarrollo local típico), usamos URI simple
+        if (!user || !pass) {
+          return {
+            uri: `mongodb://${host}/${db}?replicaSet=rs0`,
+          };
+        }
+
+        // Si hay credenciales (Producción), codificamos y añadimos parámetros de ReplicaSet
+        const safeUser = encodeURIComponent(user);
+        const safePass = encodeURIComponent(pass);
+
+        return {
+          uri: `mongodb://${safeUser}:${safePass}@${host}/${db}?replicaSet=rs0&authSource=admin`,
+        };
+      },
+    }),
 
     AuthModule,
 

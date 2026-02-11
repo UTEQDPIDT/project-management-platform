@@ -16,7 +16,10 @@ jobs:
           #API Env
           echo "PORT=${{ secrets.PORT }}" > ./apps/api/.env.production
           echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> ./apps/api/.env.production
-          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> ./apps/api/.env.production
+          echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> ./apps/api/.env.production
+          echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> ./apps/api/.env.production
+          echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> ./apps/api/.env.production
+          echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> ./apps/api/.env.production
           echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> ./apps/api/.env.production
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> ./apps/api/.env.production
           echo "GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}" >> ./apps/api/.env.production
@@ -46,10 +49,5 @@ jobs:
           echo "Esperando a que Mongo despierte..."
           sleep 20
           docker exec mongodb mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]})" || echo "Ya estaba inicializado"
-      #   - name: Set Keyfile Permissions
-      #     run: |
-      #       container_id=$(docker-compose ps -q mongodb)
-      #       docker exec "$container_id" chmod 400 /data/configdb/mongodb.key
-      #       docker exec --user root "$container_id" chown 999:999 /data/configdb/mongodb.key
       - name: Cleanup old images
         run: docker image prune -f
