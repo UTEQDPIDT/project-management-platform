@@ -32,12 +32,11 @@ jobs:
           # WEB Env
           echo "NEXT_PRIVATE_JWT_SECRET=${{ secrets.NEXT_PRIVATE_JWT_SECRET }}" > ./apps/web/.env.production
           echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.BACKEND_URL }}" >> ./apps/web/.env.production
-
-          # Root Env (Credentials for MongoDB)
-          echo "MONGO_USER=${{ secrets.MONGO_USER }}" > ./.env
-          echo "MONGO_PASSWORD='${{ secrets.MONGO_PASSWORD }}'" >> ./.env
-          echo "MONGO_KEYFILE='${{ secrets.MONGO_KEYFILE }}'" >> ./.env
       - name: Build and Restart Services
+        env:
+          MONGO_USER: ${{ secrets.MONGO_USER }}
+          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+          MONGO_KEYFILE: ${{ secrets.MONGO_KEYFILE }}
         run: |
           # --build: asegura que el código nuevo de apps/api y apps/web se compile
           # --remove-orphans: limpia contenedores antiguos que ya no existan en el compose
