@@ -61,7 +61,7 @@ const getAllFiles = async () => {
   }
 };
 
-const getFilesForEntity = async (entityId: string) => {
+const getFilesForEntity = async (entityId?: string) => {
   const { data } = await api.get(`/files/for-entity/${entityId}`);
   return data;
 };

@@ -6,7 +6,7 @@ import {
 } from '@/hooks/catalogs';
 import { getProductSchema } from '@/schemas/product.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CoAuthor, IFile, IProduct, SeedCategory } from '@repo/types';
+import { CoAuthor, IProduct, SeedCategory } from '@repo/types';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import LoadingMessage from '../loading-message';
@@ -48,16 +48,8 @@ export function ProductForm({ projectId, product }: Props) {
   const { data: subcategories, isLoading: loadingSubcategories } =
     useProductSubcategories();
 
-  let currentFile: IFile;
-  if (product) {
-    const { data: files, isLoading: loadingFile } = useFilesForEntity(
-      product?._id,
-    );
-
-    currentFile = Array.isArray(files) ? files[0] : files;
-  }
-
-  // Safely get the first file if it's an array, or use it directly if it's an object
+  const { data: files } = useFilesForEntity(product?._id);
+  const currentFile = Array.isArray(files) ? files[0] : files;
 
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
