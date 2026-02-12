@@ -1,6 +1,6 @@
 import { api } from '@/lib/axios';
 
-const createProduct = async ({ productData }: { productData: any }) => {
+const createProduct = async ({ productData }: { productData: FormData }) => {
   const { data } = await api.post(`/products`, productData);
   return data;
 };
@@ -30,7 +30,7 @@ const updateProduct = async ({
   productData,
 }: {
   productId: string;
-  productData: any;
+  productData: FormData;
 }) => {
   const { data } = await api.patch(`/products/${productId}`, productData);
   return data;
