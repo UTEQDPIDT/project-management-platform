@@ -4,39 +4,23 @@ import { IEvent } from '@repo/types';
 import z from 'zod';
 
 const createEvent = async (eventData: z.infer<typeof eventSchema>) => {
-  try {
-    const { data } = await api.post('/events', eventData);
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.post('/events', eventData);
+  return data;
 };
 
 const getAllEvents = async () => {
-  try {
-    const { data } = await api.get('/events');
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.get('/events');
+  return data;
 };
 
 const getEventById = async (eventId: string) => {
-  try {
-    const { data } = await api.get(`/events/${eventId}`);
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.get(`/events/${eventId}`);
+  return data;
 };
 
 const getEventsByUser = async () => {
-  try {
-    const { data } = await api.get('/events/by-user');
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.get('/events/by-user');
+  return data;
 };
 
 const updateEvent = async ({
@@ -46,21 +30,13 @@ const updateEvent = async ({
   eventId: string;
   eventData: IEvent;
 }) => {
-  try {
-    const { data } = await api.patch(`/events/${eventId}`, eventData);
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.patch(`/events/${eventId}`, eventData);
+  return data;
 };
 
 const deleteEvent = async (eventId: string) => {
-  try {
-    const { data } = await api.delete(`/events/${eventId}`);
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.delete(`/events/${eventId}`);
+  return data;
 };
 
 /**
@@ -73,12 +49,8 @@ const registerProducts = async ({
   eventId: string;
   products: string[];
 }) => {
-  try {
-    const { data } = await api.patch(`/events/${eventId}/products`, products);
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.patch(`/events/${eventId}/products`, products);
+  return data;
 };
 
 const removeProduct = async ({
@@ -88,14 +60,8 @@ const removeProduct = async ({
   eventId: string;
   productId: string;
 }) => {
-  try {
-    const { data } = await api.delete(
-      `/events/${eventId}/products/${productId}`,
-    );
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.delete(`/events/${eventId}/products/${productId}`);
+  return data;
 };
 
 /**
@@ -108,15 +74,8 @@ const addParticipants = async ({
   eventId: string;
   userIds: string[];
 }) => {
-  try {
-    const { data } = await api.patch(
-      `/events/${eventId}/participants`,
-      userIds,
-    );
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.patch(`/events/${eventId}/participants`, userIds);
+  return data;
 };
 
 const removeParticipant = async ({
@@ -126,23 +85,15 @@ const removeParticipant = async ({
   eventId: string;
   userId: string;
 }) => {
-  try {
-    const { data } = await api.delete(
-      `/events/${eventId}/participants/${userId}`,
-    );
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.delete(
+    `/events/${eventId}/participants/${userId}`,
+  );
+  return data;
 };
 
 const registerParticipant = async ({ eventId }: { eventId: string }) => {
-  try {
-    const { data } = await api.patch(`/events/${eventId}/register`);
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.patch(`/events/${eventId}/register`);
+  return data;
 };
 
 export {
