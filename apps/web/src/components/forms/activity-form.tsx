@@ -140,7 +140,7 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
     }
   };
 
-  const onError = (erros: any) => {
+  const onError = () => {
     toast.error('Por favor corrige los errores en el formulario');
   };
 

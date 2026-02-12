@@ -14,6 +14,7 @@ export * from './enums/entity-type.enum';
 export * from './enums/file-purpose.enum';
 
 export * from './dtos/project-cleaned-data';
+export * from './dtos/activity-payload.dto';
 
 export * from './user.type';
 export * from './team.type';

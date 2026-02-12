@@ -1,6 +1,11 @@
 import { api } from '@/lib/axios';
+import { ActivityPayload } from '@repo/types';
 
-const createActivity = async ({ activityData }: { activityData: any }) => {
+const createActivity = async ({
+  activityData,
+}: {
+  activityData: ActivityPayload;
+}) => {
   const { data } = await api.post('/activities', activityData);
   return data;
 };
@@ -15,7 +20,7 @@ const updateActivity = async ({
   activityData,
 }: {
   activityId: string;
-  activityData: any;
+  activityData: ActivityPayload;
 }) => {
   const { data } = await api.patch(`/activities/${activityId}`, activityData);
   return data;
