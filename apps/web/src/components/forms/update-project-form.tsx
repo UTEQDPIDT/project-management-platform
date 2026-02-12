@@ -25,7 +25,7 @@ import {
 import { Check, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
 import {
@@ -100,6 +100,11 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
   const updateProject = useUpdateProject();
 
   const [trlOpen, setTrlOpen] = useState(false);
+
+  const filteredProjects = useMemo(() => {
+    if (loadingProjects || !projects) return [];
+    return projects.filter((p: IProject) => p._id !== project._id);
+  }, [projects, project._id]);
 
   const form = useForm<z.infer<typeof updateProjectSchema>>({
     resolver: zodResolver(updateProjectSchema),
@@ -839,12 +844,18 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                       <SelectContent>
                         {loadingTeams ? (
                           <LoadingMessage message="Cargando equipos" />
-                        ) : (
+                        ) : teams.length > 0 ? (
                           teams.map((team: ITeam) => (
                             <SelectItem key={team._id} value={team._id}>
                               {team.teamName}
                             </SelectItem>
                           ))
+                        ) : (
+                          <div className="w-full select-none p-2 flex items-center justify-center">
+                            <span className="text-muted-foreground text-sm">
+                              No estás en ningún equipo
+                            </span>
+                          </div>
                         )}
                       </SelectContent>
                     </Select>
@@ -891,9 +902,11 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                           <Command>
                             <CommandGroup>
                               {loadingProjects ? (
-                                <CommandItem disabled>Cargando</CommandItem>
-                              ) : projects.length > 0 ? (
-                                projects.map((project: IProject) => {
+                                <CommandItem disabled>
+                                  <LoadingMessage message="Cargando proyectos" />
+                                </CommandItem>
+                              ) : filteredProjects.length > 0 ? (
+                                filteredProjects.map((project: IProject) => {
                                   const selected = value.includes(project._id);
 
                                   return (
@@ -939,7 +952,7 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
 
         <div className="flex gap-2">
           <Button variant={'outline'} type="button" asChild>
-            <Link href={`${baseUrl}/proyectos`}>Cancelar</Link>
+            <Link href={`${baseUrl}/proyectos/${project._id}`}>Cancelar</Link>
           </Button>
           <Button type="submit" disabled={updateProject.isPending}>
             {updateProject.isPending ? (
