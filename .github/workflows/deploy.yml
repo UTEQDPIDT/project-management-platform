@@ -17,7 +17,7 @@ jobs:
           echo "PORT=${{ secrets.PORT }}" > ./apps/api/.env.production
           echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> ./apps/api/.env.production
           echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> ./apps/api/.env.production
-          echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> ./apps/api/.env.production
+          echo "MONGO_PASSWORD='${{ secrets.MONGO_PASSWORD }}'" >> ./apps/api/.env.production
           echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> ./apps/api/.env.production
           echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> ./apps/api/.env.production
           echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> ./apps/api/.env.production
@@ -35,13 +35,13 @@ jobs:
 
           # Root Env (Credentials for MongoDB)
           echo "MONGO_USER=${{ secrets.MONGO_USER }}" > ./.env
-          echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> ./.env
-          echo "MONGO_KEYFILE=${{ secrets.MONGO_KEYFILE }}" >> ./.env
+          echo "MONGO_PASSWORD='${{ secrets.MONGO_PASSWORD }}'" >> ./.env
+          echo "MONGO_KEYFILE='${{ secrets.MONGO_KEYFILE }}'" >> ./.env
       - name: Build and Restart Services
         run: |
           # --build: asegura que el código nuevo de apps/api y apps/web se compile
           # --remove-orphans: limpia contenedores antiguos que ya no existan en el compose
-          docker-compose up -d --build --remove-orphans
+          docker compose up -d --build --remove-orphans
       - name: Initialize Replica Set
         run: |
           echo "Esperando a que Mongo despierte..."
