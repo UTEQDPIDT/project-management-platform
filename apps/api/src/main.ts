@@ -59,4 +59,7 @@ async function bootstrap() {
     console.log(`Swagger JSON available at: ${await app.getUrl()}/docs-json`);
   }
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Failed to start application:', err);
+  process.exit(1);
+});
