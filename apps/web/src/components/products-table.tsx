@@ -25,6 +25,43 @@ import { useFilesForEntity } from '@/hooks/files';
 import { toast } from 'sonner';
 import CopyButton from './ui/copy';
 
+function ProductActionsCell({ product }: { product: IProduct }) {
+  const { data: files = [] } = useFilesForEntity(product._id);
+
+  const handleDownload = async () => {
+    try {
+      await downloadFile(files[0]._id, files[0].originalName);
+    } catch (error) {
+      toast.error('No se pudo descargar el archivo');
+      throw error;
+    }
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon-sm">
+          <MoreHorizontal />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+        <DropdownMenuItem onClick={handleDownload}>
+          <Download /> Descargar producto
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={`/admin/proyectos/${product.projectId}`}>
+            <ExternalLink /> Visitar proyecto
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => copyValue(product._id)}>
+          <Copy /> Copiar ID
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 const columns: ColumnDef<IProduct>[] = [
   {
     accessorKey: 'name',
@@ -91,43 +128,7 @@ const columns: ColumnDef<IProduct>[] = [
   },
   {
     id: 'actions',
-    cell: ({ row }) => {
-      const product = row.original;
-      const { data: files = [] } = useFilesForEntity(product._id);
-
-      const handleDownload = async () => {
-        try {
-          await downloadFile(files[0]._id, files[0].originalName);
-        } catch (error) {
-          toast.error('No se pudo descargar el archivo');
-          throw error;
-        }
-      };
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm">
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem onClick={handleDownload}>
-              <Download /> Descargar producto
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/proyectos/${product.projectId}`}>
-                <ExternalLink /> Visitar proyecto
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => copyValue(product._id)}>
-              <Copy /> Copiar ID
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => <ProductActionsCell product={row.original} />,
   },
 ];
 
