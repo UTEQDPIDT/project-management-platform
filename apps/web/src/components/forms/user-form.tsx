@@ -80,7 +80,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
     updateUserMutation.mutate({ userId: profile._id, data: cleanedData });
   };
 
-  const onError = (errors: any) => {
+  const onError = () => {
     // console.log('FORM ERRORS:', errors);
     toast.error('Por favor corrige los errores en el formulario');
   };
@@ -101,7 +101,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
       setValue('matricula', '');
       setValue('educationalProgram', '');
     }
-  }, [userType, form]);
+  }, [userType, form, setValue]);
 
   return (
     <div className="w-full max-w-lg">

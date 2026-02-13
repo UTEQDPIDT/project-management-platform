@@ -19,6 +19,7 @@ import LoadingMessage from '../loading-message';
 import { useProductsByUser } from '@/hooks/products';
 import { userProfile } from 'context/profile-provider';
 import { useRegisterProducts } from '@/hooks/events';
+import { toast } from 'sonner';
 
 interface RegisterProductsForm {
   eventId: string;
@@ -70,8 +71,9 @@ export default function RegisterProductsForm({
     registerProducts.mutate({ eventId, products });
   };
 
-  const onError = (errors: any) => {
-    console.log('FORM ERRORS', errors);
+  const onError = () => {
+    // console.log('FORM ERRORS', errors);
+    toast.error('Por favor corrige los errores en el formulario');
   };
 
   return (

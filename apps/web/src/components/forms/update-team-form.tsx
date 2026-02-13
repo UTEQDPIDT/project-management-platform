@@ -136,7 +136,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = () => {
     toast.error('Por favor corrige los errores en el formulario');
   };
 
@@ -472,10 +472,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
               <Controller
                 control={form.control}
                 name="isPrivate"
-                render={({
-                  field: { onChange, onBlur, ...field },
-                  fieldState,
-                }) => (
+                render={({ field: { onChange, ...field }, fieldState }) => (
                   <Field
                     orientation={'horizontal'}
                     data-invalid={fieldState.invalid}
