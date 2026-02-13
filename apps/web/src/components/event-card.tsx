@@ -6,7 +6,6 @@ import {
   ArrowUpRight,
   Calendar,
   CheckSquare,
-  Info,
   MapPin,
   Shapes,
 } from 'lucide-react';
@@ -45,26 +44,26 @@ function EventCardCompact({ event }: { event: IEvent }) {
       avatarUrl: u.avatarUrl,
     })) || [];
 
-  let badgeVariant:
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'green'
-    | 'gray'
-    | 'purple'
-    | 'orange'
-    | 'blue'
-    | null
-    | undefined;
-  switch (event.isPrivate) {
-    case true:
-      badgeVariant = BadgeVariants.PURPLE;
-      break;
-    case false:
-      badgeVariant = BadgeVariants.BLUE;
-      break;
-  }
+  //   let badgeVariant:
+  //     | 'default'
+  //     | 'secondary'
+  //     | 'destructive'
+  //     | 'outline'
+  //     | 'green'
+  //     | 'gray'
+  //     | 'purple'
+  //     | 'orange'
+  //     | 'blue'
+  //     | null
+  //     | undefined;
+  //   switch (event.isPrivate) {
+  //     case true:
+  //       badgeVariant = BadgeVariants.PURPLE;
+  //       break;
+  //     case false:
+  //       badgeVariant = BadgeVariants.BLUE;
+  //       break;
+  //   }
 
   return (
     <Link
@@ -98,11 +97,7 @@ function EventCardCompact({ event }: { event: IEvent }) {
   );
 }
 
-export function EventCard({ event, variant = 'default' }: EventCardProps) {
-  if (variant === 'compact') {
-    return <EventCardCompact event={event} />;
-  }
-
+function EventCardComplete({ event }: { event: IEvent }) {
   const { user } = userProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
   const { data: activities } = useActivitiesByEntity(event._id);
@@ -228,4 +223,12 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
       </CardFooter>
     </Card>
   );
+}
+
+export function EventCard({ event, variant = 'default' }: EventCardProps) {
+  if (variant === 'compact') {
+    return <EventCardCompact event={event} />;
+  } else {
+    return <EventCardComplete event={event} />;
+  }
 }
