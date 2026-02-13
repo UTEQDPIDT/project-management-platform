@@ -7,7 +7,7 @@ import LoadingMessage from './loading-message';
 import ErrorCard from './error-card';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 
 interface ProjectsBoardProps {
@@ -21,7 +21,7 @@ export function ProjectsBoard({
   loading,
   error,
 }: ProjectsBoardProps) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   return (

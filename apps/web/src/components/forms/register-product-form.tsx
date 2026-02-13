@@ -17,7 +17,7 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import { Command, CommandGroup, CommandItem } from '../ui/command';
 import LoadingMessage from '../loading-message';
 import { useProductsByUser } from '@/hooks/products';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { useRegisterProducts } from '@/hooks/events';
 import { toast } from 'sonner';
 
@@ -34,7 +34,7 @@ export default function RegisterProductsForm({
   eventId,
   products,
 }: RegisterProductsForm) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
 
   /**
    * Tanstack

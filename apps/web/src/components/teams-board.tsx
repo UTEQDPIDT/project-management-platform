@@ -1,6 +1,6 @@
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { ITeam } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import IconSquare from './icon-square';
 import { Plus, Users } from 'lucide-react';
@@ -21,7 +21,7 @@ export default function TeamsBoard({
   isLoading,
   isError,
 }: TeamsBoardProps) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   return (

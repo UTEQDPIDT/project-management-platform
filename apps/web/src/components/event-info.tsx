@@ -2,7 +2,7 @@
 
 import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
 import { EntityType, FilePurpose, IEvent, IFile, UserRole } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -45,7 +45,7 @@ type EventInfoProps = {
 };
 
 export function EventInfo({ event }: EventInfoProps) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
 
   const { data: files = [], isLoading, isError } = useFilesForEntity(event._id);
   const uploadFiles = useUploadMultipleFiles();

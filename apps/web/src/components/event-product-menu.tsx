@@ -3,7 +3,7 @@ import { DropdownMenuItem } from './ui/dropdown-menu';
 import { Copy, Eraser, ExternalLink } from 'lucide-react';
 import { IProduct, UserRole } from '@repo/types';
 import Link from 'next/link';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { useRemoveProduct } from '@/hooks/events';
 
 interface EventProductMenuProps {
@@ -21,7 +21,7 @@ export default function EventProductMenu({
     removeProduct.mutate({ eventId, productId: product._id });
   };
 
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const rootPath = user.role === UserRole.ADMIN ? '/admin' : '/user';
 
   return (

@@ -9,7 +9,7 @@ import { useCreateTeam } from '@/hooks/team';
 import { useGetAllUsers } from '@/hooks/user';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { IUser, SeedCategory, TeamsGrade, UserType } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -54,7 +54,7 @@ import { toast } from 'sonner';
 
 export function CreateTeamForm() {
   const router = useRouter();
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   /**

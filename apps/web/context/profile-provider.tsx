@@ -38,10 +38,10 @@ export function ProfileProvider({
   );
 }
 
-export const userProfile = () => {
+export const useUserProfile = () => {
   const context = useContext(ProfileContext);
   if (!context) {
-    throw new Error('userProfile must be used within a ProfileProvider');
+    throw new Error('useUserProfile must be used within a ProfileProvider');
   }
   return context;
 };

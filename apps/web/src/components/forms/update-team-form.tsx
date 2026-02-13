@@ -35,7 +35,7 @@ import {
   FieldSet,
 } from '../ui/field';
 import { useRouter } from 'next/navigation';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import Link from 'next/link';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
@@ -65,7 +65,7 @@ type UpdateTeamFormProps = {
 
 export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
   const router = useRouter();
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   /**

@@ -12,7 +12,7 @@ import { es } from 'date-fns/locale';
 import { Separator } from './ui/separator';
 import { ProfileInfo } from './profile-info';
 
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { Badge } from './ui/badge';
 import {
   Dialog,
@@ -38,7 +38,7 @@ interface CardUserInfoProps {
 }
 
 export default function CardUserInfo({ profile }: CardUserInfoProps) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const {
     _id,
     role,

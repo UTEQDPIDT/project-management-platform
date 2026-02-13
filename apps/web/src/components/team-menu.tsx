@@ -25,13 +25,13 @@ import {
 import { useDeleteTeam } from '@/hooks/team';
 import { useRouter } from 'next/navigation';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { UserRole } from '@repo/types';
 
 export function TeamMenu({ teamId, name }: { teamId: string; name: string }) {
   const deleteTeam = useDeleteTeam();
   const router = useRouter();
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   return (

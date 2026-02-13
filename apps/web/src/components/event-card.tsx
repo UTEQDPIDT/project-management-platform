@@ -1,5 +1,5 @@
 import { BadgeVariants, IEvent, IUser } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -34,7 +34,7 @@ interface EventCardProps {
   variant?: EventCardVariant;
 }
 function EventCardCompact({ event }: { event: IEvent }) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
   // Participants for AvatarRow
   const profiles =
@@ -98,7 +98,7 @@ function EventCardCompact({ event }: { event: IEvent }) {
 }
 
 function EventCardComplete({ event }: { event: IEvent }) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
   const { data: activities } = useActivitiesByEntity(event._id);
   const registerParticipant = useRegisterParticipant();

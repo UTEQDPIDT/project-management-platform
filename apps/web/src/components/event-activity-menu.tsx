@@ -1,6 +1,6 @@
 import { useDeleteActivity, useRemoveAssignee } from '@/hooks/activities';
 import { IActivity, IUser, UserRole } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { Pencil, Trash, UserMinus } from 'lucide-react';
 import React from 'react';
 import { ActivityForm } from './forms/activity-form';
@@ -22,7 +22,7 @@ interface ProjectActivityMenu {
 }
 
 export default function EventActivityMenu({ activity }: ProjectActivityMenu) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
 
   const deleteActivityMutation = useDeleteActivity();
   const removeAssignee = useRemoveAssignee();

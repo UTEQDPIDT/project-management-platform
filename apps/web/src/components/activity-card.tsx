@@ -6,7 +6,7 @@ import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files'
 import { cn } from '@/lib/utils';
 import { downloadFile } from '@/services/files.service';
 import { EntityType, IActivity, IFile } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -79,7 +79,7 @@ export function ActivityCard({
   showPriority,
   className,
 }: Props) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
 
   // Tanstack
   const {

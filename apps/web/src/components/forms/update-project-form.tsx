@@ -69,7 +69,7 @@ import {
 } from '../ui/select';
 import { Separator } from '../ui/separator';
 import { TRLForm } from './trl-assesment-form';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { toast } from 'sonner';
 
 type UpdateProjectFormProps = {
@@ -78,7 +78,7 @@ type UpdateProjectFormProps = {
 
 export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
   const router = useRouter();
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
 
   /**

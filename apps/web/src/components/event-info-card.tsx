@@ -9,7 +9,7 @@ import CopyButton from './ui/copy';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Button } from './ui/button';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
 import FileButton from './file-button';
 import {
@@ -37,7 +37,7 @@ interface EventInfoCardProps {
 }
 
 export default function EventInfoCard({ event }: EventInfoCardProps) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
 
   const { data: files = [], isLoading, isError } = useFilesForEntity(event._id);
   const uploadFiles = useUploadMultipleFiles();

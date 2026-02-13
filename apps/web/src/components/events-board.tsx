@@ -8,7 +8,7 @@ import ErrorCard from './error-card';
 import { EventCard } from './event-card';
 import Link from 'next/link';
 import { Button } from './ui/button';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import {
   Empty,
@@ -30,7 +30,7 @@ export default function EventsBoard({
   isLoading,
   isError,
 }: EventsBoardProps) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
   return (
     <Card className="w-full">

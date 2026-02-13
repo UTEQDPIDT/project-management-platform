@@ -23,7 +23,7 @@ import {
 } from './ui/dialog';
 import { useDeleteEvent, useExitEvent } from '@/hooks/events';
 import { Badge } from './ui/badge';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { UserRole } from '@repo/types';
 
 export function EventMenu({
@@ -33,7 +33,7 @@ export function EventMenu({
   eventId: string;
   name: string;
 }) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const deleteEvent = useDeleteEvent();
   const exitEvent = useExitEvent();
 

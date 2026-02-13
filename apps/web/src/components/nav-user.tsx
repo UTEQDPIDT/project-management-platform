@@ -21,12 +21,12 @@ import {
 import { logout } from '@/lib/auth/logout';
 import Link from 'next/link';
 import { ProfileInfo } from './profile-info';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   return (

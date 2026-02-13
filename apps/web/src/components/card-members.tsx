@@ -17,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { useMemo } from 'react';
 
@@ -31,7 +31,7 @@ export function CardMembers({
   const removeMember = useRemoveMember();
   const removeCollaborator = useRemoveCollaborator();
 
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   const owner = team.memberships.find(

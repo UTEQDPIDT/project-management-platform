@@ -70,10 +70,10 @@ import {
 import { Separator } from '../ui/separator';
 import { TRLForm } from './trl-assesment-form';
 import { toast } from 'sonner';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 
 export function CreateProjectForm() {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
   /**
    * React Query Hooks

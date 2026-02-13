@@ -24,13 +24,13 @@ import { useProjectProducts } from '@/hooks/products';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress, getBaseUrlBasedOnRole } from '@/lib/utils';
 import { EntityType } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 
 const ProjectPage = () => {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   const { projectId } = useParams<{ projectId: string }>();
