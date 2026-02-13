@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateProject } from '@/services/projects.service';
 import { toast } from 'sonner';
-import { IProject } from '@repo/types';
 
 export function useUpdateProject() {
   const queryClient = useQueryClient();
@@ -12,7 +11,7 @@ export function useUpdateProject() {
       projectData,
     }: {
       projectId: string;
-      projectData: IProject;
+      projectData: any;
     }) => updateProject(projectId, projectData),
     onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
