@@ -25,7 +25,7 @@ const columns: ColumnDef<IFile>[] = [
     accessorKey: 'originalName',
     header: 'Nombre',
     cell: ({ row }) => {
-      const { originalName, _id } = row.original;
+      const { originalName } = row.original;
 
       return <div>{trimFileNameMiddle(originalName)}</div>;
     },
@@ -69,6 +69,7 @@ const columns: ColumnDef<IFile>[] = [
   },
   {
     id: 'actions',
+    header: 'Acciones',
     cell: ({ row }) => {
       const file = row.original;
 

@@ -128,6 +128,7 @@ const columns: ColumnDef<IProduct>[] = [
   },
   {
     id: 'actions',
+    header: 'Acciones',
     cell: ({ row }) => <ProductActionsCell product={row.original} />,
   },
 ];

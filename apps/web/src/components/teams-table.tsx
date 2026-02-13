@@ -266,6 +266,7 @@ const columns: ColumnDef<ITeam>[] = [
   },
   {
     id: 'actions',
+    header: 'Acciones',
     cell: ({ row }) => {
       const team = row.original;
       return <TeamsActions team={team} />;

@@ -169,6 +169,7 @@ const columns: ColumnDef<IUser>[] = [
   },
   {
     id: 'actions',
+    header: 'Acciones',
     cell: ({ row }) => {
       const user = row.original;
 

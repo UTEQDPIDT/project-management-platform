@@ -203,6 +203,7 @@ const columns: ColumnDef<IProject>[] = [
   },
   {
     id: 'actions',
+    header: 'Acciones',
     cell: ({ row }) => {
       const project = row.original;
       return <ProjectsActions project={project} />;

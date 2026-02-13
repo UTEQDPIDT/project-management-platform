@@ -333,6 +333,7 @@ const columns: ColumnDef<IEvent>[] = [
   },
   {
     id: 'actions',
+    header: 'Acciones',
     cell: ({ row }) => {
       const event = row.original;
 
