@@ -196,7 +196,7 @@ export function ActivityCard({
             <SheetTitle className="text-lg h-20">{activity.name}</SheetTitle>
             <SheetDescription>{activity.description}</SheetDescription>
             {enableOptions && (
-              <div className="absolute top-0 right-6 h-[100px]">
+              <div className="absolute top-0 right-6 h-25">
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     asChild
@@ -389,8 +389,7 @@ export function ActivityCard({
                       </EmptyMedia>
                       <EmptyTitle>No Hay Evidencias</EmptyTitle>
                       <EmptyDescription>
-                        No haz subido ninguna evidencia. Inicia subiendo tu
-                        primer evidencia.
+                        Necesitas ser encargado para subir archivos.
                       </EmptyDescription>
                     </EmptyHeader>
                   </Empty>
