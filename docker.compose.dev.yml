@@ -1,27 +1,4 @@
 services:
-  # web:
-  #   container_name: web
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/web/Dockerfile.dev
-  #   restart: always
-  #   ports:
-  #     - 3000:3000
-  #   environment:
-  #     - WATCHPACK_POLLING=true
-  #     - CHOKIDAR_USEPOLLING=true
-  #     - CHOKIDAR_INTERVAL=300
-  #     - NEXT_TELEMETRY_DISABLED=1
-  #     - TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling
-  #   volumes:
-  #     - ./apps/web:/app/apps/web # Mount local WEB source code
-  #     - /app/apps/web/node_modules # Prevent overwriting node_modules
-  #     - ./packages:/app/packages # Mount shared packages (optional, for monorepo)
-  #   depends_on:
-  #     - api
-  #   networks:
-  #     - app_network
-
   api:
     container_name: api
     build:
@@ -44,10 +21,6 @@ services:
     ports:
       - 27017:27017
     command: ['mongod', '--replSet', 'rs0', '--bind_ip_all']
-    # Disabe authentication for dev (enable for production)
-    # environment:
-    #   - MONGO_INITDB_ROOT_USERNAME=user
-    #   - MONGO_INITDB_ROOT_PASSWORD=pass
     volumes:
       - mongodb_data:/data/db
     networks:
