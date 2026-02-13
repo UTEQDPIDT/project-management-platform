@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from './ui/card';
 import { useProjectCardData } from '@/hooks/projects';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { Progress } from './ui/progress';
 
 type ProjectCardVariant = 'default' | 'compact';
@@ -142,7 +142,7 @@ export function ProjectCard({
   variant = 'default',
 }: ProjectCardProps) {
   const data = useProjectCardData(project);
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
 
   return (

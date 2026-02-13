@@ -1,0 +1,3 @@
+# Typescript
+*.tsbuildinfo
+tsconfig.tsbuildinfo

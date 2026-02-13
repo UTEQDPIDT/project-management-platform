@@ -25,7 +25,7 @@ import {
 import { Check, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
 import {
@@ -69,7 +69,7 @@ import {
 } from '../ui/select';
 import { Separator } from '../ui/separator';
 import { TRLForm } from './trl-assesment-form';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { toast } from 'sonner';
 
 type UpdateProjectFormProps = {
@@ -78,8 +78,8 @@ type UpdateProjectFormProps = {
 
 export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
   const router = useRouter();
-  const { user } = userProfile();
-  const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
+  const { user } = useUserProfile();
+  const baseUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
 
   /**
    * React Query Hooks
@@ -100,6 +100,11 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
   const updateProject = useUpdateProject();
 
   const [trlOpen, setTrlOpen] = useState(false);
+
+  const filteredProjects = useMemo(() => {
+    if (loadingProjects || !projects) return [];
+    return projects.filter((p: IProject) => p._id !== project._id);
+  }, [projects, project._id, loadingProjects]);
 
   const form = useForm<z.infer<typeof updateProjectSchema>>({
     resolver: zodResolver(updateProjectSchema),
@@ -152,13 +157,13 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
         projectId: project._id,
         projectData: cleanedData,
       });
-      router.push(`${rootUrl}/proyectos/${project._id}`);
+      router.push(`${baseUrl}/proyectos/${project._id}`);
     } catch (err) {
       console.error('Error cleaning data', err);
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = () => {
     toast.error('Por favor corrige los errores en el formulario');
   };
 
@@ -731,11 +736,11 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                       <FieldContent>
                         <FieldLabel>
                           Líneas Innovadoras de Investigación Aplicada y
-                          Desarrollo Tecnológico (LIIADT's){' '}
+                          Desarrollo Tecnológico (LIIADT&apos;s){' '}
                         </FieldLabel>
                         <FieldDescription>
-                          Selecciona las LIIADT's estratégicas de la UTEQ con
-                          nichos tecnológicos prioritarios de desarrollo en
+                          Selecciona las LIIADT&apos;s estratégicas de la UTEQ
+                          con nichos tecnológicos prioritarios de desarrollo en
                           temas de Industria 4.0 con las que se relaciona el
                           proyecto.
                         </FieldDescription>
@@ -839,12 +844,18 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                       <SelectContent>
                         {loadingTeams ? (
                           <LoadingMessage message="Cargando equipos" />
-                        ) : (
+                        ) : teams.length > 0 ? (
                           teams.map((team: ITeam) => (
                             <SelectItem key={team._id} value={team._id}>
                               {team.teamName}
                             </SelectItem>
                           ))
+                        ) : (
+                          <div className="w-full select-none p-2 flex items-center justify-center">
+                            <span className="text-muted-foreground text-sm">
+                              No estás en ningún equipo
+                            </span>
+                          </div>
                         )}
                       </SelectContent>
                     </Select>
@@ -891,9 +902,11 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                           <Command>
                             <CommandGroup>
                               {loadingProjects ? (
-                                <CommandItem disabled>Cargando</CommandItem>
-                              ) : projects.length > 0 ? (
-                                projects.map((project: IProject) => {
+                                <CommandItem disabled>
+                                  <LoadingMessage message="Cargando proyectos" />
+                                </CommandItem>
+                              ) : filteredProjects.length > 0 ? (
+                                filteredProjects.map((project: IProject) => {
                                   const selected = value.includes(project._id);
 
                                   return (
@@ -939,7 +952,7 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
 
         <div className="flex gap-2">
           <Button variant={'outline'} type="button" asChild>
-            <Link href="/user/proyectos">Cancelar</Link>
+            <Link href={`${baseUrl}/proyectos/${project._id}`}>Cancelar</Link>
           </Button>
           <Button type="submit" disabled={updateProject.isPending}>
             {updateProject.isPending ? (

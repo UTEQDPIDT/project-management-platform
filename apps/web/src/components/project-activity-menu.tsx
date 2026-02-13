@@ -15,7 +15,7 @@ import { Button } from './ui/button';
 
 import { IActivity, IUser } from '@repo/types';
 import { useDeleteActivity, useRemoveAssignee } from '@/hooks/activities';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { DropdownMenuItem } from './ui/dropdown-menu';
 
 interface ProjectActivityMenu {
@@ -29,7 +29,7 @@ export function ProjectActivityMenu({
   activity,
   activitiesLength,
 }: ProjectActivityMenu) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
 
   const deleteActivity = useDeleteActivity();
   const removeAssignee = useRemoveAssignee();

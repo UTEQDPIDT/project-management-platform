@@ -295,9 +295,27 @@ export const initialUsers: Partial<CreateUserDto>[] = [
     role: UserRole.USER,
   },
   {
-    givenName: 'Laboratorio',
-    familyName: 'Realidad Aumentada',
-    email: 'laboratoriorealidadaumentada@uteq.edu.mx',
+    givenName: 'Yara Odeth',
+    familyName: 'Sainz García',
+    email: 'yara.sainz@uteq.edu.mx',
+    role: UserRole.USER,
+  },
+  {
+    givenName: 'Maria Susana',
+    familyName: 'Corral Campuzano',
+    email: 'scorral@uteq.edu.mx',
+    role: UserRole.USER,
+  },
+  {
+    givenName: 'Michelle María Fernanda',
+    familyName: 'Tirado Guerrero',
+    email: 'michelle.tirado@uteq.edu.mx',
+    role: UserRole.USER,
+  },
+  {
+    givenName: 'Miriam Liliana',
+    familyName: 'Barajas Ruíz',
+    email: 'mbarajas@uteq.edu.mx',
     role: UserRole.USER,
   },
 ];

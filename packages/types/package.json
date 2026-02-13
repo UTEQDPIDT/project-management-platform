@@ -14,9 +14,11 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "clean": "npx -y rimraf dist tsconfig.tsbuildinfo",
+    "build": "tsc -p tsconfig.json",
     "dev": "tsc --watch",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "prepare": "pnpm build"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",

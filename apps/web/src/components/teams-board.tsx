@@ -1,14 +1,22 @@
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { ITeam } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import IconSquare from './icon-square';
-import { Plus, Users } from 'lucide-react';
-import LoadingMessage from './loading-message';
-import ErrorCard from './error-card';
+import { useUserProfile } from 'context/profile-provider';
+import { ArrowUpRight, Plus, Users } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from './ui/button';
+import ErrorCard from './error-card';
+import IconSquare from './icon-square';
+import LoadingMessage from './loading-message';
 import { TeamCard } from './team-card';
+import { Button } from './ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from './ui/empty';
 
 type TeamsBoardProps = {
   teams: ITeam[];
@@ -21,7 +29,7 @@ export default function TeamsBoard({
   isLoading,
   isError,
 }: TeamsBoardProps) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   return (
@@ -42,12 +50,11 @@ export default function TeamsBoard({
           <LoadingMessage message="Cargando Equipos" />
         ) : isError ? (
           <ErrorCard />
-        ) : (
+        ) : teams.length > 0 ? (
           <div className="flex flex-wrap items-center justify-center gap-4">
-            {teams.length > 0 &&
-              teams.map((t: ITeam) => (
-                <TeamCard key={t._id} team={t} variant="compact" />
-              ))}
+            {teams.map((t: ITeam) => (
+              <TeamCard key={t._id} team={t} variant="compact" />
+            ))}
             <Link href={`${baseUrl}/equipos/crear`} className="w-52 h-36">
               <Card className="w-full hover:shadow-xl min-w-52 shrink-0 flex items-center justify-center h-full">
                 <CardContent>
@@ -58,6 +65,30 @@ export default function TeamsBoard({
               </Card>
             </Link>
           </div>
+        ) : (
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Users />
+              </EmptyMedia>
+              <EmptyTitle>No Tienes Equipos</EmptyTitle>
+              <EmptyDescription>
+                Inicia creando un nuevo equipo o unete a un equipo existente.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button asChild size="sm" variant="outline">
+                <Link href={`${baseUrl}/equipos/crear`}>
+                  <Plus /> Nuevo Equipo
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="ghost">
+                <Link href={`${baseUrl}/equipos`}>
+                  Ver equipos <ArrowUpRight />
+                </Link>
+              </Button>
+            </EmptyContent>
+          </Empty>
         )}
       </CardContent>
     </Card>

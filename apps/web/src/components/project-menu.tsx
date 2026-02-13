@@ -22,7 +22,7 @@ import {
 } from './ui/dialog';
 import { useRouter } from 'next/navigation';
 import { useDeleteProject } from '@/hooks/projects';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { UserRole } from '@repo/types';
 
 export function ProjectMenu({
@@ -34,7 +34,7 @@ export function ProjectMenu({
 }) {
   const deleteProject = useDeleteProject();
   const router = useRouter();
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
 
   return (

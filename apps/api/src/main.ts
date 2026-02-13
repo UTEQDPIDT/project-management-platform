@@ -30,7 +30,7 @@ async function bootstrap() {
    * CORS configuration
    */
   app.enableCors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL ?? 'http://prep.uteq.edu.mx',
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -53,8 +53,13 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3001);
 
-  console.log(`Application is running on: ${await app.getUrl()}/api`);
-  console.log(`Swagger UI available at: ${await app.getUrl()}/docs`);
-  console.log(`Swagger JSON available at: ${await app.getUrl()}/docs-json`);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`Application is running on: ${await app.getUrl()}/api`);
+    console.log(`Swagger UI available at: ${await app.getUrl()}/docs`);
+    console.log(`Swagger JSON available at: ${await app.getUrl()}/docs-json`);
+  }
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Failed to start application:', err);
+  process.exit(1);
+});

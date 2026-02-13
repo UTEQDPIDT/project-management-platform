@@ -13,7 +13,7 @@ import {
 } from './ui/dropdown-menu';
 
 import { IUser } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 
 type FileContextValue = {
   onDelete?: (fileId: string) => void;
@@ -45,7 +45,7 @@ export default function FileList({
   files,
   ...handlers
 }: FileListProps) {
-  const { user: currentUser } = userProfile();
+  const { user: currentUser } = useUserProfile();
 
   return (
     <FileContext.Provider

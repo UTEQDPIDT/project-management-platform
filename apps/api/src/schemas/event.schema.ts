@@ -2,7 +2,6 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { ApiProperty } from '@nestjs/swagger';
-import { Activity } from './activities.schema';
 import { Product } from './product.schema';
 import { EventType } from '@repo/types';
 
@@ -41,7 +40,7 @@ export class Event extends Document {
   location: string;
 
   @ApiProperty({ description: 'Tipo de evento', enum: EventType })
-  @Prop({ enum: EventType, required: true })
+  @Prop({ type: String, enum: Object.values(EventType), required: true })
   type: EventType;
 
   @ApiProperty({ description: 'Lista de participantes del evento' })

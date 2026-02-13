@@ -1,14 +1,22 @@
-import { IProject } from '@repo/types';
-import { Folder, Plus } from 'lucide-react';
-import IconSquare from './icon-square';
-import { ProjectCard } from './project-card';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import LoadingMessage from './loading-message';
-import ErrorCard from './error-card';
-import { Button } from './ui/button';
-import Link from 'next/link';
-import { userProfile } from 'context/profile-provider';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
+import { IProject } from '@repo/types';
+import { useUserProfile } from 'context/profile-provider';
+import { Folder, Plus } from 'lucide-react';
+import Link from 'next/link';
+import ErrorCard from './error-card';
+import IconSquare from './icon-square';
+import LoadingMessage from './loading-message';
+import { ProjectCard } from './project-card';
+import { Button } from './ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from './ui/empty';
 
 interface ProjectsBoardProps {
   projects: IProject[];
@@ -21,7 +29,7 @@ export function ProjectsBoard({
   loading,
   error,
 }: ProjectsBoardProps) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   return (
@@ -42,12 +50,11 @@ export function ProjectsBoard({
           <LoadingMessage message="Cargando Proyectos" />
         ) : error ? (
           <ErrorCard />
-        ) : (
+        ) : projects.length > 0 ? (
           <div className="flex flex-wrap items-center justify-center gap-4">
-            {projects.length > 0 &&
-              projects.map((p: IProject) => (
-                <ProjectCard key={p._id} project={p} variant="compact" />
-              ))}
+            {projects.map((p: IProject) => (
+              <ProjectCard key={p._id} project={p} variant="compact" />
+            ))}
             <Link href={`${baseUrl}/proyectos/crear`} className="w-52 h-36">
               <Card className="w-full hover:shadow-xl min-w-52 shrink-0 flex items-center justify-center h-full">
                 <CardContent>
@@ -58,6 +65,25 @@ export function ProjectsBoard({
               </Card>
             </Link>
           </div>
+        ) : (
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Folder />
+              </EmptyMedia>
+              <EmptyTitle>No Tienes Proyectos</EmptyTitle>
+              <EmptyDescription>
+                Inicia creando un nuevo proyecto
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button asChild size="sm" variant="outline">
+                <Link href={`${baseUrl}/proyectos/crear`}>
+                  <Plus /> Nuevo Proyecto
+                </Link>
+              </Button>
+            </EmptyContent>
+          </Empty>
         )}
       </CardContent>
     </Card>

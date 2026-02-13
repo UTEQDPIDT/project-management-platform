@@ -46,7 +46,7 @@ import {
   UserRole,
   UserType,
 } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { ListTodo, Shapes } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -56,7 +56,7 @@ import RegisterProductsForm from '../forms/register-product-form';
 import { toast } from 'sonner';
 
 const EventPage = () => {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   /**
@@ -91,19 +91,16 @@ const EventPage = () => {
     });
   };
 
-  const onFileValidate = useCallback(
-    (file: File): string | null => {
-      if (!file.type.endsWith('pdf')) {
-        return 'Solo se aceptan PDFs';
-      }
-      const MAX_SIZE = 5 * 1024 * 1024;
-      if (file.size > MAX_SIZE) {
-        return `El peso del archivo no debe exceder ${MAX_SIZE / (1024 * 1024)}MB`;
-      }
-      return null;
-    },
-    [filesToUpload],
-  );
+  const onFileValidate = useCallback((file: File): string | null => {
+    if (!file.type.endsWith('pdf')) {
+      return 'Solo se aceptan PDFs';
+    }
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      return `El peso del archivo no debe exceder ${MAX_SIZE / (1024 * 1024)}MB`;
+    }
+    return null;
+  }, []);
 
   const onFileReject = useCallback((file: File, message: string) => {
     toast(message, {

@@ -1,12 +1,11 @@
 import { BadgeVariants, IEvent, IUser } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
   ArrowUpRight,
   Calendar,
   CheckSquare,
-  Info,
   MapPin,
   Shapes,
 } from 'lucide-react';
@@ -35,7 +34,7 @@ interface EventCardProps {
   variant?: EventCardVariant;
 }
 function EventCardCompact({ event }: { event: IEvent }) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
   // Participants for AvatarRow
   const profiles =
@@ -45,26 +44,26 @@ function EventCardCompact({ event }: { event: IEvent }) {
       avatarUrl: u.avatarUrl,
     })) || [];
 
-  let badgeVariant:
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'green'
-    | 'gray'
-    | 'purple'
-    | 'orange'
-    | 'blue'
-    | null
-    | undefined;
-  switch (event.isPrivate) {
-    case true:
-      badgeVariant = BadgeVariants.PURPLE;
-      break;
-    case false:
-      badgeVariant = BadgeVariants.BLUE;
-      break;
-  }
+  //   let badgeVariant:
+  //     | 'default'
+  //     | 'secondary'
+  //     | 'destructive'
+  //     | 'outline'
+  //     | 'green'
+  //     | 'gray'
+  //     | 'purple'
+  //     | 'orange'
+  //     | 'blue'
+  //     | null
+  //     | undefined;
+  //   switch (event.isPrivate) {
+  //     case true:
+  //       badgeVariant = BadgeVariants.PURPLE;
+  //       break;
+  //     case false:
+  //       badgeVariant = BadgeVariants.BLUE;
+  //       break;
+  //   }
 
   return (
     <Link
@@ -98,12 +97,8 @@ function EventCardCompact({ event }: { event: IEvent }) {
   );
 }
 
-export function EventCard({ event, variant = 'default' }: EventCardProps) {
-  if (variant === 'compact') {
-    return <EventCardCompact event={event} />;
-  }
-
-  const { user } = userProfile();
+function EventCardComplete({ event }: { event: IEvent }) {
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
   const { data: activities } = useActivitiesByEntity(event._id);
   const registerParticipant = useRegisterParticipant();
@@ -228,4 +223,12 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
       </CardFooter>
     </Card>
   );
+}
+
+export function EventCard({ event, variant = 'default' }: EventCardProps) {
+  if (variant === 'compact') {
+    return <EventCardCompact event={event} />;
+  } else {
+    return <EventCardComplete event={event} />;
+  }
 }

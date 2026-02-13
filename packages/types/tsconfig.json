@@ -1,9 +1,16 @@
 {
   "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "esModuleInterop": true
   },
-  "include": ["src", "src/index.ts"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

@@ -40,6 +40,90 @@ import { useFilesForEntity } from '@/hooks/files';
 import FileButton from './file-button';
 import { copyValue } from '@/lib/utils';
 
+const EventFileButton = ({
+  eventId,
+  filePurpose,
+}: {
+  eventId: string;
+  filePurpose: FilePurpose;
+}) => {
+  const { data: files = [], isLoading } = useFilesForEntity(eventId);
+
+  const file = files.find((file: IFile) => file.purpose === filePurpose);
+
+  return (
+    <div>
+      {isLoading ? (
+        <LoadingMessage />
+      ) : file ? (
+        <FileButton canDelete file={file} className="max-w-72" />
+      ) : (
+        <span className="text-sm text-muted-foreground">Vacío</span>
+      )}
+    </div>
+  );
+};
+
+const EventActions = (event: IEvent) => {
+  const deleteEvent = useDeleteEvent();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon-sm">
+          <MoreHorizontal />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+        <DropdownMenuItem asChild>
+          <Link href={`/admin/eventos/${event._id}/editar`}>
+            <Pencil /> Editar evento
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={`/admin/eventos/${event._id}`}>
+            <ExternalLink /> Visitar evento
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => copyValue(event._id)}>
+          <Copy /> Copiar ID
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild className="hover:text-destructive-foreground">
+          <Dialog>
+            <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
+              <Trash />
+              Eliminar evento
+            </DialogTrigger>
+            <DialogContent>
+              <Badge variant="destructive">Eliminando</Badge>
+              <DialogTitle>{event.name}</DialogTitle>
+              <DialogDescription>
+                ¿Seguro deseas eliminar el evento? Esta es una operación
+                irreversible.
+              </DialogDescription>
+              <div className="flex gap-2">
+                <DialogClose asChild>
+                  <Button variant="outline">Cancelar</Button>
+                </DialogClose>
+                <DialogClose asChild>
+                  <Button
+                    onClick={() => deleteEvent.mutate(event._id)}
+                    variant="destructive"
+                  >
+                    Eliminar
+                  </Button>
+                </DialogClose>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
 const columns: ColumnDef<IEvent>[] = [
   {
     accessorKey: 'name',
@@ -224,22 +308,12 @@ const columns: ColumnDef<IEvent>[] = [
     header: 'Informe Técnico',
     cell: ({ row }) => {
       const event = row.original;
-      const { data: files = [], isLoading } = useFilesForEntity(event._id);
-
-      const technicalReport = files.find(
-        (file: IFile) => file.purpose === FilePurpose.EVENT_TECHNICAL_REPORT,
-      );
 
       return (
-        <div>
-          {isLoading ? (
-            <LoadingMessage />
-          ) : technicalReport ? (
-            <FileButton canDelete file={technicalReport} className="max-w-72" />
-          ) : (
-            <span className="text-sm text-muted-foreground">Vacío</span>
-          )}
-        </div>
+        <EventFileButton
+          eventId={event._id}
+          filePurpose={FilePurpose.EVENT_TECHNICAL_REPORT}
+        />
       );
     },
   },
@@ -248,89 +322,22 @@ const columns: ColumnDef<IEvent>[] = [
     header: 'Informe Financiero',
     cell: ({ row }) => {
       const event = row.original;
-      const { data: files = [], isLoading } = useFilesForEntity(event._id);
-
-      const financialReport = files.find(
-        (file: IFile) => file.purpose === FilePurpose.EVENT_FINANCIAL_REPORT,
-      );
 
       return (
-        <div>
-          {isLoading ? (
-            <LoadingMessage />
-          ) : financialReport ? (
-            <FileButton canDelete file={financialReport} className="max-w-72" />
-          ) : (
-            <span className="text-sm text-muted-foreground">Vacío</span>
-          )}
-        </div>
+        <EventFileButton
+          eventId={event._id}
+          filePurpose={FilePurpose.EVENT_FINANCIAL_REPORT}
+        />
       );
     },
   },
   {
     id: 'actions',
+    header: 'Acciones',
     cell: ({ row }) => {
       const event = row.original;
-      const deleteEvent = useDeleteEvent();
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm">
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/eventos/${event._id}/editar`}>
-                <Pencil /> Editar evento
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/eventos/${event._id}`}>
-                <ExternalLink /> Visitar evento
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => copyValue(event._id)}>
-              <Copy /> Copiar ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              asChild
-              className="hover:text-destructive-foreground"
-            >
-              <Dialog>
-                <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
-                  <Trash />
-                  Eliminar evento
-                </DialogTrigger>
-                <DialogContent>
-                  <Badge variant="destructive">Eliminando</Badge>
-                  <DialogTitle>{event.name}</DialogTitle>
-                  <DialogDescription>
-                    ¿Seguro deseas eliminar el evento? Esta es una operación
-                    irreversible.
-                  </DialogDescription>
-                  <div className="flex gap-2">
-                    <DialogClose asChild>
-                      <Button variant="outline">Cancelar</Button>
-                    </DialogClose>
-                    <DialogClose asChild>
-                      <Button
-                        onClick={() => deleteEvent.mutate(event._id)}
-                        variant="destructive"
-                      >
-                        Eliminar
-                      </Button>
-                    </DialogClose>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <EventActions {...event} />;
     },
   },
 ];

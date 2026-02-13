@@ -21,7 +21,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from './ui/empty';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { useRemoveParticipant } from '@/hooks/events';
 import { cn } from '@/lib/utils';
 
@@ -34,7 +34,7 @@ export default function ParticipantsCard({
   event,
   className,
 }: ParticipantsCardProps) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const removeParticipant = useRemoveParticipant();
 
   return (

@@ -10,12 +10,12 @@ import {
 import { PageContent } from '@/components/page-content';
 import { Button } from '@/components/ui/button';
 import React from 'react';
-import { Folder, Plus, Users } from 'lucide-react';
+import { Plus, Users } from 'lucide-react';
 import { useAllTeams } from '@/hooks/team';
 import LoadingMessage from '@/components/loading-message';
 import Link from 'next/link';
 import { ITeam } from '@repo/types';
-import {TeamCard} from '@/components/team-card';
+import { TeamCard } from '@/components/team-card';
 import ErrorCard from '@/components/error-card';
 import {
   Empty,
@@ -42,7 +42,7 @@ const Page = () => {
           <Button asChild>
             <Link href={'/user/equipos/crear'}>
               <Plus />
-              Crear Equipo
+              Nuevo Equipo
             </Link>
           </Button>
         </HeaderAction>
@@ -66,11 +66,13 @@ const Page = () => {
               </EmptyMedia>
               <EmptyTitle>No Hay Equipos</EmptyTitle>
               <EmptyDescription>
-                No haz creado ningun equipo. Inicia creando tu primer equipo.
+                Inicia creando tu primer equipo
               </EmptyDescription>
               <EmptyContent>
-                <Button size="sm" asChild>
-                  <Link href={'/user/equipos/crear'}>Crear Equipo</Link>
+                <Button size="sm" asChild variant="outline">
+                  <Link href={'/user/equipos/crear'}>
+                    <Plus /> Nuevo Equipo
+                  </Link>
                 </Button>
               </EmptyContent>
             </EmptyHeader>

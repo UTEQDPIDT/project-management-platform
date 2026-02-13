@@ -45,7 +45,7 @@ const Page = () => {
         <HeaderAction>
           <Button asChild>
             <Link href={'/user/proyectos/crear'}>
-              <Plus /> Crear Proyecto
+              <Plus /> Nuevo Proyecto
             </Link>
           </Button>
         </HeaderAction>
@@ -69,12 +69,13 @@ const Page = () => {
               </EmptyMedia>
               <EmptyTitle>No Tienes Proyectos</EmptyTitle>
               <EmptyDescription>
-                No haz creado ningun proyecto. Inicia creanto tu primer
-                proyecto.
+                Inicia creando tu primer proyecto
               </EmptyDescription>
               <EmptyContent>
-                <Button asChild>
-                  <Link href={'/user/proyectos/crear'}>Crear Proyecto</Link>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={'/user/proyectos/crear'}>
+                    <Plus /> Nuevo Proyecto
+                  </Link>
                 </Button>
               </EmptyContent>
             </EmptyHeader>

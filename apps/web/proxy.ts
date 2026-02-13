@@ -5,7 +5,7 @@ import { UserRole } from '@repo/types';
 
 const SECRET = new TextEncoder().encode(process.env.NEXT_PRIVATE_JWT_SECRET!);
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const token = req.cookies.get('accessToken')?.value;
   const { pathname } = req.nextUrl;
 

@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "tsc -p tsconfig.build.json",
     "start": "nest start",
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -16,7 +16,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@casl/ability": "^6.7.5",
@@ -28,6 +29,7 @@
     "@nestjs/mongoose": "^11.0.3",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.2.1",
     "@nestjs/throttler": "^6.5.0",
     "@repo/types": "workspace:*",
     "argon2": "^0.44.0",
@@ -37,6 +39,7 @@
     "cookie-parser": "^1.4.7",
     "helmet": "^8.1.0",
     "mongoose": "^8.19.3",
+    "multer": "^2.0.2",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
@@ -47,7 +50,6 @@
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@nestjs/schematics": "^11.0.0",
-    "@nestjs/swagger": "^11.2.1",
     "@nestjs/testing": "^11.0.1",
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.0",

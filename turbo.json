@@ -1,6 +1,20 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "NEXT_PRIVATE_JWT_SECRET",
+    "SEED_PASSWORD",
+    "NODE_ENV",
+    "FRONTEND_URL",
+    "REFRESH_JWT_SECRET",
+    "REFRESH_JWT_EXPIRES_IN",
+    "JWT_SECRET",
+    "JWT_EXPIRES_IN",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "GOOGLE_CALLBACK_URL",
+    "PORT"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

@@ -7,7 +7,7 @@ import {
   TeamMembershipStatus,
   TeamsGrade,
 } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { ArrowUpRight, UserPlus, Users } from 'lucide-react';
 import Link from 'next/link';
 import AvatarRow from './avatar-row';
@@ -41,7 +41,7 @@ function TeamCardDefault({ team }: { team: ITeam }) {
   /**
    * Context
    */
-  const { user } = userProfile();
+  const { user } = useUserProfile();
 
   /**
    * Get base URL
@@ -205,7 +205,7 @@ function TeamCardCompact({ team }: { team: ITeam }) {
   /**
    * Context
    */
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   const owner = team?.memberships.find(

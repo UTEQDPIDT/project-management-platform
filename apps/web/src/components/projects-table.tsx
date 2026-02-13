@@ -41,6 +41,90 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useProjectProducts } from '@/hooks/products';
 
+const ProjectProgress = ({ projectId }: { projectId: string }) => {
+  const { data: activities } = useActivitiesByEntity(projectId);
+  const progress = calculateProgress(activities ?? []);
+
+  return (
+    <div>
+      <div className="p-2 hover:bg-secondary rounded-md flex gap-2 w-full min-w-48 items-center">
+        <Progress value={progress} />
+        <div className="flex text-xs select-none">
+          <span>{progress}</span>
+          <span>%</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ProductCount = ({ projectId }: { projectId: string }) => {
+  const { data: products, isLoading } = useProjectProducts(projectId);
+  return <div>{isLoading ? <LoadingMessage /> : products.length}</div>;
+};
+
+const ProjectsActions = ({ project }: { project: IProject }) => {
+  const deleteProject = useDeleteProject();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon-sm">
+          <MoreHorizontal />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+        <DropdownMenuItem asChild>
+          <Link href={`/admin/proyectos/${project._id}/editar`}>
+            <Pencil /> Editar proyecto
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={`/admin/proyectos/${project._id}`}>
+            <ExternalLink /> Visitar proyecto
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild onClick={() => copyValue(project._id)}>
+          <span>
+            <Copy /> Copiar ID
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild className="hover:text-destructive-foreground">
+          <Dialog>
+            <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
+              <Trash />
+              Eliminar proyecto
+            </DialogTrigger>
+            <DialogContent>
+              <Badge variant="destructive">Eliminando</Badge>
+              <DialogTitle>{project.name}</DialogTitle>
+              <DialogDescription>
+                ¿Seguro deseas eliminar el evento? Esta es una operación
+                irreversible.
+              </DialogDescription>
+              <div className="flex gap-2">
+                <DialogClose asChild>
+                  <Button variant="outline">Cancelar</Button>
+                </DialogClose>
+                <DialogClose asChild>
+                  <Button
+                    onClick={() => deleteProject.mutate(project._id)}
+                    variant="destructive"
+                  >
+                    Eliminar
+                  </Button>
+                </DialogClose>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
 const columns: ColumnDef<IProject>[] = [
   {
     accessorKey: 'name',
@@ -67,21 +151,8 @@ const columns: ColumnDef<IProject>[] = [
     header: 'Progreso',
     cell: ({ row }) => {
       const project = row.original;
-      const { data: activities, isLoading: loadingActivities } =
-        useActivitiesByEntity(project._id);
-      const progress = calculateProgress(activities ?? []);
 
-      return (
-        <div>
-          <div className="p-2 hover:bg-secondary rounded-md flex gap-2 w-full min-w-48 items-center">
-            <Progress value={progress} />
-            <div className="flex text-xs select-none">
-              <span>{progress}</span>
-              <span>%</span>
-            </div>
-          </div>
-        </div>
-      );
+      return <ProjectProgress projectId={project._id} />;
     },
   },
   {
@@ -89,8 +160,7 @@ const columns: ColumnDef<IProject>[] = [
     header: 'Productos',
     cell: ({ row }) => {
       const { _id } = row.original;
-      const { data: products, isLoading } = useProjectProducts(_id);
-      return <div>{isLoading ? <LoadingMessage /> : products.length}</div>;
+      return <ProductCount projectId={_id} />;
     },
   },
   {
@@ -133,70 +203,10 @@ const columns: ColumnDef<IProject>[] = [
   },
   {
     id: 'actions',
+    header: 'Acciones',
     cell: ({ row }) => {
       const project = row.original;
-      const deleteProject = useDeleteProject();
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm">
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/proyectos/${project._id}/editar`}>
-                <Pencil /> Editar proyecto
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/proyectos/${project._id}`}>
-                <ExternalLink /> Visitar proyecto
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild onClick={() => copyValue(project._id)}>
-              <span>
-                <Copy /> Copiar ID
-              </span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              asChild
-              className="hover:text-destructive-foreground"
-            >
-              <Dialog>
-                <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
-                  <Trash />
-                  Eliminar proyecto
-                </DialogTrigger>
-                <DialogContent>
-                  <Badge variant="destructive">Eliminando</Badge>
-                  <DialogTitle>{project.name}</DialogTitle>
-                  <DialogDescription>
-                    ¿Seguro deseas eliminar el evento? Esta es una operación
-                    irreversible.
-                  </DialogDescription>
-                  <div className="flex gap-2">
-                    <DialogClose asChild>
-                      <Button variant="outline">Cancelar</Button>
-                    </DialogClose>
-                    <DialogClose asChild>
-                      <Button
-                        onClick={() => deleteProject.mutate(project._id)}
-                        variant="destructive"
-                      >
-                        Eliminar
-                      </Button>
-                    </DialogClose>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <ProjectsActions project={project} />;
     },
   },
 ];

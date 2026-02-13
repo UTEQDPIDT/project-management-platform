@@ -35,7 +35,7 @@ import {
   FieldSet,
 } from '../ui/field';
 import { useRouter } from 'next/navigation';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import Link from 'next/link';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
@@ -65,7 +65,7 @@ type UpdateTeamFormProps = {
 
 export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
   const router = useRouter();
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   /**
@@ -136,7 +136,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = () => {
     toast.error('Por favor corrige los errores en el formulario');
   };
 
@@ -472,10 +472,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
               <Controller
                 control={form.control}
                 name="isPrivate"
-                render={({
-                  field: { onChange, onBlur, ...field },
-                  fieldState,
-                }) => (
+                render={({ field: { onChange, ...field }, fieldState }) => (
                   <Field
                     orientation={'horizontal'}
                     data-invalid={fieldState.invalid}

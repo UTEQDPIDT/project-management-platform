@@ -1,39 +1,33 @@
 services:
-  # web:
-  #   container_name: web
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/web/Dockerfile.dev
-  #   restart: always
-  #   ports:
-  #     - 3000:3000
-  #   environment:
-  #     - WATCHPACK_POLLING=true
-  #     - CHOKIDAR_USEPOLLING=true
-  #     - CHOKIDAR_INTERVAL=300
-  #     - NEXT_TELEMETRY_DISABLED=1
-  #     - TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling
-  #   volumes:
-  #     - ./apps/web:/app/apps/web # Mount local WEB source code
-  #     - /app/apps/web/node_modules # Prevent overwriting node_modules
-  #     - ./packages:/app/packages # Mount shared packages (optional, for monorepo)
-  #   depends_on:
-  #     - api
-  #   networks:
-  #     - app_network
+  web:
+    container_name: web
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - app_network
 
   api:
     container_name: api
     build:
       context: .
-      dockerfile: ./apps/api/Dockerfile.dev
+      dockerfile: ./apps/api/Dockerfile
     restart: always
     ports:
       - 3001:3001
     env_file:
-      - ./apps/api/.env.development
+      - ./apps/api/.env.production
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     networks:
       - app_network
 
@@ -41,24 +35,42 @@ services:
     container_name: mongodb
     image: mongo:6
     restart: always
-    ports:
-      - 27017:27017
-    command: ['mongod', '--replSet', 'rs0', '--bind_ip_all']
-    # Disabe authentication for dev (enable for production)
-    # environment:
-    #   - MONGO_INITDB_ROOT_USERNAME=user
-    #   - MONGO_INITDB_ROOT_PASSWORD=pass
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_KEYFILE_CONTENT=${MONGO_KEYFILE}
     volumes:
       - mongodb_data:/data/db
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo "$$MONGO_KEYFILE_CONTENT" > /tmp/mongodb.key
+        chmod 400 /tmp/mongodb.key
+        chown 999:999 /tmp/mongodb.key
+        exec docker-entrypoint.sh "$$@"
+      - --
+    command:
+      [
+        'mongod',
+        '--replSet',
+        'rs0',
+        '--bind_ip_all',
+        '--keyFile',
+        '/tmp/mongodb.key',
+      ]
     networks:
       - app_network
     healthcheck:
-      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]}) }" | mongosh --port 27017 --quiet
+      test:
+        [
+          'CMD-SHELL',
+          'mongosh -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "db.adminCommand(''ping'')"',
+        ]
       interval: 5s
-      timeout: 30s
-      start_period: 0s
-      start_interval: 1s
-      retries: 30
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
 networks:
   app_network:

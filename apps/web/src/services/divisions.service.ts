@@ -1,12 +1,8 @@
 import { api } from '@/lib/axios';
 
 const getDivisions = async () => {
-  try {
-    const { data } = await api.get('/catalogs/divisions');
-    return data;
-  } catch (err) {
-    console.error('Error fetching divisions', err);
-  }
+  const { data } = await api.get('/catalogs/divisions');
+  return data;
 };
 
 export { getDivisions };

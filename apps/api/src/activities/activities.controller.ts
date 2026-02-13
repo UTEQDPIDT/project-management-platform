@@ -84,12 +84,12 @@ export class ActivitiesController {
   @ApiNotFoundResponse({ description: 'No se encontro la actividad.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @Patch(':id/add-assignee')
-  addAssignee(
+  async addAssignee(
     @Param('id') id: string,
     @Body('userId') userId: string,
     @Req() req,
   ) {
-    this.activitiesService.addAssignee(id, userId, req.user.id);
+    await this.activitiesService.addAssignee(id, userId, req.user.id);
   }
 
   @ApiAcceptedResponse({
@@ -98,12 +98,12 @@ export class ActivitiesController {
   @ApiNotFoundResponse({ description: 'No se encontro la actividad.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @Patch(':id/remove-assignee')
-  removeAssignee(
+  async removeAssignee(
     @Param('id') id: string,
     @Body('userId') userId: string,
     @Req() req,
   ) {
-    this.activitiesService.removeAssignee(id, userId, req.user.id);
+    await this.activitiesService.removeAssignee(id, userId, req.user.id);
   }
 
   @ApiAcceptedResponse({ description: 'Actividad eliminada correctamente.' })

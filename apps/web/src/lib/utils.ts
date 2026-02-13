@@ -147,3 +147,5 @@ export function trimFileNameMiddle(
   const end = fileName.slice(-keepLength);
   return `${start}...${end}`;
 }
+
+export const uteqEmailRegex = /^[A-Za-z0-9._%+-]+@uteq\.edu\.mx$/i;

@@ -13,11 +13,11 @@ import TeamsBoard from '@/components/teams-board';
 import { useEventsByUser } from '@/hooks/events';
 import { useProjectsByOwner } from '@/hooks/projects';
 import { useTeamsByUser } from '@/hooks/team';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import React from 'react';
 
 const Page = () => {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const {
     data: projects,
     isLoading: loadingProjects,

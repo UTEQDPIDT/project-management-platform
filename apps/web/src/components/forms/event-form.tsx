@@ -132,7 +132,7 @@ export default function EventForm({ event }: EventFormProps) {
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = () => {
     toast.error('Por favor corrige los errores en el formulario');
   };
 
@@ -377,18 +377,19 @@ export default function EventForm({ event }: EventFormProps) {
                                         : [...value, user._id],
                                     );
                                   }}
+                                  className="flex justify-between"
                                 >
-                                  <Check
-                                    className={`mr-2 h-4 w-4 ${
-                                      selected ? 'opacity-100' : 'opacity-0'
-                                    }`}
-                                  />
-
                                   <ProfileInfo
                                     givenName={user.givenName}
                                     familyName={user.familyName}
                                     avatarUrl={user.avatarUrl}
+                                    userType={user.type}
                                     size="sm"
+                                  />
+                                  <Check
+                                    className={`mr-2 h-4 w-4 ${
+                                      selected ? 'opacity-100' : 'opacity-0'
+                                    }`}
                                   />
                                 </CommandItem>
                               );
@@ -421,10 +422,7 @@ export default function EventForm({ event }: EventFormProps) {
             <Controller
               control={form.control}
               name="isPrivate"
-              render={({
-                field: { onChange, onBlur, ...field },
-                fieldState,
-              }) => (
+              render={({ field: { onChange, ...field }, fieldState }) => (
                 <Field
                   orientation={'horizontal'}
                   data-invalid={fieldState.invalid}
@@ -453,10 +451,7 @@ export default function EventForm({ event }: EventFormProps) {
             <Controller
               control={form.control}
               name="acceptsProducts"
-              render={({
-                field: { onChange, onBlur, ...field },
-                fieldState,
-              }) => (
+              render={({ field: { onChange, ...field }, fieldState }) => (
                 <Field
                   orientation={'horizontal'}
                   data-invalid={fieldState.invalid}

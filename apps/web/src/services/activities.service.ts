@@ -1,21 +1,18 @@
 import { api } from '@/lib/axios';
+import { ActivityPayload } from '@repo/types';
 
-const createActivity = async ({ activityData }: { activityData: any }) => {
-  try {
-    const { data } = await api.post('/activities', activityData);
-    return data;
-  } catch (error) {
-    throw error;
-  }
+const createActivity = async ({
+  activityData,
+}: {
+  activityData: ActivityPayload;
+}) => {
+  const { data } = await api.post('/activities', activityData);
+  return data;
 };
 
 const getActivitiesByEntityId = async (entityId: string) => {
-  try {
-    const { data } = await api.get(`/activities/entity/${entityId}`);
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const { data } = await api.get(`/activities/entity/${entityId}`);
+  return data;
 };
 
 const updateActivity = async ({
@@ -23,15 +20,10 @@ const updateActivity = async ({
   activityData,
 }: {
   activityId: string;
-  activityData: any;
+  activityData: ActivityPayload;
 }) => {
-  try {
-    const { data } = await api.patch(`/activities/${activityId}`, activityData);
-    return data;
-  } catch (err) {
-    console.error('Error updating activity', err);
-    throw err;
-  }
+  const { data } = await api.patch(`/activities/${activityId}`, activityData);
+  return data;
 };
 
 const addAssignee = async ({
@@ -41,11 +33,7 @@ const addAssignee = async ({
   activityId: string;
   userId: string;
 }) => {
-  try {
-    await api.patch(`/activities/${activityId}/add-assignee`, { userId });
-  } catch (err) {
-    throw err;
-  }
+  await api.patch(`/activities/${activityId}/add-assignee`, { userId });
 };
 
 const removeAssignee = async ({
@@ -55,21 +43,12 @@ const removeAssignee = async ({
   activityId: string;
   userId: string;
 }) => {
-  try {
-    await api.patch(`activities/${activityId}/remove-assignee`, { userId });
-  } catch (err) {
-    console.error('Error removing assignee');
-  }
+  await api.patch(`activities/${activityId}/remove-assignee`, { userId });
 };
 
 const deleteActivity = async (activityId: string) => {
-  try {
-    const { data } = await api.delete(`/activities/${activityId}`);
-    return data;
-  } catch (err) {
-    console.error('Error deleting activity', err);
-    throw err;
-  }
+  const { data } = await api.delete(`/activities/${activityId}`);
+  return data;
 };
 
 export {

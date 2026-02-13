@@ -44,13 +44,13 @@ export class File extends Document {
     description: 'El tipo de entidad propietaria del archivo.',
     enum: EntityType,
   })
-  @Prop({ type: String, enum: EntityType, required: true })
+  @Prop({ type: String, enum: Object.values(EntityType), required: true })
   entityType: EntityType;
 
   @ApiProperty({ description: 'El propósito del archivo.', enum: FilePurpose })
   @Prop({
     type: String,
-    enum: FilePurpose,
+    enum: Object.values(FilePurpose),
     required: true,
     default: FilePurpose.GENERIC,
   })

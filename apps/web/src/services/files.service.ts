@@ -40,19 +40,15 @@ const uploadMultipleFiles = async ({
   entityType: EntityType;
   purpose?: FilePurpose;
 }): Promise<UploadMultipleFilesResponse> => {
-  try {
-    const formData = new FormData();
+  const formData = new FormData();
 
-    files.forEach((file) => formData.append('files', file));
-    formData.append('entityId', entityId);
-    formData.append('entityType', entityType);
-    formData.append('purpose', purpose);
+  files.forEach((file) => formData.append('files', file));
+  formData.append('entityId', entityId);
+  formData.append('entityType', entityType);
+  formData.append('purpose', purpose);
 
-    const { data } = await api.post('/files/upload/multiple', formData);
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const { data } = await api.post('/files/upload/multiple', formData);
+  return data;
 };
 
 const getAllFiles = async () => {
@@ -65,13 +61,9 @@ const getAllFiles = async () => {
   }
 };
 
-const getFilesForEntity = async (entityId: string) => {
-  try {
-    const { data } = await api.get(`/files/for-entity/${entityId}`);
-    return data;
-  } catch (error) {
-    throw error;
-  }
+const getFilesForEntity = async (entityId?: string) => {
+  const { data } = await api.get(`/files/for-entity/${entityId}`);
+  return data;
 };
 
 const downloadFile = async (fileId: string, fileName: string) => {

@@ -70,11 +70,11 @@ import {
 import { Separator } from '../ui/separator';
 import { TRLForm } from './trl-assesment-form';
 import { toast } from 'sonner';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 
 export function CreateProjectForm() {
-  const { user } = userProfile();
-  const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
+  const { user } = useUserProfile();
+  const baseUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
   /**
    * React Query Hooks
    */
@@ -142,7 +142,7 @@ export function CreateProjectForm() {
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = () => {
     toast.error('Por favor corrige los errores en el formulario');
   };
 
@@ -701,11 +701,11 @@ export function CreateProjectForm() {
                       <FieldContent>
                         <FieldLabel>
                           Líneas Innovadoras de Investigación Aplicada y
-                          Desarrollo Tecnológico (LIIADT's){' '}
+                          Desarrollo Tecnológico (LIIADT&apos;s){' '}
                         </FieldLabel>
                         <FieldDescription>
-                          Selecciona las LIIADT's estratégicas de la UTEQ con
-                          nichos tecnológicos prioritarios de desarrollo en
+                          Selecciona las LIIADT&apos;s estratégicas de la UTEQ
+                          con nichos tecnológicos prioritarios de desarrollo en
                           temas de Industria 4.0 con las que se relaciona el
                           proyecto.
                         </FieldDescription>
@@ -871,12 +871,18 @@ export function CreateProjectForm() {
                       <SelectContent>
                         {loadingTeams ? (
                           <LoadingMessage message="Cargando equipos" />
-                        ) : (
+                        ) : teams.length > 0 ? (
                           teams.map((team: ITeam) => (
                             <SelectItem key={team._id} value={team._id}>
                               {team.teamName}
                             </SelectItem>
                           ))
+                        ) : (
+                          <div className="w-full select-none p-2 flex items-center justify-center">
+                            <span className="text-muted-foreground text-sm">
+                              No estás en ningún equipo
+                            </span>
+                          </div>
                         )}
                       </SelectContent>
                     </Select>
@@ -923,7 +929,9 @@ export function CreateProjectForm() {
                           <Command>
                             <CommandGroup>
                               {loadingProjects ? (
-                                <CommandItem disabled>Cargando</CommandItem>
+                                <CommandItem disabled>
+                                  <LoadingMessage message="Cargando proyectos" />
+                                </CommandItem>
                               ) : projects.length > 0 ? (
                                 projects.map((project: IProject) => {
                                   const selected = value.includes(project._id);
@@ -972,7 +980,7 @@ export function CreateProjectForm() {
 
         <div className="flex gap-2">
           <Button variant={'outline'} type="button" asChild>
-            <Link href={`${rootUrl}/proyectos`}>Cancelar</Link>
+            <Link href={`${baseUrl}/proyectos`}>Cancelar</Link>
           </Button>
           <Button type="submit" disabled={createProject.isPending}>
             {createProject.isPending ? (

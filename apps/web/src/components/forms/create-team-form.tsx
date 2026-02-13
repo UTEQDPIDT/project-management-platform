@@ -9,7 +9,7 @@ import { useCreateTeam } from '@/hooks/team';
 import { useGetAllUsers } from '@/hooks/user';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { IUser, SeedCategory, TeamsGrade, UserType } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -54,7 +54,7 @@ import { toast } from 'sonner';
 
 export function CreateTeamForm() {
   const router = useRouter();
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   /**
@@ -112,7 +112,7 @@ export function CreateTeamForm() {
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = () => {
     toast.error('Por favor corrige los errores en el formulario');
   };
 
@@ -452,10 +452,7 @@ export function CreateTeamForm() {
               <Controller
                 control={form.control}
                 name="isPrivate"
-                render={({
-                  field: { onChange, onBlur, ...field },
-                  fieldState,
-                }) => (
+                render={({ field: { onChange, ...field }, fieldState }) => (
                   <Field
                     orientation={'horizontal'}
                     data-invalid={fieldState.invalid}

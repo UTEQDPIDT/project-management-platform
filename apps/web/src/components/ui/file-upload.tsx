@@ -15,6 +15,7 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { useAsRef } from '@/hooks/use-as-ref';
 import { useLazyRef } from '@/hooks/use-lazy-ref';
+import Image from 'next/image';
 
 const ROOT_NAME = 'FileUpload';
 const DROPZONE_NAME = 'FileUploadDropzone';
@@ -177,8 +178,10 @@ function useFileUploadContext(consumerName: string) {
   return context;
 }
 
-interface FileUploadProps
-  extends Omit<React.ComponentProps<'div'>, 'defaultValue' | 'onChange'> {
+interface FileUploadProps extends Omit<
+  React.ComponentProps<'div'>,
+  'defaultValue' | 'onChange'
+> {
   value?: File[];
   defaultValue?: File[];
   onValueChange?: (files: File[]) => void;

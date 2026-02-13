@@ -20,12 +20,12 @@ import { useProjectsByTeam } from '@/hooks/projects';
 import { useTeam } from '@/hooks/team';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { ITeamMembership, TeamMembershipRole } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 const TeamPage = () => {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   const { teamId } = useParams<{ teamId: string }>();

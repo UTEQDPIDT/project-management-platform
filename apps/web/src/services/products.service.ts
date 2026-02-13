@@ -1,48 +1,28 @@
 import { api } from '@/lib/axios';
 
-const createProduct = async ({ productData }: { productData: any }) => {
-  try {
-    const { data } = await api.post(`/products`, productData);
-    return data;
-  } catch (err) {
-    throw err;
-  }
+const createProduct = async ({ productData }: { productData: FormData }) => {
+  const { data } = await api.post(`/products`, productData);
+  return data;
 };
 
 const getProducts = async () => {
-  try {
-    const { data } = await api.get('/products');
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.get('/products');
+  return data;
 };
 
 const getProductById = async (id: string) => {
-  try {
-    const { data } = await api.get(`/products/${id}`);
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.get(`/products/${id}`);
+  return data;
 };
 
 const getProductsByUser = async (userId: string) => {
-  try {
-    const { data } = await api.get(`/products/by-user/${userId}`);
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.get(`/products/by-user/${userId}`);
+  return data;
 };
 
 const getProductsByProject = async (projectId: string) => {
-  try {
-    const { data } = await api.get(`/products/by-project/${projectId}`);
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const { data } = await api.get(`/products/by-project/${projectId}`);
+  return data;
 };
 
 const updateProduct = async ({
@@ -50,23 +30,15 @@ const updateProduct = async ({
   productData,
 }: {
   productId: string;
-  productData: any;
+  productData: FormData;
 }) => {
-  try {
-    const { data } = await api.patch(`/products/${productId}`, productData);
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.patch(`/products/${productId}`, productData);
+  return data;
 };
 
 const deleteProduct = async ({ productId }: { productId: string }) => {
-  try {
-    const { data } = await api.delete(`/products/${productId}`);
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const { data } = await api.delete(`/products/${productId}`);
+  return data;
 };
 
 export {

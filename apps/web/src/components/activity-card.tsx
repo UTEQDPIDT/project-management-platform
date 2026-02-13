@@ -6,7 +6,7 @@ import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files'
 import { cn } from '@/lib/utils';
 import { downloadFile } from '@/services/files.service';
 import { EntityType, IActivity, IFile } from '@repo/types';
-import { userProfile } from 'context/profile-provider';
+import { useUserProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -79,7 +79,7 @@ export function ActivityCard({
   showPriority,
   className,
 }: Props) {
-  const { user } = userProfile();
+  const { user } = useUserProfile();
 
   // Tanstack
   const {
@@ -196,7 +196,7 @@ export function ActivityCard({
             <SheetTitle className="text-lg h-20">{activity.name}</SheetTitle>
             <SheetDescription>{activity.description}</SheetDescription>
             {enableOptions && (
-              <div className="absolute top-0 right-6 h-[100px]">
+              <div className="absolute top-0 right-6 h-25">
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     asChild
@@ -389,8 +389,7 @@ export function ActivityCard({
                       </EmptyMedia>
                       <EmptyTitle>No Hay Evidencias</EmptyTitle>
                       <EmptyDescription>
-                        No haz subido ninguna evidencia. Inicia subiendo tu
-                        primer evidencia.
+                        Necesitas ser encargado para subir archivos.
                       </EmptyDescription>
                     </EmptyHeader>
                   </Empty>
