@@ -64,10 +64,16 @@ export default function EventsBoard({
                   </EmptyMedia>
                   <EmptyTitle>No Hay Eventos</EmptyTitle>
                   <EmptyDescription>
-                    No te has creado a ningún evento. Inicia creando tu primer
-                    evento.
+                    Inicia creando un nuevo evento
                   </EmptyDescription>
                 </EmptyHeader>
+                <EmptyContent>
+                  <Button asChild size="sm" variant="outline">
+                    <Link href={`${baseUrl}/eventos/crear`}>
+                      <Plus /> Nuevo Evento
+                    </Link>
+                  </Button>
+                </EmptyContent>
               </Empty>
             ) : (
               <Empty>
@@ -77,12 +83,11 @@ export default function EventsBoard({
                   </EmptyMedia>
                   <EmptyTitle>No Hay Eventos</EmptyTitle>
                   <EmptyDescription>
-                    No te has inscrito a ningún evento. Inicia entrando a tu
-                    primer evento.
+                    Inicia entrando a tu primer evento
                   </EmptyDescription>
                 </EmptyHeader>
                 <EmptyContent>
-                  <Button asChild variant="link">
+                  <Button asChild variant="ghost" size="sm">
                     <Link href={`${baseUrl}/eventos`}>
                       Ir a eventos <ArrowUpRight />
                     </Link>
@@ -90,7 +95,7 @@ export default function EventsBoard({
                 </EmptyContent>
               </Empty>
             )}
-            {user.role === UserRole.ADMIN && (
+            {user.role === UserRole.ADMIN && events.length > 0 && (
               <Link href={`${baseUrl}/eventos/crear`} className="w-52 h-36">
                 <Card className="w-full hover:shadow-xl min-w-52 shrink-0 flex items-center justify-center h-full">
                   <CardContent>
