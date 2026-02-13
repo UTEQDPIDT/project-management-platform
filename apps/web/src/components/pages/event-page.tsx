@@ -91,19 +91,16 @@ const EventPage = () => {
     });
   };
 
-  const onFileValidate = useCallback(
-    (file: File): string | null => {
-      if (!file.type.endsWith('pdf')) {
-        return 'Solo se aceptan PDFs';
-      }
-      const MAX_SIZE = 5 * 1024 * 1024;
-      if (file.size > MAX_SIZE) {
-        return `El peso del archivo no debe exceder ${MAX_SIZE / (1024 * 1024)}MB`;
-      }
-      return null;
-    },
-    [filesToUpload],
-  );
+  const onFileValidate = useCallback((file: File): string | null => {
+    if (!file.type.endsWith('pdf')) {
+      return 'Solo se aceptan PDFs';
+    }
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      return `El peso del archivo no debe exceder ${MAX_SIZE / (1024 * 1024)}MB`;
+    }
+    return null;
+  }, []);
 
   const onFileReject = useCallback((file: File, message: string) => {
     toast(message, {
