@@ -6,34 +6,67 @@ on:
       - main
 
 jobs:
-  verify:
-    name: Build and Verify
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Importante para que Turbo detecte qué cambió
-
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.21.0 # version que el proyecto en el package.json root (packageManager)
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
       - name: Linting
         run: npx turbo run lint --filter=...[origin/main]
-
+  type_check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Importante para que Turbo detecte qué cambió
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.21.0 # version que el proyecto en el package.json root (packageManager)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Type Checking
         run: npx turbo run check-types --filter=...[origin/main]
-
+  build:
+    name: Build
+    needs: [lint, type_check]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Importante para que Turbo detecte qué cambió
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.21.0 # version que el proyecto en el package.json root (packageManager)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Build Projects
         run: npx turbo run build --filter=...[origin/main]
