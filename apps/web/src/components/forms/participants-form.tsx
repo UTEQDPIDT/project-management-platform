@@ -47,8 +47,8 @@ export function ParticipantsForm({
     addParticipants.mutate({ eventId, userIds: data });
   };
 
-  const onError = (errors: any) => {
-    console.log('FORM ERRORS', errors);
+  const onError = () => {
+    // console.log('FORM ERRORS', errors);
   };
   return (
     <form

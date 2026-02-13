@@ -2,8 +2,6 @@ import { mongoId } from '@/lib/utils';
 import { TeamsGrade } from '@repo/types';
 import { z } from 'zod';
 
-const uteqEmail = /^[A-Za-z0-9._%+-]+@uteq\.edu\.mx$/i;
-
 export const teamSchema = (ownerEmail: string) =>
   z.object({
     teamName: z

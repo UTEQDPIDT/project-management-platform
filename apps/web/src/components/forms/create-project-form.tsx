@@ -142,7 +142,7 @@ export function CreateProjectForm() {
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = () => {
     toast.error('Por favor corrige los errores en el formulario');
   };
 
@@ -701,11 +701,11 @@ export function CreateProjectForm() {
                       <FieldContent>
                         <FieldLabel>
                           Líneas Innovadoras de Investigación Aplicada y
-                          Desarrollo Tecnológico (LIIADT's){' '}
+                          Desarrollo Tecnológico (LIIADT&apos;s){' '}
                         </FieldLabel>
                         <FieldDescription>
-                          Selecciona las LIIADT's estratégicas de la UTEQ con
-                          nichos tecnológicos prioritarios de desarrollo en
+                          Selecciona las LIIADT&apos;s estratégicas de la UTEQ
+                          con nichos tecnológicos prioritarios de desarrollo en
                           temas de Industria 4.0 con las que se relaciona el
                           proyecto.
                         </FieldDescription>
