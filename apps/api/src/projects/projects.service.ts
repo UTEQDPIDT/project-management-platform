@@ -60,7 +60,7 @@ export class ProjectsService {
       await session.abortTransaction();
       throw new BadRequestException(err.message);
     } finally {
-      session.endSession();
+      await session.endSession();
     }
   }
 
@@ -174,7 +174,7 @@ export class ProjectsService {
       await session.abortTransaction();
       throw new BadRequestException(err.message);
     } finally {
-      session.endSession();
+      await session.endSession();
     }
   }
 }
