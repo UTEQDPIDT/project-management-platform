@@ -44,6 +44,67 @@ import {
 import { copyValue } from '@/lib/utils';
 import CopyButton from './ui/copy';
 
+const TeamsActions = ({ team }: { team: ITeam }) => {
+  const deleteTeam = useDeleteTeam();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon-sm">
+          <MoreHorizontal />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+        <DropdownMenuItem asChild>
+          <Link href={`/admin/equipos/${team._id}/editar`}>
+            <Pencil /> Editar equipo
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={`/admin/equipos/${team._id}`}>
+            <ExternalLink /> Visitar equipo
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild onClick={() => copyValue(team._id)}>
+          <span>
+            <Copy /> Copiar ID
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild className="hover:text-destructive-foreground">
+          <Dialog>
+            <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
+              <Trash /> Eliminar equipo
+            </DialogTrigger>
+            <DialogContent>
+              <Badge variant="destructive">Eliminando</Badge>
+              <DialogTitle>{team.teamName}</DialogTitle>
+              <DialogDescription>
+                ¿Seguro deseas eliminar el evento? Esta es una operación
+                irreversible.
+              </DialogDescription>
+              <div className="flex gap-2">
+                <DialogClose asChild>
+                  <Button variant="outline">Cancelar</Button>
+                </DialogClose>
+                <DialogClose asChild>
+                  <Button
+                    onClick={() => deleteTeam.mutate(team._id)}
+                    variant="destructive"
+                  >
+                    Eliminar
+                  </Button>
+                </DialogClose>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
 const columns: ColumnDef<ITeam>[] = [
   {
     accessorKey: 'teamName',
@@ -207,66 +268,7 @@ const columns: ColumnDef<ITeam>[] = [
     id: 'actions',
     cell: ({ row }) => {
       const team = row.original;
-      const deleteTeam = useDeleteTeam();
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm">
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/equipos/${team._id}/editar`}>
-                <Pencil /> Editar equipo
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/equipos/${team._id}`}>
-                <ExternalLink /> Visitar equipo
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild onClick={() => copyValue(team._id)}>
-              <span>
-                <Copy /> Copiar ID
-              </span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              asChild
-              className="hover:text-destructive-foreground"
-            >
-              <Dialog>
-                <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
-                  <Trash /> Eliminar equipo
-                </DialogTrigger>
-                <DialogContent>
-                  <Badge variant="destructive">Eliminando</Badge>
-                  <DialogTitle>{team.teamName}</DialogTitle>
-                  <DialogDescription>
-                    ¿Seguro deseas eliminar el evento? Esta es una operación
-                    irreversible.
-                  </DialogDescription>
-                  <div className="flex gap-2">
-                    <DialogClose asChild>
-                      <Button variant="outline">Cancelar</Button>
-                    </DialogClose>
-                    <DialogClose asChild>
-                      <Button
-                        onClick={() => deleteTeam.mutate(team._id)}
-                        variant="destructive"
-                      >
-                        Eliminar
-                      </Button>
-                    </DialogClose>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <TeamsActions team={team} />;
     },
   },
 ];
