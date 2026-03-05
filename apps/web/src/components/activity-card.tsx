@@ -193,8 +193,7 @@ export function ActivityCard({
       <SheetContent>
         <SheetHeader>
           <div className="pr-2 flex flex-col gap-2 relative">
-            <SheetTitle className="text-lg h-20">{activity.name}</SheetTitle>
-            <SheetDescription>{activity.description}</SheetDescription>
+            <SheetTitle>Detalles</SheetTitle>
             {enableOptions && (
               <div className="absolute top-0 right-6 h-25">
                 <DropdownMenu>
@@ -219,6 +218,11 @@ export function ActivityCard({
 
         <div className="flex flex-col gap-6 px-4 items-end">
           <div className="flex flex-col gap-4 w-full">
+            <span className="font-medium text-lg">{activity.name}</span>
+            <span className="text-muted-foreground text-sm">
+              {activity.description}
+            </span>
+
             {showStatus && (
               <div className="flex items-center gap-2">
                 <div className="text-sm text-muted-foreground w-20">Estado</div>
