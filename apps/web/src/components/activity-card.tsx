@@ -268,13 +268,16 @@ export function ActivityCard({
               <div className="text-sm text-muted-foreground w-20">
                 Vencimiento
               </div>
-              <span className="text-sm">
-                {activity.dueDate
-                  ? format(activity.dueDate, "d 'de' MMMM 'de' yyyy", {
-                      locale: es,
-                    })
-                  : 'Sin fecha'}
-              </span>
+
+              {activity.dueDate ? (
+                <span className="text-sm">
+                  {format(activity.dueDate, "d 'de' MMMM 'de' yyyy", {
+                    locale: es,
+                  })}
+                </span>
+              ) : (
+                <span className="text-muted-foreground text-sm">Sin fecha</span>
+              )}
             </div>
 
             {showPriority && (
