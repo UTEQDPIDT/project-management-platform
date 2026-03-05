@@ -22,6 +22,11 @@ import { APP_GUARD } from '@nestjs/core';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // Permite acceso a las variables de entorno en toda la app
+      // En producción carga .env.production, en desarrollo solo .env.development
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? ['.env.production']
+          : ['.env.development'],
     }),
 
     // Rate Limiting
@@ -38,6 +43,8 @@ import { APP_GUARD } from '@nestjs/core';
       // Inyectamos ConfigService para leer las variables de forma limpia
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
+        const isProduction =
+          configService.get<string>('NODE_ENV') === 'production';
         const user = configService.get<string>('MONGO_USER');
         const pass = configService.get<string>('MONGO_PASSWORD');
         const host = configService.get<string>('MONGO_HOST') || 'mongodb:27017';
@@ -45,7 +52,7 @@ import { APP_GUARD } from '@nestjs/core';
           configService.get<string>('MONGO_DB_NAME') || 'uteq_prep_database';
 
         // Si no hay usuario (caso de desarrollo local típico), usamos URI simple
-        if (!user || !pass) {
+        if (!isProduction || !user || !pass) {
           return {
             uri: `mongodb://${host}/${db}?replicaSet=rs0`,
           };

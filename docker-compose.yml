@@ -23,6 +23,8 @@ services:
     restart: always
     ports:
       - 3001:3001
+    environment:
+      - NODE_ENV=production
     env_file:
       - ./apps/api/.env.production
     depends_on:
