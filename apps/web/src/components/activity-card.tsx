@@ -234,7 +234,15 @@ export function ActivityCard({
               <div className="text-sm text-muted-foreground w-20">
                 Encargados
               </div>
-              {activity.assignees && (
+              {activity.assignees && activity.assignees?.length === 1 && (
+                <ProfileInfo
+                  size="sm"
+                  givenName={activity.assignees[0]!.givenName}
+                  familyName={activity.assignees[0]!.familyName}
+                  avatarUrl={activity.assignees[0]!.avatarUrl}
+                />
+              )}
+              {activity.assignees && activity.assignees.length > 1 && (
                 <AvatarRow profiles={activity.assignees} />
               )}
               {!activity.assignees?.some((a) => a._id === user._id) && (
@@ -246,7 +254,7 @@ export function ActivityCard({
 
             <div className="flex items-center gap-2">
               <div className="text-sm text-muted-foreground w-20">
-                Creado por
+                Creada por
               </div>
               <ProfileInfo
                 size="sm"
