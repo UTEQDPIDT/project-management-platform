@@ -94,7 +94,8 @@ export const mongoId = z
   .regex(/^[0-9a-fA-F]{24}$/, 'No es una opción válida');
 
 // Calculate progress
-export const calculateProgress = (activities: IActivity[]) => {
+export const calculateProgress = (activities?: IActivity[]) => {
+  if (!activities || activities.length === 0) return 0;
   const totalActivities = activities.length;
   const completedActivities = activities.filter(
     (a) => a.status === Status.COMPLETED,
