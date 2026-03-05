@@ -22,11 +22,11 @@ import { APP_GUARD } from '@nestjs/core';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // Permite acceso a las variables de entorno en toda la app
-      // En producción carga .env.production, en desarrollo solo .env y .env.development
+      // En producción carga .env.production, en desarrollo solo .env.development
       envFilePath:
         process.env.NODE_ENV === 'production'
-          ? ['.env.production', '.env']
-          : ['.env', '.env.development'],
+          ? ['.env.production']
+          : ['.env.development'],
     }),
 
     // Rate Limiting
@@ -54,7 +54,7 @@ import { APP_GUARD } from '@nestjs/core';
         // Si no hay usuario (caso de desarrollo local típico), usamos URI simple
         if (!isProduction || !user || !pass) {
           return {
-            uri: `mongodb://127.0.0.1:27017/${db}?replicaSet=rs0&directConnection=true`,
+            uri: `mongodb://${host}/${db}?replicaSet=rs0`,
           };
         }
 
