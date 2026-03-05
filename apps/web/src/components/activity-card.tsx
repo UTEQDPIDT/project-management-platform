@@ -23,6 +23,8 @@ import AvatarRow from './avatar-row';
 import ErrorCard from './error-card';
 import FileList from './file-list';
 import LoadingMessage from './loading-message';
+import { PriorityBadge } from './priority-badge';
+import { StatusBadge } from './status-badge';
 import { ProfileInfo } from './profile-info';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -117,31 +119,6 @@ export function ActivityCard({
 
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
 
-  let priorityBadgeVariant:
-    | 'orange'
-    | 'gray'
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'blue'
-    | 'green'
-    | 'purple'
-    | null
-    | undefined;
-
-  switch (activity.priority) {
-    case 'Alta':
-      priorityBadgeVariant = 'purple';
-      break;
-    case 'Media':
-      priorityBadgeVariant = 'orange';
-      break;
-    case 'Baja':
-      priorityBadgeVariant = 'gray';
-      break;
-  }
-
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -160,9 +137,7 @@ export function ActivityCard({
           </CardHeader>
 
           <CardContent className="flex flex-col gap-4">
-            {showPriority && (
-              <Badge variant={priorityBadgeVariant}>{activity.priority}</Badge>
-            )}
+            {showPriority && <PriorityBadge priority={activity.priority} />}
 
             {activity.assignees && activity.assignees.length > 0 && (
               <AvatarRow profiles={activity.assignees} />
@@ -226,7 +201,7 @@ export function ActivityCard({
             {showStatus && (
               <div className="flex items-center gap-2">
                 <div className="text-sm text-muted-foreground w-20">Estado</div>
-                <Badge variant="blue">{activity.status}</Badge>
+                <StatusBadge status={activity.status} />
               </div>
             )}
 
@@ -285,9 +260,7 @@ export function ActivityCard({
                 <div className="text-sm text-muted-foreground w-20">
                   Prioridad
                 </div>
-                <Badge variant={priorityBadgeVariant}>
-                  {activity.priority}
-                </Badge>
+                <PriorityBadge priority={activity.priority} />
               </div>
             )}
           </div>
