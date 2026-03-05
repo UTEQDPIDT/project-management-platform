@@ -271,14 +271,12 @@ export function ActivityCard({
             <div className="w-full flex justify-between items-center">
               <h2 className="font-medium">Evidencias</h2>
               <Sheet>
-                {activity.assignees?.some((a) => a._id === user._id) && (
-                  <SheetTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Upload />
-                      Subir
-                    </Button>
-                  </SheetTrigger>
-                )}
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Upload />
+                    Subir
+                  </Button>
+                </SheetTrigger>
 
                 <SheetContent className="flex h-dvh flex-col">
                   <SheetHeader>
