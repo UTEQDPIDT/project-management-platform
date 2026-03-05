@@ -143,7 +143,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
   return (
     <div>
       <form
-        className="flex flex-col gap-6 lg:max-w-2xl"
+        className="flex flex-col gap-6 lg:w-2xl"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
         <Card>
@@ -331,92 +331,6 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                                 </CommandItem>
                               ) : teachersAndStudents?.length > 0 ? (
                                 teachersAndStudents.map((user: IUser) => {
-                                  const selected = value.includes(user._id);
-                                  return (
-                                    <CommandItem
-                                      key={user._id}
-                                      onSelect={() => {
-                                        field.onChange(
-                                          selected
-                                            ? value.filter(
-                                                (v) => v !== user._id,
-                                              )
-                                            : [...value, user._id],
-                                        );
-                                      }}
-                                      className="flex justify-between"
-                                    >
-                                      <ProfileInfo
-                                        givenName={user.givenName}
-                                        familyName={user.familyName}
-                                        avatarUrl={user.avatarUrl}
-                                        userType={user.type}
-                                        size="sm"
-                                      />
-                                      <Check
-                                        className={`mr-2 h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
-                                      />
-                                    </CommandItem>
-                                  );
-                                })
-                              ) : (
-                                <div className="w-full select-none p-2 flex items-center justify-center">
-                                  <span className="text-muted-foreground text-sm">
-                                    No hay más usuarios
-                                  </span>
-                                </div>
-                              )}
-                            </CommandGroup>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </FieldGroup>
-                  );
-                }}
-              />
-            </FieldSet>
-            <FieldSeparator />
-            <FieldSet>
-              <FieldLegend variant="label" className="mb-2">
-                Colaboradores
-              </FieldLegend>
-              <FieldDescription>
-                Los colaboradores tienen acceso límitado a los contenidos del
-                equipo, solo podrán visualizar y descargar contenidos.
-              </FieldDescription>
-              <Controller
-                control={form.control}
-                name="collaborators"
-                render={({ field }) => {
-                  const value = field.value ?? [];
-                  return (
-                    <FieldGroup>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className="w-full justify-between font-normal"
-                          >
-                            {value.length ? (
-                              `${value.length} seleccionados`
-                            ) : (
-                              <span className="text-muted-foreground font-normal">
-                                Sin selección
-                              </span>
-                            )}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-full md:w-xl max-h-96 overflow-y-auto p-0">
-                          <Command>
-                            <CommandGroup>
-                              {loadingUsers ? (
-                                <CommandItem disabled>
-                                  <LoadingMessage />
-                                </CommandItem>
-                              ) : teachersAndAdmins.length > 0 ? (
-                                teachersAndAdmins.map((user: IUser) => {
                                   const selected = value.includes(user._id);
                                   return (
                                     <CommandItem
