@@ -7,7 +7,7 @@ import { DataTable } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { IProject } from '@repo/types';
 import { ProfileInfo } from './profile-info';
-import { calculateProgress, copyValue } from '@/lib/utils';
+import { calculateProgress, copyValue, formatDatePeriod } from '@/lib/utils';
 import { Progress } from './ui/progress';
 import { useActivitiesByEntity } from '@/hooks/activities';
 import CopyButton from './ui/copy';
@@ -167,15 +167,11 @@ const columns: ColumnDef<IProject>[] = [
     id: 'period',
     header: 'Periodo',
     cell: ({ row }) => {
-      const { startDate } = row.original;
-      const { endDate } = row.original;
+      const { startDate, endDate } = row.original;
 
       return (
         <div>
-          <span>{format(startDate, "d 'de' MMMM 'al' ", { locale: es })}</span>
-          <span>
-            {format(endDate, "d 'de' MMMM 'de' yyyy", { locale: es })}
-          </span>
+          <span>{formatDatePeriod(startDate, endDate)}</span>
         </div>
       );
     },

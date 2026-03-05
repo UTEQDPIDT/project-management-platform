@@ -3,6 +3,8 @@ import { clsx, type ClassValue } from 'clsx';
 import { toast } from 'sonner';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -149,3 +151,20 @@ export function trimFileNameMiddle(
 }
 
 export const uteqEmailRegex = /^[A-Za-z0-9._%+-]+@uteq\.edu\.mx$/i;
+
+/**
+ *
+ * @param startDate
+ * @param endDate
+ * @returns formatted date period in the format "d 'de' MMMM 'de' yyyy" if the years are different, or "d 'de' MMMM" if
+ * they are the same, followed by "al d 'de' MMMM 'de' yyyy"
+ *
+ */
+export const formatDatePeriod = (startDate: Date, endDate: Date): string => {
+  const startYear = new Date(startDate).getFullYear();
+  const endYear = new Date(endDate).getFullYear();
+  const sameYear = startYear === endYear;
+
+  const startFormat = sameYear ? "d 'de' MMMM" : "d 'de' MMMM 'de' yyyy";
+  return `${format(startDate, startFormat, { locale: es })} al ${format(endDate, "d 'de' MMMM 'de' yyyy", { locale: es })}`;
+};
