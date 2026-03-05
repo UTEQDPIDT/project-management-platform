@@ -82,7 +82,7 @@ const columns: ColumnDef<IProduct>[] = [
   },
   {
     accessorKey: 'category',
-    header: 'Catagoría',
+    header: 'Categoría',
     cell: ({ row }) => {
       const { category } = row.original;
 
@@ -106,13 +106,15 @@ const columns: ColumnDef<IProduct>[] = [
       const { owner } = row.original;
 
       return (
-        <ProfileInfo
-          size="sm"
-          givenName={owner.givenName}
-          familyName={owner.familyName}
-          email={owner.email}
-          avatarUrl={owner.avatarUrl}
-        />
+        <div className="w-52">
+          <ProfileInfo
+            size="sm"
+            givenName={owner.givenName}
+            familyName={owner.familyName}
+            email={owner.email}
+            avatarUrl={owner.avatarUrl}
+          />
+        </div>
       );
     },
   },
