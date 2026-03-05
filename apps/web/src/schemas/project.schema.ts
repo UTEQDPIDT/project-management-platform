@@ -28,6 +28,6 @@ export const projectSchema = z.object({
     .min(5, 'El proyecto debe tener un mínimo de 5 actividades.'),
   team: mongoId.or(z.literal('')),
   relatedProjects: z.array(mongoId),
-  startDate: z.date(),
-  endDate: z.date(),
+  startDate: z.date('La fecha de inicio es requerida'),
+  endDate: z.date('La fecha de fin es requerida'),
 });
