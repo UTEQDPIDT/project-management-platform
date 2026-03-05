@@ -11,7 +11,7 @@ export const projectSchema = z.object({
     .string()
     .min(1, 'El proyecto debe tener un objetivo')
     .max(500, 'Excede el máximo de 500 carecteres'),
-  trlRating: z.number(),
+  trlRating: z.number().min(0, 'El Nivel de TRL no puede ser 0'),
   knowledgeAreas: z.array(mongoId),
   impactAreas: z.array(mongoId),
   prioritiesPND: z.array(mongoId),
@@ -22,7 +22,7 @@ export const projectSchema = z.object({
   activities: z
     .array(
       z.object({
-        name: z.string(),
+        name: z.string().max(100, 'Excede el máximo de 100 carecteres.'),
       }),
     )
     .min(5, 'El proyecto debe tener un mínimo de 5 actividades.'),
