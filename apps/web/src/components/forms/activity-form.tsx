@@ -321,13 +321,14 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
                                         : [...value, user._id],
                                     );
                                   }}
+                                  className="flex justify-between"
                                 >
+                                  {displayName(user)}
                                   <Check
                                     className={`mr-2 h-4 w-4 ${
                                       selected ? 'opacity-100' : 'opacity-0'
                                     }`}
                                   />
-                                  {displayName(user)}
                                 </CommandItem>
                               );
                             })
