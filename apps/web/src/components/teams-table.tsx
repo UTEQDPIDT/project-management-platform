@@ -252,7 +252,7 @@ const columns: ColumnDef<ITeam>[] = [
 ];
 
 export default function TeamsTable() {
-  const { data, isLoading } = useAllTeams();
+  const { data, isLoading } = useAllTeams(true);
   return (
     <div className="max-w-6xl w-full">
       {isLoading ? (
