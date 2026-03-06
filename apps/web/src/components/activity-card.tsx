@@ -191,7 +191,7 @@ export function ActivityCard({
           </div>
         </SheetHeader>
 
-        <div className="flex flex-col gap-6 px-4 items-end">
+        <div className="flex flex-col gap-6 px-4 items-end overflow-y-auto pb-4">
           <div className="flex flex-col gap-4 w-full">
             <span className="font-medium text-lg">{activity.name}</span>
             <span className="text-muted-foreground text-sm">
