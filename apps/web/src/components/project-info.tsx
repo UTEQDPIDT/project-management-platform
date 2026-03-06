@@ -23,7 +23,8 @@ import Link from 'next/link';
 import { ProfileInfo } from './profile-info';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
-import { concatWithCommaAndDot } from '@/lib/utils';
+import { concatWithCommaAndDot, getBaseUrlBasedOnRole } from '@/lib/utils';
+import { useUserProfile } from 'context/profile-provider';
 
 interface ProjectInfoProps {
   project: IProject;
@@ -31,6 +32,9 @@ interface ProjectInfoProps {
 }
 
 export function ProjectInfo({ project, progress }: ProjectInfoProps) {
+  const { user } = useUserProfile();
+  const baseUrl = getBaseUrlBasedOnRole(user.role);
+
   const {
     name,
     startDate,
@@ -227,7 +231,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         <div className="p-2 hover:bg-secondary rounded-md">
           {team ? (
             <Button size="xs" asChild variant="ghost">
-              <Link href={`/user/equipos/${team._id}`}>
+              <Link href={`${baseUrl}/equipos/${team._id}`}>
                 {team.teamName}
                 <ArrowUpRight />
               </Link>
@@ -246,7 +250,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
           {relatedProjects?.length ? (
             relatedProjects.map((p: IProject) => (
               <Button key={p._id} size="xs" asChild variant="ghost">
-                <Link href={`/user/proyectos/${p._id}`}>
+                <Link href={`${baseUrl}/proyectos/${p._id}`}>
                   {p.name}
                   <ArrowUpRight />
                 </Link>

@@ -1,4 +1,4 @@
-import { useRemoveCollaborator, useRemoveMember } from '@/hooks/team';
+import { useRemoveMember } from '@/hooks/team';
 import {
   ITeam,
   ITeamMembership,
@@ -29,7 +29,6 @@ export function CardMembers({
   redirect?: boolean;
 }) {
   const removeMember = useRemoveMember();
-  const removeCollaborator = useRemoveCollaborator();
 
   const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
@@ -42,14 +41,6 @@ export function CardMembers({
     return team.memberships.filter(
       (m: ITeamMembership) =>
         m.role === TeamMembershipRole.MEMBER &&
-        m.status === TeamMembershipStatus.ACTIVE,
-    );
-  }, [team.memberships]);
-
-  const collaborators = useMemo(() => {
-    return team.memberships.filter(
-      (m: ITeamMembership) =>
-        m.role === TeamMembershipRole.COLLABORATOR &&
         m.status === TeamMembershipStatus.ACTIVE,
     );
   }, [team.memberships]);
@@ -80,7 +71,7 @@ export function CardMembers({
         )}
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <span className="text-muted-foreground text-sm">Proprietario</span>
+        <span className="text-muted-foreground text-sm">Líder del Equipo</span>
         <ProfileInfo
           size="sm"
           givenName={owner!.user.givenName}
@@ -131,51 +122,6 @@ export function CardMembers({
           ))
         ) : (
           <span className="text-muted-foreground text-xs">No hay miembros</span>
-        )}
-        <span className="text-muted-foreground text-sm">Colaboradores</span>
-        {collaborators.length > 0 ? (
-          collaborators?.map((c: ITeamMembership) => (
-            <div key={c.user._id} className="flex justify-between group">
-              <ProfileInfo
-                size="sm"
-                givenName={c.user.givenName}
-                familyName={c.user.familyName}
-                email={c.user.email}
-                avatarUrl={c.user.avatarUrl}
-              />
-
-              {user._id === owner!.user._id && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      size="icon-sm"
-                      variant="ghost"
-                      className="opacity-0 group-hover:opacity-100"
-                    >
-                      <Ellipsis />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem
-                      disabled={removeCollaborator.isPending}
-                      onClick={() =>
-                        removeCollaborator.mutate({
-                          teamId: team._id,
-                          userId: c.user._id,
-                        })
-                      }
-                    >
-                      <UserMinus /> Expulsar
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-          ))
-        ) : (
-          <span className="text-muted-foreground text-xs">
-            No hay colaboradores
-          </span>
         )}
       </CardContent>
     </Card>

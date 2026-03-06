@@ -2,7 +2,6 @@ import React from 'react';
 import { Button } from './button';
 import { Copy } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
-import { toast } from 'sonner';
 import { copyValue } from '@/lib/utils';
 
 export default function CopyButton({

@@ -155,8 +155,24 @@ const columns: ColumnDef<ITeam>[] = [
     },
   },
   {
+    accessorKey: 'isPrivate',
+    header: 'Acceso',
+    cell: ({ row }) => {
+      const { isPrivate } = row.original;
+      return (
+        <div>
+          {isPrivate ? (
+            <Badge variant="purple">Privado</Badge>
+          ) : (
+            <Badge variant="blue">Público</Badge>
+          )}
+        </div>
+      );
+    },
+  },
+  {
     id: 'owner',
-    header: 'Proprietario',
+    header: 'Líder',
     cell: ({ row }) => {
       const { memberships } = row.original;
       const ownerMembership = memberships.find(
@@ -179,22 +195,6 @@ const columns: ColumnDef<ITeam>[] = [
     },
   },
   {
-    accessorKey: 'isPrivate',
-    header: 'Acceso',
-    cell: ({ row }) => {
-      const { isPrivate } = row.original;
-      return (
-        <div>
-          {isPrivate ? (
-            <Badge variant="purple">Privado</Badge>
-          ) : (
-            <Badge variant="blue">Público</Badge>
-          )}
-        </div>
-      );
-    },
-  },
-  {
     id: 'members',
     header: 'Miembros',
     cell: ({ row }) => {
@@ -210,29 +210,6 @@ const columns: ColumnDef<ITeam>[] = [
         <div>
           {members.length > 0 ? (
             <AvatarRow profiles={members} />
-          ) : (
-            <span className="text-muted-foreground">Vacío</span>
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    id: 'collaborators',
-    header: 'Colaboradores',
-    cell: ({ row }) => {
-      const { memberships } = row.original;
-      const collaborators = memberships
-        .filter(
-          (m) =>
-            m.role === TeamMembershipRole.COLLABORATOR &&
-            m.status === TeamMembershipStatus.ACTIVE,
-        )
-        .map((m) => m.user);
-      return (
-        <div>
-          {collaborators.length > 0 ? (
-            <AvatarRow profiles={collaborators} />
           ) : (
             <span className="text-muted-foreground">Vacío</span>
           )}
@@ -275,7 +252,7 @@ const columns: ColumnDef<ITeam>[] = [
 ];
 
 export default function TeamsTable() {
-  const { data, isLoading } = useAllTeams();
+  const { data, isLoading } = useAllTeams(true);
   return (
     <div className="max-w-6xl w-full">
       {isLoading ? (

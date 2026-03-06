@@ -921,13 +921,14 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                                             : [...value, project._id],
                                         );
                                       }}
+                                      className="flex justify-between"
                                     >
+                                      {project.name}
                                       <Check
                                         className={`mr-2 h-4 w-4 ${
                                           selected ? 'opacity-100' : 'opacity-0'
                                         }`}
                                       />
-                                      {project.name}
                                     </CommandItem>
                                   );
                                 })

@@ -23,8 +23,9 @@ import AvatarRow from './avatar-row';
 import ErrorCard from './error-card';
 import FileList from './file-list';
 import LoadingMessage from './loading-message';
+import { PriorityBadge } from './priority-badge';
+import { StatusBadge } from './status-badge';
 import { ProfileInfo } from './profile-info';
-import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import {
@@ -117,31 +118,6 @@ export function ActivityCard({
 
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
 
-  let priorityBadgeVariant:
-    | 'orange'
-    | 'gray'
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'blue'
-    | 'green'
-    | 'purple'
-    | null
-    | undefined;
-
-  switch (activity.priority) {
-    case 'Alta':
-      priorityBadgeVariant = 'purple';
-      break;
-    case 'Media':
-      priorityBadgeVariant = 'orange';
-      break;
-    case 'Baja':
-      priorityBadgeVariant = 'gray';
-      break;
-  }
-
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -160,9 +136,7 @@ export function ActivityCard({
           </CardHeader>
 
           <CardContent className="flex flex-col gap-4">
-            {showPriority && (
-              <Badge variant={priorityBadgeVariant}>{activity.priority}</Badge>
-            )}
+            {showPriority && <PriorityBadge priority={activity.priority} />}
 
             {activity.assignees && activity.assignees.length > 0 && (
               <AvatarRow profiles={activity.assignees} />
@@ -193,8 +167,7 @@ export function ActivityCard({
       <SheetContent>
         <SheetHeader>
           <div className="pr-2 flex flex-col gap-2 relative">
-            <SheetTitle className="text-lg h-20">{activity.name}</SheetTitle>
-            <SheetDescription>{activity.description}</SheetDescription>
+            <SheetTitle>Detalles</SheetTitle>
             {enableOptions && (
               <div className="absolute top-0 right-6 h-25">
                 <DropdownMenu>
@@ -217,12 +190,17 @@ export function ActivityCard({
           </div>
         </SheetHeader>
 
-        <div className="flex flex-col gap-6 px-4 items-end">
+        <div className="flex flex-col gap-6 px-4 items-end overflow-y-auto pb-4">
           <div className="flex flex-col gap-4 w-full">
+            <span className="font-medium text-lg">{activity.name}</span>
+            <span className="text-muted-foreground text-sm">
+              {activity.description}
+            </span>
+
             {showStatus && (
               <div className="flex items-center gap-2">
                 <div className="text-sm text-muted-foreground w-20">Estado</div>
-                <Badge variant="blue">{activity.status}</Badge>
+                <StatusBadge status={activity.status} />
               </div>
             )}
 
@@ -230,7 +208,15 @@ export function ActivityCard({
               <div className="text-sm text-muted-foreground w-20">
                 Encargados
               </div>
-              {activity.assignees && (
+              {activity.assignees && activity.assignees?.length === 1 && (
+                <ProfileInfo
+                  size="sm"
+                  givenName={activity.assignees[0]!.givenName}
+                  familyName={activity.assignees[0]!.familyName}
+                  avatarUrl={activity.assignees[0]!.avatarUrl}
+                />
+              )}
+              {activity.assignees && activity.assignees.length > 1 && (
                 <AvatarRow profiles={activity.assignees} />
               )}
               {!activity.assignees?.some((a) => a._id === user._id) && (
@@ -242,7 +228,7 @@ export function ActivityCard({
 
             <div className="flex items-center gap-2">
               <div className="text-sm text-muted-foreground w-20">
-                Creado por
+                Creada por
               </div>
               <ProfileInfo
                 size="sm"
@@ -256,13 +242,16 @@ export function ActivityCard({
               <div className="text-sm text-muted-foreground w-20">
                 Vencimiento
               </div>
-              <span className="text-sm">
-                {activity.dueDate
-                  ? format(activity.dueDate, "d 'de' MMMM 'de' yyyy", {
-                      locale: es,
-                    })
-                  : 'Sin fecha'}
-              </span>
+
+              {activity.dueDate ? (
+                <span className="text-sm">
+                  {format(activity.dueDate, "d 'de' MMMM 'de' yyyy", {
+                    locale: es,
+                  })}
+                </span>
+              ) : (
+                <span className="text-muted-foreground text-sm">Sin fecha</span>
+              )}
             </div>
 
             {showPriority && (
@@ -270,9 +259,7 @@ export function ActivityCard({
                 <div className="text-sm text-muted-foreground w-20">
                   Prioridad
                 </div>
-                <Badge variant={priorityBadgeVariant}>
-                  {activity.priority}
-                </Badge>
+                <PriorityBadge priority={activity.priority} />
               </div>
             )}
           </div>
@@ -283,14 +270,12 @@ export function ActivityCard({
             <div className="w-full flex justify-between items-center">
               <h2 className="font-medium">Evidencias</h2>
               <Sheet>
-                {activity.assignees?.some((a) => a._id === user._id) && (
-                  <SheetTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Upload />
-                      Subir
-                    </Button>
-                  </SheetTrigger>
-                )}
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Upload />
+                    Subir
+                  </Button>
+                </SheetTrigger>
 
                 <SheetContent className="flex h-dvh flex-col">
                   <SheetHeader>
