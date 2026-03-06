@@ -26,7 +26,6 @@ import LoadingMessage from './loading-message';
 import { PriorityBadge } from './priority-badge';
 import { StatusBadge } from './status-badge';
 import { ProfileInfo } from './profile-info';
-import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import {

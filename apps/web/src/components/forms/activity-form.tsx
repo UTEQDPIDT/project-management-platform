@@ -1,6 +1,13 @@
 'use client';
 
-import { IActivity, IUser, Priority, Status, EntityType } from '@repo/types';
+import {
+  IActivity,
+  IUser,
+  Priority,
+  Status,
+  EntityType,
+  ITeamMembership,
+} from '@repo/types';
 import { useCreateActivity, useUpdateActivity } from '@/hooks/activities';
 import { useProject } from '@/hooks/projects';
 import React, { useMemo } from 'react';
@@ -38,6 +45,7 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import { Command, CommandGroup, CommandItem } from '../ui/command';
 import LoadingMessage from '../loading-message';
 import { toast } from 'sonner';
+import { ProfileInfo } from '../profile-info';
 
 interface Props {
   activity?: IActivity;
@@ -76,8 +84,10 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
     if (!project) return [];
     const list: IUser[] = [];
     if (project.owner) list.push(project.owner);
-    if (project.team?.members && project.team.members.length > 0) {
-      list.push(...project.team.members);
+    if (project.team?.memberships && project.team.memberships.length > 0) {
+      list.push(
+        ...project.team.memberships.map((m: ITeamMembership) => m.user),
+      );
     }
 
     // dedupe by _id
@@ -273,9 +283,6 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
             render={({ field }) => {
               const value = field.value ?? [];
 
-              const displayName = (u: IUser) =>
-                `${u.givenName || ''} ${u.familyName || ''}`.trim() || u.email;
-
               return (
                 <FieldGroup>
                   <FieldContent>
@@ -323,7 +330,11 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
                                   }}
                                   className="flex justify-between"
                                 >
-                                  {displayName(user)}
+                                  <ProfileInfo
+                                    givenName={user.givenName}
+                                    familyName={user.familyName}
+                                    size="sm"
+                                  />
                                   <Check
                                     className={`mr-2 h-4 w-4 ${
                                       selected ? 'opacity-100' : 'opacity-0'
