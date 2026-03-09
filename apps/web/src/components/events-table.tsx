@@ -196,7 +196,7 @@ const columns: ColumnDef<IEvent>[] = [
       const { location } = row.original;
 
       return (
-        <div className="flex gap-1 items-center justify-center group">
+        <div className="flex gap-1 items-center justify-start group">
           <div className="max-w-72 truncate">
             <span>{location}</span>
           </div>
