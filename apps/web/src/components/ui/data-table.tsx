@@ -2,11 +2,15 @@
 
 import {
   ColumnDef,
+  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   useReactTable,
+  FilterFn,
 } from '@tanstack/react-table';
+import { rankItem } from '@tanstack/match-sorter-utils';
 
 import {
   Table,
@@ -16,7 +20,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import DataTablePagination from './data-table-pagination';
+
+import React from 'react';
+import { DataTablePagination } from './data-table-pagination';
+import { DataTableToolbar } from './data-table-toolbar';
+
+const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+  const itemRank = rankItem(row.getValue(columnId), value);
+  addMeta({ itemRank });
+  return itemRank.passed;
+};
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -27,15 +40,29 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+  const [globalFilter, setGlobalFilter] = React.useState('');
+
   const table = useReactTable({
     data,
     columns,
+    state: {
+      columnFilters,
+      globalFilter,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: fuzzyFilter,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   });
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
+      <DataTableToolbar table={table} />
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>

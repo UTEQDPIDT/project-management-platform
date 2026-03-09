@@ -18,11 +18,11 @@ interface DataTablePaginationProps<TData> {
   table: Table<TData>;
 }
 
-export default function DataTablePagination<TData>({
+export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
   return (
-    <div className="flex items-center space-x-6 lg:space-x-8 justify-end py-4 text-sm">
+    <div className="flex items-center space-x-6 lg:space-x-8 justify-end text-sm">
       <div className="flex items-center gap-2">
         <p className="font-medium">Filas por página</p>
         <Select
