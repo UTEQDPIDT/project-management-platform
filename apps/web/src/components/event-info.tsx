@@ -257,7 +257,7 @@ export function EventInfo({ event }: EventInfoProps) {
                         </FileUploadTrigger>
                       </FileUploadDropzone>
 
-                      <FileUploadList>
+                      <FileUploadList className='max-w-115'>
                         {technicalReportToUpload.map((file, index) => (
                           <FileUploadItem
                             key={`${file.name}-${file.lastModified}-${index}`}
@@ -338,7 +338,7 @@ export function EventInfo({ event }: EventInfoProps) {
                         </FileUploadTrigger>
                       </FileUploadDropzone>
 
-                      <FileUploadList>
+                      <FileUploadList className='max-w-115'>
                         {financialReportToUpload.map((file, index) => (
                           <FileUploadItem
                             key={`${file.name}-${file.lastModified}-${index}`}
