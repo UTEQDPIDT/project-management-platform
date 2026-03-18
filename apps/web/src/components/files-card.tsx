@@ -174,7 +174,7 @@ export default function FilesCard({
         ) : isError ? (
           <ErrorCard />
         ) : savedFiles.length ? (
-          <FileList onDelete={handleDelete} onDownload={handleDownload}>
+          <FileList onDelete={handleDelete} onDownload={handleDownload} className="lg:max-h-[50dvh] overflow-y-auto scroll-smooth pr-2.5">
             {savedFiles.map((f: IFile) => (
               <FileList.Item key={f._id} file={f}>
                 <FileList.Actions file={f} />
