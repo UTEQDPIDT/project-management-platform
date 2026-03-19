@@ -3,7 +3,11 @@
 import { useDeleteEvent, useGetAllEvents } from '@/hooks/events';
 import { FilePurpose, IEvent, IFile } from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
-import { DataTable } from './ui/data-table';
+import {
+  DataTable,
+  facetedFilter,
+  type FacetedFilterConfig,
+} from './ui/data-table';
 import LoadingMessage from './loading-message';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -342,6 +346,17 @@ const columns: ColumnDef<IEvent>[] = [
   },
 ];
 
+const facetedFilters: FacetedFilterConfig[] = [
+  {
+    columnId: 'type',
+    title: 'Tipo de evento',
+    options: [
+      { value: 'interno', label: 'Interno' },
+      { value: 'externo', label: 'Externo' },
+    ],
+  },
+];
+
 export function EventsTable() {
   const { data: events, isLoading: loadingEvents } = useGetAllEvents();
 
@@ -350,7 +365,11 @@ export function EventsTable() {
       {loadingEvents ? (
         <LoadingMessage message="Cargando eventos" />
       ) : (
-        <DataTable columns={columns} data={events} />
+        <DataTable
+          columns={columns}
+          data={events}
+          facetedFilters={facetedFilters}
+        />
       )}
     </div>
   );
