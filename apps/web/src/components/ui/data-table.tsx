@@ -25,7 +25,13 @@ import {
 
 import React from 'react';
 import { DataTablePagination } from './data-table-pagination';
-import { DataTableToolbar } from './data-table-toolbar';
+import {
+  DataTableToolbar,
+  type FacetedFilterConfig,
+} from './data-table-toolbar';
+
+export type { FacetedFilterConfig };
+export type { FacetedFilterOption } from './data-table-faceted-filter';
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   const itemRank = rankItem(row.getValue(columnId), value);
@@ -33,14 +39,25 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed;
 };
 
+// Filter function for faceted filters (handles array of selected values)
+export const facetedFilter: FilterFn<any> = (row, columnId, filterValue) => {
+  if (!filterValue || !Array.isArray(filterValue) || filterValue.length === 0) {
+    return true;
+  }
+  const cellValue = row.getValue(columnId);
+  return filterValue.includes(cellValue);
+};
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  facetedFilters?: FacetedFilterConfig[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  facetedFilters,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -66,7 +83,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="flex flex-col gap-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} facetedFilters={facetedFilters} />
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
