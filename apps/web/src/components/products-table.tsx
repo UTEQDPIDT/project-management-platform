@@ -5,7 +5,7 @@ import LoadingMessage from './loading-message';
 import { DataTable, FacetedFilterConfig } from './ui/data-table';
 import { useProducts } from '@/hooks/products';
 import { ColumnDef } from '@tanstack/react-table';
-import { IProduct, SeedCategory } from '@repo/types';
+import { CoAuthor, IProduct, SeedCategory } from '@repo/types';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -163,32 +163,10 @@ export function ProductsTable() {
       {
         columnId: 'coAuthor',
         title: 'Co Autor',
-        options: [
-          {
-            label: 'A',
-            value: 'A',
-          },
-          {
-            label: 'B',
-            value: 'B',
-          },
-          {
-            label: 'C',
-            value: 'C',
-          },
-          {
-            label: 'D',
-            value: 'D',
-          },
-          {
-            label: 'E',
-            value: 'E',
-          },
-          {
-            label: 'F',
-            value: 'F',
-          },
-        ],
+        options: Object.values(CoAuthor).map((coAuthor) => ({
+          label: coAuthor,
+          value: coAuthor,
+        })),
       },
     ];
   }, [categories, subcategories]);
