@@ -3,13 +3,14 @@
 import { useAllTeams, useDeleteTeam } from '@/hooks/team';
 import {
   ITeam,
+  SeedCategory,
   TeamMembershipRole,
   TeamMembershipStatus,
   TeamsGrade,
 } from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
-import React from 'react';
-import { DataTable } from './ui/data-table';
+import React, { useMemo } from 'react';
+import { DataTable, FacetedFilterConfig } from './ui/data-table';
 import LoadingMessage from './loading-message';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -43,6 +44,7 @@ import {
 } from './ui/dialog';
 import { copyValue } from '@/lib/utils';
 import CopyButton from './ui/copy';
+import { useDivisions } from '@/hooks/catalogs';
 
 const TeamsActions = ({ team }: { team: ITeam }) => {
   const deleteTeam = useDeleteTeam();
@@ -123,10 +125,12 @@ const columns: ColumnDef<ITeam>[] = [
     },
   },
   {
-    accessorKey: 'division',
+    id: 'division',
+    accessorFn: (row) => row.division?.name,
     header: 'Divisón',
     cell: ({ row }) => {
       const { division } = row.original;
+
       return (
         <div>
           {division ? (
@@ -253,12 +257,42 @@ const columns: ColumnDef<ITeam>[] = [
 
 export default function TeamsTable() {
   const { data, isLoading } = useAllTeams(true);
+  const { data: divisions } = useDivisions();
+
+  const facetedFilters: FacetedFilterConfig[] = useMemo(() => {
+    const divisionsOptions =
+      divisions?.map((division: SeedCategory) => ({
+        label: division.name,
+        value: division.name,
+      })) ?? [];
+
+    return [
+      {
+        columnId: 'division',
+        title: 'División',
+        options: divisionsOptions,
+      },
+      {
+        columnId: 'grade',
+        title: 'Grado',
+        options: Object.values(TeamsGrade).map((grade) => ({
+          label: grade,
+          value: grade,
+        })),
+      },
+    ];
+  }, [divisions]);
+
   return (
     <div className="max-w-6xl w-full">
       {isLoading ? (
         <LoadingMessage message="Cargando equipos" />
       ) : (
-        <DataTable data={data} columns={columns} />
+        <DataTable
+          data={data}
+          columns={columns}
+          facetedFilters={facetedFilters}
+        />
       )}
     </div>
   );

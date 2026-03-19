@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import LoadingMessage from './loading-message';
-import { DataTable } from './ui/data-table';
+import { DataTable, FacetedFilterConfig } from './ui/data-table';
 import { useProducts } from '@/hooks/products';
 import { ColumnDef } from '@tanstack/react-table';
-import { IProduct } from '@repo/types';
+import { CoAuthor, IProduct, SeedCategory } from '@repo/types';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +24,10 @@ import { downloadFile } from '@/services/files.service';
 import { useFilesForEntity } from '@/hooks/files';
 import { toast } from 'sonner';
 import CopyButton from './ui/copy';
+import {
+  useProductCategories,
+  useProductSubcategories,
+} from '@/hooks/catalogs';
 
 function ProductActionsCell({ product }: { product: IProduct }) {
   const { data: files = [] } = useFilesForEntity(product._id);
@@ -81,22 +85,14 @@ const columns: ColumnDef<IProduct>[] = [
     },
   },
   {
-    accessorKey: 'category',
+    id: 'category',
+    accessorFn: (row) => row.category.name,
     header: 'Categoría',
-    cell: ({ row }) => {
-      const { category } = row.original;
-
-      return <div>{category.name}</div>;
-    },
   },
   {
-    accessorKey: 'subcategory',
+    id: 'subcategory',
+    accessorFn: (row) => row.subcategory.name,
     header: 'Subcategoría',
-    cell: ({ row }) => {
-      const { subcategory } = row.original;
-
-      return <div>{subcategory.name}</div>;
-    },
   },
   { accessorKey: 'coAuthor', header: 'Co Autor' },
   {
@@ -137,6 +133,43 @@ const columns: ColumnDef<IProduct>[] = [
 
 export function ProductsTable() {
   const { data, isLoading } = useProducts();
+  const { data: categories } = useProductCategories();
+  const { data: subcategories } = useProductSubcategories();
+
+  const facetedFilters = useMemo((): FacetedFilterConfig[] => {
+    const categoriesOptions =
+      categories?.map((category: SeedCategory) => ({
+        label: category.name,
+        value: category.name,
+      })) ?? [];
+
+    const subcategoriesOptions =
+      subcategories?.map((subcategory: SeedCategory) => ({
+        label: subcategory.name,
+        value: subcategory.name,
+      })) ?? [];
+
+    return [
+      {
+        columnId: 'category',
+        title: 'Categoría',
+        options: categoriesOptions,
+      },
+      {
+        columnId: 'subcategory',
+        title: 'Subcategoría',
+        options: subcategoriesOptions,
+      },
+      {
+        columnId: 'coAuthor',
+        title: 'Co Autor',
+        options: Object.values(CoAuthor).map((coAuthor) => ({
+          label: coAuthor,
+          value: coAuthor,
+        })),
+      },
+    ];
+  }, [categories, subcategories]);
 
   return (
     <div className="w-full max-w-6xl flex flex-col gap-4">
@@ -149,7 +182,11 @@ export function ProductsTable() {
       {isLoading ? (
         <LoadingMessage message="Cargando productos" />
       ) : (
-        <DataTable columns={columns} data={data} />
+        <DataTable
+          columns={columns}
+          data={data}
+          facetedFilters={facetedFilters}
+        />
       )}
     </div>
   );

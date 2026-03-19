@@ -3,7 +3,7 @@
 import { useAllProjects, useDeleteProject } from '@/hooks/projects';
 import React from 'react';
 import LoadingMessage from './loading-message';
-import { DataTable } from './ui/data-table';
+import { DataTable, FacetedFilterConfig } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { IProject } from '@repo/types';
 import { ProfileInfo } from './profile-info';
@@ -207,6 +207,33 @@ const columns: ColumnDef<IProject>[] = [
   },
 ];
 
+const facetedFilters: FacetedFilterConfig[] = [
+  {
+    columnId: 'trlRating',
+    title: 'Nivel TRL',
+    options: [
+      { label: 'TRL 1', value: '1' },
+      { label: 'TRL 2', value: '2' },
+      { label: 'TRL 3', value: '3' },
+      { label: 'TRL 4', value: '4' },
+      { label: 'TRL 5', value: '5' },
+      { label: 'TRL 6', value: '6' },
+      { label: 'TRL 7', value: '7' },
+      { label: 'TRL 8', value: '8' },
+      { label: 'TRL 9', value: '9' },
+    ],
+  },
+  {
+    columnId: 'impactLevel',
+    title: 'Nivel de Impacto',
+    options: [
+      { label: 'Local', value: 'Local' },
+      { label: 'Nacional', value: 'Nacional' },
+      { label: 'Internacional', value: 'Internacional' },
+    ],
+  },
+];
+
 export default function ProjectsTable() {
   const { data: projects, isLoading: loadingProjects } = useAllProjects();
 
@@ -215,7 +242,11 @@ export default function ProjectsTable() {
       {loadingProjects ? (
         <LoadingMessage message="Cargando proyectos" />
       ) : (
-        <DataTable columns={columns} data={projects} />
+        <DataTable
+          columns={columns}
+          data={projects}
+          facetedFilters={facetedFilters}
+        />
       )}
     </div>
   );
