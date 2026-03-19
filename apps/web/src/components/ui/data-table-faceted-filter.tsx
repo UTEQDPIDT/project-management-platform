@@ -24,7 +24,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 
 export interface FacetedFilterOption {
-  label: string;
+  label?: string;
   value: string;
   icon?: React.ComponentType<{ className?: string }>;
 }
