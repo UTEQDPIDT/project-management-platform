@@ -1,11 +1,11 @@
 'use client';
 
 import { useGetAllUsers } from '@/hooks/user';
-import React from 'react';
+import React, { use, useMemo } from 'react';
 import LoadingMessage from './loading-message';
-import { DataTable } from './ui/data-table';
+import { DataTable, FacetedFilterConfig } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
-import { IUser, UserType } from '@repo/types';
+import { IUser, SeedCategory, Sex, State, UserType } from '@repo/types';
 import { Badge } from './ui/badge';
 import CopyButton from './ui/copy';
 import { format } from 'date-fns';
@@ -21,12 +21,14 @@ import { Button } from './ui/button';
 import { Copy, ExternalLink, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { copyValue } from '@/lib/utils';
+import { useDivisions } from '@/hooks/catalogs/use-divisions';
+import { usePrograms } from '@/hooks/catalogs/use-programs';
 
 const columns: ColumnDef<IUser>[] = [
   { accessorKey: 'givenName', header: 'Nombre(s)' },
   { accessorKey: 'familyName', header: 'Apellido(s)' },
   {
-    id: 'user-type',
+    accessorKey: 'type',
     header: 'Rol',
     cell: ({ row }) => {
       const { type } = row.original;
@@ -121,7 +123,8 @@ const columns: ColumnDef<IUser>[] = [
   },
   { accessorKey: 'state', header: 'Estado de recidencia' },
   {
-    accessorKey: 'division',
+    id: 'division',
+    accessorFn: (row) => row.division?.name,
     header: 'División',
     cell: ({ row }) => {
       const { division } = row.original;
@@ -138,7 +141,8 @@ const columns: ColumnDef<IUser>[] = [
     },
   },
   {
-    accessorKey: 'educationalProgram',
+    id: 'educationalProgram',
+    accessorFn: (row) => row.educationalProgram?.name,
     header: 'Programa educativo',
     cell: ({ row }) => {
       const { educationalProgram } = row.original;
@@ -206,13 +210,70 @@ const columns: ColumnDef<IUser>[] = [
 
 export default function UsersTable() {
   const { data, isLoading } = useGetAllUsers();
+  const { data: divisions } = useDivisions();
+  const { data: educationalPrograms } = usePrograms();
+
+  const facetedFilters: FacetedFilterConfig[] = useMemo(() => {
+    const divisionsOptions =
+      divisions?.map((division: SeedCategory) => ({
+        label: division.name,
+        value: division.name,
+      })) ?? [];
+
+    const educationalProgramsOptions =
+      educationalPrograms?.map((program: SeedCategory) => ({
+        label: program.name,
+        value: program.name,
+      })) ?? [];
+
+    return [
+      {
+        columnId: 'type',
+        title: 'Rol',
+        options: Object.values(UserType).map((userType) => ({
+          label: userType,
+          value: userType,
+        })),
+      },
+      {
+        columnId: 'sex',
+        title: 'Sexo',
+        options: Object.values(Sex).map((sex) => ({
+          label: sex,
+          value: sex,
+        })),
+      },
+      {
+        columnId: 'state',
+        title: 'Estado de residencia',
+        options: Object.values(State).map((state) => ({
+          label: state,
+          value: state,
+        })),
+      },
+      {
+        columnId: 'division',
+        title: 'División',
+        options: divisionsOptions,
+      },
+      {
+        columnId: 'educationalProgram',
+        title: 'Programa educativo',
+        options: educationalProgramsOptions,
+      },
+    ];
+  }, [divisions, educationalPrograms]);
 
   return (
     <div className="max-w-6xl">
       {isLoading ? (
         <LoadingMessage message="Cargando usuarios" />
       ) : (
-        <DataTable data={data} columns={columns} />
+        <DataTable
+          data={data}
+          columns={columns}
+          facetedFilters={facetedFilters}
+        />
       )}
     </div>
   );
