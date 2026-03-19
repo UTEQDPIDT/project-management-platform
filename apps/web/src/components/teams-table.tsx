@@ -126,8 +126,21 @@ const columns: ColumnDef<ITeam>[] = [
   },
   {
     id: 'division',
-    accessorFn: (row) => row.division?.name || 'Sin división',
+    accessorFn: (row) => row.division?.name,
     header: 'Divisón',
+    cell: ({ row }) => {
+      const { division } = row.original;
+
+      return (
+        <div>
+          {division ? (
+            <span>{division.name}</span>
+          ) : (
+            <span className="text-muted-foreground">Vacío</span>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'grade',
