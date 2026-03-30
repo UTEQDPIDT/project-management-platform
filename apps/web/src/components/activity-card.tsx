@@ -1,11 +1,11 @@
 'use client';
 
-import { useAddAssignee } from '@/hooks/activities';
+import { useAddAssignee, useUpdateActivity } from '@/hooks/activities';
 import { useDeleteFile, useFilesForEntity } from '@/hooks/files';
 import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
 import { cn } from '@/lib/utils';
 import { downloadFile } from '@/services/files.service';
-import { EntityType, IActivity, IFile } from '@repo/types';
+import { EntityType, IActivity, IFile, Status } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -18,7 +18,7 @@ import {
   UserPlus,
   X,
 } from 'lucide-react';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import AvatarRow from './avatar-row';
 import ErrorCard from './error-card';
 import FileList from './file-list';
@@ -84,13 +84,49 @@ export function ActivityCard({
 
   // Tanstack
   const {
-    data: files,
+    data: files = [],
     isLoading: isLoadingFiles,
     isError: isErrorFetchingFiles,
   } = useFilesForEntity(activity._id);
   const uploadFiles = useUploadMultipleFiles();
   const deleteFileMutation = useDeleteFile();
+  const updateActivityMutation = useUpdateActivity();
   const addAssignee = useAddAssignee();
+  const autoRevertTriggeredRef = useRef(false);
+// This effect checks if the activity is marked as COMPLETED but has no evidence files. 
+// If so, it automatically reverts the status back to PROGRESS and shows a toast notification. 
+// It also ensures that this auto-revert logic is only triggered once per relevant state change to prevent infinite loops.
+  useEffect(() => {
+    const shouldAutoRevert =
+      !isLoadingFiles &&
+      activity.status === Status.COMPLETED &&
+      files.length === 0;
+
+    if (!shouldAutoRevert) {
+      autoRevertTriggeredRef.current = false;
+      return;
+    }
+
+    if (autoRevertTriggeredRef.current || updateActivityMutation.isPending) {
+      return;
+    }
+
+    autoRevertTriggeredRef.current = true;
+
+    updateActivityMutation.mutate({
+      activityId: activity._id,
+      activityData: {
+        name: activity.name,
+        status: Status.PROGRESS,
+      },
+    });
+  }, [
+    activity._id,
+    activity.status,
+    files.length,
+    isLoadingFiles,
+    updateActivityMutation,
+  ]);
 
   const handleAddAssignee = () => {
     addAssignee.mutate({ activityId: activity._id, userId: user._id });
