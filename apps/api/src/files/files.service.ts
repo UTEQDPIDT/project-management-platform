@@ -123,6 +123,15 @@ export class FilesService {
   async findAll(): Promise<File[]> {
     return this.fileModel.find().populate('owner').exec();
   }
+  // This method checks if an activity has at least one evidence file before allowing it to be marked as completed.
+  async activityHasEvidence(activityId: string): Promise<boolean> {
+    const evidenceFiles = await this.fileModel.exists({
+      entityId: activityId,
+      entityType: EntityType.ACTIVITY,
+    });
+
+    return !!evidenceFiles;
+  }
 
   async findFilesForEntity(entityId: string) {
     return this.fileModel.find({ entityId }).populate('owner').exec();
