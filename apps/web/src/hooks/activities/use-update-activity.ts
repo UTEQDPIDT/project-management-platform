@@ -20,7 +20,16 @@ export const useUpdateActivity = () => {
         queryKey: ['activities'],
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      const code = error?.response?.data?.code;
+
+      if (code === 'ACTIVITY_EVIDENCE_REQUIRED') {
+        toast.error(
+          'Debes adjuntar al menos una evidencia antes de completar la actividad.',
+        );
+        return;
+      }
+
       toast.error('No se pudo actualizar la actividad');
     },
   });

@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Activity } from '../schemas/activities.schema';
 import { ClientSession, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
-import { EntityType, Priority } from '@repo/types';
+import { EntityType, Priority, Status } from '@repo/types';
 
 @Injectable()
 export class ActivitiesService {
@@ -81,6 +81,18 @@ export class ActivitiesService {
     }
     return activity;
   }
+// This method checks if an activity has at least one evidence file before allowing it to be marked as completed.
+  private async ensureEvidenceBeforeComplete(activityId: string): Promise<void> {
+    const hasEvidence = await this.filesService.activityHasEvidence(activityId);
+
+    if (!hasEvidence) {
+      throw new BadRequestException({
+        code: 'ACTIVITY_EVIDENCE_REQUIRED',
+        message:
+          'No se puede completar la actividad sin evidencia. Adjunta al menos un archivo.',
+      });
+    }
+  }
 
   async update(
     id: string,
@@ -91,6 +103,14 @@ export class ActivitiesService {
 
     if (!activity) {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
+    }
+// Check if the status is being updated to COMPLETED and if it was not already COMPLETED
+    const isTransitionToCompleted =
+      updateActivityDto.status === Status.COMPLETED &&
+      activity.status !== Status.COMPLETED;
+
+    if (isTransitionToCompleted) {
+      await this.ensureEvidenceBeforeComplete(id);
     }
 
     const updatedActivity = await this.activityModel.findByIdAndUpdate(

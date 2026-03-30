@@ -9,6 +9,7 @@ import {
   ITeamMembership,
 } from '@repo/types';
 import { useCreateActivity, useUpdateActivity } from '@/hooks/activities';
+import { useFilesForEntity } from '@/hooks/files';
 import { useProject } from '@/hooks/projects';
 import React, { useMemo } from 'react';
 
@@ -72,6 +73,14 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
   const entityId = projectId || eventId || '';
   const entityType: EntityType =
     context === 'project' ? EntityType.PROJECT : EntityType.EVENT;
+
+  // Load evidence files for this activity to determine if it can be marked as completed
+  const { data: evidenceFiles = [], isLoading: isLoadingEvidence } =
+    useFilesForEntity(activity?._id);
+  // An activity can be marked as completed if it has at least one evidence file attached, 
+  // or if it's a new activity (no evidence required until it's created)
+  const canMarkAsCompleted =
+    !activity || isLoadingEvidence || evidenceFiles.length > 0;
 
   // Load project members (owner + team members).
   // `useProject` is safe to call with an empty id because it uses
@@ -220,13 +229,34 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
                     <SelectValue placeholder="Estado" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.values(Status).map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
+                    {Object.values(Status).map((type) => {
+                      const isCompletedOption = type === Status.COMPLETED;
+                      const disableCompleted =
+                        isCompletedOption && !canMarkAsCompleted;
+
+                      return (
+                        <SelectItem
+                          key={type}
+                          value={type}
+                          disabled={disableCompleted}
+                          title={
+                            disableCompleted
+                              ? 'Adjunta al menos una evidencia para marcar esta actividad como completada'
+                              : undefined
+                          }
+                        >
+                          {type}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
+                {!canMarkAsCompleted && activity && (
+                  <FieldDescription>
+                    Adjunta al menos una evidencia para marcar esta actividad
+                    como completada.
+                  </FieldDescription>
+                )}
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}
