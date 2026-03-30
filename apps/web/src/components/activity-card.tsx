@@ -122,6 +122,7 @@ export function ActivityCard({
     });
   }, [
     activity._id,
+    activity.name,
     activity.status,
     files.length,
     isLoadingFiles,
