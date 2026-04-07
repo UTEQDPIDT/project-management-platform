@@ -45,7 +45,9 @@ export const facetedFilter: FilterFn<any> = (row, columnId, filterValue) => {
     return true;
   }
   const cellValue = row.getValue(columnId);
-  return filterValue.includes(cellValue);
+  return filterValue
+    .map((value) => String(value))
+    .includes(String(cellValue));
 };
 
 interface DataTableProps<TData, TValue> {
