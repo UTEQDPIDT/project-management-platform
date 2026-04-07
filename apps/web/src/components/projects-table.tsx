@@ -3,7 +3,7 @@
 import { useAllProjects, useDeleteProject } from '@/hooks/projects';
 import React from 'react';
 import LoadingMessage from './loading-message';
-import { DataTable, FacetedFilterConfig } from './ui/data-table';
+import { DataTable, FacetedFilterConfig, facetedFilter } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { IProject } from '@repo/types';
 import { ProfileInfo } from './profile-info';
@@ -145,7 +145,11 @@ const columns: ColumnDef<IProject>[] = [
       );
     },
   },
-  { accessorKey: 'trlRating', header: 'Nivel TRL' },
+  {
+    accessorKey: 'trlRating',
+    header: 'Nivel TRL',
+    filterFn: facetedFilter,
+  },
   {
     id: 'progress',
     header: 'Progreso',
@@ -165,7 +169,15 @@ const columns: ColumnDef<IProject>[] = [
   },
   {
     id: 'period',
+    accessorFn: (project) => {
+      const periodDate = project.endDate ?? project.startDate;
+      const timestamp = periodDate ? new Date(periodDate).getTime() : NaN;
+
+      if (Number.isNaN(timestamp)) return 'Sin año';
+      return String(new Date(timestamp).getFullYear());
+    },
     header: 'Periodo',
+    filterFn: facetedFilter,
     cell: ({ row }) => {
       const { startDate, endDate } = row.original;
 
@@ -176,7 +188,11 @@ const columns: ColumnDef<IProject>[] = [
       );
     },
   },
-  { accessorKey: 'impactLevel', header: 'Nivel de Impacto' },
+  {
+    accessorKey: 'impactLevel',
+    header: 'Nivel de Impacto',
+    filterFn: facetedFilter,
+  },
   {
     accessorKey: 'owner',
     header: 'Proprietario',
@@ -232,10 +248,45 @@ const facetedFilters: FacetedFilterConfig[] = [
       { label: 'Internacional', value: 'Internacional' },
     ],
   },
+  {
+    columnId: 'period',
+    title: 'Año',
+    options: [],
+  },
 ];
 
 export default function ProjectsTable() {
   const { data: projects, isLoading: loadingProjects } = useAllProjects();
+  const yearFilterOptions = React.useMemo<FacetedFilterConfig['options']>(() => {
+    if (!projects) return [];
+    const typedProjects = projects as IProject[];
+
+    const years: string[] = Array.from(
+      new Set(
+        typedProjects
+          .map((project: IProject) => {
+            const periodDate = project.endDate ?? project.startDate;
+            const timestamp = periodDate ? new Date(periodDate).getTime() : NaN;
+            if (Number.isNaN(timestamp)) return null;
+            return String(new Date(timestamp).getFullYear());
+          })
+          .filter((year: string | null): year is string => Boolean(year)),
+      ),
+    ).sort((a, b) => Number(b) - Number(a));
+
+    return years.map((year) => ({ label: year, value: year }));
+  }, [projects]);
+
+  const projectFacetedFilters = React.useMemo<FacetedFilterConfig[]>(
+    () =>
+      facetedFilters.map((filter): FacetedFilterConfig =>
+        filter.columnId === 'period'
+          ? { ...filter, options: yearFilterOptions }
+          : filter,
+      ),
+    [yearFilterOptions],
+  );
+
   const sortedProjects = React.useMemo(() => {
     if (!projects) return [];
 
@@ -259,7 +310,7 @@ export default function ProjectsTable() {
         <DataTable
           columns={columns}
           data={sortedProjects}
-          facetedFilters={facetedFilters}
+          facetedFilters={projectFacetedFilters}
         />
       )}
     </div>
