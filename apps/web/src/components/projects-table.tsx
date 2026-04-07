@@ -236,6 +236,20 @@ const facetedFilters: FacetedFilterConfig[] = [
 
 export default function ProjectsTable() {
   const { data: projects, isLoading: loadingProjects } = useAllProjects();
+  const sortedProjects = React.useMemo(() => {
+    if (!projects) return [];
+
+    return [...projects].sort((a, b) => {
+      const aMain = new Date(a.endDate ?? a.startDate).getTime();
+      const bMain = new Date(b.endDate ?? b.startDate).getTime();
+
+      if (bMain !== aMain) return bMain - aMain;
+
+      const aStart = new Date(a.startDate).getTime();
+      const bStart = new Date(b.startDate).getTime();
+      return bStart - aStart;
+    });
+  }, [projects]);
 
   return (
     <div className="max-w-6xl w-full">
@@ -244,7 +258,7 @@ export default function ProjectsTable() {
       ) : (
         <DataTable
           columns={columns}
-          data={projects}
+          data={sortedProjects}
           facetedFilters={facetedFilters}
         />
       )}
