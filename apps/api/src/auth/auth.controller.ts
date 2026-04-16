@@ -17,6 +17,8 @@ import { Public } from '../common/decorators/public.decorator';
 import { UserRole } from '@repo/types';
 import { MockLoginDto } from './dto/mock-login.dto';
 import { MockRegisterDto } from './dto/mock-register.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -147,6 +149,40 @@ export class AuthController {
         return res.status(201).json({ redirectUrl: redirectPath });
 
     } catch (error) {
+      throw error;
+    }
+  }
+
+  @Public()
+  @Post('forgot-password')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async forgotPassword(@Body() body: ForgotPasswordDto, @Res() res) {
+    try {
+      const response = await this.authService.forgotPassword(body.email);
+      return res.status(200).json(response);
+    } catch (error) {
+      return res.status(200).json({
+        message:
+          'Si el correo existe, enviaremos instrucciones para restablecer la contraseña',
+      });
+    }
+  }
+
+  @Public()
+  @Post('reset-password')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async resetPassword(@Body() body: ResetPasswordDto, @Res() res) {
+    try {
+      const response = await this.authService.resetPassword(body);
+      return res.status(200).json(response);
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        const response = error.getResponse();
+        return res.status(error.getStatus()).json(
+          typeof response === 'string' ? { message: response } : response,
+        );
+      }
+
       throw error;
     }
   }

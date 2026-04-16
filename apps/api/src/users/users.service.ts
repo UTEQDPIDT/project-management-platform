@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -163,6 +162,47 @@ export class UsersService {
         userId,
         {
           hashedRefreshToken,
+        },
+        { runValidators: true },
+      )
+      .exec();
+  }
+// This method is used when the user requests a password reset, to set the reset token and its expiration
+  async setPasswordResetToken(
+    userId: string,
+    payload: {
+      passwordResetTokenHash: string;
+      passwordResetExpiresAt: Date;
+    },
+  ) {
+    return await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        {
+          passwordResetTokenHash: payload.passwordResetTokenHash,
+          passwordResetExpiresAt: payload.passwordResetExpiresAt,
+          passwordResetUsedAt: null,
+        },
+        { runValidators: true },
+      )
+      .exec();
+  }
+// This method is used when the user successfully resets their password, to update the password hash and invalidate the reset token
+  async completePasswordReset(
+    userId: string,
+    payload: {
+      passwordHash: string;
+      passwordResetUsedAt: Date;
+    },
+  ) {
+    return await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        {
+          passwordHash: payload.passwordHash,
+          passwordResetTokenHash: null,
+          passwordResetExpiresAt: null,
+          passwordResetUsedAt: payload.passwordResetUsedAt,
         },
         { runValidators: true },
       )

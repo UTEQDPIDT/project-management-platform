@@ -153,6 +153,88 @@ export class AuthService {
   });
 }
 
+  async forgotPassword(email: string) {
+    const normalizedEmail = this.normalizeEmail(email);
+    const user = await this.userService.findByEmail(normalizedEmail);
+
+    if (!user) {
+      return {
+        message:
+          'Si el correo existe, enviaremos instrucciones para restablecer la contraseña',
+      };
+    }
+
+    const rawToken = randomBytes(32).toString('hex');
+    const passwordResetTokenHash = this.hashResetToken(rawToken);
+    const passwordResetExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    await this.userService.setPasswordResetToken(user._id.toString(), {
+      passwordResetTokenHash,
+      passwordResetExpiresAt,
+    });
+
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL', '');
+    const resetUrl = `${frontendUrl}/reset-password?email=${encodeURIComponent(normalizedEmail)}&token=${encodeURIComponent(rawToken)}`;
+
+    if (this.configService.get<string>('NODE_ENV') !== 'production') {
+      this.logger.log(`Password reset URL for ${normalizedEmail}: ${resetUrl}`);
+    }
+
+    return {
+      message:
+        'Si el correo existe, enviaremos instrucciones para restablecer la contraseña',
+    };
+  }
+
+  async resetPassword(payload: {
+    email: string;
+    token: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) {
+    if (payload.newPassword !== payload.confirmPassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
+
+    const normalizedEmail = this.normalizeEmail(payload.email);
+    const user = await this.userService.findByEmail(normalizedEmail);
+
+    if (!user) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    if (!user.passwordResetTokenHash || !user.passwordResetExpiresAt) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    if (user.passwordResetUsedAt) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    if (user.passwordResetExpiresAt.getTime() < Date.now()) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    const receivedTokenHash = this.hashResetToken(payload.token);
+
+    if (receivedTokenHash !== user.passwordResetTokenHash) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    const passwordHash = await this.hashPassword(payload.newPassword);
+
+    await this.userService.completePasswordReset(user._id.toString(), {
+      passwordHash,
+      passwordResetUsedAt: new Date(),
+    });
+
+    await this.userService.updateHashedRefreshToken(user._id.toString(), null);
+
+    return {
+      message: 'Password reset successfully',
+    };
+  }
+
   async signOut(userId: string) {
     await this.userService.updateHashedRefreshToken(userId, null);
   }
