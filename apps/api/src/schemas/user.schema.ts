@@ -46,6 +46,12 @@ export class User extends Document {
   email: string;
 
   @ApiPropertyOptional({
+    description: 'Contraseña del usuario.',
+  })
+  @Prop({required: false})
+  passwordHash?: string;
+
+  @ApiPropertyOptional({
     description: 'La URL del avatar del usuario. Brindada por Google.',
   })
   @Prop()

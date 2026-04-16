@@ -67,6 +67,35 @@ export class UsersService {
     }
   }
 
+  async createWithPassword({
+    givenName,
+    familyName,
+    email,
+    passwordHash,
+    }: {
+      givenName: string;
+      familyName: string;
+      email: string;
+      passwordHash: string;
+}) {
+    try {
+      const createdUser = new this.userModel({
+        givenName,
+        familyName,
+        email,
+        passwordHash,
+      });
+
+      await createdUser.save();
+      return createdUser;
+    } catch (err: any) {
+      if (err.code === 11000) {
+        throw new BadRequestException('User with this email already exists');
+      }
+      throw new BadRequestException(err.message);
+    }
+  }
+
   async findAll(): Promise<User[]> {
     return this.userModel
       .find()

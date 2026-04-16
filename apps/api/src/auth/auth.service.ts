@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthJwtPayload } from './types/jwt-payload';
 import { UsersService } from '../users/users.service';
@@ -12,10 +12,18 @@ import { UserRole } from '@repo/types';
 export class AuthService {
   constructor(
     private userService: UsersService,
-    private jwtSevice: JwtService,
+    private jwtService: JwtService,
     @Inject(refreshJwtConfig.KEY)
     private refreshTokenConfig: ConfigType<typeof refreshJwtConfig>,
   ) {}
+
+  private normalizeEmail(email: string): string {
+    return email.toLowerCase().trim();
+  }
+
+  async hashPassword(password: string): Promise<string> {
+    return argon2.hash(password);
+  }
 
   async login(userId: string, role: UserRole) {
     const { accessToken, refreshToken } = await this.generateTokens(
@@ -34,8 +42,8 @@ export class AuthService {
   async generateTokens(userId: string, role: UserRole) {
     const payload: AuthJwtPayload = { sub: userId, role };
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtSevice.signAsync(payload),
-      this.jwtSevice.signAsync(payload, this.refreshTokenConfig),
+      this.jwtService.signAsync(payload),
+      this.jwtService.signAsync(payload, this.refreshTokenConfig),
     ]);
     return {
       accessToken,
@@ -81,14 +89,53 @@ export class AuthService {
   }
 
   async validateGoogleUser(googleUser: CreateUserDto) {
-    const user = await this.userService.findByEmail(googleUser.email);
+    const normalizedEmail = this.normalizeEmail(googleUser.email);
+    const user = await this.userService.findByEmail(normalizedEmail);
     if (user) return user;
-    return await this.userService.create(googleUser);
+    return await this.userService.create({
+      ...googleUser,
+      email: normalizedEmail,
+    });
   }
 
-  async validateUser(email: string) {
-    return await this.userService.findByEmail(email);
+  async validateUser(email: string, password: string) {
+    const normalizedEmail = this.normalizeEmail(email);
+    const user = await this.userService.findByEmail(normalizedEmail);
+
+    if (!user || !user.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const passwordMatches = await argon2.verify(user.passwordHash, password);
+
+    if (!passwordMatches) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    return user;
   }
+
+  async registerUser(payload: {
+  givenName: string;
+  familyName: string;
+  email: string;
+  password: string;
+}) {
+  const normalizedEmail = this.normalizeEmail(payload.email);
+
+  const existingUser = await this.userService.findByEmail(normalizedEmail);
+  if (existingUser) {
+    throw new BadRequestException('User with this email already exists');
+  }
+
+  const passwordHash = await this.hashPassword(payload.password);
+
+  return this.userService.createWithPassword({
+    givenName: payload.givenName,
+    familyName: payload.familyName,
+    email: normalizedEmail,
+    passwordHash,
+  });
+}
 
   async signOut(userId: string) {
     await this.userService.updateHashedRefreshToken(userId, null);
