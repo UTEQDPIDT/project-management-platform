@@ -1,4 +1,5 @@
-import { Inject, Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Inject, Injectable, Logger, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AuthJwtPayload } from './types/jwt-payload';
 import { UsersService } from '../users/users.service';
@@ -6,13 +7,17 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import refreshJwtConfig from './config/refresh-jwt.config';
 import { ConfigType } from '@nestjs/config';
 import * as argon2 from 'argon2';
+import { createHash, randomBytes } from 'crypto';
 import { UserRole } from '@repo/types';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private userService: UsersService,
     private jwtService: JwtService,
+    private configService: ConfigService,
     @Inject(refreshJwtConfig.KEY)
     private refreshTokenConfig: ConfigType<typeof refreshJwtConfig>,
   ) {}
@@ -21,8 +26,18 @@ export class AuthService {
     return email.toLowerCase().trim();
   }
 
+  private pepperPassword(password: string): string {
+    const pepper = this.configService.get<string>('PASSWORD_PEPPER', '');
+    return password + pepper;
+  }
+
+  private hashResetToken(token: string): string {
+    return createHash('sha256').update(token).digest('hex');
+  }
+
   async hashPassword(password: string): Promise<string> {
-    return argon2.hash(password);
+    const pepperedPassword = this.pepperPassword(password);
+    return argon2.hash(pepperedPassword);
   }
 
   async login(userId: string, role: UserRole) {
@@ -106,7 +121,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const passwordMatches = await argon2.verify(user.passwordHash, password);
+    const pepperedPassword = this.pepperPassword(password);
+    const passwordMatches = await argon2.verify(user.passwordHash, pepperedPassword);
 
     if (!passwordMatches) {
       throw new UnauthorizedException('Invalid credentials');
