@@ -11,6 +11,7 @@ import { api } from '@/lib/axios';
 import { uteqEmailRegex } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const schema = z.object({
   email: z
@@ -87,6 +88,15 @@ export default function MockLoginForm() {
       </FieldGroup>
 
       <Button type="submit">Iniciar Sesión</Button>
+
+      <p className="text-sm text-center text-muted-foreground">
+        <Link
+          href="/olvide-mi-contrasena"
+          className="underline underline-offset-4 hover:text-foreground"
+        >
+          ¿Olvidaste tu contraseña?
+        </Link>
+      </p>
     </form>
   );
 }
