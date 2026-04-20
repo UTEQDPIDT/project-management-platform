@@ -9,6 +9,7 @@ import { ConfigType } from '@nestjs/config';
 import * as argon2 from 'argon2';
 import { createHash, randomBytes } from 'crypto';
 import { UserRole } from '@repo/types';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
     private userService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private emailService: EmailService,
     @Inject(refreshJwtConfig.KEY)
     private refreshTokenConfig: ConfigType<typeof refreshJwtConfig>,
   ) {}
@@ -174,10 +176,15 @@ export class AuthService {
     });
 
     const frontendUrl = this.configService.get<string>('FRONTEND_URL', '');
-    const resetUrl = `${frontendUrl}/reset-password?email=${encodeURIComponent(normalizedEmail)}&token=${encodeURIComponent(rawToken)}`;
+    const resetUrl = `${frontendUrl}/reset-password?token=${encodeURIComponent(rawToken)}`;
 
-    if (this.configService.get<string>('NODE_ENV') !== 'production') {
-      this.logger.log(`Password reset URL for ${normalizedEmail}: ${resetUrl}`);
+    try {
+      await this.emailService.sendPasswordReset(normalizedEmail, resetUrl);
+    } catch (error) {
+      this.logger.error(
+        `Failed to send password reset email for ${normalizedEmail}`,
+        error instanceof Error ? error.stack : String(error),
+      );
     }
 
     return {
