@@ -10,9 +10,14 @@ import { toast } from 'sonner';
 import { resetPassword } from '@/services/auth.service';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { uteqEmailRegex } from '@/lib/utils';
 
 const schema = z
   .object({
+    email: z
+      .string()
+      .email('El correo es inválido')
+      .regex(uteqEmailRegex, 'El correo debe ser un correo institucional: @uteq.edu.mx'),
     newPassword: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
     confirmPassword: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
   })
@@ -22,22 +27,21 @@ const schema = z
   });
 
 interface ResetPasswordFormProps {
-  email: string;
   token: string;
 }
 
-export default function ResetPasswordForm({ email, token }: ResetPasswordFormProps) {
+export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const router = useRouter();
 
   const form = useForm({
     mode: 'onSubmit',
     resolver: zodResolver(schema),
-    defaultValues: { newPassword: '', confirmPassword: '' },
+    defaultValues: { email: '', newPassword: '', confirmPassword: '' },
   });
 
   const onSubmit = async (payload: z.infer<typeof schema>) => {
     try {
-      await resetPassword({ email, token, ...payload });
+      await resetPassword({ token, ...payload });
       toast.success('Contraseña restablecida correctamente');
       router.push('/');
     } catch (error) {
@@ -57,6 +61,23 @@ export default function ResetPasswordForm({ email, token }: ResetPasswordFormPro
       onSubmit={form.handleSubmit(onSubmit)}
     >
       <FieldGroup>
+        <Controller
+          control={form.control}
+          name="email"
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel>Correo electrónico</FieldLabel>
+              <Input
+                {...field}
+                aria-invalid={fieldState.invalid}
+                placeholder="ejemplo@uteq.edu.mx"
+                autoComplete="email"
+                type="email"
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
         <Controller
           control={form.control}
           name="newPassword"

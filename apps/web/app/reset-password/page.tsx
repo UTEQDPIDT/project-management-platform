@@ -1,4 +1,3 @@
-'use client';
 import ResetPasswordForm from '@/components/forms/reset-password-form';
 import {
   Card,
@@ -10,13 +9,13 @@ import {
 import Link from 'next/link';
 
 interface ResetPasswordPageProps {
-  searchParams: Promise<{ email?: string; token?: string }>;
+  searchParams: Promise<{ token?: string }>;
 }
 
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
-  const { email, token } = await searchParams;
+  const { token } = await searchParams;
 
-  if (!email || !token) {
+  if (!token) {
     return (
       <main className="flex justify-center items-center w-full h-screen">
         <Card className="w-full max-w-md">
@@ -47,12 +46,11 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
         <CardHeader>
           <CardTitle>Restablecer contraseña</CardTitle>
           <CardDescription>
-            Ingresa tu nueva contraseña para la cuenta{' '}
-            <span className="font-medium text-foreground">{email}</span>.
+            Ingresa tu correo institucional y tu nueva contraseña.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-5">
-          <ResetPasswordForm email={email} token={token} />
+          <ResetPasswordForm token={token} />
           <p className="text-sm text-center text-muted-foreground">
             <Link href="/" className="underline underline-offset-4 hover:text-foreground">
               Volver al inicio de sesión
