@@ -46,12 +46,6 @@ export class User extends Document {
   email: string;
 
   @ApiPropertyOptional({
-    description: 'Contraseña del usuario.',
-  })
-  @Prop({required: false})
-  passwordHash?: string;
-
-  @ApiPropertyOptional({
     description: 'La URL del avatar del usuario. Brindada por Google.',
   })
   @Prop()
@@ -139,23 +133,6 @@ export class User extends Document {
   })
   @Prop()
   hashedRefreshToken?: string | null;
-
-  @ApiPropertyOptional({
-    description: 'El token para restablecer contraseña hasheado del usuario.',
-  })
-  @Prop()
-  passwordResetTokenHash?: string | null;
-
-  @ApiPropertyOptional({
-    description: 'La fecha de expiración del token para restablecer contraseña.',
-  })
-  @Prop()
-  passwordResetExpiresAt?: Date | null;
-
-  @ApiPropertyOptional({
-    description: 'Token de un solo uso para restablecer contraseña ha sido utilizado.',
-  })
-  @Prop()
-  passwordResetUsedAt?: Date | null;
 }
+
 export const UserSchema = SchemaFactory.createForClass(User);

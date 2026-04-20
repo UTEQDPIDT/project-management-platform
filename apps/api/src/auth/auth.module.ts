@@ -14,7 +14,6 @@ import refreshJwtConfig from './config/refresh-jwt.config';
 import { RefreshJwtStrategy } from './strategies/refresh.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
-import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
@@ -23,7 +22,6 @@ import { EmailModule } from '../email/email.module';
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
     ConfigModule.forFeature(refreshJwtConfig),
-    EmailModule,
   ],
   providers: [
     AuthService,
