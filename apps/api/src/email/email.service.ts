@@ -19,7 +19,7 @@ export class EmailService {
             secure, // true for 465, false for other ports
             auth: {
               user: this.configService.get<string>('MAIL_USER'), // generated ethereal user
-              pass: this.configService.get<string>('MAIL_PASS'), // generated ethereal password
+              pass: this.configService.get<string>('MAIL_PASSWORD'), // generated ethereal password
             },
             });
             return transporter;

@@ -32,7 +32,7 @@ jobs:
           echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> ./apps/api/.env.production
           echo "MAIL_PORT=${{ secrets.MAIL_PORT }}" >> ./apps/api/.env.production
           echo "MAIL_USER=${{ secrets.MAIL_USER }}" >> ./apps/api/.env.production
-          echo "MAIL_PASS=${{ secrets.MAIL_PASS }}" >> ./apps/api/.env.production
+          echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> ./apps/api/.env.production
           echo "MAIL_FROM=${{ secrets.MAIL_FROM }}" >> ./apps/api/.env.production
 
           # WEB Env
