@@ -34,6 +34,7 @@ jobs:
           echo "MAIL_USER=${{ secrets.MAIL_USER }}" >> ./apps/api/.env.production
           echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> ./apps/api/.env.production
           echo "MAIL_FROM=${{ secrets.MAIL_FROM }}" >> ./apps/api/.env.production
+          echo "INITIALIZE_PASSWORD_SECRET=${{ secrets.INITIALIZE_PASSWORD_SECRET }}" >> ./apps/api/.env.production
 
           # WEB Env
           echo "NEXT_PRIVATE_JWT_SECRET=${{ secrets.NEXT_PRIVATE_JWT_SECRET }}" > ./apps/web/.env.production
