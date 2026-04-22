@@ -242,6 +242,57 @@ export class AuthService {
     };
   }
 
+async initializePassword(email: string) {
+  const normalizedEmail = this.normalizeEmail(email);
+  const user = await this.userService.findByEmail(normalizedEmail);
+
+  const genericResponse = {
+    message:
+      'Si el correo existe y requiere activación, enviaremos instrucciones para establecer la contraseña',
+  };
+
+  if (!user) {
+    return genericResponse;
+  }
+
+  if (user.passwordHash) {
+    return genericResponse;
+  }
+
+  const hasActiveToken =
+    user.passwordResetTokenHash &&
+    user.passwordResetExpiresAt &&
+    user.passwordResetExpiresAt.getTime() > Date.now() &&
+    !user.passwordResetUsedAt;
+
+  if (hasActiveToken) {
+    return genericResponse;
+  }
+
+  const rawToken = randomBytes(32).toString('hex');
+  const passwordResetTokenHash = this.hashResetToken(rawToken);
+  const passwordResetExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+  await this.userService.setPasswordResetToken(user._id.toString(), {
+    passwordResetTokenHash,
+    passwordResetExpiresAt,
+  });
+
+  const frontendUrl = this.configService.get<string>('FRONTEND_URL', '');
+  const setupUrl = `${frontendUrl}/reset-password?token=${encodeURIComponent(rawToken)}`;
+
+  try {
+    await this.emailService.sendInitialPasswordSetup(normalizedEmail, setupUrl);
+  } catch (error) {
+    this.logger.error(
+      `Failed to send initial password setup email for ${normalizedEmail}`,
+      error instanceof Error ? error.stack : String(error),
+    );
+  }
+
+  return genericResponse;
+}
+
   async signOut(userId: string) {
     await this.userService.updateHashedRefreshToken(userId, null);
   }
