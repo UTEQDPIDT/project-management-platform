@@ -67,4 +67,26 @@ export class EmailService {
             html,
         });
     }
+
+    async sendInitialPasswordSetup(toEmail: string, setupUrl: string) {
+        const html = `
+            <p>Hola,</p>
+            <p>Al tener una cuenta en PREP UTEQ, necesitas configurar tu contraseña inicial.</p>
+            <p>Haz clic en el siguiente enlace para establecer tu contraseña por primera vez:</p>
+                
+            <p>
+                <a href="${setupUrl}" target="_blank" rel="noreferrer">
+                    Configurar contraseña
+                </a>
+            </p>
+            <p>Este enlace expira en 24 horas.</p>
+            <p>Si no esperabas este correo, por favor ignóralo.</p>
+        `;
+
+        await this.sendEmail({
+            recipients: [toEmail],
+            subject: 'Establece tu contraseña - PREP UTEQ',
+            html,
+        });
+    }
 }

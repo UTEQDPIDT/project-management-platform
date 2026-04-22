@@ -9,6 +9,8 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
+  Headers,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
@@ -19,10 +21,15 @@ import { MockLoginDto } from './dto/mock-login.dto';
 import { MockRegisterDto } from './dto/mock-register.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { InitializePasswordDto } from './dto/initialize-password.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
@@ -184,6 +191,31 @@ export class AuthController {
       }
 
       throw error;
+    }
+  }
+
+  @Public()
+  @Post('initialize-password')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async initializePassword(
+    @Body() body: InitializePasswordDto,
+    @Headers('x-internal-key') internalKey: string,
+    @Res() res,
+  ) {
+    const expectedKey = this.configService.get<string>('INITIALIZE_PASSWORD_SECRET', '');
+
+    if (!expectedKey || internalKey !== expectedKey) {
+      throw new UnauthorizedException('Invalid internal key');
+    }
+
+    try {
+      const response = await this.authService.initializePassword(body.email);
+      return res.status(200).json(response);
+    } catch (error) {
+      return res.status(200).json({
+        message:
+          'Si el correo existe y requiere activación, enviaremos instrucciones para establecer la contraseña',
+      });
     }
   }
 
