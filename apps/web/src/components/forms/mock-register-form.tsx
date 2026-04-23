@@ -11,6 +11,7 @@ import { api } from '@/lib/axios';
 import { uteqEmailRegex } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { EyePasswordInput } from '../ui/eye-password-input';
 
 const schema = z.object({
     givenName: z.string().min(1, 'El nombre debe tener al menos 1 caracter'),
@@ -118,9 +119,8 @@ return (
                 render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                         <FieldLabel>Contraseña</FieldLabel>
-                        <Input 
+                        <EyePasswordInput
                         {...field} 
-                        type="password" 
                         aria-invalid={fieldState.invalid} 
                         placeholder="********"
                         autoComplete='new-password' 
@@ -135,9 +135,8 @@ return (
                 render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                         <FieldLabel>Confirmar Contraseña</FieldLabel>
-                        <Input 
+                        <EyePasswordInput
                         {...field} 
-                        type="password" 
                         aria-invalid={fieldState.invalid} 
                         placeholder="********"
                         autoComplete='new-password' 

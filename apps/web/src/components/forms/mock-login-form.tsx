@@ -12,6 +12,7 @@ import { uteqEmailRegex } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { EyePasswordInput } from '../ui/eye-password-input';
 
 const schema = z.object({
   email: z
@@ -74,12 +75,11 @@ export default function MockLoginForm() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel>Contraseña</FieldLabel>
-              <Input
+              <EyePasswordInput
                 {...field}
                 aria-invalid={fieldState.invalid}
                 placeholder="********"
                 autoComplete="current-password"
-                type="password"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>

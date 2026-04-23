@@ -11,6 +11,7 @@ import { resetPassword } from '@/services/auth.service';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { uteqEmailRegex } from '@/lib/utils';
+import { EyePasswordInput } from '../ui/eye-password-input';
 
 const schema = z
   .object({
@@ -84,12 +85,11 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel>Nueva contraseña</FieldLabel>
-              <Input
+              <EyePasswordInput
                 {...field}
                 aria-invalid={fieldState.invalid}
                 placeholder="********"
                 autoComplete="new-password"
-                type="password"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -101,12 +101,11 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel>Confirmar contraseña</FieldLabel>
-              <Input
+              <EyePasswordInput
                 {...field}
                 aria-invalid={fieldState.invalid}
                 placeholder="********"
                 autoComplete="new-password"
-                type="password"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
