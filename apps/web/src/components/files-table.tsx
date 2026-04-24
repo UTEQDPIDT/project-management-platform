@@ -53,9 +53,11 @@ const columns: ColumnDef<IFile>[] = [
   },
   {
     accessorKey: 'owner',
-    header: 'Proprietario',
+    header: 'Propietario',
     cell: ({ row }) => {
       const { owner } = row.original;
+
+      if (!owner) return <div className="w-52 text-muted-foreground">Vacío</div>;
 
       return (
         <ProfileInfo
