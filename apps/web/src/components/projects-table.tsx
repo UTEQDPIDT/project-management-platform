@@ -195,10 +195,12 @@ const columns: ColumnDef<IProject>[] = [
   },
   {
     accessorKey: 'owner',
-    header: 'Proprietario',
+    header: 'Propietario',
     cell: ({ row }) => {
       const project = row.original;
       const { owner } = project;
+
+      if (!owner) return <div className="w-52 text-muted-foreground">Vacío</div>;
 
       return (
         <div className="w-52">

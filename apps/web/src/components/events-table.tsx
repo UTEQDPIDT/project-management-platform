@@ -246,6 +246,10 @@ const columns: ColumnDef<IEvent>[] = [
       const event = row.original;
       const { createdBy } = event;
 
+      if (!createdBy) {
+        return <div className='w-52 text-muted-foreground'>Vacío</div>
+      }
+
       return (
         <div className="w-52">
           <ProfileInfo
@@ -278,7 +282,11 @@ const columns: ColumnDef<IEvent>[] = [
     header: 'Modificado por',
     cell: ({ row }) => {
       const event = row.original;
-      const { createdBy: updatedBy } = event;
+      const { updatedBy } = event;
+
+      if (!updatedBy) {
+        return <div className='w-52 text-muted-foreground'>Vacío</div>
+      }
 
       return (
         <div className="w-52">

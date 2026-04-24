@@ -101,6 +101,8 @@ const columns: ColumnDef<IProduct>[] = [
     cell: ({ row }) => {
       const { owner } = row.original;
 
+      if (!owner) return <div className="w-52">—</div>;
+
       return (
         <div className="w-52">
           <ProfileInfo

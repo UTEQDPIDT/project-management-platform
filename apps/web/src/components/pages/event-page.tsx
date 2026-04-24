@@ -92,8 +92,11 @@ const EventPage = () => {
   };
 
   const onFileValidate = useCallback((file: File): string | null => {
-    if (!file.type.endsWith('pdf')) {
-      return 'Solo se aceptan PDFs';
+
+    const ALLOWED_TYPES = ['application/pdf', 'image/png', 'image/jpeg'];
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return 'Solo se aceptan PDFs, PNGs, JPGs y JPEGs';
     }
     const MAX_SIZE = 5 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
@@ -152,7 +155,7 @@ const EventPage = () => {
                     onFileValidate={onFileValidate}
                     onFileReject={onFileReject}
                     isUploading={uploadFiles.isPending}
-                    accept=".pdf"
+                    accept=".pdf,.png,.jpg,.jpeg"
                   />
                 )}
 

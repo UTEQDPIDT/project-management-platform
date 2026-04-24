@@ -99,11 +99,14 @@ function EventCardCompact({ event }: { event: IEvent }) {
 
 function EventCardComplete({ event }: { event: IEvent }) {
   const { user } = useUserProfile();
-  const baseUrl = getBaseUrlBasedOnRole(user.role);
+  const baseUrl = getBaseUrlBasedOnRole(user?.role);
   const { data: activities } = useActivitiesByEntity(event._id);
   const registerParticipant = useRegisterParticipant();
+
+  if (!user) return null;
+
   const currentUserId = user._id;
-  const isOwner = event.createdBy._id === currentUserId;
+  const isOwner = event.createdBy?._id === currentUserId;
   const isParticipant = event.participants.some(
     (p: IUser) => p._id === currentUserId,
   );

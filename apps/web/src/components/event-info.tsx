@@ -388,12 +388,14 @@ export function EventInfo({ event }: EventInfoProps) {
               <UserCircle size={14} /> Creado por
             </span>
             <div className="p-2 hover:bg-secondary rounded-md">
-              <ProfileInfo
-                givenName={event.createdBy.givenName}
-                familyName={event.createdBy.familyName}
-                avatarUrl={event.createdBy.avatarUrl}
-                size="sm"
-              />
+              {event.createdBy ? (
+                <ProfileInfo
+                  givenName={event.createdBy.givenName}
+                  familyName={event.createdBy.familyName}
+                  avatarUrl={event.createdBy.avatarUrl}
+                  size="sm"
+                />
+              ) : '—'}
             </div>
           </div>
 
@@ -412,12 +414,14 @@ export function EventInfo({ event }: EventInfoProps) {
               <UserCircle size={14} /> Modificado por
             </span>
             <div className="p-2 hover:bg-secondary rounded-md">
-              <ProfileInfo
-                givenName={event.updatedBy.givenName}
-                familyName={event.updatedBy.familyName}
-                avatarUrl={event.updatedBy.avatarUrl}
-                size="sm"
-              />
+              {event.updatedBy ? (
+                <ProfileInfo
+                  givenName={event.updatedBy.givenName}
+                  familyName={event.updatedBy.familyName}
+                  avatarUrl={event.updatedBy.avatarUrl}
+                  size="sm"
+                />
+              ) : '—'}
             </div>
           </div>
         </div>
