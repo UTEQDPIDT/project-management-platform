@@ -208,6 +208,29 @@ export function EventInfo({ event }: EventInfoProps) {
         </div>
       </div>
 
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <UserCircle size={14} /> Asistencia
+        </span>
+
+        <div className="p-2 hover:bg-secondary rounded-md grid grid-cols-3 gap-4">
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">Total</p>
+            <p className="text-lg font-semibold">
+              {event.attendance?.totalParticipants ?? 0}
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">Hombres</p>
+            <p className="text-lg font-semibold">{event.attendance?.men ?? 0}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">Mujeres</p>
+            <p className="text-lg font-semibold">{event.attendance?.women ?? 0}</p>
+          </div>
+        </div>
+      </div>
+
       {user.role === UserRole.ADMIN && (
         <div>
           <div className="flex items-start">

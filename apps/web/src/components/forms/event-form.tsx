@@ -107,6 +107,11 @@ export default function EventForm({ event }: EventFormProps) {
       participants: event?.participants
         ? event.participants.map((p: IUser) => p._id)
         : [],
+      attendance: event?.attendance || {
+        totalParticipants: 0,
+        men: 0,
+        women: 0,
+      },
     },
   });
 
@@ -118,17 +123,26 @@ export default function EventForm({ event }: EventFormProps) {
       const cleanedData = {
         ...data,
         organization: data.organization === '' ? undefined : data.organization,
+        attendance: data.attendance ?? {
+          totalParticipants: 0,
+          men: 0,
+          women: 0,
+        },
       };
 
       if (event) {
-        updateEvent.mutate({ eventId: event._id, eventData: cleanedData });
+        await updateEvent.mutateAsync({
+          eventId: event._id,
+          eventData: cleanedData,
+        });
         router.push(`/admin/eventos/${event._id}`);
       } else {
-        createEvent.mutate(cleanedData);
+        await createEvent.mutateAsync(cleanedData);
         router.push('/admin/eventos');
       }
     } catch (err) {
       console.error('Error cleaning data', err);
+      toast.error('No se pudo guardar el evento');
     }
   };
 
@@ -409,6 +423,90 @@ export default function EventForm({ event }: EventFormProps) {
               );
             }}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Asistencia al evento</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup>
+            <Controller
+              control={form.control}
+              name="attendance.totalParticipants"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Total de asistentes</FieldLabel>
+                  <InputGroup>
+                    <InputGroupInput
+                      {...field}
+                      id={field.name}
+                      type="number"
+                      min={0}
+                      placeholder="Ej: 100"
+                      value={field.value ?? 0}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        field.onChange(value === '' ? 0 : Number(value));
+                      }}
+                    />
+                  </InputGroup>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="attendance.men"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Hombres</FieldLabel>
+                  <InputGroup>
+                    <InputGroupInput
+                      {...field}
+                      id={field.name}
+                      type="number"
+                      min={0}
+                      placeholder="Ej: 50"
+                      value={field.value ?? 0}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        field.onChange(value === '' ? 0 : Number(value));
+                      }}
+                    />
+                  </InputGroup>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="attendance.women"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Mujeres</FieldLabel>
+                  <InputGroup>
+                    <InputGroupInput
+                      {...field}
+                      id={field.name}
+                      type="number"
+                      min={0}
+                      placeholder="Ej: 50"
+                      value={field.value ?? 0}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        field.onChange(value === '' ? 0 : Number(value));
+                      }}
+                    />
+                  </InputGroup>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+          </FieldGroup>
         </CardContent>
       </Card>
 

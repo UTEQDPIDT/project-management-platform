@@ -2,6 +2,18 @@ import { mongoId } from '@/lib/utils';
 import { EventType } from '@repo/types';
 import { z } from 'zod';
 
+const attendanceSchema = z
+  .object({
+    totalParticipants: z.number().int().min(0),
+    men: z.number().int().min(0),
+    women: z.number().int().min(0),
+  })
+  .refine((data) => data.men + data.women <= data.totalParticipants, {
+    message: 'La suma de hombres y mujeres no puede exceder el total de participantes',
+    path: ['totalParticipants'],
+  })
+  .optional();
+
 export const eventSchema = z.object({
   name: z.string().min(1, 'El evento debe tener un nombre.'),
   summary: z
@@ -16,4 +28,5 @@ export const eventSchema = z.object({
   isPrivate: z.boolean(),
   acceptsProducts: z.boolean(),
   participants: z.array(mongoId),
+  attendance: attendanceSchema,
 });
