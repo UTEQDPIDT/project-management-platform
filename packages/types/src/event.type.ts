@@ -2,6 +2,12 @@ import { EventType } from './enums/event-type.enum';
 import { IProduct } from './product.type';
 import { IUser } from './user.type';
 
+export interface IEventAttendance {
+  totalParticipants: number;
+  men: number;
+  women: number;
+}
+
 export interface IEvent {
   _id: string;
   name: string;
@@ -15,6 +21,7 @@ export interface IEvent {
   products?: IProduct[];
   isPrivate: boolean;
   acceptsProducts: boolean;
+  attendance?: IEventAttendance;
   createdBy: IUser;
   updatedBy: IUser;
   createdAt: Date;
