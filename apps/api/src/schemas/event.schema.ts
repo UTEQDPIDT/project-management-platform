@@ -58,6 +58,21 @@ export class Event extends Document {
   @ApiProperty({ description: 'Indica si el evento acepta productos' })
   @Prop({ default: false })
   acceptsProducts: boolean;
+
+  @ApiProperty({ description: 'Asistencia del evento' })
+  @Prop({
+    type: {
+      totalParticipants: { type: Number, default: 0 },
+      men: { type: Number, default: 0 },
+      women: { type: Number, default: 0 },
+    },
+    default: undefined,
+  })
+  attendance?: {
+    totalParticipants: number;
+    men: number;
+    women: number;
+  };
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);

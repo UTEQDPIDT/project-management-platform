@@ -95,10 +95,42 @@ export class EventsService {
 
   async update(id: string, updateEventDto: UpdateEventDto, usedId: string) {
     try {
-      const updatedEvent = this.eventModel.findByIdAndUpdate(id, {
-        ...updateEventDto,
+      const {
+        name,
+        summary,
+        startDate,
+        endDate,
+        organization,
+        location,
+        type,
+        isPrivate,
+        acceptsProducts,
+        participants,
+        attendance,
+      } = updateEventDto;
+
+      const updatePayload = {
+        ...(name !== undefined && { name }),
+        ...(summary !== undefined && { summary }),
+        ...(startDate !== undefined && { startDate }),
+        ...(endDate !== undefined && { endDate }),
+        ...(organization !== undefined && { organization }),
+        ...(location !== undefined && { location }),
+        ...(type !== undefined && { type }),
+        ...(isPrivate !== undefined && { isPrivate }),
+        ...(acceptsProducts !== undefined && { acceptsProducts }),
+        ...(participants !== undefined && { participants }),
+        ...(attendance !== undefined && { attendance }),
         updatedBy: usedId,
-      });
+      };
+
+      const updatedEvent = await this.eventModel.findByIdAndUpdate(
+        id,
+        {
+          $set: updatePayload,
+        },
+        { new: true, runValidators: true },
+      );
       if (!updatedEvent) {
         throw new NotFoundException(`Event with ID: ${id} not found`);
       }
