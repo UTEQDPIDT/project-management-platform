@@ -58,16 +58,16 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
   return (
     <form
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-5 px-4"
       onSubmit={form.handleSubmit(onSubmit)}
     >
-      <FieldGroup>
+      <FieldGroup className='py-2 gap-4'>
         <Controller
           control={form.control}
           name="email"
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Correo electrónico</FieldLabel>
+            <Field data-invalid={fieldState.invalid} className='gap-1'>
+              <FieldLabel className='font-normal'>Correo electrónico:</FieldLabel>
               <Input
                 {...field}
                 aria-invalid={fieldState.invalid}
@@ -83,8 +83,8 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           control={form.control}
           name="newPassword"
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Nueva contraseña</FieldLabel>
+            <Field data-invalid={fieldState.invalid} className='gap-1'>
+              <FieldLabel className='font-normal'>Nueva contraseña:</FieldLabel>
               <EyePasswordInput
                 {...field}
                 aria-invalid={fieldState.invalid}
@@ -99,8 +99,8 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           control={form.control}
           name="confirmPassword"
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Confirmar contraseña</FieldLabel>
+            <Field data-invalid={fieldState.invalid} className='gap-1'>
+              <FieldLabel className='font-normal'>Confirmar contraseña:</FieldLabel>
               <EyePasswordInput
                 {...field}
                 aria-invalid={fieldState.invalid}
@@ -112,8 +112,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           )}
         />
       </FieldGroup>
-
-      <Button type="submit" disabled={form.formState.isSubmitting}>
+      <Button  className='bg-[#242D55] font-semibold h-12 hover:bg-[#1e2547] text-white cursor-pointer' type="submit" disabled={form.formState.isSubmitting}>
         {form.formState.isSubmitting ? 'Guardando...' : 'Restablecer contraseña'}
       </Button>
     </form>

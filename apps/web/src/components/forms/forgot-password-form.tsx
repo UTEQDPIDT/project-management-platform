@@ -39,16 +39,18 @@ export default function ForgotPasswordForm() {
 
   if (submitted) {
     return (
-      <p className="text-sm text-muted-foreground text-center">
+      <div className='py-2'>
+        <p className="text-sm text-muted-foreground text-center font-bold">
         Si el correo está registrado, recibirás un enlace para restablecer tu
         contraseña en los próximos minutos.
       </p>
+      </div>
     );
   }
 
   return (
     <form
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-4 px-4"
       onSubmit={form.handleSubmit(onSubmit)}
     >
       <FieldGroup>
@@ -56,8 +58,8 @@ export default function ForgotPasswordForm() {
           control={form.control}
           name="email"
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Correo electrónico</FieldLabel>
+            <Field data-invalid={fieldState.invalid} className='gap-1'>
+              <FieldLabel className='font-normal'>Correo electrónico:</FieldLabel>
               <Input
                 {...field}
                 aria-invalid={fieldState.invalid}
@@ -71,7 +73,7 @@ export default function ForgotPasswordForm() {
         />
       </FieldGroup>
 
-      <Button type="submit" disabled={form.formState.isSubmitting}>
+      <Button className='bg-[#242D55] font-semibold h-12 hover:bg-[#1e2547] text-white cursor-pointer' type="submit" disabled={form.formState.isSubmitting}>
         {form.formState.isSubmitting ? 'Enviando...' : 'Enviar enlace'}
       </Button>
     </form>
