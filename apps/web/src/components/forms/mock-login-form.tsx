@@ -48,16 +48,16 @@ export default function MockLoginForm() {
 
   return (
     <form
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-4"
       onSubmit={form.handleSubmit(onSubmit, onError)}
     >
-      <FieldGroup>
+      <FieldGroup className='pt-2 pb-2 gap-4'>
         <Controller
           control={form.control}
           name="email"
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Correo electrónico</FieldLabel>
+            <Field data-invalid={fieldState.invalid} className='gap-1'>
+              <FieldLabel className='font-normal'>Correo electrónico:</FieldLabel>
               <Input
                 {...field}
                 aria-invalid={fieldState.invalid}
@@ -73,8 +73,16 @@ export default function MockLoginForm() {
           control={form.control}
           name="password"
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Contraseña</FieldLabel>
+            <Field data-invalid={fieldState.invalid} className='gap-1'>
+              <div className="flex items-center justify-between">
+                <FieldLabel className='font-normal'>Contraseña:</FieldLabel>
+                <Link
+                  href="/olvide-mi-contrasena"
+                  className="text-sm underline underline-offset-4 hover:text-foreground text-muted-foreground"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
               <EyePasswordInput
                 {...field}
                 aria-invalid={fieldState.invalid}
@@ -87,16 +95,8 @@ export default function MockLoginForm() {
         />
       </FieldGroup>
 
-      <Button type="submit">Iniciar Sesión</Button>
+      <Button type="submit" className='bg-[#242D55] font-semibold h-12 hover:bg-[#1e2547] text-white cursor-pointer'>Iniciar Sesión</Button>
 
-      <p className="text-sm text-center text-muted-foreground">
-        <Link
-          href="/olvide-mi-contrasena"
-          className="underline underline-offset-4 hover:text-foreground"
-        >
-          ¿Olvidaste tu contraseña?
-        </Link>
-      </p>
     </form>
   );
 }
