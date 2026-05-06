@@ -69,17 +69,17 @@ return (
         className="flex flex-col gap-5"
         onSubmit={form.handleSubmit(onSubmit, onError)}
     >
-        <FieldGroup>
+        <FieldGroup className='py-2 gap-4'>
             <Controller
                 control={form.control}
                 name="givenName"
                 render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel>Nombre</FieldLabel>
+                    <Field data-invalid={fieldState.invalid} className='gap-1'>
+                        <FieldLabel className='font-normal'>Nombre:</FieldLabel>
                         <Input 
                         {...field}
                         aria-invalid={fieldState.invalid}
-                        placeholder="Nombre"
+                        placeholder="Nombre/s"
                         />
                         {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                     </Field>
@@ -89,12 +89,12 @@ return (
                 control={form.control}
                 name="familyName"
                 render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel>Apellido</FieldLabel>
+                    <Field data-invalid={fieldState.invalid} className='gap-1'>
+                        <FieldLabel className='font-normal'>Apellido:</FieldLabel>
                         <Input 
-                        {...field} 
+                        {...field}
                         aria-invalid={fieldState.invalid} 
-                        placeholder="Apellido"
+                        placeholder="Apellido/s"
                         />
                         {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                     </Field>
@@ -104,8 +104,8 @@ return (
                 control={form.control}
                 name="email"
                 render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel>Correo electrónico</FieldLabel>
+                    <Field data-invalid={fieldState.invalid} className='gap-1'>
+                        <FieldLabel className='font-normal'>Correo electrónico:</FieldLabel>
                         <Input {...field} aria-invalid={fieldState.invalid} 
                         type="email" 
                         placeholder="ejemplo@uteq.edu.mx" />
@@ -117,8 +117,8 @@ return (
                 control={form.control}
                 name="password"
                 render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel>Contraseña</FieldLabel>
+                    <Field data-invalid={fieldState.invalid} className='gap-1'>
+                        <FieldLabel className='font-normal'>Contraseña:</FieldLabel>
                         <EyePasswordInput
                         {...field} 
                         aria-invalid={fieldState.invalid} 
@@ -133,8 +133,8 @@ return (
                 control={form.control}
                 name="confirmPassword"
                 render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel>Confirmar Contraseña</FieldLabel>
+                    <Field data-invalid={fieldState.invalid} className='gap-1'>
+                        <FieldLabel className='font-normal'>Confirmar contraseña:</FieldLabel>
                         <EyePasswordInput
                         {...field} 
                         aria-invalid={fieldState.invalid} 
@@ -146,7 +146,7 @@ return (
                 )}
             />
         </FieldGroup>
-        <Button type="submit">Registrar</Button>
+        <Button type="submit" className='bg-[#242D55] font-semibold h-12 hover:bg-[#1e2547] text-white cursor-pointer'>Registrar</Button>
     </form>
         
 );
