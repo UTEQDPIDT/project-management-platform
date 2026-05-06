@@ -34,7 +34,13 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card';
-import { Command, CommandGroup, CommandItem } from '../ui/command';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from '../ui/command';
 import { DatePicker } from '../ui/date-picker';
 import {
   Dialog,
@@ -245,7 +251,7 @@ export function CreateProjectForm() {
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>TRL Inicial*</FieldLabel>
-                    <InputGroup>
+                    <InputGroup className='border border-gray-300'>
                       <InputGroupInput
                         {...field}
                         id={field.name}
@@ -366,12 +372,13 @@ export function CreateProjectForm() {
                         id={field.name}
                         onBlur={onBlur}
                         aria-invalid={fieldState.invalid}
+                        className='border border-gray-300'
                       >
                         <SelectValue placeholder="Selecciona un nivel" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className='border border-gray-400'>
                         {Object.values(ImpactLevel).map((level) => (
-                          <SelectItem key={level} value={level}>
+                          <SelectItem key={level} value={level} className='cursor-pointer'>
                             {level}
                           </SelectItem>
                         ))}
@@ -417,7 +424,7 @@ export function CreateProjectForm() {
                           </Button>
                         </PopoverTrigger>
 
-                        <PopoverContent className="w-full p-0">
+                        <PopoverContent className="w-full p-0 border border-gray-400">
                           <Command>
                             <CommandGroup>
                               {loadingKnowledgeAreas ? (
@@ -438,7 +445,7 @@ export function CreateProjectForm() {
                                             : [...value, area._id],
                                         );
                                       }}
-                                      className="flex justify-between"
+                                      className="flex justify-between cursor-pointer"
                                     >
                                       {area.name}
                                       <Check
@@ -494,7 +501,7 @@ export function CreateProjectForm() {
                           </Button>
                         </PopoverTrigger>
 
-                        <PopoverContent className="w-full p-0">
+                        <PopoverContent className="w-full p-0 border border-gray-400">
                           <Command>
                             <CommandGroup>
                               {loadingImpactAreas ? (
@@ -515,7 +522,7 @@ export function CreateProjectForm() {
                                             : [...value, area._id],
                                         );
                                       }}
-                                      className="flex justify-between"
+                                      className="flex justify-between cursor-pointer"
                                     >
                                       {area.name}
                                       <Check
@@ -571,7 +578,7 @@ export function CreateProjectForm() {
                           </Button>
                         </PopoverTrigger>
 
-                        <PopoverContent className="w-full p-0">
+                        <PopoverContent className="w-full p-0 border border-gray-400">
                           <Command>
                             <CommandGroup>
                               {loadingPndPriorities ? (
@@ -592,7 +599,7 @@ export function CreateProjectForm() {
                                             : [...value, priority._id],
                                         );
                                       }}
-                                      className="flex justify-between"
+                                      className="flex justify-between cursor-pointer"
                                     >
                                       {priority.name}
                                       <Check
@@ -648,7 +655,7 @@ export function CreateProjectForm() {
                           </Button>
                         </PopoverTrigger>
 
-                        <PopoverContent className="w-full p-0">
+                        <PopoverContent className="w-full p-0 border border-gray-400">
                           <Command>
                             <CommandGroup>
                               {loadingSustainableGoals ? (
@@ -669,7 +676,7 @@ export function CreateProjectForm() {
                                             : [...value, goal._id],
                                         );
                                       }}
-                                      className="flex justify-between"
+                                      className="flex justify-between cursor-pointer"
                                     >
                                       {goal.name}
                                       <Check
@@ -728,8 +735,20 @@ export function CreateProjectForm() {
                           </Button>
                         </PopoverTrigger>
 
-                        <PopoverContent className="w-full lg:max-w-2xl max-h-96 overflow-y-auto p-0">
-                          <Command>
+                        <PopoverContent className="w-full lg:max-w-2xl max-h-96 overflow-y-auto p-0 border border-gray-400">
+                          <Command
+                            filter={(value, search) =>
+                              value
+                                .toLowerCase()
+                                .includes(search.toLowerCase())
+                                ? 1
+                                : 0
+                            }
+                          >
+                            <CommandInput placeholder="Buscar línea de investigación..." />
+                            <CommandEmpty>
+                              No se encontraron líneas de investigación.
+                            </CommandEmpty>
                             <CommandGroup>
                               {loadingDevelopmentLines ? (
                                 <CommandItem disabled>Cargando</CommandItem>
@@ -738,8 +757,9 @@ export function CreateProjectForm() {
                                   const selected = value.includes(line._id);
 
                                   return (
-                                    <CommandItem
+                                    <CommandItem 
                                       key={line._id}
+                                      value={line.name}
                                       onSelect={() => {
                                         field.onChange(
                                           selected
@@ -749,7 +769,7 @@ export function CreateProjectForm() {
                                             : [...value, line._id],
                                         );
                                       }}
-                                      className="flex justify-between"
+                                      className="flex justify-between cursor-pointer"
                                     >
                                       {line.name}
                                       <Check
@@ -865,6 +885,7 @@ export function CreateProjectForm() {
                         id={field.name}
                         onBlur={onBlur}
                         aria-invalid={fieldState.invalid}
+                        className='border border-gray-300'
                       >
                         <SelectValue placeholder="Sin selección" />
                       </SelectTrigger>
@@ -873,7 +894,7 @@ export function CreateProjectForm() {
                           <LoadingMessage message="Cargando equipos" />
                         ) : teams.length > 0 ? (
                           teams.map((team: ITeam) => (
-                            <SelectItem key={team._id} value={team._id}>
+                            <SelectItem key={team._id} value={team._id} className='cursor-pointer'>
                               {team.teamName}
                             </SelectItem>
                           ))
