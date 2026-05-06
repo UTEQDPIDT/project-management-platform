@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import MockLoginForm from '@/components/forms/mock-login-form';
 import MockRegisterForm from '@/components/forms/mock-register-form';
 import { Button } from '@/components/ui/button';
@@ -23,36 +24,49 @@ export default function Home() {
 
   return (
     <div>
-      <main className="flex justify-center items-center w-full h-screen">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>
-              {mode === 'login' ? 'Ingresa a tu cuenta' : 'Crea tu cuenta'}
+      <main className="flex justify-center items-center w-full h-screen bg-linear-to-b from-white to-[#242D55] from-15%">
+        <Card className="w-full max-w-md p-5 gap-2 opacity-80 border-black ">
+          <CardHeader className='p-0 gap-0'>
+            <div className="flex justify-center items-center gap-4 p-2">
+              <Image src="/uteq-logo.svg" alt="UTEQ Logo" width={80} height={80} className='shrink-0'/>
+              <Image src="/prep-logo-azul.svg" alt="PREP Logo" width={120} height={120} className='shrink-0'/>
+            </div>
+            <CardTitle className='text-center text-3xl font-bold'>
+              {mode === 'login' ? 'Inicio de Sesión' : 'Registro'}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-center text-base font-nomal">
               {mode === 'login'
-                ? 'Inicia sesión con tu correo institucional de la UTEQ'
-                : 'Registra tu cuenta para comenzar'}
+                ? 'Sistema PREP'
+                : 'Sistema PREP'}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="mb-4 grid grid-cols-2 gap-2">
+            <div className="mb-2 grid grid-cols-2 gap-2">
               <Button
+                className={
+                  mode === 'login'
+                    ? 'border-black bg-[#242D55] text-white font-semibold hover:bg-[#1e2547] hover:text-white cursor-pointer'
+                    : 'border-black bg-background text-[#242D55] font-semibold cursor-pointer'
+                }
                 type="button"
-                variant={mode === 'login' ? 'default' : 'outline'}
+                variant="outline"
                 onClick={() => setMode('login')}
               >
                 Iniciar sesión
               </Button>
               <Button
+                className={
+                  mode === 'register'
+                    ? 'border-black bg-[#242D55] text-white font-semibold hover:bg-[#1e2547] hover:text-white cursor-pointer'
+                    : 'border-black bg-background text-[#242D55] font-semibold cursor-pointer'
+                }
                 type="button"
-                variant={mode === 'register' ? 'default' : 'outline'}
+                variant="outline"
                 onClick={() => setMode('register')}
               >
                 Registrarse
               </Button>
             </div>
-
             {mode === 'login' ? <MockLoginForm /> : <MockRegisterForm />}
             {/* <CardAction>
               <Button onClick={handleGoogleLogin}>
