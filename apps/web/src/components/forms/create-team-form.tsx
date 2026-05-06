@@ -23,7 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card';
-import { Command, CommandGroup, CommandItem } from '../ui/command';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../ui/command';
 import {
   Field,
   FieldContent,
@@ -301,7 +301,11 @@ export function CreateTeamForm() {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-full md:w-xl max-h-96 overflow-y-auto p-0">
-                          <Command>
+                          <Command filter={(value, search) =>
+                            value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0
+                          }>
+                            <CommandInput placeholder="Buscar participante..." />
+                            <CommandEmpty>No se encontraron participantes.</CommandEmpty>
                             <CommandGroup>
                               {loadingUsers ? (
                                 <CommandItem disabled>
@@ -313,6 +317,7 @@ export function CreateTeamForm() {
                                   return (
                                     <CommandItem
                                       key={user._id}
+                                      value={`${user.givenName} ${user.familyName}`}
                                       onSelect={() => {
                                         field.onChange(
                                           selected
