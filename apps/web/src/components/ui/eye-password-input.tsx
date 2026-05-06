@@ -14,13 +14,13 @@ export function EyePasswordInput({ className, ...props }: EyePasswordInputProps)
             <Input
                 {...props}
                 type={showPassword ? 'text' : 'password'}
-                className="pr-10"
+                className="pr-10 h-11"
                 
         />
         <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+            className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground cursor-pointer"
             aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
         >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
