@@ -3,6 +3,31 @@ import { eventSchema } from '@/schemas/event.schema';
 import { IEvent } from '@repo/types';
 import z from 'zod';
 
+type EventsDashboardResponse = {
+  period: 'T1' | 'T2' | 'T3';
+  year: number;
+  dateRange: {
+    startDate: string;
+    endDate: string;
+  };
+  kpis: {
+    totalEvents: number;
+    totalParticipants: number;
+    studentsParticipants: number;
+    teachersParticipants: number;
+  };
+  sexBreakdown: {
+    men: number;
+    women: number;
+    total: number;
+  };
+  trend: Array<{
+    label: string;
+    events: number;
+    participants: number;
+  }>;
+};
+
 const createEvent = async (eventData: z.infer<typeof eventSchema>) => {
   const { data } = await api.post('/events', eventData);
   return data;
@@ -96,6 +121,23 @@ const registerParticipant = async ({ eventId }: { eventId: string }) => {
   return data;
 };
 
+const getEventsDashboard = async (
+  period: 'T1' | 'T2' | 'T3',
+  year?: number,
+): Promise<EventsDashboardResponse> => {
+  const params: { period: 'T1' | 'T2' | 'T3'; year?: number } = { period };
+
+  if (typeof year === 'number') {
+    params.year = year;
+  }
+
+  const { data } = await api.get<EventsDashboardResponse>('/dashboard/events', {
+    params,
+  });
+
+  return data;
+};
+
 export {
   createEvent,
   getAllEvents,
@@ -108,4 +150,5 @@ export {
   registerProducts,
   removeProduct,
   getEventsByUser,
+  getEventsDashboard,
 };
