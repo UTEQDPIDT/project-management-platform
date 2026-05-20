@@ -4,6 +4,8 @@ import { Model } from 'mongoose';
 import { Event } from '../schemas/event.schema';
 import { User } from '../schemas/user.schema';
 import { UserType } from '@repo/types';
+import { Project } from '../schemas/project.schema';
+import { Team } from '../schemas/team.schema';
 
 type DashboardPeriod = 'T1' | 'T2' | 'T3';
 
@@ -18,6 +20,8 @@ export class DashboardService {
     constructor(
         @InjectModel(Event.name) private readonly eventModel: Model<Event>,
         @InjectModel(User.name) private readonly userModel: Model<User>,
+        @InjectModel(Team.name) private readonly teamModel: Model<Team>,
+        @InjectModel(Project.name) private readonly projectModel: Model<Project>,
     ) {}
 
     private getPeriodRange(period: DashboardPeriod, year: number) {
@@ -151,6 +155,122 @@ export class DashboardService {
                 total: attendanceTotals.men + attendanceTotals.women,
             },
             trend,
+        };
+    }
+    async getProjectsDashboard(
+        period: DashboardPeriod = 'T1',
+        year: number = new Date().getFullYear(),
+    ) {
+        const validPeriods: DashboardPeriod[] = ['T1', 'T2', 'T3'];
+
+        if(!validPeriods.includes(period)) {
+            throw new BadRequestException('period debe ser T1, T2 o T3');
+        }
+
+        const { startDate, endDate } = this.getPeriodRange(period, year);
+        const dateFilter = { startDate: { $gte: startDate, $lte: endDate } };
+
+        const [projectsCount, participantsByType] = await Promise.all([
+            this.projectModel.countDocuments(dateFilter),
+            this.projectModel.aggregate<{
+                _id: UserType;
+                count: number;
+            }>([
+                { $match: dateFilter },
+                {
+                    $lookup: {
+                        from: this.teamModel.collection.name,
+                        localField: 'team',
+                        foreignField: '_id',
+                        as: 'teamDoc',
+                    },
+                },
+                {
+                    $unwind: {
+                        path: '$teamDoc',
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $addFields: {
+                        activeMemberships: {
+                            $filter: {
+                                input: { $ifNull: ['$teamDoc.memberships', []] },
+                                as: 'membership',
+                                cond: { $eq: ['$$membership.status', 'ACTIVE'] },
+                            },
+                        },
+                    },
+                },
+                {
+                    $addFields: {
+                        memberUserIds: {
+                            $setUnion: [
+                                {
+                                    $map: {
+                                        input: '$activeMemberships',
+                                        as: 'membership',
+                                        in: '$$membership.user',
+                                    },
+                                },
+                                [],
+                            ],
+                        },
+                    },
+                },
+                {
+                    $addFields: {
+                        participantUserIds: {
+                            $cond: [
+                                { $ifNull: ['$teamDoc._id', false] },
+                                '$memberUserIds',
+                                {
+                                    $cond: [
+                                        { $ifNull: ['$owner', false] },
+                                        ['$owner'],
+                                        [],
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                },
+                { $unwind: '$participantUserIds' },
+                {
+                    $lookup: {
+                        from: this.userModel.collection.name,
+                        localField: 'participantUserIds',
+                        foreignField: '_id',
+                        as: 'user',
+                    },
+                },
+                { $unwind: '$user' },
+                {
+                    $group: {
+                        _id: '$user.type',
+                        count: { $sum: 1 },
+                    },
+                },
+            ]),
+        ]);
+
+        const studentsInProjects =
+            participantsByType.find((item) => item._id === UserType.ESTUDIANTE)?.count ?? 0;
+        const teachersInProjects =
+            participantsByType.find((item) => item._id === UserType.MAESTRO)?.count ?? 0;
+
+        return{
+            period,
+            year,
+            dateRange: {
+                startDate,
+                endDate,
+            },
+            kpis:{
+                totalProjects: projectsCount,
+                studentsInProjects,
+                teachersInProjects,
+            },
         };
     }
 }

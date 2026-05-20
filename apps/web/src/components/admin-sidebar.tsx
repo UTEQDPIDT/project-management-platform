@@ -1,13 +1,12 @@
 'use client';
 
-import { House, Users, Contact, Calendar, Folder, File, BarChart3, BarChart4 } from 'lucide-react';
+import { House, Users, Contact, Calendar, Folder, File, BarChart4, BarChart2 } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -26,6 +25,7 @@ const items = [
   { title: 'Eventos', url: '/admin/eventos', icon: Calendar },
   { title: 'Archivos', url: '/admin/archivos', icon: File },
   { title: 'Eventos Métricas', url: '/admin/event-dashboard', icon: BarChart4 },
+  { title: 'Proyectos Métricas', url: '/admin/projects-dashboard', icon: BarChart2 },
 ];
 
 export function AdminSidebar() {
