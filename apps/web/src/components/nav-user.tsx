@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { LogOut, CircleUserRound, EllipsisVertical } from 'lucide-react';
 
 import {
@@ -28,6 +29,28 @@ export function NavUser() {
   const { isMobile } = useSidebar();
   const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg">
+            <ProfileInfo
+              givenName={user.givenName}
+              familyName={user.familyName}
+              email={user.email}
+              avatarUrl={user.avatarUrl}
+            />
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
 
   return (
     <SidebarMenu>
