@@ -133,7 +133,7 @@ const Page = () => {
                     <ChartRadial
                     title="Total Participantes"
                     description="Asistencia total"
-                    value={data.kpis.totalParticipants}
+                    value={data.sexBreakdown.total}
                     label="Participantes"
                     color="#242D55"
                     />
@@ -164,7 +164,6 @@ const Page = () => {
                         <tr className='border-b text-left'>
                           <th className='py-2 pr-3 font-semibold'>Mes</th>
                           <th className='py-2 px-3 font-semibold'>Eventos</th>
-                          <th className='py-2 pl-3 font-semibold'>Participantes</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -172,7 +171,6 @@ const Page = () => {
                           <tr key={`${item.label}-${index}`} className='border-b last:border-b-0'>
                             <td className='py-2 pr-3'>{formatTrendLabel(item.label)}</td>
                             <td className='py-2 px-3'>{item.events}</td>
-                            <td className='py-2 pl-3'>{item.participants}</td>
                           </tr>
                         ))}
                       </tbody>
