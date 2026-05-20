@@ -17,6 +17,7 @@ import { EventsModule } from './events/events.module';
 import { CaslModule } from './casl/casl.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -89,6 +90,8 @@ import { APP_GUARD } from '@nestjs/core';
     EventsModule,
 
     CaslModule,
+
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
