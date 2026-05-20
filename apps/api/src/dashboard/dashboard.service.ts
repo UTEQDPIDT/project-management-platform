@@ -46,7 +46,7 @@ export class DashboardService {
     }
 
     private buildMonthlyTrend(
-        events: Array<Pick<Event, 'startDate' | 'attendance' | 'participants'>>,
+        events: Array<Pick<Event, 'startDate' | 'attendance'>>,
     ): TrendPoint[] {
         const trendMap = new Map<string, { events: number; participants: number }>();
 
@@ -54,9 +54,10 @@ export class DashboardService {
             const eventDate = new Date(event.startDate);
             const label = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, '0')}`;
             const current = trendMap.get(label) ?? { events: 0, participants: 0 };
+                const totalParticipants = event.attendance?.totalParticipants ?? 0;
 
             current.events += 1;
-            current.participants += this.getEventParticipantsCount(event);
+                current.participants += totalParticipants;
             trendMap.set(label, current);
     }
 
