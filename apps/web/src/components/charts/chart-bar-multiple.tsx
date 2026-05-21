@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts";
 
 import {
     Card,
@@ -85,8 +85,12 @@ export function ChartBarMultiple({ data, year, isLoading }: ChartBarMultipleProp
                     cursor={false}
                     content={<ChartTooltipContent indicator="dot" />}
                     />
-                    <Bar dataKey="students" fill="#DBA936" radius={3} />
-                    <Bar dataKey="teachers" fill="#242D55" radius={3} />
+                    <Bar dataKey="students" fill="#DBA936" radius={3}>
+                    <LabelList dataKey="students" position="top" fill="#000000" fontSize={12} />
+                    </Bar>
+                    <Bar dataKey="teachers" fill="#242D55" radius={3}>
+                    <LabelList dataKey="teachers" position="top" fill="#000000" fontSize={12} />
+                    </Bar>
                 </BarChart>
                 </ChartContainer>
 
