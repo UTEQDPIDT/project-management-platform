@@ -46,6 +46,17 @@ import { copyValue } from '@/lib/utils';
 import CopyButton from './ui/copy';
 import { useDivisions } from '@/hooks/catalogs';
 
+const gradeBadgeVariantMap: Record<
+  TeamsGrade,
+  React.ComponentProps<typeof Badge>['variant']
+> = {
+  [TeamsGrade.FORMACION]: 'gray',
+  [TeamsGrade.CONSOLIDADO]: 'green',
+  [TeamsGrade.CA_EN_FORMACION]: 'gray',
+  [TeamsGrade.CA_CONSOLIDADO]: 'green',
+  [TeamsGrade.CA_EN_CONSOLIDACION]: 'orange',
+};
+
 const TeamsActions = ({ team }: { team: ITeam }) => {
   const deleteTeam = useDeleteTeam();
 
@@ -149,11 +160,7 @@ const columns: ColumnDef<ITeam>[] = [
       const { grade } = row.original;
       return (
         <div>
-          {grade === TeamsGrade.CONSOLIDADO ? (
-            <Badge variant="green">{grade}</Badge>
-          ) : (
-            <Badge>{grade}</Badge>
-          )}
+          <Badge variant={gradeBadgeVariantMap[grade]}>{grade}</Badge>
         </div>
       );
     },
