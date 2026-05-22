@@ -52,6 +52,15 @@ export function TeamInfo({ team }: TeamInfoProps) {
     case TeamsGrade.CONSOLIDADO:
       badgeVariant = BadgeVariants.GREEN;
       break;
+    case TeamsGrade.CA_EN_FORMACION:
+      badgeVariant = BadgeVariants.GRAY;
+      break;
+    case TeamsGrade.CA_CONSOLIDADO:
+      badgeVariant = BadgeVariants.GREEN;
+      break;
+    case TeamsGrade.CA_EN_CONSOLIDACION:
+      badgeVariant = BadgeVariants.ORANGE;
+      break;
   }
 
   return (
