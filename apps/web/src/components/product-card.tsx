@@ -74,12 +74,16 @@ export default function ProductCard({
         <div className="flex flex-col gap-2">
           <span className="text-xs text-muted-foreground">Proprietario</span>
 
-          <ProfileInfo
-            size="sm"
-            givenName={product.owner.givenName}
-            familyName={product.owner.familyName}
-            avatarUrl={product.owner.avatarUrl}
-          />
+          {product.owner ? (
+            <ProfileInfo
+              size="sm"
+              givenName={product.owner.givenName}
+              familyName={product.owner.familyName}
+              avatarUrl={product.owner.avatarUrl}
+            />
+          ) : (
+            <span className="text-xs text-muted-foreground">Sin propietario</span>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">

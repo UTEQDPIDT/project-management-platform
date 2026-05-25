@@ -267,12 +267,16 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
           <UserCircle size={14} /> Creado por
         </span>
         <div className="p-2 hover:bg-secondary rounded-md">
-          <ProfileInfo
-            size="sm"
-            givenName={owner.givenName}
-            familyName={owner.familyName}
-            avatarUrl={owner.avatarUrl}
-          />
+          {owner ? (
+            <ProfileInfo
+              size="sm"
+              givenName={owner.givenName}
+              familyName={owner.familyName}
+              avatarUrl={owner.avatarUrl}
+            />
+          ) : (
+            <span className="text-gray-400">Vacío</span>
+          )}
         </div>
       </div>
 
