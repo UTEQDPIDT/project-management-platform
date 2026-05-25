@@ -46,12 +46,6 @@ export function TeamInfo({ team }: TeamInfoProps) {
     | null
     | undefined;
   switch (team?.grade) {
-    case TeamsGrade.FORMACION:
-      badgeVariant = BadgeVariants.GRAY;
-      break;
-    case TeamsGrade.CONSOLIDADO:
-      badgeVariant = BadgeVariants.GREEN;
-      break;
     case TeamsGrade.CA_EN_FORMACION:
       badgeVariant = BadgeVariants.GRAY;
       break;
@@ -60,6 +54,9 @@ export function TeamInfo({ team }: TeamInfoProps) {
       break;
     case TeamsGrade.CA_EN_CONSOLIDACION:
       badgeVariant = BadgeVariants.ORANGE;
+      break;
+    case TeamsGrade.GRUPO_DE_INVESTIGACION:
+      badgeVariant = BadgeVariants.PURPLE;
       break;
   }
 
