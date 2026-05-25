@@ -133,12 +133,6 @@ function TeamCardDefault({ team }: { team: ITeam }) {
     | null
     | undefined;
   switch (team.grade) {
-    case TeamsGrade.FORMACION:
-      badgeVariant = BadgeVariants.GRAY;
-      break;
-    case TeamsGrade.CONSOLIDADO:
-      badgeVariant = BadgeVariants.GREEN;
-      break;
     case TeamsGrade.CA_EN_FORMACION:
       badgeVariant = BadgeVariants.GRAY;
       break;
@@ -147,6 +141,9 @@ function TeamCardDefault({ team }: { team: ITeam }) {
       break;
     case TeamsGrade.CA_EN_CONSOLIDACION:
       badgeVariant = BadgeVariants.ORANGE;
+      break;
+    case TeamsGrade.GRUPO_DE_INVESTIGACION:
+      badgeVariant = BadgeVariants.PURPLE;
       break;
   }
 
@@ -260,12 +257,6 @@ function TeamCardCompact({ team }: { team: ITeam }) {
     | null
     | undefined;
   switch (team.grade) {
-    case TeamsGrade.FORMACION:
-      badgeVariant = BadgeVariants.GRAY;
-      break;
-    case TeamsGrade.CONSOLIDADO:
-      badgeVariant = BadgeVariants.GREEN;
-      break;
     case TeamsGrade.CA_EN_FORMACION:
       badgeVariant = BadgeVariants.GRAY;
       break;
@@ -274,6 +265,9 @@ function TeamCardCompact({ team }: { team: ITeam }) {
       break;
     case TeamsGrade.CA_EN_CONSOLIDACION:
       badgeVariant = BadgeVariants.ORANGE;
+      break;
+    case TeamsGrade.GRUPO_DE_INVESTIGACION:
+      badgeVariant = BadgeVariants.PURPLE;
       break;
   }
   return (

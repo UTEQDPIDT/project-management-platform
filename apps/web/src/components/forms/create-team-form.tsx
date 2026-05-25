@@ -81,7 +81,7 @@ export function CreateTeamForm() {
       teamName: '',
       summary: '',
       division: '',
-      grade: TeamsGrade.FORMACION,
+      grade: TeamsGrade.GRUPO_DE_INVESTIGACION,
       members: [],
       collaborators: [],
       isPrivate: true,
@@ -199,6 +199,7 @@ export function CreateTeamForm() {
                         id={field.name}
                         onBlur={onBlur}
                         aria-invalid={fieldState.invalid}
+                        className="border-zinc-300"
                       >
                         <SelectValue placeholder="Selecciona una división" />
                       </SelectTrigger>
@@ -240,6 +241,7 @@ export function CreateTeamForm() {
                         id={field.name}
                         onBlur={onBlur}
                         aria-invalid={fieldState.invalid}
+                        className="border-zinc-300"
                       >
                         <SelectValue />
                       </SelectTrigger>

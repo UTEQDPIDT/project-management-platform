@@ -40,7 +40,7 @@ export class Team extends Document {
   @Prop({
     type: String,
     enum: Object.values(TeamsGrade),
-    default: TeamsGrade.FORMACION,
+    default: TeamsGrade.GRUPO_DE_INVESTIGACION,
   })
   @ApiProperty({
     description: 'El grado del equipo.',

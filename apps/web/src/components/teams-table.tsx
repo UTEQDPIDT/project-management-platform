@@ -50,11 +50,10 @@ const gradeBadgeVariantMap: Record<
   TeamsGrade,
   React.ComponentProps<typeof Badge>['variant']
 > = {
-  [TeamsGrade.FORMACION]: 'gray',
-  [TeamsGrade.CONSOLIDADO]: 'green',
   [TeamsGrade.CA_EN_FORMACION]: 'gray',
   [TeamsGrade.CA_CONSOLIDADO]: 'green',
   [TeamsGrade.CA_EN_CONSOLIDACION]: 'orange',
+  [TeamsGrade.GRUPO_DE_INVESTIGACION]: 'purple',
 };
 
 const TeamsActions = ({ team }: { team: ITeam }) => {

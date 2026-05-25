@@ -57,7 +57,7 @@ export class CreateTeamDto {
 
   @ApiPropertyOptional({
     description: 'El grado del equipo.',
-    default: TeamsGrade.FORMACION,
+    default: TeamsGrade.GRUPO_DE_INVESTIGACION,
     enum: TeamsGrade,
   })
   @IsOptional()
