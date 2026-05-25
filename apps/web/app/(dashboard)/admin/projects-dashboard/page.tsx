@@ -21,6 +21,7 @@ import { useProjectsDashboard } from '@/hooks/dashboard';
 
 import React from 'react';
 import { ChartBarMultiple } from '@/components/charts/chart-bar-multiple';
+import { DashboardProjectsTable } from '@/components/charts/dashboard-projects-table';
 import { getProjectsDashboard } from '@/services/projects.service';
 
 const PERIOD_OPTIONS = ['T1', 'T2', 'T3'] as const;
@@ -127,43 +128,48 @@ const Page = () => {
         ) : null}
 
         {!isLoading && !isError && data ? (
-          <div className="flex flex-row gap-2 min-h-160">
-            <div className="flex justify-center basis-1/3">
-              <div className="flex flex-row gap-2 justify-start">
-                <div className="flex flex-col basis-2/3 gap-2">
+          <div className="space-y-4">
+            <div className="flex flex-row gap-2 min-h-160">
+              <div className="flex justify-center basis-1/3">
+                <div className="flex flex-row gap-2 justify-start">
+                  <div className="flex flex-col basis-2/3 gap-2">
+                    <ChartRadial
+                    title="Total Proyectos"
+                    description={`Periodo ${data.period}: ${PERIOD_MONTH_LABELS[data.period]}`}
+                    value={data.kpis.totalProjects}
+                    label="Proyectos"
+                    color="#242D55"
+                    />
                   <ChartRadial
-                  title="Total Proyectos"
-                  description={`Periodo ${data.period}: ${PERIOD_MONTH_LABELS[data.period]}`}
-                  value={data.kpis.totalProjects}
-                  label="Proyectos"
-                  color="#242D55"
-                  />
-                <ChartRadial
-                  title="Estudiantes en proyectos"
-                  description="Participacion estudiantil"
-                  value={data.kpis.studentsInProjects}
-                  label="Estudiantes"
-                  color="#DBA936"
+                    title="Estudiantes en proyectos"
+                    description="Participacion estudiantil"
+                    value={data.kpis.studentsInProjects}
+                    label="Estudiantes"
+                    color="#DBA936"
+                    />
+                  </div>
+                  <div className="basis-1/3">
+                    <ChartRadial
+                    title="Maestros en proyectos"
+                    description="Participacion docente"
+                    value={data.kpis.teachersInProjects}
+                    label="Maestros"
+                    color="#1F6E8C"
+                    />
+                  </div>
+                </div>
+                </div>
+              <div className="basis-2/3 gap-2 flex flex-col">
+                <div>
+                  <ChartBarMultiple
+                  data={chartBarData}
+                  year={yearForQueries}
+                  isLoading={isChartBarLoading}
                   />
                 </div>
-                <div className="basis-1/3">
-                  <ChartRadial
-                  title="Maestros en proyectos"
-                  description="Participacion docente"
-                  value={data.kpis.teachersInProjects}
-                  label="Maestros"
-                  color="#1F6E8C"
-                  />
+                <div>
+                  <DashboardProjectsTable dateRange={data.dateRange} />
                 </div>
-              </div>
-              </div>
-            <div className="basis-2/3">
-              <div>
-                <ChartBarMultiple
-                data={chartBarData}
-                year={yearForQueries}
-                isLoading={isChartBarLoading}
-                />
               </div>
             </div>
           </div>
