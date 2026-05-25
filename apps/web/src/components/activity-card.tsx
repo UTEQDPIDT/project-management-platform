@@ -154,6 +154,10 @@ export function ActivityCard({
   };
 
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+  const validAssignees = (activity.assignees ?? []).filter(
+    (assignee): assignee is NonNullable<typeof assignee> => Boolean(assignee),
+  );
+  const firstAssignee = validAssignees[0];
 
   return (
     <Sheet>
@@ -175,8 +179,8 @@ export function ActivityCard({
           <CardContent className="flex flex-col gap-4">
             {showPriority && <PriorityBadge priority={activity.priority} />}
 
-            {activity.assignees && activity.assignees.length > 0 && (
-              <AvatarRow profiles={activity.assignees} />
+            {validAssignees.length > 0 && (
+              <AvatarRow profiles={validAssignees} />
             )}
 
             {activity.dueDate && (
@@ -245,18 +249,18 @@ export function ActivityCard({
               <div className="text-sm text-muted-foreground w-20">
                 Encargados
               </div>
-              {activity.assignees && activity.assignees?.length === 1 && (
+              {firstAssignee && validAssignees.length === 1 && (
                 <ProfileInfo
                   size="sm"
-                  givenName={activity.assignees[0]!.givenName}
-                  familyName={activity.assignees[0]!.familyName}
-                  avatarUrl={activity.assignees[0]!.avatarUrl}
+                  givenName={firstAssignee.givenName}
+                  familyName={firstAssignee.familyName}
+                  avatarUrl={firstAssignee.avatarUrl}
                 />
               )}
-              {activity.assignees && activity.assignees.length > 1 && (
-                <AvatarRow profiles={activity.assignees} />
+              {validAssignees.length > 1 && (
+                <AvatarRow profiles={validAssignees} />
               )}
-              {!activity.assignees?.some((a) => a._id === user._id) && (
+              {!validAssignees.some((a) => a._id === user._id) && (
                 <Button onClick={handleAddAssignee} variant="ghost" size="xs">
                   <UserPlus /> Asignarse
                 </Button>
@@ -267,12 +271,16 @@ export function ActivityCard({
               <div className="text-sm text-muted-foreground w-20">
                 Creada por
               </div>
-              <ProfileInfo
-                size="sm"
-                givenName={activity.createdBy.givenName}
-                familyName={activity.createdBy.familyName}
-                avatarUrl={activity.createdBy.avatarUrl}
-              />
+              {activity.createdBy ? (
+                <ProfileInfo
+                  size="sm"
+                  givenName={activity.createdBy.givenName}
+                  familyName={activity.createdBy.familyName}
+                  avatarUrl={activity.createdBy.avatarUrl}
+                />
+              ) : (
+                <span className="text-sm text-muted-foreground">Sin registro</span>
+              )}
             </div>
 
             <div className="flex items-center gap-2">

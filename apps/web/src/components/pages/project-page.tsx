@@ -70,13 +70,17 @@ const ProjectPage = () => {
     setFilesToUpload([]);
   };
 
+  const isOwner = Boolean(
+    user?._id && project?.owner?._id && user._id === project.owner._id,
+  );
+
   return (
     <div className="w-full h-full">
       {loadingProject ? (
         <div className="w-full h-full flex items-center justify-center">
           <LoadingMessage />
         </div>
-      ) : isError ? (
+      ) : isError || !project ? (
         <ErrorCard />
       ) : (
         <div>
@@ -91,13 +95,13 @@ const ProjectPage = () => {
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
-                    {loadingProject ? 'Cargando...' : project.name}
+                    {loadingProject ? 'Cargando...' : project?.name}
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
             </HeaderHeading>
 
-            {user._id === project.owner._id && (
+            {isOwner && (
               <HeaderAction>
                 <ProjectMenu projectId={projectId} name={project.name} />
               </HeaderAction>
