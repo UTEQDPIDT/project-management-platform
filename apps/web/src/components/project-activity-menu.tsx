@@ -69,7 +69,7 @@ export function ProjectActivityMenu({
       <Dialog>
         <DialogTrigger
           className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal"
-          disabled={activitiesLength! <= 5}
+          disabled={activitiesLength! <= 3}
         >
           <Trash /> Eliminar actividad
         </DialogTrigger>
@@ -90,7 +90,7 @@ export function ProjectActivityMenu({
               <Button
                 onClick={handleDelete}
                 variant="destructive"
-                disabled={deleteActivity.isPending || activitiesLength! <= 5}
+                disabled={deleteActivity.isPending || activitiesLength! <= 3}
               >
                 Eliminar
               </Button>
