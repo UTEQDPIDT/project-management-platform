@@ -797,7 +797,7 @@ export function CreateProjectForm() {
           <CardHeader>
             <CardTitle>Actividades</CardTitle>
             <CardDescription>
-              El proyecto debe tener por lo menos 5 actividades clave.
+              El proyecto debe tener por lo menos 3 actividades clave.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -821,7 +821,7 @@ export function CreateProjectForm() {
                               aria-invalid={fieldState.invalid}
                               placeholder="e.g. Investigación bibliográfica sobre los neuromitos actuales en la educación. "
                             />
-                            {activities.length > 5 && (
+                            {activities.length > 3 && (
                               <InputGroupAddon align="inline-end">
                                 <InputGroupButton
                                   type="button"
