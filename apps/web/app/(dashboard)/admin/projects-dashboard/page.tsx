@@ -128,8 +128,10 @@ const Page = () => {
         ) : null}
 
         {!isLoading && !isError && data ? (
-          <div className="space-y-4">
-            <div className="flex flex-row gap-2 min-h-160">
+          <div className="space-y-4 gap-2">
+
+            <div className="flex flex-row gap-2">
+
               <div className="flex justify-center basis-1/3">
                 <div className="flex flex-row gap-2 justify-start">
                   <div className="flex flex-col basis-2/3 gap-2">
@@ -159,20 +161,24 @@ const Page = () => {
                   </div>
                 </div>
                 </div>
-              <div className="basis-2/3 gap-2 flex flex-col">
-                <div>
+
+              <div className="basis-2/3 h-full">
+                <div className="">
                   <ChartBarMultiple
                   data={chartBarData}
                   year={yearForQueries}
                   isLoading={isChartBarLoading}
                   />
                 </div>
-                <div>
-                  <DashboardProjectsTable dateRange={data.dateRange} />
-                </div>
               </div>
             </div>
+
+            <div>
+              <DashboardProjectsTable dateRange={data.dateRange} />
+            </div>
+
           </div>
+
         ) : null}
       </PageContent>
     </div>
