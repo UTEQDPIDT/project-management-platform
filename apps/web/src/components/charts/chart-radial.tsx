@@ -46,7 +46,7 @@ export function ChartRadial({
   const chartData = [{ metric: 'value', value: safeValue, fill: color }];
 
   return (
-    <Card className="flex w-50 flex-col border-black">
+    <Card className="flex w-full max-w-sm flex-col border-black">
       <CardHeader className="items-center pb-0">
         <CardTitle>{title}</CardTitle>
         {description ? <CardDescription>{description}</CardDescription> : null}
