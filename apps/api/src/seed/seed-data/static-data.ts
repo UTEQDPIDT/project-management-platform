@@ -12,12 +12,10 @@ import { CreateUserDto } from '../../users/dto/create-user.dto';
 
 //Users
 export const divisionsList: Partial<Division>[] = [
-  { name: 'Division de Tecnología Ambiental' },
   { name: 'Division de Idiomas' },
-  { name: 'Division Económico-Administrativa' },
+  { name: 'Division Económica Administrativa' },
   { name: 'Division Industrial' },
-  { name: 'Division de tecnologías de la Automatización e Información' },
-  { name: 'Division de Innovación y Desarrollo Tecnológico' },
+  { name: 'Division de Tecnologías' },
 ];
 
 //Users
