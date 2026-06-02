@@ -100,7 +100,8 @@ export function DashboardProjectsTable({
 
 			{!isProjectsLoading && !isProjectsError ? (
 				projectsInPeriod.length > 0 ? (
-					<Table>
+					<div className="w-full overflow-x-auto">
+						<Table className="min-w-175 md:min-w-0">
 						<TableHeader>
 							<TableRow>
 								<TableHead>Proyecto</TableHead>
@@ -129,7 +130,8 @@ export function DashboardProjectsTable({
 								);
 							})}
 						</TableBody>
-					</Table>
+						</Table>
+					</div>
 				) : (
 					<p className="text-sm text-muted-foreground">
 						No hay proyectos registrados para este periodo.

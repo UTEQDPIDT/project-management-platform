@@ -56,7 +56,7 @@ export function ChartBarMultiple({ data, year, isLoading }: ChartBarMultipleProp
     const yAxisMax = Math.max(5, Math.round(maxStudents) + 5);
 
     return (
-        <Card className="border-black min-w-200">
+        <Card className="w-full border-black">
         <CardHeader>
             <CardTitle>Participacion en Proyectos por Cuatrimestre</CardTitle>
             <CardDescription>Año: {year}</CardDescription>
@@ -66,33 +66,37 @@ export function ChartBarMultiple({ data, year, isLoading }: ChartBarMultipleProp
             <p className="text-sm text-muted-foreground">Cargando grafica...</p>
             ) : (
             <div className="space-y-4">
-                <ChartContainer config={chartConfig}>
-                <BarChart accessibilityLayer data={chartData}>
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                    dataKey="periodLabel"
-                    tickLine={true}
-                    tickMargin={10}
-                    axisLine={true}
-                    />
-                    <YAxis
-                    domain={[0, yAxisMax]}
-                    allowDecimals={false}
-                    tickLine={true}
-                    axisLine={true}
-                    />
-                    <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dot" />}
-                    />
-                    <Bar dataKey="students" fill="#DBA936" radius={3}>
-                    <LabelList dataKey="students" position="top" fill="#000000" fontSize={12} />
-                    </Bar>
-                    <Bar dataKey="teachers" fill="#242D55" radius={3}>
-                    <LabelList dataKey="teachers" position="top" fill="#000000" fontSize={12} />
-                    </Bar>
-                </BarChart>
-                </ChartContainer>
+                <div className="w-full overflow-x-auto">
+                    <div className="min-w-120 md:min-w-0 lg:min-w-160">
+                        <ChartContainer config={chartConfig}>
+                        <BarChart accessibilityLayer data={chartData}>
+                            <CartesianGrid vertical={false} />
+                            <XAxis
+                            dataKey="periodLabel"
+                            tickLine={true}
+                            tickMargin={10}
+                            axisLine={true}
+                            />
+                            <YAxis
+                            domain={[0, yAxisMax]}
+                            allowDecimals={false}
+                            tickLine={true}
+                            axisLine={true}
+                            />
+                            <ChartTooltip
+                            cursor={false}
+                            content={<ChartTooltipContent indicator="dot" />}
+                            />
+                            <Bar dataKey="students" fill="#DBA936" radius={3}>
+                            <LabelList dataKey="students" position="top" fill="#000000" fontSize={12} />
+                            </Bar>
+                            <Bar dataKey="teachers" fill="#242D55" radius={3}>
+                            <LabelList dataKey="teachers" position="top" fill="#000000" fontSize={12} />
+                            </Bar>
+                        </BarChart>
+                        </ChartContainer>
+                    </div>
+                </div>
 
                 <div className="flex flex-wrap justify-center gap-4 text-sm">
                 <div className="flex items-center gap-2">

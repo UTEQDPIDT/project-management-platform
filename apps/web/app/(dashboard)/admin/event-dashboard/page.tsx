@@ -73,7 +73,7 @@ const Page = () => {
         </HeaderHeading>
       </Header>
       <PageContent className="">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center md:justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Periodo -</span>
             <Select
@@ -119,10 +119,10 @@ const Page = () => {
         ) : null}
 
         {!isLoading && !isError && data ? (
-          <div className='flex justify-center'>
-            <div className='flex flex-row gap-2 p-4 justify-center'>
-              <div className='flex flex-col gap-2 justify-start basis-1/3'>
-                <div className='basis-2/3 flex justify-center gap-4 p-2 max-h-80'>
+          <div className="w-full">
+            <div className="flex flex-col gap-4 p-2 sm:p-4 md:gap-5 md:p-5 lg:flex-row">
+              <div className="w-full lg:w-1/3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 xl:grid-cols-2">
                     <ChartRadial
                     title="Total Eventos"
                     description={`Periodo ${data.period}`}
@@ -138,7 +138,7 @@ const Page = () => {
                     color="#242D55"
                     />
                 </div>
-                <div className='basis-1/3 flex justify-center gap-2 p-2 max-h-100'>
+                <div className="mt-3 md:mt-4">
                     <ChartRadialStacked
                     title="Distribucion por sexo"
                     description="Asistencia reportada en eventos"
@@ -147,8 +147,8 @@ const Page = () => {
                     />
                 </div>
               </div>
-              <div className='flex flex-col gap-4 p-2 basis-2/3 justify-center items-center'>
-                <div className='w-150 basis-1/2'>
+              <div className="w-full lg:w-2/3">
+                <div className="w-full">
                     <ChartArea
                     title="Tendencia Mensual"
                     description={`Periodo: ${new Date(data.dateRange.startDate).toLocaleDateString()} - ${new Date(data.dateRange.endDate).toLocaleDateString()}`}
@@ -157,9 +157,9 @@ const Page = () => {
                     cumulative={true}
                   />
                 </div>
-                <div className='basis-1/2 w-150 h-40 border rounded-md border-zinc-500 p-4'>
-                  <div className='h-full w-full overflow-auto'>
-                    <table className='w-full text-sm'>
+                <div className="mt-4 h-44 w-full rounded-md border border-zinc-500 p-4 md:h-52">
+                  <div className="h-full w-full overflow-auto">
+                    <table className="w-full min-w-[320px] text-sm">
                       <thead>
                         <tr className='border-b text-left'>
                           <th className='py-2 pr-3 font-semibold'>Mes</th>

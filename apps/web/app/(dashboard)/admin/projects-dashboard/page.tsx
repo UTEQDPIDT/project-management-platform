@@ -82,7 +82,7 @@ const Page = () => {
         </HeaderHeading>
       </Header>
       <PageContent>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center md:justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Periodo -</span>
             <Select
@@ -128,13 +128,11 @@ const Page = () => {
         ) : null}
 
         {!isLoading && !isError && data ? (
-          <div className="space-y-4 gap-2">
-
-            <div className="flex flex-row gap-2">
-
-              <div className="flex justify-center basis-1/3">
-                <div className="flex flex-row gap-2 justify-start">
-                  <div className="flex flex-col basis-2/3 gap-2">
+          <div className="w-full">
+            <div className="flex flex-col gap-2 p-2 sm:p-4 md:gap-5 md:p-5 lg:flex-row">
+              <div className="w-full lg:w-1/3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3">
+                  <div className="flex flex-col gap-2">
                     <ChartRadial
                     title="Total Proyectos"
                     description={`Periodo ${data.period}: ${PERIOD_MONTH_LABELS[data.period]}`}
@@ -150,7 +148,7 @@ const Page = () => {
                     color="#DBA936"
                     />
                   </div>
-                  <div className="basis-1/3">
+                  <div>
                     <ChartRadial
                     title="Maestros en proyectos"
                     description="Participacion docente"
@@ -160,9 +158,9 @@ const Page = () => {
                     />
                   </div>
                 </div>
-                </div>
+              </div>
 
-              <div className="basis-2/3 h-full">
+              <div className="w-full lg:w-2/3">
                 <div className="">
                   <ChartBarMultiple
                   data={chartBarData}
@@ -173,7 +171,7 @@ const Page = () => {
               </div>
             </div>
 
-            <div>
+            <div className="p-2 sm:p-4 md:p-5">
               <DashboardProjectsTable dateRange={data.dateRange} />
             </div>
 
