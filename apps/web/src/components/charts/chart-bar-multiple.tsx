@@ -56,16 +56,16 @@ export function ChartBarMultiple({ data, year, isLoading }: ChartBarMultipleProp
     const yAxisMax = Math.max(5, Math.round(maxStudents) + 5);
 
     return (
-        <Card className="w-full border-black">
+        <Card className="flex h-full w-full flex-col border-black">
         <CardHeader>
             <CardTitle>Participacion en Proyectos por Cuatrimestre</CardTitle>
             <CardDescription>Año: {year}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-1 flex-col justify-center">
             {isLoading ? (
             <p className="text-sm text-muted-foreground">Cargando grafica...</p>
             ) : (
-            <div className="space-y-4">
+            <div className="w-full space-y-4">
                 <div className="w-full overflow-x-auto">
                     <div className="min-w-120 md:min-w-0 lg:min-w-160">
                         <ChartContainer config={chartConfig}>
