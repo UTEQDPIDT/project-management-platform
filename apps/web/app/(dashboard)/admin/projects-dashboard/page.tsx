@@ -82,7 +82,7 @@ const Page = () => {
         </HeaderHeading>
       </Header>
       <PageContent>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center md:justify-between">
+        <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center md:mb-4 md:justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Periodo -</span>
             <Select
@@ -129,49 +129,43 @@ const Page = () => {
 
         {!isLoading && !isError && data ? (
           <div className="w-full">
-            <div className="flex flex-col gap-2 p-2 sm:p-4 md:gap-5 md:p-5 lg:flex-row">
-              <div className="w-full lg:w-1/3">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3">
-                  <div className="flex flex-col gap-2">
-                    <ChartRadial
-                    title="Total Proyectos"
-                    description={`Periodo ${data.period}: ${PERIOD_MONTH_LABELS[data.period]}`}
-                    value={data.kpis.totalProjects}
-                    label="Proyectos"
-                    color="#242D55"
-                    />
+            <div className="flex flex-col gap-4 p-3 sm:p-4 md:gap-5 md:p-5 lg:flex-row lg:items-stretch lg:gap-6 lg:p-6 xl:gap-6 xl:p-6">
+              <div className="w-full lg:w-2/5 xl:w-5/12">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 lg:grid-cols-1 lg:gap-4 xl:grid-cols-1 xl:gap-4 2xl:grid-cols-2">
+                  <ChartRadial
+                  title="Total Proyectos"
+                  description={`Periodo ${data.period}: ${PERIOD_MONTH_LABELS[data.period]}`}
+                  value={data.kpis.totalProjects}
+                  label="Proyectos"
+                  color="#242D55"
+                  />
                   <ChartRadial
                     title="Estudiantes en proyectos"
                     description="Participacion estudiantil"
                     value={data.kpis.studentsInProjects}
                     label="Estudiantes"
                     color="#DBA936"
-                    />
-                  </div>
-                  <div>
-                    <ChartRadial
-                    title="Maestros en proyectos"
-                    description="Participacion docente"
-                    value={data.kpis.teachersInProjects}
-                    label="Maestros"
-                    color="#1F6E8C"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="w-full lg:w-2/3">
-                <div className="">
-                  <ChartBarMultiple
-                  data={chartBarData}
-                  year={yearForQueries}
-                  isLoading={isChartBarLoading}
+                  />
+                  <ChartRadial
+                  title="Maestros en proyectos"
+                  description="Participacion docente"
+                  value={data.kpis.teachersInProjects}
+                  label="Maestros"
+                  color="#1F6E8C"
                   />
                 </div>
               </div>
+
+              <div className="w-full lg:flex lg:w-3/5 lg:items-center xl:w-7/12">
+                <ChartBarMultiple
+                data={chartBarData}
+                year={yearForQueries}
+                isLoading={isChartBarLoading}
+                />
+              </div>
             </div>
 
-            <div className="p-2 sm:p-4 md:p-5">
+            <div className="p-2 md:p-4 lg:p-6 xl:p-6 lg:w-full">
               <DashboardProjectsTable dateRange={data.dateRange} />
             </div>
 
