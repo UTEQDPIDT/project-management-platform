@@ -68,7 +68,7 @@ export function ChartRadial({
               radialLines={false}
               stroke="none"
               className="first:fill-muted last:fill-background"
-              polarRadius={[88, 70]}
+              polarRadius={[80, 70]}
             />
             <RadialBar dataKey="value" background cornerRadius={10} />
             <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
