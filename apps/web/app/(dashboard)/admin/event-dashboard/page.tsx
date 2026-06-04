@@ -19,14 +19,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useEventsDashboard } from '@/hooks/dashboard';
+import { DASHBOARD_PERIOD_MONTH_LABELS, DASHBOARD_PERIOD_OPTIONS } from '@/constants/dashboard-period.const';
+import { DashboardPeriod } from '@repo/types';
 
 import React from 'react';
 
-const PERIOD_OPTIONS = ['T1', 'T2', 'T3'] as const;
-
 const Page = () => {
   const currentYear = new Date().getFullYear();
-  const [period, setPeriod] = React.useState<(typeof PERIOD_OPTIONS)[number]>('T1');
+  const [period, setPeriod] = React.useState<DashboardPeriod>(DashboardPeriod.C1);
   const [year, setYear] = React.useState<string>(String(currentYear));
   const selectedYear = Number(year);
 
@@ -78,7 +78,7 @@ const Page = () => {
             <span className="text-sm font-medium">Periodo -</span>
             <Select
               value={period}
-              onValueChange={(value: (typeof PERIOD_OPTIONS)[number]) =>
+              onValueChange={(value: DashboardPeriod) =>
                 setPeriod(value)
               }
             >
@@ -86,7 +86,7 @@ const Page = () => {
                 <SelectValue placeholder="Periodo" />
               </SelectTrigger>
               <SelectContent>
-                {PERIOD_OPTIONS.map((option) => (
+                {DASHBOARD_PERIOD_OPTIONS.map((option) => (
                   <SelectItem key={option} value={option}>
                     {option}
                   </SelectItem>
@@ -125,7 +125,7 @@ const Page = () => {
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 xl:grid-cols-2">
                     <ChartRadial
                     title="Total Eventos"
-                    description={`Periodo ${data.period}`}
+                    description={`Cuatrimestre: ${DASHBOARD_PERIOD_MONTH_LABELS[data.period]}`}
                     value={data.kpis.totalEvents}
                     label="Eventos"
                     color="#242D55"

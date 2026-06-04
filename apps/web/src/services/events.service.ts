@@ -1,10 +1,10 @@
 import { api } from '@/lib/axios';
 import { eventSchema } from '@/schemas/event.schema';
-import { IEvent } from '@repo/types';
+import { DashboardPeriod, IEvent } from '@repo/types';
 import z from 'zod';
 
 type EventsDashboardResponse = {
-  period: 'T1' | 'T2' | 'T3';
+  period: DashboardPeriod;
   year: number;
   dateRange: {
     startDate: string;
@@ -122,10 +122,10 @@ const registerParticipant = async ({ eventId }: { eventId: string }) => {
 };
 
 const getEventsDashboard = async (
-  period: 'T1' | 'T2' | 'T3',
+  period: DashboardPeriod,
   year?: number,
 ): Promise<EventsDashboardResponse> => {
-  const params: { period: 'T1' | 'T2' | 'T3'; year?: number } = { period };
+  const params: { period: DashboardPeriod; year?: number } = { period };
 
   if (typeof year === 'number') {
     params.year = year;
