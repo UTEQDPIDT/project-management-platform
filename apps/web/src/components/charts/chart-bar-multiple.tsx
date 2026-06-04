@@ -15,11 +15,11 @@ import {
     ChartTooltipContent,
     type ChartConfig,
 } from "@/components/ui/chart";
-
-type PeriodLabel = "T1" | "T2" | "T3";
+import { DASHBOARD_PERIOD_MONTH_LABELS } from "@/constants/dashboard-period.const";
+import { DashboardPeriod } from "@repo/types";
 
 type ChartBarMultipleData = {
-    period: PeriodLabel;
+    period: DashboardPeriod;
     students: number;
     teachers: number;
 };
@@ -28,12 +28,6 @@ type ChartBarMultipleProps = {
     data: ChartBarMultipleData[];
     year: number;
     isLoading?: boolean;
-};
-
-const PERIOD_MONTH_LABELS: Record<PeriodLabel, string> = {
-    T1: "ene-abr",
-    T2: "may-ago",
-    T3: "sep-dic",
 };
 
 const chartConfig = {
@@ -50,7 +44,7 @@ const chartConfig = {
 export function ChartBarMultiple({ data, year, isLoading }: ChartBarMultipleProps) {
     const chartData = data.map((item) => ({
         ...item,
-        periodLabel: PERIOD_MONTH_LABELS[item.period],
+        periodLabel: DASHBOARD_PERIOD_MONTH_LABELS[item.period],
     }));
     const maxStudents = Math.max(0, ...chartData.map((item) => item.students));
     const yAxisMax = Math.max(5, Math.round(maxStudents) + 5);

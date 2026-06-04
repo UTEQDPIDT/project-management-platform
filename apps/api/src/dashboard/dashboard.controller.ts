@@ -1,6 +1,7 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { Public } from '../common/decorators/public.decorator';
+import { DashboardPeriod } from '@repo/types';
 
 @Public()
 @Controller('dashboard')
@@ -9,7 +10,7 @@ export class DashboardController {
 
 	@Get('events')
 	getEventsDashboard(
-		@Query('period') period?: 'T1' | 'T2' | 'T3',
+		@Query('period') period?: DashboardPeriod,
 		@Query('year') year?: string,
 	) {
 		const parsedYear = year ? Number(year) : undefined;
@@ -23,7 +24,7 @@ export class DashboardController {
 
 	@Get('projects')
 	getProjectsDashboard(
-		@Query('period') period?: 'T1' | 'T2' | 'T3',
+		@Query('period') period?: DashboardPeriod,
 		@Query('year') year?: string,
 	) {
 		const parsedYear = year ? Number(year) : undefined;

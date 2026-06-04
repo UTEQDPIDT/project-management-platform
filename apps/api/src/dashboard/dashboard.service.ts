@@ -3,11 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Event } from '../schemas/event.schema';
 import { User } from '../schemas/user.schema';
-import { UserType } from '@repo/types';
+import { DashboardPeriod, UserType } from '@repo/types';
 import { Project } from '../schemas/project.schema';
 import { Team } from '../schemas/team.schema';
-
-type DashboardPeriod = 'T1' | 'T2' | 'T3';
+import {
+    DASHBOARD_PERIOD_RANGES,
+    DASHBOARD_PERIOD_VALUES,
+} from './constants/dashboard-period-range.const';
 
 type TrendPoint = {
     label: string;
@@ -25,13 +27,7 @@ export class DashboardService {
     ) {}
 
     private getPeriodRange(period: DashboardPeriod, year: number) {
-    const ranges: Record<DashboardPeriod, { startMonth: number; endMonth: number }> = {
-            T1: { startMonth: 0, endMonth: 3 },
-            T2: { startMonth: 4, endMonth: 7 },
-            T3: { startMonth: 8, endMonth: 11 },
-    };
-
-    const periodRange = ranges[period];
+    const periodRange = DASHBOARD_PERIOD_RANGES[period];
         return {
             startDate: new Date(year, periodRange.startMonth, 1, 0, 0, 0, 0),
             endDate: new Date(year, periodRange.endMonth + 1, 0, 23, 59, 59, 999),
@@ -75,13 +71,13 @@ export class DashboardService {
     }
 
     async getEventsDashboard(
-        period: DashboardPeriod = 'T1',
+        period: DashboardPeriod = DashboardPeriod.C1,
         year: number = new Date().getFullYear(),
     ) {
-        const validPeriods: DashboardPeriod[] = ['T1', 'T2', 'T3'];
+        const validPeriods = DASHBOARD_PERIOD_VALUES;
 
         if (!validPeriods.includes(period)) {
-            throw new BadRequestException('period debe ser T1, T2 o T3');
+            throw new BadRequestException('period debe ser C1, C2 o C3');
         }
 
         const { startDate, endDate } = this.getPeriodRange(period, year);
@@ -158,13 +154,13 @@ export class DashboardService {
         };
     }
     async getProjectsDashboard(
-        period: DashboardPeriod = 'T1',
+        period: DashboardPeriod = DashboardPeriod.C1,
         year: number = new Date().getFullYear(),
     ) {
-        const validPeriods: DashboardPeriod[] = ['T1', 'T2', 'T3'];
+        const validPeriods = DASHBOARD_PERIOD_VALUES;
 
         if(!validPeriods.includes(period)) {
-            throw new BadRequestException('period debe ser T1, T2 o T3');
+            throw new BadRequestException('period debe ser C1, C2 o C3');
         }
 
         const { startDate, endDate } = this.getPeriodRange(period, year);

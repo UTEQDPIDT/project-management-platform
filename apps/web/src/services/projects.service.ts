@@ -1,8 +1,8 @@
 import { api } from '@/lib/axios';
-import { ProjectCleanedData, IProject } from '@repo/types';
+import { DashboardPeriod, ProjectCleanedData, IProject } from '@repo/types';
 
 type ProjectsDashboardResponse = {
-  period: 'T1' | 'T2' | 'T3';
+  period: DashboardPeriod;
   year: number;
   dateRange: {
     startDate: string;
@@ -51,10 +51,10 @@ const deleteProject = async (id: string) => {
 };
 
 const getProjectsDashboard = async (
-  period: 'T1' | 'T2' | 'T3',
+  period: DashboardPeriod,
   year?: number,
 ): Promise<ProjectsDashboardResponse> => {
-  const params: { period: 'T1' | 'T2' | 'T3'; year?: number } = { period };
+  const params: { period: DashboardPeriod; year?: number } = { period };
 
   if (typeof year === 'number') {
     params.year = year;

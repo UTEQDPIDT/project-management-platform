@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getProjectsDashboard } from '@/services/projects.service';
-
-type DashboardPeriod = 'T1' | 'T2' | 'T3';
+import { DashboardPeriod } from '@repo/types';
 
 export function useProjectsDashboard(period: DashboardPeriod, year?: number) {
   return useQuery({

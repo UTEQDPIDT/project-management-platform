@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getEventsDashboard } from '@/services/events.service';
-
-type DashboardPeriod = 'T1' | 'T2' | 'T3';
+import { DashboardPeriod } from '@repo/types';
 
 export function useEventsDashboard(period: DashboardPeriod, year?: number) {
   return useQuery({

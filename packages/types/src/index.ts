@@ -12,6 +12,7 @@ export * from './enums/event-type.enum';
 export * from './enums/bagde-variants.enum';
 export * from './enums/entity-type.enum';
 export * from './enums/file-purpose.enum';
+export * from './enums/dashboard-period.enum';
 
 export * from './dtos/project-cleaned-data';
 export * from './dtos/activity-payload.dto';

@@ -23,17 +23,15 @@ import React from 'react';
 import { ChartBarMultiple } from '@/components/charts/chart-bar-multiple';
 import { DashboardProjectsTable } from '@/components/charts/dashboard-projects-table';
 import { getProjectsDashboard } from '@/services/projects.service';
-
-const PERIOD_OPTIONS = ['T1', 'T2', 'T3'] as const;
-const PERIOD_MONTH_LABELS: Record<(typeof PERIOD_OPTIONS)[number], string> = {
-  T1: 'ene-abr',
-  T2: 'may-ago',
-  T3: 'sep-dic',
-};
+import {
+  DASHBOARD_PERIOD_MONTH_LABELS,
+  DASHBOARD_PERIOD_OPTIONS,
+} from '@/constants/dashboard-period.const';
+import { DashboardPeriod } from '@repo/types';
 
 const Page = () => {
   const currentYear = new Date().getFullYear();
-  const [period, setPeriod] = React.useState<(typeof PERIOD_OPTIONS)[number]>('T1');
+  const [period, setPeriod] = React.useState<DashboardPeriod>(DashboardPeriod.C1);
   const [year, setYear] = React.useState<string>(String(currentYear));
   const selectedYear = Number(year);
   const yearForQueries = Number.isInteger(selectedYear) ? selectedYear : currentYear;
@@ -44,7 +42,7 @@ const Page = () => {
   );
 
   const periodQueries = useQueries({
-    queries: PERIOD_OPTIONS.map((periodOption) => ({
+    queries: DASHBOARD_PERIOD_OPTIONS.map((periodOption) => ({
       queryKey: ['dashboard-projects', periodOption, yearForQueries],
       queryFn: () => getProjectsDashboard(periodOption, yearForQueries),
     })),
@@ -52,7 +50,7 @@ const Page = () => {
 
   const chartBarData = React.useMemo(
     () =>
-      PERIOD_OPTIONS.map((periodOption, index) => {
+      DASHBOARD_PERIOD_OPTIONS.map((periodOption, index) => {
         const periodData = periodQueries[index]?.data;
 
         return {
@@ -87,7 +85,7 @@ const Page = () => {
             <span className="text-sm font-medium">Periodo -</span>
             <Select
               value={period}
-              onValueChange={(value: (typeof PERIOD_OPTIONS)[number]) =>
+              onValueChange={(value: DashboardPeriod) =>
                 setPeriod(value)
               }
             >
@@ -95,7 +93,7 @@ const Page = () => {
                 <SelectValue placeholder="Periodo" />
               </SelectTrigger>
               <SelectContent>
-                {PERIOD_OPTIONS.map((option) => (
+                {DASHBOARD_PERIOD_OPTIONS.map((option) => (
                   <SelectItem key={option} value={option}>
                     {option}
                   </SelectItem>
@@ -133,11 +131,11 @@ const Page = () => {
               <div className="w-full lg:w-2/5 xl:w-5/12">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 lg:grid-cols-1 lg:gap-4 xl:grid-cols-1 xl:gap-4 2xl:grid-cols-2">
                   <ChartRadial
-                  title="Total Proyectos"
-                  description={`Periodo ${data.period}: ${PERIOD_MONTH_LABELS[data.period]}`}
-                  value={data.kpis.totalProjects}
-                  label="Proyectos"
-                  color="#242D55"
+                    title="Total Proyectos"
+                    description={`Cuatrimestre: ${DASHBOARD_PERIOD_MONTH_LABELS[data.period]}`}
+                    value={data.kpis.totalProjects}
+                    label="Proyectos"
+                    color="#242D55"
                   />
                   <ChartRadial
                     title="Estudiantes en proyectos"
