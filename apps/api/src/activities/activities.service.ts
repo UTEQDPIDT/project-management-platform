@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,12 +12,15 @@ import { Activity } from '../schemas/activities.schema';
 import { ClientSession, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
 import { EntityType, Priority, Status } from '@repo/types';
+import { ProjectsService } from '../projects/projects.service';
 
 @Injectable()
 export class ActivitiesService {
   constructor(
     @InjectModel(Activity.name) private activityModel: Model<Activity>,
     private readonly filesService: FilesService,
+    @Inject(forwardRef(() => ProjectsService))
+    private readonly projectsService: ProjectsService,
   ) {}
 
   async create(
@@ -122,6 +127,12 @@ export class ActivitiesService {
       { new: true },
     );
 
+    if (activity.entityType === EntityType.PROJECT) {
+      await this.projectsService.recomputeProjectStatus(
+        activity.entityId.toString(),
+      );
+    }
+
     return updatedActivity;
   }
 
@@ -158,9 +169,28 @@ export class ActivitiesService {
       activity._id.toString(),
     );
 
+    if (activity.entityType === EntityType.PROJECT) {
+      const projectActivitiesCount = await this.activityModel.countDocuments({
+        entityId: activity.entityId,
+        entityType: EntityType.PROJECT,
+      });
+
+      if (projectActivitiesCount <= 3) {
+        throw new BadRequestException(
+          'El proyecto debe mantener al menos 3 actividades.',
+        );
+      }
+    }
+
     await this.filesService.deleteFiles(files);
 
     await this.activityModel.findByIdAndDelete(id);
+
+    if (activity.entityType === EntityType.PROJECT) {
+      await this.projectsService.recomputeProjectStatus(
+        activity.entityId.toString(),
+      );
+    }
 
     return { id, message: 'Activity deleted successfully' };
   }

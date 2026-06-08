@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ImpactLevel } from '@repo/types';
+import { ImpactLevel, ProjectStatus } from '@repo/types';
 import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { Team } from './team.schema';
@@ -129,6 +129,17 @@ export class Project extends Document {
   })
   @Prop()
   endDate: Date;
+
+  @ApiProperty({
+    description: 'Estado actual del proyecto.',
+  })
+  @Prop({
+    required: true,
+    type: String,
+    enum: Object.values(ProjectStatus),
+    default: ProjectStatus.PENDING,
+  })
+  status: ProjectStatus;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);
