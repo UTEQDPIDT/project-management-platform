@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ImpactLevel, Status } from '@repo/types';
+import { ImpactLevel } from '@repo/types';
 import {
+  ArrayMinSize,
   IsArray,
   IsDate,
   IsEnum,
@@ -105,8 +106,8 @@ export class CreateProjectDto {
   @ApiPropertyOptional({
     description: 'Actividades relacionadas al proyecto.',
   })
-  @IsOptional()
   @IsArray()
+  @ArrayMinSize(3)
   activities: { name: string }[];
 
   @ApiPropertyOptional({

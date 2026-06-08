@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,7 +13,7 @@ import { Connection, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
 import { ProductsService } from '../products/products.service';
 import { ActivitiesService } from '../activities/activities.service';
-import { EntityType } from '@repo/types';
+import { EntityType, ProjectStatus, Status } from '@repo/types';
 
 @Injectable()
 export class ProjectsService {
@@ -19,9 +21,62 @@ export class ProjectsService {
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(Project.name) private projectModel: Model<Project>,
     private readonly productService: ProductsService,
+    @Inject(forwardRef(() => ActivitiesService))
     private readonly activitiesService: ActivitiesService,
     private readonly filesService: FilesService,
   ) {}
+
+
+  private validateActivities(activities?: { name: string }[]) {
+    if (!activities || activities.length < 3) {
+      throw new BadRequestException('El proyecto debe tener al menos 3 actividades.');
+    }
+
+    if (activities.some((activity) => !activity.name || !activity.name.trim())) {
+      throw new BadRequestException('Cada actividad debe tener un nombre válido.');
+    }
+  }
+
+  private getInitialProjectStatus(): ProjectStatus {
+    return ProjectStatus.PENDING;
+  }
+
+  private getProjectStatusFromActivities(
+    activities: Array<{ status: Status }>,
+  ): ProjectStatus {
+    if (activities.length < 3) {
+      throw new BadRequestException(
+        'El proyecto debe tener al menos 3 actividades.',
+      );
+    }
+
+    if (activities.every((activity) => activity.status === Status.PENDING)) {
+      return ProjectStatus.PENDING;
+    }
+
+    if (
+      activities.every((activity) => activity.status === Status.COMPLETED)
+    ) {
+      return ProjectStatus.COMPLETED;
+    }
+
+    return ProjectStatus.IN_PROGRESS;
+  }
+
+  async recomputeProjectStatus(projectId: string): Promise<ProjectStatus> {
+    const project = await this.projectModel.findById(projectId);
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${projectId} not found`);
+    }
+
+    const activities = await this.activitiesService.findByEntityId(projectId);
+    const status = this.getProjectStatusFromActivities(activities);
+
+    await this.projectModel.findByIdAndUpdate(projectId, { status });
+
+    return status;
+  }
 
   async create(dto: CreateProjectDto, userId: string): Promise<Project> {
     const session = await this.connection.startSession();
@@ -30,12 +85,14 @@ export class ProjectsService {
     const { activities, ...projectData } = dto;
 
     try {
+      this.validateActivities(activities);
       const [project] = await this.projectModel.create(
         [
           {
             ...projectData,
             owner: userId,
             updatedBy: userId,
+            status: this.getInitialProjectStatus(),
           },
         ],
         { session },
@@ -43,15 +100,13 @@ export class ProjectsService {
 
       const projectId = project._id;
 
-      if (activities && activities.length) {
-        await this.activitiesService.createOnBulk(
-          activities,
-          userId,
-          projectId.toString(),
-          EntityType.PROJECT,
-          session,
-        );
-      }
+      await this.activitiesService.createOnBulk(
+        activities,
+        userId,
+        projectId.toString(),
+        EntityType.PROJECT,
+        session,
+      );
 
       await session.commitTransaction();
 

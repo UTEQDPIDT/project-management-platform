@@ -1,5 +1,6 @@
 import { IActivity } from './activity.type';
 import { ImpactLevel } from './enums/impact-level.enum';
+import { ProjectStatus } from './enums/project-status.enum';
 import { SeedCategory } from './seed-category.type';
 import { ITeam } from './team.type';
 import { IUser } from './user.type';
@@ -24,4 +25,5 @@ export interface IProject {
   endDate: Date;
   createdAt: Date;
   updatedAt: Date;
+  status: ProjectStatus;
 }
