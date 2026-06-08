@@ -117,6 +117,17 @@ export function DashboardProjectsTable({
 		})),
 	});
 
+	const projectProgressById = React.useMemo(() => {
+		const progressMap = new Map<string, number>();
+
+		typedProjects.forEach((project, index) => {
+			const activities = projectActivitiesQueries[index]?.data as IActivity[] | undefined;
+			progressMap.set(project._id, calculateProgress(activities ?? []));
+		});
+
+		return progressMap;
+	}, [typedProjects, projectActivitiesQueries]);
+
 	const projectsInPeriod = React.useMemo(() => {
 		if (!typedProjects.length) return [];
 
@@ -143,8 +154,7 @@ export function DashboardProjectsTable({
 
 	const projectsWithStatus = React.useMemo(() => {
 		return projectsInPeriod.map((project, index) => {
-			const activities = projectActivitiesQueries[index]?.data as IActivity[] | undefined;
-			const progress = calculateProgress(activities ?? []);
+			const progress = projectProgressById.get(project._id) ?? 0;
 			const status = getDisplayProjectStatus(project.status, progress);
 
 			return {
@@ -153,7 +163,7 @@ export function DashboardProjectsTable({
 				status,
 			};
 		});
-	}, [projectsInPeriod, projectActivitiesQueries]);
+	}, [projectProgressById, projectsInPeriod]);
 
 	return (
 		<div className="rounded-2xl border border-zinc-500 p-4">
