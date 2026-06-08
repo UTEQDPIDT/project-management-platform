@@ -4,17 +4,13 @@ import React from 'react';
 import { useAllProjects } from '@/hooks/projects';
 import { calculateProgress, formatDatePeriod } from '@/lib/utils';
 import { useQueries } from '@tanstack/react-query';
-import { Badge } from '@/components/ui/badge';
-import { IActivity, IProject, ProjectStatus, TeamMembershipStatus } from '@repo/types';
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@/components/ui/table';
+import { IActivity, IProject, ProjectStatus } from '@repo/types';
+import { addMonths } from 'date-fns';
 import { getActivitiesByEntityId } from '@/services/activities.service';
+import {
+	DashboardProjectsTableSection,
+	type DashboardProjectRow,
+} from './dashboard-projects-table-section';
 
 type DashboardProjectsTableProps = {
 	dateRange: {
@@ -22,8 +18,6 @@ type DashboardProjectsTableProps = {
 		endDate: string;
 	};
 };
-
-const MAX_PROJECT_NAME_LENGTH = 50;
 
 const normalizeProjectStatus = (status?: string): ProjectStatus => {
 	const value = (status ?? '').trim().toUpperCase();
@@ -60,42 +54,15 @@ const getDisplayProjectStatus = (
 	return ProjectStatus.PENDING;
 };
 
-const getProjectStatusLabel = (status: ProjectStatus) => {
-	if (status === ProjectStatus.IN_PROGRESS) return 'En progreso';
-	if (status === ProjectStatus.COMPLETED) return 'Completado';
-	return 'Pendiente';
-};
-
-const getProjectStatusVariant = (status: ProjectStatus) => {
-	if (status === ProjectStatus.IN_PROGRESS) return 'blue' as const;
-	if (status === ProjectStatus.COMPLETED) return 'green' as const;
-	return 'orange' as const;
-};
-
-const truncateText = (value: string, maxLength: number) => {
-	if (value.length <= maxLength) return value;
-	return `${value.slice(0, maxLength)}...`;
-};
-
-const formatProjectPeriod = (project: IProject) => {
+const isLongDurationProject = (project: IProject) => {
 	const startDate = new Date(project.startDate);
-	const endDate = new Date(project.endDate ?? project.startDate);
+	const endDate = project.endDate ? new Date(project.endDate) : new Date();
 
 	if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
-		return 'Sin fecha';
+		return false;
 	}
 
-	return formatDatePeriod(startDate, endDate);
-};
-
-const getParticipantsCount = (project: IProject) => {
-	const activeMemberships =
-		project.team?.memberships?.filter(
-			(membership) => membership.status === TeamMembershipStatus.ACTIVE,
-		) ?? [];
-
-	if (activeMemberships.length > 0) return activeMemberships.length;
-	return project.owner ? 1 : 0;
+	return endDate > addMonths(startDate, 4);
 };
 
 export function DashboardProjectsTable({
@@ -152,8 +119,8 @@ export function DashboardProjectsTable({
 			});
 	}, [typedProjects, dateRange.endDate, dateRange.startDate]);
 
-	const projectsWithStatus = React.useMemo(() => {
-		return projectsInPeriod.map((project, index) => {
+	const projectsWithStatus = React.useMemo<DashboardProjectRow[]>(() => {
+		return projectsInPeriod.map((project) => {
 			const progress = projectProgressById.get(project._id) ?? 0;
 			const status = getDisplayProjectStatus(project.status, progress);
 
@@ -165,9 +132,19 @@ export function DashboardProjectsTable({
 		});
 	}, [projectProgressById, projectsInPeriod]);
 
+	const shortDurationProjects = React.useMemo(
+		() => projectsWithStatus.filter((project) => !isLongDurationProject(project)),
+		[projectsWithStatus],
+	);
+
+	const longDurationProjects = React.useMemo(
+		() => projectsWithStatus.filter((project) => isLongDurationProject(project)),
+		[projectsWithStatus],
+	);
+
 	return (
 		<div className="rounded-2xl border border-zinc-500 p-4">
-			<div className="mb-3">
+			<div className="mb-4">
 				<h3 className="text-base font-semibold">Proyectos del periodo</h3>
 				<p className="text-sm text-muted-foreground">
 					Mostrando proyectos activos entre{' '}
@@ -183,50 +160,18 @@ export function DashboardProjectsTable({
 			) : null}
 
 			{!isProjectsLoading && !isProjectsError ? (
-				projectsWithStatus.length > 0 ? (
-					<div className="w-full overflow-x-auto">
-						<Table className="min-w-175 md:min-w-0">
-						<TableHeader>
-							<TableRow>
-								<TableHead>Proyecto</TableHead>
-								<TableHead>Estado</TableHead>
-								<TableHead className="text-center">Participantes</TableHead>
-								<TableHead>Responsable</TableHead>
-								<TableHead>Periodo del proyecto</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{projectsWithStatus.map((project) => {
-								const ownerName = project.owner
-									? `${project.owner.givenName} ${project.owner.familyName}`
-									: 'Sin responsable';
-
-								return (
-									<TableRow key={project._id}>
-										<TableCell className="font-medium" title={project.name}>
-											{truncateText(project.name, MAX_PROJECT_NAME_LENGTH)}
-										</TableCell>
-										<TableCell>
-											<Badge variant={getProjectStatusVariant(project.status)}>
-												{getProjectStatusLabel(project.status)}
-											</Badge>
-										</TableCell>
-										<TableCell className="text-center">
-											{getParticipantsCount(project)}
-										</TableCell>
-										<TableCell>{ownerName}</TableCell>
-										<TableCell>{formatProjectPeriod(project)}</TableCell>
-									</TableRow>
-								);
-							})}
-						</TableBody>
-						</Table>
-					</div>
-				) : (
-					<p className="text-sm text-muted-foreground">
-						No hay proyectos registrados para este periodo.
-					</p>
-				)
+				<div className="flex flex-col gap-6">
+					<DashboardProjectsTableSection
+						title="Proyectos con duración de hasta un cuatrimestre:"
+						emptyMessage="No hay proyectos de corta duración para este periodo."
+						projects={shortDurationProjects}
+					/>
+					<DashboardProjectsTableSection
+						title="Proyectos con duración de más de un cuatrimestre:"
+						emptyMessage="No hay proyectos de larga duración para este periodo."
+						projects={longDurationProjects}
+					/>
+				</div>
 			) : null}
 		</div>
 	);
