@@ -5,11 +5,11 @@ import React from 'react';
 import LoadingMessage from './loading-message';
 import { DataTable, FacetedFilterConfig, facetedFilter } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
-import { IProject } from '@repo/types';
+import { useQueries } from '@tanstack/react-query';
+import { IActivity, IProject, ProjectStatus } from '@repo/types';
 import { ProfileInfo } from './profile-info';
 import { calculateProgress, copyValue, formatDatePeriod } from '@/lib/utils';
 import { Progress } from './ui/progress';
-import { useActivitiesByEntity } from '@/hooks/activities';
 import CopyButton from './ui/copy';
 import { Button } from './ui/button';
 import {
@@ -40,10 +40,65 @@ import { Badge } from './ui/badge';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useProjectProducts } from '@/hooks/products';
+import { getActivitiesByEntityId } from '@/services/activities.service';
 
-const ProjectProgress = ({ projectId }: { projectId: string }) => {
-  const { data: activities } = useActivitiesByEntity(projectId);
-  const progress = calculateProgress(activities ?? []);
+const normalizeProjectStatus = (status?: string): ProjectStatus => {
+  const value = (status ?? '').trim().toUpperCase();
+
+  if (value === 'IN_PROGRESS' || value === 'EN PROGRESO' || value === 'PROGRESS') {
+    return ProjectStatus.IN_PROGRESS;
+  }
+
+  if (value === 'COMPLETED' || value === 'COMPLETADO') {
+    return ProjectStatus.COMPLETED;
+  }
+
+  return ProjectStatus.PENDING;
+};
+
+const getProjectStatusLabel = (status?: string) => {
+  const normalizedStatus = normalizeProjectStatus(status);
+
+  if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'En progreso';
+  if (normalizedStatus === ProjectStatus.COMPLETED) return 'Completado';
+  return 'Pendiente';
+};
+
+const getProjectStatusVariant = (status?: string) => {
+  const normalizedStatus = normalizeProjectStatus(status);
+
+  if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'blue' as const;
+  if (normalizedStatus === ProjectStatus.COMPLETED) return 'green' as const;
+  return 'orange' as const;
+};
+
+const getDisplayProjectStatus = (
+  status: string | undefined,
+  progress: number,
+): ProjectStatus => {
+  const normalizedStatus = normalizeProjectStatus(status);
+
+  if (normalizedStatus !== ProjectStatus.PENDING) {
+    return normalizedStatus;
+  }
+
+  if (progress >= 100) {
+    return ProjectStatus.COMPLETED;
+  }
+
+  if (progress > 0) {
+    return ProjectStatus.IN_PROGRESS;
+  }
+
+  return ProjectStatus.PENDING;
+};
+
+type ProjectTableRow = IProject & {
+  __derivedProgress: number;
+  __derivedStatus: ProjectStatus;
+};
+
+const ProjectProgress = ({ progress }: { progress: number }) => {
 
   return (
     <div>
@@ -55,6 +110,14 @@ const ProjectProgress = ({ projectId }: { projectId: string }) => {
         </div>
       </div>
     </div>
+  );
+};
+
+const ProjectStatusBadge = ({ status }: { status: ProjectStatus }) => {
+  return (
+    <Badge variant={getProjectStatusVariant(status)}>
+      {getProjectStatusLabel(status)}
+    </Badge>
   );
 };
 
@@ -125,7 +188,7 @@ const ProjectsActions = ({ project }: { project: IProject }) => {
   );
 };
 
-const columns: ColumnDef<IProject>[] = [
+const columns: ColumnDef<ProjectTableRow>[] = [
   {
     accessorKey: 'name',
     header: 'Nombre',
@@ -156,7 +219,17 @@ const columns: ColumnDef<IProject>[] = [
     cell: ({ row }) => {
       const project = row.original;
 
-      return <ProjectProgress projectId={project._id} />;
+      return <ProjectProgress progress={project.__derivedProgress} />;
+    },
+  },
+  {
+    id: 'status',
+    accessorFn: (project) => project.__derivedStatus,
+    header: 'Estado',
+    filterFn: facetedFilter,
+    cell: ({ row }) => {
+      const project = row.original;
+      return <ProjectStatusBadge status={project.__derivedStatus} />;
     },
   },
   {
@@ -251,6 +324,15 @@ const facetedFilters: FacetedFilterConfig[] = [
     ],
   },
   {
+    columnId: 'status',
+    title: 'Estado',
+    options: [
+      { label: 'Pendiente', value: ProjectStatus.PENDING },
+      { label: 'En progreso', value: ProjectStatus.IN_PROGRESS },
+      { label: 'Completado', value: ProjectStatus.COMPLETED },
+    ],
+  },
+  {
     columnId: 'period',
     title: 'Año',
     options: [],
@@ -259,14 +341,39 @@ const facetedFilters: FacetedFilterConfig[] = [
 
 export default function ProjectsTable() {
   const { data: projects, isLoading: loadingProjects } = useAllProjects();
+  const typedProjects = React.useMemo(() => (projects ?? []) as IProject[], [projects]);
+
+  const projectActivitiesQueries = useQueries({
+    queries: typedProjects.map((project) => ({
+      queryKey: ['activities', project._id],
+      queryFn: () => getActivitiesByEntityId(project._id),
+      enabled: Boolean(project._id),
+    })),
+  });
+
+  const projectsWithDerivedStatus = React.useMemo<ProjectTableRow[]>(() => {
+    if (!typedProjects.length) return [];
+
+    return typedProjects.map((project, index) => {
+      const queryData = projectActivitiesQueries[index]?.data as IActivity[] | undefined;
+      const progress = calculateProgress(queryData ?? []);
+      const derivedStatus = getDisplayProjectStatus(project.status, progress);
+
+      return {
+        ...project,
+        __derivedProgress: progress,
+        __derivedStatus: derivedStatus,
+      };
+    });
+  }, [typedProjects, projectActivitiesQueries]);
+
   const yearFilterOptions = React.useMemo<FacetedFilterConfig['options']>(() => {
-    if (!projects) return [];
-    const typedProjects = projects as IProject[];
+    if (!projectsWithDerivedStatus.length) return [];
 
     const years: string[] = Array.from(
       new Set(
-        typedProjects
-          .map((project: IProject) => {
+        projectsWithDerivedStatus
+          .map((project) => {
             const periodDate = project.endDate ?? project.startDate;
             const timestamp = periodDate ? new Date(periodDate).getTime() : NaN;
             if (Number.isNaN(timestamp)) return null;
@@ -277,7 +384,7 @@ export default function ProjectsTable() {
     ).sort((a, b) => Number(b) - Number(a));
 
     return years.map((year) => ({ label: year, value: year }));
-  }, [projects]);
+  }, [projectsWithDerivedStatus]);
 
   const projectFacetedFilters = React.useMemo<FacetedFilterConfig[]>(
     () =>
@@ -290,9 +397,9 @@ export default function ProjectsTable() {
   );
 
   const sortedProjects = React.useMemo(() => {
-    if (!projects) return [];
+    if (!projectsWithDerivedStatus.length) return [];
 
-    return [...projects].sort((a, b) => {
+    return [...projectsWithDerivedStatus].sort((a, b) => {
       const aMain = new Date(a.endDate ?? a.startDate).getTime();
       const bMain = new Date(b.endDate ?? b.startDate).getTime();
 
@@ -302,7 +409,7 @@ export default function ProjectsTable() {
       const bStart = new Date(b.startDate).getTime();
       return bStart - aStart;
     });
-  }, [projects]);
+  }, [projectsWithDerivedStatus]);
 
   return (
     <div className="max-w-6xl w-full">
