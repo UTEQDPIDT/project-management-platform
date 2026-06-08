@@ -1,4 +1,4 @@
-import { IProject, SeedCategory } from '@repo/types';
+import { IProject, ProjectStatus, SeedCategory } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -35,6 +35,40 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
   const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
+  const normalizeProjectStatus = (value?: string): ProjectStatus => {
+    const normalizedValue = (value ?? '').trim().toUpperCase();
+
+    if (
+      normalizedValue === 'IN_PROGRESS' ||
+      normalizedValue === 'EN PROGRESO' ||
+      normalizedValue === 'PROGRESS'
+    ) {
+      return ProjectStatus.IN_PROGRESS;
+    }
+
+    if (
+      normalizedValue === 'COMPLETED' ||
+      normalizedValue === 'COMPLETADO'
+    ) {
+      return ProjectStatus.COMPLETED;
+    }
+
+    return ProjectStatus.PENDING;
+  };
+
+  const getProjectStatusLabel = (value?: string) => {
+    const normalizedStatus = normalizeProjectStatus(value);
+
+    if (normalizedStatus === ProjectStatus.PENDING) {
+      if (progress >= 100) return 'Completado';
+      if (progress > 0) return 'En progreso';
+    }
+
+    if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'En progreso';
+    if (normalizedStatus === ProjectStatus.COMPLETED) return 'Completado';
+    return 'Pendiente';
+  };
+
   const {
     name,
     startDate,
@@ -54,6 +88,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
     prioritiesPND,
     innovationLines,
     relatedProjects,
+    status,
   } = project;
 
   return (
@@ -85,6 +120,15 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
             <span>{progress}</span>
             <span>%</span>
           </div>
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <Target size={14} /> Estado
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          <span>{getProjectStatusLabel(status)}</span>
         </div>
       </div>
 
