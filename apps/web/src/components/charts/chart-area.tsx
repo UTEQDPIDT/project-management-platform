@@ -15,6 +15,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
+import { cn } from "@/lib/utils"
 
 type TrendPoint = {
   label: string
@@ -30,6 +31,7 @@ type ChartAreaProps = {
   cumulative?: boolean
   yMin?: number
   yMax?: number
+  className?: string
 }
 
 const chartConfig = {
@@ -78,6 +80,7 @@ export function ChartArea({
   cumulative = false,
   yMin,
   yMax,
+  className,
 }: ChartAreaProps) {
   const yDomain: [number, number | "auto"] =
     typeof yMin === "number" && typeof yMax === "number"
@@ -100,13 +103,16 @@ export function ChartArea({
     : chartConfig[metric].color
 
   return (
-    <Card className="border-black">
+    <Card className={cn("h-full border-black", className)}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         {description ? <CardDescription>{description}</CardDescription> : null}
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig}>
+      <CardContent className="flex-1">
+        <ChartContainer
+          config={chartConfig}
+          className="w-full min-h-56 aspect-video sm:min-h-64 lg:h-full lg:min-h-0 lg:aspect-auto"
+        >
           <AreaChart
             accessibilityLayer
             data={chartData}
