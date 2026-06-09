@@ -9,6 +9,7 @@ import {
 import { PageContent } from '@/components/page-content';
 
 import { ChartArea } from '@/components/charts/chart-area';
+import { DashboardEventsTable } from '@/components/charts/dashboard-events-table';
 import { ChartRadial } from '@/components/charts/chart-radial';
 import { ChartRadialStacked } from '@/components/charts/chart-radial-stacked';
 import {
@@ -39,28 +40,6 @@ const Page = () => {
     () => Array.from({ length: 5 }, (_, index) => String(currentYear - 4 + index)),
     [currentYear],
   );
-
-  const formatTrendLabel = React.useCallback((label: string) => {
-    const match = /^(\d{4})-(\d{2})$/.exec(label);
-
-    if (!match) {
-      return label;
-    }
-
-    const [, yearPart, monthPart] = match;
-    const parsedMonth = Number(monthPart);
-
-    if (!Number.isInteger(parsedMonth) || parsedMonth < 1 || parsedMonth > 12) {
-      return label;
-    }
-
-    const date = new Date(Number(yearPart), parsedMonth - 1, 1);
-
-    return date.toLocaleDateString('es-ES', {
-      month: 'short',
-      year: 'numeric',
-    });
-  }, []);
 
   return (
     <div>
@@ -120,7 +99,7 @@ const Page = () => {
 
         {!isLoading && !isError && data ? (
           <div className="w-full">
-            <div className="flex flex-col gap-4 p-2 sm:p-4 md:gap-5 md:p-5 lg:flex-row">
+            <div className="flex flex-col gap-4 sm:p-4 md:gap-4 md:p-2 lg:flex-row lg:items-stretch">
               <div className="w-full lg:w-1/3">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 xl:grid-cols-2">
                     <ChartRadial
@@ -147,37 +126,21 @@ const Page = () => {
                     />
                 </div>
               </div>
-              <div className="w-full lg:w-2/3">
-                <div className="w-full">
+              <div className="w-full lg:flex lg:w-2/3">
+                <div className="w-full h-full">
                     <ChartArea
                     title="Tendencia Mensual"
                     description={`Periodo: ${new Date(data.dateRange.startDate).toLocaleDateString()} - ${new Date(data.dateRange.endDate).toLocaleDateString()}`}
                     data={data.trend}
                     metric="participants"
                     cumulative={true}
+                    className="h-full"
                   />
                 </div>
-                <div className="mt-4 h-44 w-full rounded-md border border-zinc-500 p-4 md:h-52">
-                  <div className="h-full w-full overflow-auto">
-                    <table className="w-full min-w-[320px] text-sm">
-                      <thead>
-                        <tr className='border-b text-left'>
-                          <th className='py-2 pr-3 font-semibold'>Mes</th>
-                          <th className='py-2 px-3 font-semibold'>Eventos</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.trend.map((item, index) => (
-                          <tr key={`${item.label}-${index}`} className='border-b last:border-b-0'>
-                            <td className='py-2 pr-3'>{formatTrendLabel(item.label)}</td>
-                            <td className='py-2 px-3'>{item.events}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
               </div>
+            </div>
+            <div className="w-full md:p-2 lg:w-full lg:p-4 xl:p-4">
+              <DashboardEventsTable dateRange={data.dateRange} />
             </div>
           </div>
         ) : null}
