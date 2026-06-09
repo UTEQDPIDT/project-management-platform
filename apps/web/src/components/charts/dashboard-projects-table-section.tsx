@@ -1,6 +1,25 @@
 'use client';
 
+import Link from 'next/link';
+import { Copy, ExternalLink, MoreHorizontal, Pencil, Trash } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
 	Table,
 	TableBody,
@@ -9,7 +28,8 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { formatDatePeriod } from '@/lib/utils';
+import { copyValue, formatDatePeriod } from '@/lib/utils';
+import { useDeleteProject } from '@/hooks/projects';
 import { IProject, ProjectStatus, TeamMembershipStatus } from '@repo/types';
 
 const MAX_PROJECT_NAME_LENGTH = 50;
@@ -63,6 +83,66 @@ const getParticipantsCount = (project: IProject) => {
 	return project.owner ? 1 : 0;
 };
 
+const ProjectActions = ({ project }: { project: IProject }) => {
+	const deleteProject = useDeleteProject();
+
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button variant="ghost" size="icon-sm">
+					<MoreHorizontal />
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="end">
+				<DropdownMenuLabel>Acciones</DropdownMenuLabel>
+				<DropdownMenuItem asChild>
+					<Link href={`/admin/proyectos/${project._id}/editar`}>
+						<Pencil /> Editar proyecto
+					</Link>
+				</DropdownMenuItem>
+				<DropdownMenuItem asChild>
+					<Link href={`/admin/proyectos/${project._id}`}>
+						<ExternalLink /> Visitar proyecto
+					</Link>
+				</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => copyValue(project._id)}>
+					<Copy /> Copiar ID
+				</DropdownMenuItem>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem asChild className="hover:text-destructive-foreground">
+					<Dialog>
+						<DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
+							<Trash />
+							Eliminar proyecto
+						</DialogTrigger>
+						<DialogContent>
+							<Badge variant="destructive">Eliminando</Badge>
+							<DialogTitle>{project.name}</DialogTitle>
+							<DialogDescription>
+								¿Seguro deseas eliminar el proyecto? Esta es una operación
+								irreversible.
+							</DialogDescription>
+							<div className="flex gap-2">
+								<DialogClose asChild>
+									<Button variant="outline">Cancelar</Button>
+								</DialogClose>
+								<DialogClose asChild>
+									<Button
+										onClick={() => deleteProject.mutate(project._id)}
+										variant="destructive"
+									>
+										Eliminar
+									</Button>
+								</DialogClose>
+							</div>
+						</DialogContent>
+					</Dialog>
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+};
+
 export function DashboardProjectsTableSection({
 	title,
 	emptyMessage,
@@ -88,6 +168,7 @@ export function DashboardProjectsTableSection({
 						<TableHead className="w-[10%] text-center">Participantes:</TableHead>
 						<TableHead className="w-[20%]">Responsable:</TableHead>
 						<TableHead className="w-[30%]">Periodo del proyecto:</TableHead>
+						<TableHead className="w-[8%]">Acciones:</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -114,6 +195,9 @@ export function DashboardProjectsTableSection({
 								</TableCell>
 								<TableCell className="truncate" title={formatProjectPeriod(project)}>
 									{formatProjectPeriod(project)}
+								</TableCell>
+								<TableCell>
+									<ProjectActions project={project} />
 								</TableCell>
 							</TableRow>
 						);
