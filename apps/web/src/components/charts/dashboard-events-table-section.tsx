@@ -1,6 +1,25 @@
 'use client';
 
+import Link from 'next/link';
+import { Copy, ExternalLink, MoreHorizontal, Pencil, Trash } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
 	Table,
 	TableBody,
@@ -9,7 +28,8 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { formatDatePeriod } from '@/lib/utils';
+import { copyValue, formatDatePeriod } from '@/lib/utils';
+import { useDeleteEvent } from '@/hooks/events';
 import { EventType, IEvent } from '@repo/types';
 
 const MAX_EVENT_NAME_LENGTH = 50;
@@ -45,6 +65,66 @@ const getParticipantsCount = (event: IEvent) => {
 	return event.attendance?.totalParticipants ?? 0;
 };
 
+const EventActions = ({ event }: { event: IEvent }) => {
+	const deleteEvent = useDeleteEvent();
+
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button variant="ghost" size="icon-sm">
+					<MoreHorizontal />
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="end">
+				<DropdownMenuLabel>Acciones</DropdownMenuLabel>
+				<DropdownMenuItem asChild>
+					<Link href={`/admin/eventos/${event._id}/editar`}>
+						<Pencil /> Editar evento
+					</Link>
+				</DropdownMenuItem>
+				<DropdownMenuItem asChild>
+					<Link href={`/admin/eventos/${event._id}`}>
+						<ExternalLink /> Visitar evento
+					</Link>
+				</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => copyValue(event._id)}>
+					<Copy /> Copiar ID
+				</DropdownMenuItem>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem asChild className="hover:text-destructive-foreground">
+					<Dialog>
+						<DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
+							<Trash />
+							Eliminar evento
+						</DialogTrigger>
+						<DialogContent>
+							<Badge variant="destructive">Eliminando</Badge>
+							<DialogTitle>{event.name}</DialogTitle>
+							<DialogDescription>
+								¿Seguro deseas eliminar el evento? Esta es una operación
+								irreversible.
+							</DialogDescription>
+							<div className="flex gap-2">
+								<DialogClose asChild>
+									<Button variant="outline">Cancelar</Button>
+								</DialogClose>
+								<DialogClose asChild>
+									<Button
+										onClick={() => deleteEvent.mutate(event._id)}
+										variant="destructive"
+									>
+										Eliminar
+									</Button>
+								</DialogClose>
+							</div>
+						</DialogContent>
+					</Dialog>
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+};
+
 export function DashboardEventsTableSection({
 	title,
 	emptyMessage,
@@ -71,6 +151,7 @@ export function DashboardEventsTableSection({
 						<TableHead className="w-[10%]">Organizador:</TableHead>
 						<TableHead className="w-[15%]">Creado por:</TableHead>
 						<TableHead className="w-[30%]">Periodo del evento:</TableHead>
+						<TableHead className="w-[8%]">Acciones:</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -99,6 +180,9 @@ export function DashboardEventsTableSection({
 								</TableCell>
 								<TableCell className="truncate" title={formatEventPeriod(event)}>
 									{formatEventPeriod(event)}
+								</TableCell>
+								<TableCell>
+									<EventActions event={event} />
 								</TableCell>
 							</TableRow>
 						);
