@@ -112,7 +112,7 @@ const Page = () => {
                     <ChartRadial
                     title="Total Participantes"
                     description="Asistencia total"
-                    value={data.sexBreakdown.total}
+                    value={data.kpis.totalParticipants}
                     label="Participantes"
                     color="#242D55"
                     />

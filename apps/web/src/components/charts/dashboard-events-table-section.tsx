@@ -42,10 +42,6 @@ const formatEventPeriod = (event: IEvent) => {
 };
 
 const getParticipantsCount = (event: IEvent) => {
-	if (Array.isArray(event.participants) && event.participants.length > 0) {
-		return event.participants.length;
-	}
-
 	return event.attendance?.totalParticipants ?? 0;
 };
 
