@@ -12,6 +12,7 @@ import { calculateProgress, copyValue, formatDatePeriod } from '@/lib/utils';
 import { Progress } from './ui/progress';
 import CopyButton from './ui/copy';
 import { Button } from './ui/button';
+import {useProjectPrograms} from '@/hooks/catalogs';
 import {
   Dialog,
   DialogClose,
@@ -231,6 +232,15 @@ const columns: ColumnDef<ProjectTableRow>[] = [
       const project = row.original;
       return <ProjectStatusBadge status={project.__derivedStatus} />;
     },
+  },{
+    id: 'program',
+    accessorFn: (project) => project.program?.name ?? 'Sin programa',
+    header: 'Programa',
+    filterFn: facetedFilter,
+    cell: ({ row }) => {
+      const project = row.original;
+      return <span>{project.program?.name ?? 'Sin programa'}</span>;
+    },
   },
   {
     id: 'products',
@@ -337,6 +347,11 @@ const facetedFilters: FacetedFilterConfig[] = [
     title: 'Año',
     options: [],
   },
+  {
+    columnId: 'program',
+    title: 'Programa',
+    options: [],
+  },
 ];
 
 export default function ProjectsTable() {
@@ -386,14 +401,30 @@ export default function ProjectsTable() {
     return years.map((year) => ({ label: year, value: year }));
   }, [projectsWithDerivedStatus]);
 
+  const programFilterOptions = React.useMemo<FacetedFilterConfig['options']>(() => {
+    if (!projectsWithDerivedStatus.length) return [];
+
+    const programs: string[] = Array.from(
+      new Set(
+        projectsWithDerivedStatus
+          .map((project) => project.program?.name ?? 'Sin programa')
+          .filter((program): program is string => Boolean(program)),
+      ),
+    ).sort();
+
+    return programs.map((program) => ({ label: program, value: program }));
+  }, [projectsWithDerivedStatus]);
+
   const projectFacetedFilters = React.useMemo<FacetedFilterConfig[]>(
     () =>
       facetedFilters.map((filter): FacetedFilterConfig =>
         filter.columnId === 'period'
           ? { ...filter, options: yearFilterOptions }
+          : filter.columnId === 'program'
+          ? { ...filter, options: programFilterOptions }
           : filter,
       ),
-    [yearFilterOptions],
+    [yearFilterOptions, programFilterOptions],
   );
 
   const sortedProjects = React.useMemo(() => {

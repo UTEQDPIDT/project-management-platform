@@ -14,6 +14,7 @@ import { ThemedImpactArea } from '../schemas/themed-impact-area.schema';
 import { PNDpriority } from '../schemas/pnd-priority.schema.seed';
 import { DevelopmentLine } from '../schemas/development-line.schema.seed';
 import { SustainabilityGoal } from '../schemas/sustainability-goal.schema.seed';
+import { Programa } from '../schemas/project-programs.seed';
 
 // Static data
 import {
@@ -27,6 +28,7 @@ import {
   developmentLinesList,
   sustainabilityGoalsList,
   initialUsers,
+  ProgramaList,
 } from './seed-data/static-data';
 
 @Injectable()
@@ -61,6 +63,9 @@ export class SeedService {
 
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
+
+    @InjectModel(Programa.name)
+    private readonly programaModel: Model<Programa>,
   ) {}
 
   private async seedCollection(
@@ -142,6 +147,12 @@ export class SeedService {
     await this.seedCollection(
       this.sustainabilityGoalModel,
       sustainabilityGoalsList,
+      'name',
+    );
+
+    await this.seedCollection(
+      this.programaModel,
+      ProgramaList,
       'name',
     );
 

@@ -19,6 +19,7 @@ export interface IProject {
   impactLevel: ImpactLevel;
   owner: IUser;
   team?: ITeam;
+  program?: SeedCategory;
   relatedProjects?: IProject[];
   updatedBy?: IUser;
   startDate: Date;

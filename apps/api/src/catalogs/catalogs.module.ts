@@ -13,6 +13,7 @@ import { ThemedImpactArea, ThemedImpactAreaSchema } from '../schemas/themed-impa
 import { PNDpriority, PNDprioritySchema } from '../schemas/pnd-priority.schema.seed';
 import { DevelopmentLine, DevelopmentLineSchema } from '../schemas/development-line.schema.seed';
 import { SustainabilityGoal, SustainabilityGoalSchema } from '../schemas/sustainability-goal.schema.seed';
+import { Programa, ProgramaSchema } from '../schemas/project-programs.seed';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SustainabilityGoal, SustainabilityGoalSchema } from '../schemas/sustain
       { name: PNDpriority.name, schema: PNDprioritySchema },
       { name: DevelopmentLine.name, schema: DevelopmentLineSchema },
       { name: SustainabilityGoal.name, schema: SustainabilityGoalSchema },
+      { name: Programa.name, schema: ProgramaSchema },
     ]),
   ],
   controllers: [CatalogsController],

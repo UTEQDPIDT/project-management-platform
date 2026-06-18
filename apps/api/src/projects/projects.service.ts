@@ -127,6 +127,7 @@ export class ProjectsService {
       .populate('prioritiesPND')
       .populate('sustainableObjectives')
       .populate('innovationLines')
+      .populate('program')
       .populate({
         path: 'team',
         populate: [{ path: 'memberships.user' }],
@@ -145,6 +146,7 @@ export class ProjectsService {
       .populate('prioritiesPND')
       .populate('sustainableObjectives')
       .populate('innovationLines')
+      .populate('program')
       .populate({
         path: 'team',
         populate: [{ path: 'memberships.user' }],
@@ -167,6 +169,7 @@ export class ProjectsService {
       .populate('prioritiesPND')
       .populate('sustainableObjectives')
       .populate('innovationLines')
+      .populate('program')
       .populate({
         path: 'team',
         populate: [{ path: 'memberships.user' }],

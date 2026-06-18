@@ -10,6 +10,7 @@ import {
   usePndPriorities,
   useSustainableGoals,
   useThemedImpactAreas,
+  useProjectPrograms,
 } from '@/hooks/catalogs';
 import { useTeamsByUser } from '@/hooks/team';
 
@@ -94,6 +95,8 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
     useDevelopmentLines();
   const { data: knowledgeAreasSeeds, isLoading: loadingKnowledgeAreas } =
     useKnowledgeAreas();
+  const { data: projectPrograms, isLoading: loadingProjectPrograms } =
+    useProjectPrograms();
   const { data: teams, isLoading: loadingTeams } = useTeamsByUser();
   const { data: projects, isLoading: loadingProjects } = useProjectsByOwner();
 
@@ -133,6 +136,7 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
         : ImpactLevel.LOCAL,
       organization: project?.organization ? project.organization : '',
       team: project?.team && project.team._id ? project.team._id : '',
+      program: project?.program?._id ?? '',
       relatedProjects: project?.relatedProjects
         ? project.relatedProjects.map((p) => p?._id).filter(Boolean)
         : [],
@@ -150,6 +154,7 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
         ...data,
         organization: data.organization === '' ? undefined : data.organization,
         team: data.team === '' ? undefined : data.team,
+        program: data.program === '' ? undefined : data.program,
       };
       console.log(cleanedData);
 
@@ -359,6 +364,55 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                 />
               </div>
             </FieldGroup>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Programa del proyecto</CardTitle>
+            <CardDescription>
+              Selecciona el programa al que pertenece el proyecto, si aplica.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Controller
+              control={form.control}
+              name="program"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="program">
+                    Programa del proyecto
+                  </FieldLabel>
+                  <Select
+                    value={field.value ?? ''}
+                    onValueChange={(selected) => field.onChange(selected)}
+                  >
+                    <SelectTrigger
+                      id="program"
+                      onBlur={field.onBlur}
+                      aria-invalid={fieldState.invalid}
+                      className='border border-gray-300'
+                    >
+                      <SelectValue placeholder="Selecciona un programa" />
+                    </SelectTrigger>
+                    <SelectContent className='border border-gray-400'>
+                      {loadingProjectPrograms ? (
+                        <SelectItem value="loading" disabled>Cargando</SelectItem>
+                      ) : (
+                        projectPrograms.map((program: SeedCategory) => (
+                          <SelectItem key={program._id} value={program._id} className='cursor-pointer'>
+                            {program.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
           </CardContent>
         </Card>
 

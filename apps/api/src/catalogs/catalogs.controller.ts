@@ -60,6 +60,11 @@ export class CatalogsController {
     getSustainabilityGoals() {
       return this.catalogsService.getSustainabilityGoals();
     }
+    @ApiOkResponse({ description: 'Lista de programas obtenida correctamente.'})
+    @Get('project-programs')
+    getProjectPrograms() {
+      return this.catalogsService.getProjectPrograms();
+    }
 
     // POST (Create)
     @ApiCreatedResponse({ description: 'División agregada correctamente.'})
@@ -125,6 +130,13 @@ export class CatalogsController {
       return this.catalogsService.addSustainabilityGoal(value);
     }
 
+    @ApiCreatedResponse({ description: 'Programa agregado correctamente.'})
+    @ApiBadRequestResponse({ description: 'El programa ya existe.'})
+    @Post('project-programs')
+    addProjectProgram(@Body('value') value: string) {
+      return this.catalogsService.addProjectProgram(value);
+    }
+
     // DELETE
     @ApiOkResponse({ description: 'División eliminada correctamente.'})
     @ApiNotFoundResponse({ description: 'No se encontró la división.'})
@@ -187,5 +199,12 @@ export class CatalogsController {
     @Delete('sustainability-goals/:id')
     deleteSustainabilityGoal(@Param('id') id: string) {
       return this.catalogsService.deleteSustainabilityGoal(id);
+    }
+
+    @ApiOkResponse({ description: 'Programa eliminado correctamente.'})
+    @ApiNotFoundResponse({ description: 'No se encontró el programa.'})
+    @Delete('project-programs/:id')
+    deleteProjectProgram(@Param('id') id: string) {
+      return this.catalogsService.deleteProjectProgram(id);
     }
 }

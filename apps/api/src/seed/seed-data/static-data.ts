@@ -9,6 +9,7 @@ import { ProductSubcategory } from '../../schemas/product-subcategory.schema.see
 import { SustainabilityGoal } from '../../schemas/sustainability-goal.schema.seed';
 import { ThemedImpactArea } from '../../schemas/themed-impact-area.schema';
 import { CreateUserDto } from '../../users/dto/create-user.dto';
+import { Programa } from 'src/schemas/project-programs.seed';
 
 //Users
 export const divisionsList: Partial<Division>[] = [
@@ -259,6 +260,16 @@ export const sustainabilityGoalsList: Partial<SustainabilityGoal>[] = [
   { name: 'Inclusión' },
   { name: 'Economía Circular' },
   { name: 'Ninguno' },
+];
+
+export const ProgramaList: Partial<Programa>[] = [
+  { name: 'Sin Programa' },
+  { name: 'Proyecto Interno con Financiamiento' },
+  { name: 'Proyecto Externo con Financiamiento' },
+  { name: 'Proyecto Interno sin Financiamiento' },
+  { name: 'Proyecto Externo sin Financiamiento' },
+  { name: 'Estancias'},
+  { name: 'Feria de Ciencias'},
 ];
 
 export const initialUsers: Partial<CreateUserDto>[] = [
