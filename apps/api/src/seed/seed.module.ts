@@ -12,6 +12,7 @@ import { KnowledgeArea, KnowledgeAreaSchema } from '../schemas/knowledge-area.sc
 import { DevelopmentLine, DevelopmentLineSchema } from '../schemas/development-line.schema.seed';
 import { SustainabilityGoal, SustainabilityGoalSchema } from '../schemas/sustainability-goal.schema.seed';
 import { User, UserSchema } from '../schemas/user.schema';
+import { Programa, ProgramaSchema } from '../schemas/project-programs.seed';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { User, UserSchema } from '../schemas/user.schema';
         { name: DevelopmentLine.name, schema: DevelopmentLineSchema },
         { name: SustainabilityGoal.name, schema: SustainabilityGoalSchema },
         { name: User.name, schema: UserSchema },
+        { name: Programa.name, schema: ProgramaSchema },
       ]),
     ],
   controllers: [SeedController],
