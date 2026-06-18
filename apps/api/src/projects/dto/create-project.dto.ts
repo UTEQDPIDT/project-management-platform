@@ -123,4 +123,11 @@ export class CreateProjectDto {
   @IsOptional()
   @IsDate()
   endDate: Date;
+
+  @ApiPropertyOptional({
+    description: 'Programa al que pertenece el proyecto.',
+  })
+  @IsOptional()
+  @IsMongoId()
+  program?: string;
 }
