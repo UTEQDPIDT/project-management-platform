@@ -11,6 +11,7 @@ import { ThemedImpactArea } from '../schemas/themed-impact-area.schema';
 import { PNDpriority } from '../schemas/pnd-priority.schema.seed';
 import { DevelopmentLine } from '../schemas/development-line.schema.seed';
 import { SustainabilityGoal } from '../schemas/sustainability-goal.schema.seed';
+import { Programa } from '../schemas/project-programs.seed';
 
 @Injectable()
 export class CatalogsService {
@@ -41,6 +42,9 @@ export class CatalogsService {
 
         @InjectModel(SustainabilityGoal.name)
         private sustainabilityGoalModel: Model<SustainabilityGoal>,
+
+        @InjectModel(Programa.name)
+        private projectProgramModel: Model<Programa>,
     ) {}
 
     private async getAll(model: Model<any>) {
@@ -128,34 +132,40 @@ export class CatalogsService {
     getSustainabilityGoals() { 
         return this.getAll(this.sustainabilityGoalModel); 
     }
+    getProjectPrograms() { 
+        return this.getAll(this.projectProgramModel); 
+    }
 
     //POST methods (agregar nuevos)
     addDivision(value: string) { 
         return this.create(this.divisionModel, 'name', value); 
     }
     addEducationalProgram(value: string) { 
-        return this.create(this.educationalProgramModel, 'educationalProgram', value); 
+        return this.create(this.educationalProgramModel, 'name', value); 
     }
     addProductCategory(value: string) { 
-        return this.create(this.productCategoryModel, 'productCategory', value); 
+        return this.create(this.productCategoryModel, 'name', value); 
     }
     addProductSubcategory(value: string) { 
-        return this.create(this.productSubcategoryModel, 'productSubcategory', value); 
+        return this.create(this.productSubcategoryModel, 'name', value); 
     }
     addKnowledgeArea(value: string) { 
-        return this.create(this.knowledgeAreaModel, 'knowledgeArea', value); 
+        return this.create(this.knowledgeAreaModel, 'name', value); 
     }
     addThemedImpactArea(value: string) { 
         return this.create(this.themedImpactAreaModel, 'themedImpactArea', value); 
     }
     addPndPriority(value: string) { 
-        return this.create(this.pndPriorityModel, 'PNDpriority', value); 
+        return this.create(this.pndPriorityModel, 'name', value); 
     }
     addDevelopmentLine(value: string) { 
-        return this.create(this.developmentLineModel, 'developmentLine', value); 
+        return this.create(this.developmentLineModel, 'name', value); 
     }
     addSustainabilityGoal(value: string) { 
-        return this.create(this.sustainabilityGoalModel, 'sustainabilityGoal', value); 
+        return this.create(this.sustainabilityGoalModel, 'name', value); 
+    }
+    addProjectProgram(value: string) { 
+        return this.create(this.projectProgramModel, 'name', value); 
     }
 
     //DELETE methods (eliminar por ID)
@@ -185,5 +195,8 @@ export class CatalogsService {
     }
     deleteSustainabilityGoal(id: string) { 
         return this.remove(this.sustainabilityGoalModel, id); 
+    }
+    deleteProjectProgram(id: string) { 
+        return this.remove(this.projectProgramModel, id);
     }
 }
