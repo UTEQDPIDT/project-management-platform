@@ -9,6 +9,7 @@ import { ThemedImpactArea } from './themed-impact-area.schema';
 import { PNDpriority } from './pnd-priority.schema.seed';
 import { SustainabilityGoal } from './sustainability-goal.schema.seed';
 import { DevelopmentLine } from './development-line.schema.seed';
+import { Programa } from './project-programs.seed';
 
 @Schema({ timestamps: true })
 export class Project extends Document {
@@ -140,6 +141,12 @@ export class Project extends Document {
     default: ProjectStatus.PENDING,
   })
   status: ProjectStatus;
+
+  @ApiProperty({
+    description: 'Programa al que pertenece el proyecto.',
+  })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Programa', index: true })
+  program: Programa;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);
