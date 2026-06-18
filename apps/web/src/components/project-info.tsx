@@ -78,6 +78,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
     owner,
     organization,
     objective,
+    program,
     updatedAt,
     createdAt,
     updatedBy,
@@ -153,6 +154,19 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
                 </span>
               )}
             </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <Folder size={14} /> Programa
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+          {program ? (
+            <span>{program.name}</span>
+          ) : (
+            <span className="text-gray-400">Vacío</span>
           )}
         </div>
       </div>
