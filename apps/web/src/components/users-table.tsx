@@ -265,7 +265,7 @@ export default function UsersTable() {
   }, [divisions, educationalPrograms]);
 
   return (
-    <div className="max-w-6xl">
+    <div className="max-w-7xl">
       {isLoading ? (
         <LoadingMessage message="Cargando usuarios" />
       ) : (
