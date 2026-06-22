@@ -142,7 +142,7 @@ export default function FilesTable() {
   const { data, isLoading } = useFiles();
 
   return (
-    <div className="max-w-6xl w-full">
+    <div className="max-w-8xl w-full">
       {isLoading ? (
         <LoadingMessage message="Cargando equipos" />
       ) : (

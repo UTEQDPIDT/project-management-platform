@@ -290,7 +290,7 @@ export default function TeamsTable() {
   }, [divisions]);
 
   return (
-    <div className="max-w-6xl w-full">
+    <div className="max-w-7xl w-full">
       {isLoading ? (
         <LoadingMessage message="Cargando equipos" />
       ) : (

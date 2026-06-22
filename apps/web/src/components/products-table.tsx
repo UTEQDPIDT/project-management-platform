@@ -174,7 +174,7 @@ export function ProductsTable() {
   }, [categories, subcategories]);
 
   return (
-    <div className="w-full max-w-6xl flex flex-col gap-4">
+    <div className="w-full max-w-8xl flex flex-col gap-4">
       <div>
         <h2 className="text-base font-semibold">Productos</h2>
         <span className="text-muted-foreground text-sm">

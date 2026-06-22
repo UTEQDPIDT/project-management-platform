@@ -443,7 +443,7 @@ export default function ProjectsTable() {
   }, [projectsWithDerivedStatus]);
 
   return (
-    <div className="max-w-6xl w-full">
+    <div className="max-w-8xl w-full">
       {loadingProjects ? (
         <LoadingMessage message="Cargando proyectos" />
       ) : (
