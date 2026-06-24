@@ -165,7 +165,7 @@ const ProjectsActions = ({ project }: { project: IProject }) => {
               <Badge variant="destructive">Eliminando</Badge>
               <DialogTitle>{project.name}</DialogTitle>
               <DialogDescription>
-                ¿Seguro deseas eliminar el evento? Esta es una operación
+                ¿Seguro deseas eliminar el proyecto? Esta es una operación
                 irreversible.
               </DialogDescription>
               <div className="flex gap-2">
@@ -198,7 +198,7 @@ const columns: ColumnDef<ProjectTableRow>[] = [
 
       return (
         <div className="relative group flex justify-between w-full">
-          <div className="max-w-96 overflow-x-auto">
+          <div className="max-w-85 overflow-x-auto">
             <span>{name}</span>
           </div>
           <CopyButton
@@ -210,9 +210,12 @@ const columns: ColumnDef<ProjectTableRow>[] = [
     },
   },
   {
-    accessorKey: 'trlRating',
-    header: 'Nivel TRL',
-    filterFn: facetedFilter,
+    id: 'actions',
+    header: 'Acciones',
+    cell: ({ row }) => {
+    const project = row.original;
+    return <ProjectsActions project={project} />;
+    },
   },
   {
     id: 'progress',
@@ -273,7 +276,7 @@ const columns: ColumnDef<ProjectTableRow>[] = [
   },
   {
     accessorKey: 'impactLevel',
-    header: 'Nivel de Impacto',
+    header: 'Impacto',
     filterFn: facetedFilter,
   },
   {
@@ -299,12 +302,9 @@ const columns: ColumnDef<ProjectTableRow>[] = [
     },
   },
   {
-    id: 'actions',
-    header: 'Acciones',
-    cell: ({ row }) => {
-      const project = row.original;
-      return <ProjectsActions project={project} />;
-    },
+    accessorKey: 'trlRating',
+    header: 'Nivel TRL',
+    filterFn: facetedFilter,
   },
 ];
 
