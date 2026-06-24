@@ -23,7 +23,7 @@ import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
 import { useProjectProducts } from '@/hooks/products';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress, getBaseUrlBasedOnRole } from '@/lib/utils';
-import { EntityType } from '@repo/types';
+import { EntityType, FilePurpose } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -65,6 +65,7 @@ const ProjectPage = () => {
       files: filesToUpload,
       entityId: projectId,
       entityType: EntityType.PROJECT,
+      purpose: FilePurpose.GENERIC,
     });
 
     setFilesToUpload([]);
