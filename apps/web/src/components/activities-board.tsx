@@ -43,7 +43,7 @@ export function ActivitiesBoard({
   );
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border-neutral-400">
       <CardHeader>
         <div className="flex justify-between ">
           <div className="flex gap-3 items-center">
@@ -72,7 +72,7 @@ export function ActivitiesBoard({
           inProgressActivities.length > 0 ||
           completedActivities.length > 0 ? (
           <div className="grid grid-cols-3 gap-5">
-            <Card className="bg-gray-50 border-transparent shadow-none">
+            <Card className="bg-neutral-300 border border-neutral-400 shadow-none">
               <CardHeader>
                 <div className="flex gap-2">
                   <Badge>Pendiente</Badge>
@@ -91,6 +91,7 @@ export function ActivitiesBoard({
                         activitiesLength={activities.length}
                       />
                     }
+                    className="border-neutral-500 hover:border-neutral-800"
                     enableOptions
                     showPriority
                     showStatus
@@ -99,7 +100,7 @@ export function ActivitiesBoard({
               </CardContent>
             </Card>
 
-            <Card className="bg-blue-50 border-transparent shadow-none">
+            <Card className="bg-blue-200 border border-blue-600 shadow-none">
               <CardHeader>
                 <div className="flex gap-2">
                   <Badge variant="blue">En Progreso</Badge>
@@ -120,7 +121,7 @@ export function ActivitiesBoard({
                         activitiesLength={activities.length}
                       />
                     }
-                    className="border-blue-200"
+                    className="border-neutral-500 hover:border-neutral-800"
                     enableOptions
                     showPriority
                     showStatus
@@ -129,7 +130,7 @@ export function ActivitiesBoard({
               </CardContent>
             </Card>
 
-            <Card className="bg-green-50 border-transparent shadow-none">
+            <Card className="bg-green-200 border border-green-600 shadow-none">
               <CardHeader>
                 <div className="flex gap-2">
                   <Badge variant="green">Completado</Badge>
@@ -150,7 +151,7 @@ export function ActivitiesBoard({
                         activitiesLength={activities.length}
                       />
                     }
-                    className="border-green-200"
+                    className="border-neutral-500 hover:border-neutral-800"
                     enableOptions
                     showPriority
                     showStatus

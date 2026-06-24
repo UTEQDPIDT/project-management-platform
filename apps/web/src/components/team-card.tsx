@@ -171,7 +171,7 @@ function TeamCardDefault({ team }: { team: ITeam }) {
   });
 
   return (
-    <Card className="w-full gap-4 min-w-96">
+    <Card className="w-full gap-4 min-w-96 border-neutral-400">
       <CardHeader>
         <div className="flex justify-between">
           <div className="flex gap-2 items-start">

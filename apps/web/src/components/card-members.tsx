@@ -46,7 +46,7 @@ export function CardMembers({
   }, [team.memberships]);
 
   return (
-    <Card className="w-full lg:max-w-96 min-w-80">
+    <Card className="w-full lg:max-w-96 min-w-80 border-neutral-400">
       <CardHeader className="flex justify-between">
         <div className="flex gap-3 items-center">
           <IconSquare color="blue">

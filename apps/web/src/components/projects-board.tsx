@@ -33,7 +33,7 @@ export function ProjectsBoard({
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border-neutral-400">
       <CardHeader>
         <div className="flex justify-between ">
           <div className="flex gap-3 items-center">
@@ -56,7 +56,7 @@ export function ProjectsBoard({
               <ProjectCard key={p._id} project={p} variant="compact" />
             ))}
             <Link href={`${baseUrl}/proyectos/crear`} className="w-52 h-36">
-              <Card className="w-full hover:shadow-xl min-w-52 shrink-0 flex items-center justify-center h-full">
+              <Card className="w-full border-neutral-400 hover:shadow-xl min-w-52 shrink-0 flex items-center justify-center h-full">
                 <CardContent>
                   <Button variant="ghost" disabled>
                     <Plus /> Nuevo Proyecto
@@ -77,7 +77,7 @@ export function ProjectsBoard({
               </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
-              <Button asChild size="sm" variant="outline">
+              <Button asChild size="sm" variant="outline" className="hover:border-neutral-600">
                 <Link href={`${baseUrl}/proyectos/crear`}>
                   <Plus /> Nuevo Proyecto
                 </Link>
