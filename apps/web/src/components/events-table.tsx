@@ -43,6 +43,7 @@ import CopyButton from './ui/copy';
 import { useFilesForEntity } from '@/hooks/files';
 import FileButton from './file-button';
 import { copyValue } from '@/lib/utils';
+import React from 'react';
 
 const EventFileButton = ({
   eventId,
@@ -73,7 +74,7 @@ const EventActions = (event: IEvent) => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild >
         <Button variant="ghost" size="icon-sm">
           <MoreHorizontal />
         </Button>
@@ -91,7 +92,9 @@ const EventActions = (event: IEvent) => {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => copyValue(event._id)}>
-          <Copy /> Copiar ID
+          <div className="flex items-center gap-2 w-full cursor-pointer">
+            <Copy className="size-4" /> Copiar ID
+          </div>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="hover:text-destructive-foreground">
@@ -104,8 +107,7 @@ const EventActions = (event: IEvent) => {
               <Badge variant="destructive">Eliminando</Badge>
               <DialogTitle>{event.name}</DialogTitle>
               <DialogDescription>
-                ¿Seguro deseas eliminar el evento? Esta es una operación
-                irreversible.
+                ¿Seguro deseas eliminar el evento? Esta es una operación irreversible.
               </DialogDescription>
               <div className="flex gap-2">
                 <DialogClose asChild>
@@ -137,7 +139,7 @@ const columns: ColumnDef<IEvent>[] = [
 
       return (
         <div className="flex gap-1 items-center justify-start group">
-          <div className="max-w-72 truncate">
+          <div className="max-w-65 truncate">
             <span>{name}</span>
           </div>
           <CopyButton
@@ -146,6 +148,14 @@ const columns: ColumnDef<IEvent>[] = [
           />
         </div>
       );
+    },
+  },
+  {
+    id: 'actions',
+    header: 'Acciones',
+    cell: ({ row }) => {
+      const event = row.original;
+      return <EventActions {...event} />;
     },
   },
   {
@@ -179,18 +189,43 @@ const columns: ColumnDef<IEvent>[] = [
     header: 'Fechas',
     cell: ({ row }) => {
       const event = row.original;
+      const start = new Date(event.startDate);
 
-      const date = event.endDate ? (
+      if (event.endDate) {
+        const end = new Date(event.endDate);
+        return (
+          <div>
+            {format(start, "d 'de' MMMM 'al' ", { locale: es })}
+            {format(end, "d 'de' MMMM 'del' yyyy", { locale: es })}
+          </div>
+        );
+      }
+
+      return (
         <div>
-          {format(event.startDate, "d 'de' MMMM 'al' ", { locale: es })}
-          {format(event.endDate, "d 'de' MMMM 'del' yyyy", { locale: es })}
-        </div>
-      ) : (
-        <div>
-          {format(event.startDate, "d',' MMM 'del' yyyy", { locale: es })}
+          {format(start, "d',' MMM 'del' yyyy", { locale: es })}
         </div>
       );
-      return date;
+    },
+  },
+  // 🛠️ ADICIÓN: Esta columna oculta procesa el string de año que requiere el FacetedFilter
+  {
+    id: 'period',
+    accessorFn: (event) => {
+      const periodDate = event.endDate ?? event.startDate;
+      const timestamp = periodDate ? new Date(periodDate).getTime() : NaN;
+      if (Number.isNaN(timestamp)) return 'Sin año';
+      return String(new Date(timestamp).getFullYear());
+    },
+    header: 'Periodo',
+    filterFn: facetedFilter,
+    cell: ({ row }) => {
+      const event = row.original;
+      const start = new Date(event.startDate);
+      if (event.endDate) {
+        return <span>{new Date(event.endDate).getFullYear()}</span>;
+      }
+      return <span>{start.getFullYear()}</span>;
     },
   },
   {
@@ -235,7 +270,6 @@ const columns: ColumnDef<IEvent>[] = [
     cell: ({ row }) => {
       const event = row.original;
       const { products } = event;
-
       return <div>{products?.length}</div>;
     },
   },
@@ -247,11 +281,11 @@ const columns: ColumnDef<IEvent>[] = [
       const { createdBy } = event;
 
       if (!createdBy) {
-        return <div className='w-52 text-muted-foreground'>Vacío</div>
+        return <div className='w-35 text-muted-foreground'>Vacío</div>;
       }
 
       return (
-        <div className="w-52">
+        <div className="w-35">
           <ProfileInfo
             size="sm"
             givenName={createdBy.givenName}
@@ -267,37 +301,11 @@ const columns: ColumnDef<IEvent>[] = [
     header: 'Fecha de creación',
     cell: ({ row }) => {
       const date = format(
-        row.getValue('createdAt'),
+        new Date(row.getValue('createdAt')),
         "d',' MMM 'del' yyyy kk':'mm",
-        {
-          locale: es,
-        },
+        { locale: es },
       );
-
       return <div>{date}</div>;
-    },
-  },
-  {
-    accessorKey: 'updatedBy',
-    header: 'Modificado por',
-    cell: ({ row }) => {
-      const event = row.original;
-      const { updatedBy } = event;
-
-      if (!updatedBy) {
-        return <div className='w-52 text-muted-foreground'>Vacío</div>
-      }
-
-      return (
-        <div className="w-52">
-          <ProfileInfo
-            size="sm"
-            givenName={updatedBy.givenName}
-            familyName={updatedBy.familyName}
-            avatarUrl={updatedBy.avatarUrl}
-          />
-        </div>
-      );
     },
   },
   {
@@ -305,13 +313,10 @@ const columns: ColumnDef<IEvent>[] = [
     header: 'Fecha de modificación',
     cell: ({ row }) => {
       const date = format(
-        row.getValue('updatedAt'),
+        new Date(row.getValue('updatedAt')),
         "d',' MMM 'del' yyyy kk':'mm",
-        {
-          locale: es,
-        },
+        { locale: es },
       );
-
       return <div>{date}</div>;
     },
   },
@@ -320,7 +325,6 @@ const columns: ColumnDef<IEvent>[] = [
     header: 'Informe Técnico',
     cell: ({ row }) => {
       const event = row.original;
-
       return (
         <EventFileButton
           eventId={event._id}
@@ -334,7 +338,6 @@ const columns: ColumnDef<IEvent>[] = [
     header: 'Informe Financiero',
     cell: ({ row }) => {
       const event = row.original;
-
       return (
         <EventFileButton
           eventId={event._id}
@@ -343,18 +346,9 @@ const columns: ColumnDef<IEvent>[] = [
       );
     },
   },
-  {
-    id: 'actions',
-    header: 'Acciones',
-    cell: ({ row }) => {
-      const event = row.original;
-
-      return <EventActions {...event} />;
-    },
-  },
 ];
 
-const facetedFilters: FacetedFilterConfig[] = [
+const facetedFiltersConfig: FacetedFilterConfig[] = [
   {
     columnId: 'type',
     title: 'Tipo de evento',
@@ -363,10 +357,47 @@ const facetedFilters: FacetedFilterConfig[] = [
       { value: 'externo', label: 'Externo' },
     ],
   },
+  {
+    columnId: 'period',
+    title: 'Año',
+    options: [], 
+  },
 ];
 
 export function EventsTable() {
   const { data: events, isLoading: loadingEvents } = useGetAllEvents();
+  const typedEvents = React.useMemo(() => (events ?? []) as IEvent[], [events]);
+
+  //Genera dinámicamente las opciones de filtro de años a partir de los eventos
+  const yearFilterOptions = React.useMemo<FacetedFilterConfig['options']>(() => {
+    if (!typedEvents.length) return [];
+
+    const years: string[] = Array.from(
+      new Set(
+        typedEvents
+          .map((event) => {
+            const periodDate = event.endDate ?? event.startDate;
+            const timestamp = periodDate ? new Date(periodDate).getTime() : NaN;
+            if (Number.isNaN(timestamp)) return null;
+            return String(new Date(timestamp).getFullYear());
+          })
+          .filter((year): year is string => Boolean(year)),
+      ),
+    ).sort((a, b) => Number(b) - Number(a)); // Orden descendente (2026, 2025...)
+
+    return years.map((year) => ({ label: year, value: year }));
+  }, [typedEvents]);
+
+  //Une la estructura estática con los años dinámicos
+  const eventFacetedFilters = React.useMemo<FacetedFilterConfig[]>(
+    () =>
+      facetedFiltersConfig.map((filter): FacetedFilterConfig =>
+        filter.columnId === 'period'
+          ? { ...filter, options: yearFilterOptions }
+          : filter,
+      ),
+    [yearFilterOptions],
+  );
 
   return (
     <div className="max-w-8xl w-full">
@@ -375,8 +406,8 @@ export function EventsTable() {
       ) : (
         <DataTable
           columns={columns}
-          data={events}
-          facetedFilters={facetedFilters}
+          data={typedEvents}
+          facetedFilters={eventFacetedFilters}
         />
       )}
     </div>
