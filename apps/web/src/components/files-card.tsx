@@ -4,7 +4,7 @@ import { IFile } from '@repo/types';
 import { Dispatch, SetStateAction } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import IconSquare from './icon-square';
-import { Paperclip, Upload, X } from 'lucide-react';
+import { Info, Paperclip, Upload, X} from 'lucide-react';
 import {
   Sheet,
   SheetClose,
@@ -38,9 +38,17 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from './ui/empty';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
 import { useAddAssignee } from '@/hooks/activities';
 
 type FileCardProps = {
+  title?: string;
+  description?: string;
+  iconColor?: 'indigo' | 'blue' | 'green' | 'red' | 'yellow';
   savedFiles: IFile[];
   filesToUpload: File[];
   setFilesToUpload: Dispatch<SetStateAction<File[]>>;
@@ -54,6 +62,9 @@ type FileCardProps = {
 };
 
 export default function FilesCard({
+  title= 'Archivos',
+  description = 'Administra los archivos relacionados con el evento.',
+  iconColor = 'indigo',
   savedFiles,
   filesToUpload,
   setFilesToUpload,
@@ -81,14 +92,26 @@ export default function FilesCard({
   };
 
   return (
-    <Card className="w-full max-w-md min-w-80">
+    <Card className="w-full max-w-md min-w-80 border border-neutral-400">
       <CardHeader>
         <div className="flex gap-4 justify-between items-center">
           <div className="flex gap-2 items-center">
-            <IconSquare color="indigo">
+            <IconSquare color={iconColor}>
               <Paperclip />
             </IconSquare>
-            <CardTitle>Archivos</CardTitle>
+            <CardTitle>{title}</CardTitle>
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <Button variant="ghost" size="icon-xs">
+                  <Info />
+                </Button>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-64">
+                <p className="text-sm text-muted-foreground">
+                  {description}
+                </p>
+              </HoverCardContent>
+            </HoverCard>
           </div>
           <Sheet>
             <SheetTrigger asChild>
@@ -100,9 +123,9 @@ export default function FilesCard({
 
             <SheetContent className="flex h-dvh flex-col">
               <SheetHeader>
-                <SheetTitle>Subir Archivos</SheetTitle>
+                <SheetTitle>{`Subir ${title}`}</SheetTitle>
                 <SheetDescription>
-                  Selecciona y sube los archivos
+                  {`Selecciona y sube los ${title.toLowerCase()} relacionados con el evento.`}
                 </SheetDescription>
               </SheetHeader>
 

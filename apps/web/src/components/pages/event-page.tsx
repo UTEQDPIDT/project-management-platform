@@ -14,6 +14,11 @@ import { PageContent } from '@/components/page-content';
 import ParticipantsCard from '@/components/participants-card';
 import ProductCard from '@/components/product-card';
 import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
+import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -41,7 +46,9 @@ import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import {
   EntityType,
+  FilePurpose,
   IActivity,
+  IFile,
   IProduct,
   UserRole,
   UserType,
@@ -80,16 +87,52 @@ const EventPage = () => {
   } = useFilesForEntity(eventId);
   const uploadFiles = useUploadMultipleFiles();
 
-  // File upload
-  const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+  const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
+  const [otherFiles, setOtherFiles] = useState<File[]>([]);
 
-  const handleFileUpload = () => {
+  const handleEvidenceUpload = async () => {
+    if(evidenceFiles.length === 0) return;
+      try {
+      // 1. Esperamos a que la petición termine exitosamente en NestJS
+      await uploadFiles.mutateAsync({
+        files: evidenceFiles,
+        entityId: eventId,
+        entityType: EntityType.EVENT,
+        purpose: FilePurpose.EVENT_EVIDENCE,
+      });
+      // 2. Limpiamos la lista local del Dropzone para que visualmente desaparezcan los archivos ya subidos
+      setEvidenceFiles([]);
+    } catch (error) {
+      // El error ya lo maneja el onError global de tu hook useUploadMultipleFiles con Sonner
+      console.error('Error al subir evidencias:', error);
+    }
+  }
+  const handleOtherFilesUpload = async () => {
+    if(otherFiles.length === 0) return;
+    try {
+      await uploadFiles.mutateAsync({
+        files: otherFiles,
+        entityId: eventId,
+        entityType: EntityType.EVENT,
+        purpose: FilePurpose.EVENT_OTHER,
+      });
+      setOtherFiles([]);
+    } catch (error) {
+      console.error('Error al subir otros archivos:', error);
+    }
+  }
+
+  // File upload
+  //const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+
+  
+  /*const handleFileUpload = () => {
     uploadFiles.mutate({
       files: filesToUpload,
       entityId: eventId,
       entityType: EntityType.EVENT,
     });
-  };
+  };*/
 
   const onFileValidate = useCallback((file: File): string | null => {
 
@@ -140,30 +183,55 @@ const EventPage = () => {
 
           <PageContent>
             <EventInfo event={event} />
-            <div className="w-full flex gap-6 lg:gap-4 flex-col lg:flex-row">
-              <div className="w-full lg:max-w-sm flex flex-col gap-6">
+            <div className="w-full flex flex-col gap-2 p-2 bg-neutral-200 rounded-2xl md:flex-row md:gap-4 md:p-4">
+              <div className="w-full lg:max-w-sm flex flex-col gap-4">
                 {(user.role === UserRole.ADMIN ||
                   user.type === UserType.MAESTRO ||
                   user.type === UserType.ADMINISTRATIVO) && (
-                  <FilesCard
-                    savedFiles={files}
-                    isLoading={loadingFiles}
-                    isError={errorFetchingFiles}
-                    filesToUpload={filesToUpload}
-                    setFilesToUpload={setFilesToUpload}
-                    onUpload={handleFileUpload}
-                    onFileValidate={onFileValidate}
-                    onFileReject={onFileReject}
-                    isUploading={uploadFiles.isPending}
-                    accept=".pdf,.png,.jpg,.jpeg"
-                  />
-                )}
+                  <div className="flex flex-col gap-2">
+                  
+                    {/* Apartado 1: Evidencias */}
+                    <FilesCard
+                      title="Evidencias"
+                      description="Aquí puedes subir y administrar evidencias relacionadas con el evento: Fotografías(PDF), Ficha Informativa, Programa del Evento y Listado de Participantes."
+                      iconColor="blue"
+                      savedFiles={files?.filter((f: IFile) => f.purpose === FilePurpose.EVENT_EVIDENCE) || []} 
+                      isLoading={loadingFiles}
+                      isError={errorFetchingFiles}
+                      filesToUpload={evidenceFiles}
+                      setFilesToUpload={setEvidenceFiles}
+                      onUpload={handleEvidenceUpload}
+                      onFileValidate={onFileValidate}
+                      onFileReject={onFileReject}
+                      isUploading={uploadFiles.isPending}
+                      accept=".pdf,.png,.jpg,.jpeg"
+                    />
 
-                <ParticipantsCard event={event} />
+                    {/* Apartado 2: Otros Archivos */}
+                    <FilesCard
+                      title="Otros Archivos"
+                      description="Aquí puedes subir y administrar otros archivos relacionados con el evento."
+                      iconColor="green"
+                      savedFiles={files?.filter((f: IFile) => f.purpose === FilePurpose.EVENT_OTHER || f.purpose === FilePurpose.GENERIC) || []} 
+                      isLoading={loadingFiles}
+                      isError={errorFetchingFiles}
+                      filesToUpload={otherFiles}
+                      setFilesToUpload={setOtherFiles}
+                      onUpload={handleOtherFilesUpload}
+                      onFileValidate={onFileValidate}
+                      onFileReject={onFileReject}
+                      isUploading={uploadFiles.isPending}
+                      accept=".pdf,.png,.jpg,.jpeg"
+                    />
+
+                    <ParticipantsCard className='border border-neutral-400' event={event} />
+
+                  </div>
+                )}
               </div>
 
-              <div className="w-full flex flex-col gap-6">
-                <Card className="w-full">
+              <div className="w-full flex flex-col gap-2">
+                <Card className="w-full min-h-168 border border-neutral-400">
                   <CardHeader>
                     <div className="flex justify-between">
                       <div className="flex gap-3 items-center">
@@ -197,6 +265,7 @@ const EventPage = () => {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                           {activities.map((a: IActivity) => (
                             <ActivityCard
+                              className="border border-neutral-400"
                               key={a._id}
                               activity={a}
                               enableOptions
@@ -223,7 +292,7 @@ const EventPage = () => {
                 </Card>
 
                 {event.acceptsProducts && (
-                  <Card className="w-full">
+                  <Card className="w-full border border-neutral-400">
                     <CardHeader>
                       <div className="flex gap-4 justify-between items-center">
                         <div className="flex gap-3 items-center">

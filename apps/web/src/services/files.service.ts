@@ -17,8 +17,8 @@ const uploadFile = async ({
 
     formData.append('file', file);
     formData.append('entityId', entityId);
-    formData.append('entityType', entityType);
-    formData.append('purpose', purpose);
+    formData.append('entityType', String(entityType));
+    formData.append('purpose', String(purpose));
 
     const { data } = await api.post('/files/upload', formData);
 
@@ -33,19 +33,19 @@ const uploadMultipleFiles = async ({
   files,
   entityId,
   entityType,
-  purpose = FilePurpose.GENERIC,
+  purpose,
 }: {
   files: File[];
   entityId: string;
   entityType: EntityType;
-  purpose?: FilePurpose;
+  purpose: FilePurpose;
 }): Promise<UploadMultipleFilesResponse> => {
   const formData = new FormData();
 
   files.forEach((file) => formData.append('files', file));
   formData.append('entityId', entityId);
-  formData.append('entityType', entityType);
-  formData.append('purpose', purpose);
+  formData.append('entityType', String(entityType));
+  formData.append('purpose', String(purpose));
 
   const { data } = await api.post('/files/upload/multiple', formData);
   return data;

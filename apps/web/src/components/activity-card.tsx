@@ -5,7 +5,7 @@ import { useDeleteFile, useFilesForEntity } from '@/hooks/files';
 import { useUploadMultipleFiles } from '@/hooks/files/use-upload-multiple-files';
 import { cn } from '@/lib/utils';
 import { downloadFile } from '@/services/files.service';
-import { EntityType, IActivity, IFile, Status } from '@repo/types';
+import { EntityType, FilePurpose, IActivity, IFile, Status } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -149,6 +149,7 @@ export function ActivityCard({
       files: filesToUpload,
       entityId: activity._id,
       entityType: EntityType.ACTIVITY,
+      purpose: FilePurpose.GENERIC,
     });
     setFilesToUpload([]);
   };
