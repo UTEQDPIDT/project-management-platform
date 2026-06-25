@@ -27,7 +27,7 @@ export default function ProductCard({
 }: ProductCardProps) {
   const { data: files = [] } = useFilesForEntity(product._id);
   return (
-    <Card className="gap-2 group w-full min-w-72 max-w-96">
+    <Card className="gap-2 group w-full min-w-72 max-w-96 border border-neutral-400">
       <CardHeader>
         <div className="flex items-center justify-between gap-1">
           <div className="flex flex-col gap-1">
