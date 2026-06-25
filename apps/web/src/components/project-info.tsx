@@ -1,5 +1,3 @@
-'use client';
-
 import { IProject, ProjectStatus, SeedCategory } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
