@@ -102,7 +102,7 @@ const ProjectPage = () => {
               </Breadcrumb>
             </HeaderHeading>
 
-            {isOwner && (
+            {(isOwner || user.role === 'ADMIN') && (
               <HeaderAction>
                 <ProjectMenu projectId={projectId} name={project.name} />
               </HeaderAction>
@@ -118,7 +118,7 @@ const ProjectPage = () => {
                 progress={calculateProgress(activities)}
               />
             )}
-            <div className="w-full px-4 gap-6 flex flex-col">
+            <div className="bg-neutral-200 border rounded-2xl w-full gap-6 flex flex-col p-4">
               <ActivitiesBoard activities={activities} projectId={projectId} />
               <ProductsBoard
                 products={products}
