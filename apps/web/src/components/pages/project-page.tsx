@@ -126,7 +126,7 @@ const ProjectPage = () => {
                 isLoading={loadingProducts}
                 isError={errorFetchingProducts}
               />
-              <div className="flex w-full justify-between gap-4">
+              <div className="flex flex-col lg:flex-row w-full justify-between gap-4">
                 {project.team && <CardMembers team={project.team} redirect />}
                 {project.relatedProjects && (
                   <ProjectsBoard projects={project.relatedProjects} />
