@@ -1,3 +1,5 @@
+'use client';
+
 import { IProject, ProjectStatus, SeedCategory } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -92,17 +94,22 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
     status,
   } = project;
 
+  // Clase reutilizable para cada fila de datos del proyecto
+  const rowClass = "flex flex-col sm:flex-row sm:items-start py-1 sm:py-0 border-b border-neutral-100 sm:border-0";
+  // Clase reutilizable para el label de la izquierda
+  const labelClass = "p-2 flex gap-2 text-muted-foreground w-full sm:w-40 items-center font-medium sm:font-normal rounded-md shrink-0";
+
   return (
-    <div className="text-sm border-b pb-4 w-full px-4">
+    <div className="text-sm border-b pb-4 w-full px-2 sm:px-4 space-y-1">
       <div className="pb-2">
         <h1 className="text-xl font-semibold">{name}</h1>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Building size={14} /> Organización
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
           {organization ? (
             <span>{organization}</span>
           ) : (
@@ -111,8 +118,8 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Percent size={14} /> Progreso
         </span>
         <div className="p-2 hover:bg-secondary rounded-md flex gap-2 w-full max-w-48 items-center">
@@ -124,33 +131,32 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Target size={14} /> Estado
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
           <span>{getProjectStatusLabel(status)}</span>
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Calendar size={14} /> Periodo
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
           {startDate && (
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-1 sm:gap-2 items-center">
               <span>
                 {format(startDate, "d 'de' MMMM 'de' yyyy", {
                   locale: es,
                 })}
               </span>
               {endDate && (
-                <span className="flex gap-2 items-center justify-center">
-                  <MoveRight size={10} />
-                  {format(endDate, "d 'de' MMMM 'de' yyyy", {
-                    locale: es,
-                  })}
+                <span className="flex gap-1 sm:gap-2 items-center text-muted-foreground flex-wrap">
+                  <MoveRight size={12} className="hidden sm:inline" />
+                  <span className="sm:hidden text-xs font-bold px-1">al</span>
+                  {format(endDate, "d 'de' MMMM 'de' yyyy", { locale: es })}
                 </span>
               )}
             </div>
@@ -158,11 +164,11 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Folder size={14} /> Programa
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
           {program ? (
             <span>{program.name}</span>
           ) : (
@@ -171,35 +177,34 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <ArrowUp10 size={14} /> Nivel de TRL
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">{trlRating}</div>
+        <div className="p-2 hover:bg-secondary rounded-md w-full">{trlRating}</div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Target size={14} /> Objetivo
         </span>
-
-        <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md">
+        <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md w-full">
           {objective ? objective : <span className="text-gray-400">Vacío</span>}
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <MapPinned size={14} /> Nivel de impacto
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">{impactLevel}</div>
+        <div className="p-2 hover:bg-secondary rounded-md w-full">{impactLevel}</div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <BookOpen size={14} className="shrink-0" /> Áreas de Conocimiento
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
+        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty w-full">
           {knowledgeAreas?.length ? (
             <span>
               {concatWithCommaAndDot(
@@ -212,11 +217,11 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <FoldVertical size={14} className="shrink-0" /> Impactos Transversales
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
+        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty w-full">
           {impactAreas?.length ? (
             <span>
               {concatWithCommaAndDot(
@@ -229,11 +234,11 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Leaf size={14} className="shrink-0" /> Objetivos Sustentables
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
+        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty w-full">
           {sustainableObjectives?.length ? (
             <span>
               {concatWithCommaAndDot(
@@ -246,12 +251,12 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <LandPlot size={14} className="shrink-0" />
           Prioridades PND
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
+        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty w-full">
           {prioritiesPND?.length ? (
             <span>
               {concatWithCommaAndDot(
@@ -264,12 +269,12 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <BrainCircuit size={14} className="shrink-0" />
           LIIADTs
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty">
+        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty w-full">
           {innovationLines?.length ? (
             <span>
               {concatWithCommaAndDot(
@@ -282,13 +287,13 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 h-11 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Users size={14} /> Equipo
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full flex flex-wrap">
           {team ? (
-            <Button size="xs" asChild variant="ghost">
+            <Button size="xs" asChild variant="ghost" className="h-auto py-1 px-2 text-left justify-start whitespace-normal">
               <Link href={`${baseUrl}/equipos/${team._id}`}>
                 {team.teamName}
                 <ArrowUpRight />
@@ -300,14 +305,15 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 h-11 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Folder size={14} /> Proyectos
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        {/* CORRECCIÓN AQUÍ: flex flex-wrap gap-1 */}
+        <div className="p-2 hover:bg-secondary rounded-md w-full flex flex-wrap gap-1">
           {relatedProjects?.length ? (
             relatedProjects.map((p: IProject) => (
-              <Button key={p._id} size="xs" asChild variant="ghost">
+              <Button key={p._id} size="xs" asChild variant="ghost" className="h-auto py-1 px-2 text-left justify-start whitespace-normal">
                 <Link href={`${baseUrl}/proyectos/${p._id}`}>
                   {p.name}
                   <ArrowUpRight />
@@ -320,11 +326,11 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <UserCircle size={14} /> Creado por
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
           {owner ? (
             <ProfileInfo
               size="sm"
@@ -338,22 +344,22 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Calendar size={14} /> Creado el
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
           {format(createdAt, "d 'de' MMMM 'de' yyyy k':'mm", {
             locale: es,
           })}
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <UserCircle size={14} /> Modificado por
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
           {updatedBy && (
             <ProfileInfo
               size="sm"
@@ -365,11 +371,11 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Calendar size={14} /> Modificado el
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
           {format(updatedAt, "d 'de' MMMM 'de' yyyy k':'mm", {
             locale: es,
           })}
