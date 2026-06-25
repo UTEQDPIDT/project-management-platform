@@ -9,7 +9,8 @@
     "rootDir": "src",
     "module": "commonjs",
     "moduleResolution": "node10",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

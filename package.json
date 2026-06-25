@@ -11,10 +11,10 @@
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "baseline-browser-mapping": "^2.9.19",
-    "prettier": "^3.6.2",
-    "turbo": "^2.6.0",
-    "typescript": "5.9.2"
+    "baseline-browser-mapping": "^2.10.40",
+    "prettier": "^3.8.4",
+    "turbo": "^2.10.0",
+    "typescript": "6.0.3"
   },
   "packageManager": "pnpm@10.21.0",
   "engines": {
@@ -22,6 +22,6 @@
     "pnpm": ">=9.0.0"
   },
   "dependencies": {
-    "@nestjs/cli": "^11.0.16"
+    "@nestjs/cli": "^11.0.23"
   }
 }

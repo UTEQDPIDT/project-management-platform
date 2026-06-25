@@ -22,8 +22,11 @@ export class AbilitiesGuard implements CanActivate {
             return true;
         } catch (error) {
             if (error instanceof ForbiddenError) {
-            throw new ForbiddenException(error.message);
+                // @ts-ignore
+                throw new ForbiddenException(error.message);
             }
+            // @ts-ignore
+            throw new ForbiddenException(error.message);
         }
     }
 }
