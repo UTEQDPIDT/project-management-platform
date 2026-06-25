@@ -71,7 +71,7 @@ export function ActivitiesBoard({
         ) : pendingActivities.length > 0 ||
           inProgressActivities.length > 0 ||
           completedActivities.length > 0 ? (
-          <div className="grid grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <Card className="bg-neutral-300 border border-neutral-400 shadow-none">
               <CardHeader>
                 <div className="flex gap-2">
