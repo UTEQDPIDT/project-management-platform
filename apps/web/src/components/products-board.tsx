@@ -34,7 +34,7 @@ export function ProductsBoard({
   return (
     <Card className="w-full border-neutral-400">
       <CardHeader>
-        <div className="flex justify-between ">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex gap-3 items-center">
             <IconSquare color="orange">
               <Shapes />
