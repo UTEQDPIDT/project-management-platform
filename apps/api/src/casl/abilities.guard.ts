@@ -22,7 +22,7 @@ export class AbilitiesGuard implements CanActivate {
             return true;
         } catch (error) {
             if (error instanceof ForbiddenError) {
-            throw new ForbiddenException(error.message);
+            throw new ForbiddenException((error as any).message);
             }
         }
     }
