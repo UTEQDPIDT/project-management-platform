@@ -1,3 +1,5 @@
+'use client';
+
 import { useSendJoinRequest } from '@/hooks/team';
 import {
   BadgeVariants,
@@ -30,9 +32,10 @@ type TeamCardVariant = 'default' | 'compact';
 interface TeamCardProps {
   team: ITeam;
   variant?: TeamCardVariant;
+  className?: string;
 }
 
-function TeamCardDefault({ team }: { team: ITeam }) {
+function TeamCardDefault({ team, className }: { team: ITeam; className?: string }) {
   /**
    * React Query
    */
@@ -89,7 +92,7 @@ function TeamCardDefault({ team }: { team: ITeam }) {
           <Link href={`${baseUrl}/equipos/${team._id}`}>
             <span className="flex gap-1 items-center">
               Visitar
-              <ArrowUpRight />
+              <ArrowUpRight className="h-4 w-4" />
             </span>
           </Link>
         </Button>
@@ -107,7 +110,7 @@ function TeamCardDefault({ team }: { team: ITeam }) {
             <LoadingMessage message="Enviando" />
           ) : (
             <span className="flex gap-1 items-center">
-              <UserPlus />
+              <UserPlus className="h-4 w-4" />
               Unirse
             </span>
           )}
@@ -150,35 +153,36 @@ function TeamCardDefault({ team }: { team: ITeam }) {
   /**
    * Team member count
    */
-  // 1. Deduplicate using user._id BEFORE mapping
   const uniqueUsers = Array.from(
     new Map(
       [...members, ...collaborators].map((u) => [u.user._id, u]),
     ).values(),
   );
 
-  // 2. Extract only the fields needed for AvatarRow
   const profiles = uniqueUsers.map((u) => ({
     givenName: u.user.givenName,
     familyName: u.user.familyName,
     avatarUrl: u.user.avatarUrl,
   }));
 
-  profiles.push({
-    givenName: owner!.user.givenName,
-    familyName: owner!.user.familyName,
-    avatarUrl: owner!.user.avatarUrl,
-  });
+  if (owner) {
+    profiles.push({
+      givenName: owner.user.givenName,
+      familyName: owner.user.familyName,
+      avatarUrl: owner.user.avatarUrl,
+    });
+  }
 
   return (
-    <Card className="w-full gap-4 min-w-96 border-neutral-400">
+    /* Eliminado min-w-96 e inyectado gap adaptable para pantallas muy pequeñas */
+    <Card className={`w-full flex flex-col gap-2 md:gap-4 border-neutral-400 ${className}`}>
       <CardHeader>
-        <div className="flex justify-between">
-          <div className="flex gap-2 items-start">
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex gap-2 items-start min-w-0">
             <IconSquare color="blue">
               <Users />
             </IconSquare>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 min-w-0">
               <CardTitle className="line-clamp-1 leading-5">
                 {team.teamName}
               </CardTitle>
@@ -187,27 +191,29 @@ function TeamCardDefault({ team }: { team: ITeam }) {
               </CardDescription>
             </div>
           </div>
-          <Badge variant={badgeVariant} className="h-6">
+          <Badge variant={badgeVariant} className="h-6 shrink-0 text-center whitespace-nowrap text-[10px] sm:text-xs">
             {team.grade}
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col gap-6 h-full">
-        <CardDescription className="h-28 line-clamp-5">
+      <CardContent className="flex flex-col gap-4 h-full min-h-0">
+        <CardDescription className="h-28 line-clamp-5 overflow-hidden">
           {team.summary}
         </CardDescription>
       </CardContent>
-      <CardFooter className="flex gap-2 justify-between items-center">
-        <div>
+      <CardFooter className="flex gap-2 justify-between items-center mt-auto flex-wrap sm:flex-nowrap">
+        <div className="shrink-0">
           <AvatarRow profiles={profiles} />
         </div>
-        <CardAction>{renderActionButton()}</CardAction>
+        <CardAction className="w-full sm:w-auto flex justify-end mt-2 sm:mt-0">
+          {renderActionButton()}
+        </CardAction>
       </CardFooter>
     </Card>
   );
 }
 
-function TeamCardCompact({ team }: { team: ITeam }) {
+function TeamCardCompact({ team, className }: { team: ITeam; className?: string }) {
   /**
    * Context
    */
@@ -227,7 +233,7 @@ function TeamCardCompact({ team }: { team: ITeam }) {
       m.role === TeamMembershipRole.COLLABORATOR &&
       m.status === TeamMembershipStatus.ACTIVE,
   );
-  // Deduplicate users for AvatarRow
+
   const uniqueUsers = Array.from(
     new Map(
       [...members, ...collaborators].map((u) => [u.user._id, u]),
@@ -245,46 +251,23 @@ function TeamCardCompact({ team }: { team: ITeam }) {
       avatarUrl: owner.user.avatarUrl,
     });
   }
-  let badgeVariant:
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'green'
-    | 'gray'
-    | 'purple'
-    | 'orange'
-    | null
-    | undefined;
-  switch (team.grade) {
-    case TeamsGrade.CA_EN_FORMACION:
-      badgeVariant = BadgeVariants.GRAY;
-      break;
-    case TeamsGrade.CA_CONSOLIDADO:
-      badgeVariant = BadgeVariants.GREEN;
-      break;
-    case TeamsGrade.CA_EN_CONSOLIDACION:
-      badgeVariant = BadgeVariants.ORANGE;
-      break;
-    case TeamsGrade.GRUPO_DE_INVESTIGACION:
-      badgeVariant = BadgeVariants.PURPLE;
-      break;
-  }
+
   return (
+    /* Eliminado max-w-52 y shrink-0 estáticos tanto del Link como de la Card para heredar el ancho elástico de las columnas del CSS Grid global */
     <Link
       href={`${baseUrl}/equipos/${team._id}`}
-      className="w-full max-w-52 shrink-0 h-36"
+      className={`w-full block h-36 ${className}`}
     >
-      <Card className="hover:shadow-xl w-full max-w-52 shrink-0 h-36">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle className="line-clamp-1 leading-5">
+      <Card className={`hover:shadow-xl w-full h-36 flex flex-col justify-between transition-shadow duration-200 ${className}`}>
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center gap-2">
+            <CardTitle className="line-clamp-2 leading-5 text-sm sm:text-base min-w-0">
               {team.teamName}
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent></CardContent>
-        <CardFooter>
+        <CardContent className="py-0"></CardContent>
+        <CardFooter className="pt-2">
           <AvatarRow profiles={profiles} />
         </CardFooter>
       </Card>
@@ -292,9 +275,9 @@ function TeamCardCompact({ team }: { team: ITeam }) {
   );
 }
 
-export function TeamCard({ team, variant = 'default' }: TeamCardProps) {
+export function TeamCard({ team, variant = 'default', className }: TeamCardProps) {
   if (variant === 'compact') {
-    return <TeamCardCompact team={team} />;
+    return <TeamCardCompact team={team} className={className} />;
   }
-  return <TeamCardDefault team={team} />;
+  return <TeamCardDefault team={team} className={className} />;
 }

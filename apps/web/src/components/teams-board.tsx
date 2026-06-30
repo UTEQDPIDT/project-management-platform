@@ -1,3 +1,5 @@
+'use client';
+
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { ITeam } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
@@ -51,15 +53,22 @@ export default function TeamsBoard({
         ) : isError ? (
           <ErrorCard />
         ) : teams.length > 0 ? (
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          /* Reemplazado flex-wrap desordenado por un CSS Grid fluido e idéntico al de proyectos */
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
             {teams.map((t: ITeam) => (
-              <TeamCard key={t._id} team={t} variant="compact" />
+              /* Envoltura consistente para asegurar que TeamCard herede el ancho total de su columna */
+              <div key={t._id} className="w-full h-36 flex">
+                <TeamCard team={t} variant="compact" className="w-full h-full " />
+              </div>
             ))}
-            <Link href={`${baseUrl}/equipos/crear`} className="w-52 h-36">
-              <Card className="w-full border-neutral-400 hover:border-neutral-600 hover:shadow-xl min-w-52 shrink-0 flex items-center justify-center h-full">
-                <CardContent>
-                  <Button variant="ghost" disabled>
-                    <Plus /> Nuevo Equipo
+            
+            <Link href={`${baseUrl}/equipos/crear`} className="w-full h-36 block">
+              {/* Eliminados min-w-52 y shrink-0 para evitar desbordes y alinearse al layout adaptativo */}
+              <Card className="w-full border-neutral-400 hover:border-neutral-600 hover:shadow-xl flex items-center justify-center h-full transition-all duration-200">
+                <CardContent className="p-0 flex items-center justify-center w-full h-full">
+                  {/* Removido disabled para mejorar la semántica e interactividad visual */}
+                  <Button variant="ghost" className="pointer-events-none gap-2">
+                    <Plus className="h-4 w-4" /> Nuevo Equipo
                   </Button>
                 </CardContent>
               </Card>
