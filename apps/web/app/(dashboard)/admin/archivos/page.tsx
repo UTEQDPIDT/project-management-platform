@@ -11,7 +11,7 @@ import React from 'react';
 
 const Page = () => {
   return (
-    <div>
+    <div className="w-full min-h-screen">
       <Header>
         <HeaderHeading>
           <HeaderTitle>Archivos</HeaderTitle>
@@ -20,10 +20,15 @@ const Page = () => {
           </HeaderDescription>
         </HeaderHeading>
       </Header>
-      <PageContent>
-        <FilesTable />
+      
+      {/* Contenedor principal adaptado con scroll de emergencia y bordes limpios */}
+      <PageContent className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
+        <div className="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <FilesTable />
+        </div>
       </PageContent>
     </div>
   );
 };
+
 export default Page;
