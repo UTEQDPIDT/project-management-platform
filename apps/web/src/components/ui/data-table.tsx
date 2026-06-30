@@ -35,7 +35,7 @@ export type { FacetedFilterOption } from './data-table-faceted-filter';
 
 // 1. Esto le dice a TypeScript que 'meta' puede aceptar un 'className' de tipo string
 declare module '@tanstack/react-table' {
-  interface ColumnMeta<TData extends unknown, TValue extends unknown> {
+  interface ColumnMeta<TData, TValue> {
     className?: string;
   }
 }
