@@ -1,3 +1,5 @@
+'use client';
+
 import { IProject, UserRole } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -21,6 +23,7 @@ type ProjectCardVariant = 'default' | 'compact';
 interface ProjectCardProps {
   project: IProject;
   variant?: ProjectCardVariant;
+  className?: string;
 }
 
 function ProjectCardDefault({
@@ -29,10 +32,11 @@ function ProjectCardDefault({
   data: ReturnType<typeof useProjectCardData>;
 }) {
   return (
-    <Card className="w-full hover:shadow-xl min-w-96">
+    /* Eliminado min-w-96 para permitir que se adapte de forma fluida a layouts de una sola columna en móviles */
+    <Card className="w-full hover:shadow-xl transition-shadow duration-200">
       <CardHeader>
-        <div className="flex justify-between items-center">
-          <div className="flex gap-2 items-center">
+        <div className="flex justify-between items-center gap-2">
+          <div className="flex gap-2 items-center min-w-0">
             <IconSquare color="purple">
               <Folder />
             </IconSquare>
@@ -41,7 +45,7 @@ function ProjectCardDefault({
               {data.name}
             </CardTitle>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 shrink-0">
             <Badge variant="outline" className="h-6">
               TRL {data.trlRating}
             </Badge>
@@ -57,20 +61,21 @@ function ProjectCardDefault({
             <span>{Math.round(data.progress)}%</span>
           </div>
           <Progress value={data.progress} />
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-muted-foreground line-clamp-1">
             {data.completedActivitiesCount} de {data.totalActivitiesCount}{' '}
             actividades completadas
           </span>
         </div>
 
         {data.startDate && (
-          <div className="flex gap-1">
-            <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+          /* flex-wrap agregado para que en celulares muy angostos las fechas se acomoden sin desbordar */
+          <div className="flex flex-wrap gap-x-2 gap-y-1">
+            <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground whitespace-nowrap">
               <Calendar size={14} />
               {format(data.startDate, "d 'de' MMM 'de' yyyy", { locale: es })}
             </span>
             {data.endDate && (
-              <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
+              <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground whitespace-nowrap">
                 <MoveRight size={10} />
                 {format(data.endDate, "d 'de' MMM 'de' yyyy", { locale: es })}
               </span>
@@ -79,7 +84,7 @@ function ProjectCardDefault({
         )}
       </CardContent>
 
-      <CardFooter className="flex gap-3 justify-start items-center">
+      <CardFooter className="flex gap-3 justify-start items-center flex-wrap">
         <AvatarRow profiles={data.profiles} />
         <span className="flex gap-1 items-center justify-center text-xs text-muted-foreground">
           <Shapes size={14} />
@@ -104,15 +109,16 @@ function ProjectCardCompact({
   data: ReturnType<typeof useProjectCardData>;
 }) {
   return (
-    <Card className="hover:shadow-xl w-full min-w-52 shrink-0 h-36">
+    /* Eliminado min-w-52 y shrink-0 para que crezca o decrezca simétricamente en base al espacio de su grid */
+    <Card className="hover:shadow-xl w-full h-36 transition-shadow duration-200">
       <CardHeader>
-        <div className="flex justify-between items-center">
-          <div className="flex gap-2 items-center">
+        <div className="flex justify-between items-center gap-2">
+          <div className="flex gap-2 items-center min-w-0">
             <CardTitle className="line-clamp-1 leading-5">
               {data.name}
             </CardTitle>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 shrink-0">
             <Badge variant="outline" className="h-6">
               TRL {data.trlRating}
             </Badge>
@@ -127,7 +133,7 @@ function ProjectCardCompact({
             <span>{Math.round(data.progress)}%</span>
           </div>
           <Progress value={data.progress} />
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-muted-foreground line-clamp-1">
             {data.completedActivitiesCount} de {data.totalActivitiesCount}{' '}
             actividades completadas
           </span>
@@ -140,13 +146,15 @@ function ProjectCardCompact({
 export function ProjectCard({
   project,
   variant = 'default',
+  className = '',
 }: ProjectCardProps) {
   const data = useProjectCardData(project);
   const { user } = useUserProfile();
   const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
 
   return (
-    <Link href={`${rootUrl}/proyectos/${project._id}`}>
+    /* Pasamos el className al Link (y le inyectamos w-full por defecto) para asegurar que se comporte de forma elástica en los layouts */
+    <Link href={`${rootUrl}/proyectos/${project._id}`} className={`w-full block ${className}`}>
       {variant === 'compact' ? (
         <ProjectCardCompact data={data} />
       ) : (
