@@ -33,13 +33,19 @@ import {
 export type { FacetedFilterConfig };
 export type { FacetedFilterOption } from './data-table-faceted-filter';
 
+// 1. Esto le dice a TypeScript que 'meta' puede aceptar un 'className' de tipo string
+declare module '@tanstack/react-table' {
+  interface ColumnMeta<TData extends unknown, TValue extends unknown> {
+    className?: string;
+  }
+}
+
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   const itemRank = rankItem(row.getValue(columnId), value);
   addMeta({ itemRank });
   return itemRank.passed;
 };
 
-// Filter function for faceted filters (handles array of selected values)
 export const facetedFilter: FilterFn<any> = (row, columnId, filterValue) => {
   if (!filterValue || !Array.isArray(filterValue) || filterValue.length === 0) {
     return true;
@@ -84,16 +90,25 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="flex flex-col gap-4">
-      <DataTableToolbar table={table} facetedFilters={facetedFilters} />
-      <div className="overflow-hidden rounded-md border">
+    <div className="flex flex-col gap-4 w-full overflow-hidden">
+      <div className="w-full overflow-x-auto sm:overflow-x-visible pb-1">
+        <DataTableToolbar table={table} facetedFilters={facetedFilters} />
+      </div>
+
+      <div className="overflow-hidden rounded-md border w-full">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
+                  // Extraemos la propiedad de forma segura gracias al tipado de arriba
+                  const metaClassName = header.column.columnDef.meta?.className || '';
+                  
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead 
+                      key={header.id}
+                      className={metaClassName}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -113,23 +128,20 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const metaClassName = cell.column.columnDef.meta?.className || '';
+                    return (
+                      <TableCell key={cell.id} className={metaClassName}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  Sin Resultados
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No se encontraron datos.
                 </TableCell>
               </TableRow>
             )}
