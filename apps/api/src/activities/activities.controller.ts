@@ -8,6 +8,7 @@ import {
   Post,
   Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiAcceptedResponse,
   ApiCreatedResponse,
@@ -18,6 +19,12 @@ import {
 import { ActivitiesService } from './activities.service';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
+
+type AuthenticatedRequest = Request & {
+  user: {
+    id: string;
+  };
+};
 
 @ApiTags('Activities')
 @Controller('activities')
@@ -30,7 +37,10 @@ export class ActivitiesController {
   })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @Post()
-  create(@Body() createActivityDto: CreateActivityDto, @Req() req) {
+  create(
+    @Body() createActivityDto: CreateActivityDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.activitiesService.create(createActivityDto, req.user.id);
   }
 
@@ -73,7 +83,7 @@ export class ActivitiesController {
   update(
     @Param('id') id: string,
     @Body() updateActivityDto: UpdateActivityDto,
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     return this.activitiesService.update(id, updateActivityDto, req.user.id);
   }
@@ -87,7 +97,7 @@ export class ActivitiesController {
   async addAssignee(
     @Param('id') id: string,
     @Body('userId') userId: string,
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     await this.activitiesService.addAssignee(id, userId, req.user.id);
   }
@@ -101,7 +111,7 @@ export class ActivitiesController {
   async removeAssignee(
     @Param('id') id: string,
     @Body('userId') userId: string,
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     await this.activitiesService.removeAssignee(id, userId, req.user.id);
   }

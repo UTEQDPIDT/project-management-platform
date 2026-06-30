@@ -6,6 +6,7 @@ import { Activity } from '../schemas/activities.schema';
 import { FilesService } from '../files/files.service';
 import { ProjectsService } from '../projects/projects.service';
 import { EntityType, Status } from '@repo/types';
+import { UpdateActivityDto } from './dto/update-activity.dto';
 
 describe('ActivitiesService', () => {
   let service: ActivitiesService;
@@ -56,7 +57,9 @@ describe('ActivitiesService', () => {
     filesServiceMock.activityHasEvidence.mockResolvedValue(true);
     activityModelMock.findByIdAndUpdate.mockResolvedValue({ _id: 'a1' });
 
-    await service.update('a1', { status: Status.COMPLETED } as any, 'user-1');
+    const updateDto: UpdateActivityDto = { status: Status.COMPLETED };
+
+    await service.update('a1', updateDto, 'user-1');
 
     expect(projectsServiceMock.recomputeProjectStatus).toHaveBeenCalledWith('p1');
   });
@@ -70,7 +73,9 @@ describe('ActivitiesService', () => {
     });
     activityModelMock.findByIdAndUpdate.mockResolvedValue({ _id: 'a1' });
 
-    await service.update('a1', { status: Status.PENDING } as any, 'user-1');
+    const updateDto: UpdateActivityDto = { status: Status.PENDING };
+
+    await service.update('a1', updateDto, 'user-1');
 
     expect(projectsServiceMock.recomputeProjectStatus).not.toHaveBeenCalled();
   });

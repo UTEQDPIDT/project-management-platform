@@ -21,6 +21,12 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+type AuthenticatedRequest = {
+  user: {
+    id: string;
+  };
+};
+
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
@@ -56,7 +62,7 @@ export class UsersController {
 
   @ApiOkResponse({ description: 'Perfil de usuario obtenido correctamente.' })
   @Get('profile')
-  getProfile(@Req() req) {
+  getProfile(@Req() req: AuthenticatedRequest) {
     return this.usersService.findOne(req.user.id);
   }
 

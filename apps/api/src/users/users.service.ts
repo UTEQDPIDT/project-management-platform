@@ -10,6 +10,11 @@ import { User } from '../schemas/user.schema';
 import { Model } from 'mongoose';
 import { UserType } from '@repo/types';
 
+type UserUpdateOperations = {
+  $set: Record<string, unknown>;
+  $unset?: Record<string, ''>;
+};
+
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
@@ -20,9 +25,9 @@ export class UsersService {
    * - MAESTRO/ADMINISTRATIVO: clears matricula and educationalProgram
    * Returns an object with $set and $unset operations for MongoDB
    */
-  private clearPropertiesByUserType(data: any): { $set: any; $unset?: any } {
-    const fieldsToSet = { ...data };
-    const fieldsToUnset: any = {};
+  private clearPropertiesByUserType(data: UpdateUserDto): UserUpdateOperations {
+    const fieldsToSet: Record<string, unknown> = { ...data };
+    const fieldsToUnset: Record<string, ''> = {};
 
     if (data.type === UserType.ESTUDIANTE) {
       // Students shouldn't have employee number
@@ -39,7 +44,7 @@ export class UsersService {
       fieldsToUnset.educationalProgram = '';
     }
 
-    const result: { $set: any; $unset?: any } = { $set: fieldsToSet };
+    const result: UserUpdateOperations = { $set: fieldsToSet };
     if (Object.keys(fieldsToUnset).length > 0) {
       result.$unset = fieldsToUnset;
     }

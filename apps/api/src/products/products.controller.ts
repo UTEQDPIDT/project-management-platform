@@ -27,6 +27,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from '../common/pipes';
 import { FILE_MIME_TYPES } from '../common/constants';
 
+type AuthenticatedRequest = {
+  user: {
+    id: string;
+  };
+};
+
 @ApiTags('Products')
 @Controller('products')
 export class ProductsController {
@@ -48,7 +54,7 @@ export class ProductsController {
       new FileValidationPipe(5 * 1024 * 1024, [...FILE_MIME_TYPES.DOCUMENTS]),
     )
     file: Express.Multer.File,
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     return this.productsService.create(createProductDto, file, req.user.id);
   }
@@ -81,7 +87,7 @@ export class ProductsController {
   }
 
   @Get('/by-user/:userId')
-  findByUser(@Param('userId') userId) {
+  findByUser(@Param('userId') userId: string) {
     return this.productsService.findByUser(userId);
   }
 
@@ -100,7 +106,7 @@ export class ProductsController {
       new FileValidationPipe(5 * 1024 * 1024, [...FILE_MIME_TYPES.DOCUMENTS]),
     )
     file: Express.Multer.File,
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     return this.productsService.update(id, updateProductDto, req.user.id, file);
   }

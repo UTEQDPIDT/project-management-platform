@@ -22,6 +22,12 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+type AuthenticatedRequest = {
+  user: {
+    id: string;
+  };
+};
+
 @ApiTags('Teams')
 @Controller('teams')
 export class TeamsController {
@@ -29,7 +35,7 @@ export class TeamsController {
 
   @ApiCreatedResponse({ description: 'Equipo creado correctamente.' })
   @Post()
-  create(@Body() createTeamDto: CreateTeamDto, @Req() req) {
+  create(@Body() createTeamDto: CreateTeamDto, @Req() req: AuthenticatedRequest) {
     return this.teamsService.create(createTeamDto, req.user.id);
   }
 
@@ -62,7 +68,7 @@ export class TeamsController {
     description: 'No se encontró el usuario para enviar la solicitud.',
   })
   @Post(':id/requests')
-  sendRequest(@Param('id') id: string, @Req() req) {
+  sendRequest(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.teamsService.sendTeamRequest(id, req.user.id);
   }
 
@@ -87,7 +93,7 @@ export class TeamsController {
   @ApiOkResponse({ description: 'Lista de equipos obtenida correctamente.' })
   @Get()
   findAll(
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
     @Query('isPrivate', new ParseBoolPipe({ optional: true }))
     isPrivate?: boolean,
   ) {
@@ -97,7 +103,7 @@ export class TeamsController {
   @ApiOkResponse({ description: 'Lista de equipos obtenida correctamente.' })
   @ApiUnauthorizedResponse({ description: 'Cookie expirada' })
   @Get('by-user')
-  findByUser(@Req() req) {
+  findByUser(@Req() req: AuthenticatedRequest) {
     return this.teamsService.findByUser(req.user.id);
   }
 

@@ -3,5 +3,8 @@
     {
       "mode": "auto"
     }
-  ]
+  ],
+  "terminal.integrated.env.windows": {
+    "Path": "C:\\Program Files\\Volta;${env:LOCALAPPDATA}\\Volta\\bin;${env:Path}"
+  }
 }

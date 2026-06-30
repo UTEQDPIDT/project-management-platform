@@ -23,6 +23,21 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { InitializePasswordDto } from './dto/initialize-password.dto';
 import { ConfigService } from '@nestjs/config';
+import { Request, Response } from 'express';
+
+type AuthenticatedRequest = Request & {
+  user: {
+    id: string;
+    _id: string;
+    role: UserRole;
+  };
+};
+
+type LogoutRequest = Request & {
+  user?: {
+    id: string;
+  };
+};
 
 @Controller('auth')
 export class AuthController {
@@ -33,7 +48,7 @@ export class AuthController {
 
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
-  refreshToken(@Req() req) {
+  refreshToken(@Req() req: AuthenticatedRequest) {
     return this.authService.refreshToken(req.user._id, req.user.role);
   }
 
@@ -45,7 +60,7 @@ export class AuthController {
   @Public()
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
-  async googleCallback(@Req() req, @Res() res) {
+  async googleCallback(@Req() req: AuthenticatedRequest, @Res() res: Response) {
     try {
       if (!req.user) {
         console.error('No user found in request after Google OAuth');
@@ -89,7 +104,7 @@ export class AuthController {
   @Public()
   @Post('mock-login')
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  async mockLogin(@Body() body: MockLoginDto, @Res() res) {
+  async mockLogin(@Body() body: MockLoginDto, @Res() res: Response) {
     try {
       const user = await this.authService.validateUser(body.email, body.password);
 
@@ -126,44 +141,39 @@ export class AuthController {
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async mockRegister(
     @Body() body: MockRegisterDto,
-    @Res() res,
-  ){
-    try{
-      const user = await this.authService.registerUser(body);
+    @Res() res: Response,
+  ) {
+    const user = await this.authService.registerUser(body);
 
-      const response = await this.authService.login(
-        user._id.toString(),
-        user.role,
-      );
+    const response = await this.authService.login(
+      user._id.toString(),
+      user.role,
+    );
 
-      res.cookie('accessToken', response.accessToken, {
-        httpOnly: true,
-        secure: false, // Only send cookies over HTTPS in production
-        sameSite: 'lax',
-        maxAge: 8 * 60 * 60 * 1000, // 8h
-      });
+    res.cookie('accessToken', response.accessToken, {
+      httpOnly: true,
+      secure: false, // Only send cookies over HTTPS in production
+      sameSite: 'lax',
+      maxAge: 8 * 60 * 60 * 1000, // 8h
+    });
 
-      res.cookie('refreshToken', response.refreshToken, {
-        httpOnly: true,
-        secure: false, // Only send cookies over HTTPS in production
-        sameSite: 'lax',
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
-      });
+    res.cookie('refreshToken', response.refreshToken, {
+      httpOnly: true,
+      secure: false, // Only send cookies over HTTPS in production
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
+    });
 
-      const redirectPath =
-        user.role === UserRole.ADMIN ? '/admin/inicio' : '/user/inicio';
+    const redirectPath =
+      user.role === UserRole.ADMIN ? '/admin/inicio' : '/user/inicio';
 
-        return res.status(201).json({ redirectUrl: redirectPath });
-
-    } catch (error) {
-      throw error;
-    }
+    return res.status(201).json({ redirectUrl: redirectPath });
   }
 
   @Public()
   @Post('forgot-password')
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  async forgotPassword(@Body() body: ForgotPasswordDto, @Res() res) {
+  async forgotPassword(@Body() body: ForgotPasswordDto, @Res() res: Response) {
     try {
       const response = await this.authService.forgotPassword(body.email);
       return res.status(200).json(response);
@@ -178,7 +188,7 @@ export class AuthController {
   @Public()
   @Post('reset-password')
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  async resetPassword(@Body() body: ResetPasswordDto, @Res() res) {
+  async resetPassword(@Body() body: ResetPasswordDto, @Res() res: Response) {
     try {
       const response = await this.authService.resetPassword(body);
       return res.status(200).json(response);
@@ -200,7 +210,7 @@ export class AuthController {
   async initializePassword(
     @Body() body: InitializePasswordDto,
     @Headers('x-internal-key') internalKey: string,
-    @Res() res,
+    @Res() res: Response,
   ) {
     const expectedKey = this.configService.get<string>('INITIALIZE_PASSWORD_SECRET', '');
 
@@ -221,7 +231,7 @@ export class AuthController {
 
   @Public()
   @Post('logout')
-  async signOut(@Req() req, @Res() res) {
+  async signOut(@Req() req: LogoutRequest, @Res() res: Response) {
     if (req.user?.id) {
       await this.authService.signOut(req.user.id);
     }

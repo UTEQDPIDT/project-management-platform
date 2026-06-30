@@ -6,7 +6,8 @@ import { ProjectsService } from './projects.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { FilesService } from '../files/files.service';
 import { ProductsService } from '../products/products.service';
-import { ProjectStatus, Status } from '@repo/types';
+import { ImpactLevel, ProjectStatus, Status } from '@repo/types';
+import { CreateProjectDto } from './dto/create-project.dto';
 
 describe('ProjectsService', () => {
   let service: ProjectsService;
@@ -72,9 +73,9 @@ describe('ProjectsService', () => {
       name: 'Proyecto test',
       objective: 'Objetivo',
       trlRating: 2,
-      impactLevel: 'LOCAL',
+      impactLevel: ImpactLevel.LOCAL,
       activities: [{ name: 'A1' }, { name: 'A2' }, { name: 'A3' }],
-    } as any;
+    } as unknown as CreateProjectDto;
 
     await service.create(dto, 'user-1');
 
@@ -95,9 +96,9 @@ describe('ProjectsService', () => {
       name: 'Proyecto test',
       objective: 'Objetivo',
       trlRating: 2,
-      impactLevel: 'LOCAL',
+      impactLevel: ImpactLevel.LOCAL,
       activities: [{ name: 'A1' }, { name: 'A2' }],
-    } as any;
+    } as unknown as CreateProjectDto;
 
     await expect(service.create(dto, 'user-1')).rejects.toBeInstanceOf(
       BadRequestException,
@@ -110,9 +111,9 @@ describe('ProjectsService', () => {
       name: 'Proyecto test',
       objective: 'Objetivo',
       trlRating: 2,
-      impactLevel: 'LOCAL',
+      impactLevel: ImpactLevel.LOCAL,
       activities: [{ name: 'A1' }, { name: '   ' }, { name: 'A3' }],
-    } as any;
+    } as unknown as CreateProjectDto;
 
     await expect(service.create(dto, 'user-1')).rejects.toBeInstanceOf(
       BadRequestException,

@@ -31,6 +31,12 @@ import { FileValidationPipe } from '../common/pipes';
 import { FILE_MIME_TYPES } from '../common/constants';
 import { Throttle } from '@nestjs/throttler';
 
+type AuthenticatedRequest = {
+  user: {
+    id: string;
+  };
+};
+
 @ApiTags('files')
 @Controller('files')
 export class FilesController {
@@ -56,7 +62,7 @@ export class FilesController {
     )
     file: Express.Multer.File,
     @Body() body: UploadFileDto,
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     return this.filesService.uploadFile(
       file,
@@ -89,7 +95,7 @@ export class FilesController {
     )
     files: Array<Express.Multer.File>,
     @Body() body: UploadFileDto,
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     return this.filesService.uploadFiles(
       files,

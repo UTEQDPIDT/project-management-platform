@@ -11,6 +11,7 @@ import {
   ValidationPipe,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -22,6 +23,12 @@ import {
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventsService } from './events.service';
+
+type AuthenticatedRequest = Request & {
+  user: {
+    id: string;
+  };
+};
 
 @ApiTags('Events')
 @Controller('events')
@@ -38,7 +45,7 @@ export class EventsController {
     }),
   )
   @Post()
-  create(@Body() createEventDto: CreateEventDto, @Req() req) {
+  create(@Body() createEventDto: CreateEventDto, @Req() req: AuthenticatedRequest) {
     return this.eventsService.create(createEventDto, req.user.id);
   }
 
@@ -54,7 +61,7 @@ export class EventsController {
   })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @Get('by-user')
-  findByUser(@Req() req) {
+  findByUser(@Req() req: AuthenticatedRequest) {
     return this.eventsService.findByUser(req.user.id);
   }
 
@@ -81,7 +88,7 @@ export class EventsController {
   update(
     @Param('id') id: string,
     @Body() updateEventDto: UpdateEventDto,
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     return this.eventsService.update(id, updateEventDto, req.user.id);
   }
@@ -97,7 +104,7 @@ export class EventsController {
    * PARTICIPANTS
    */
   @Patch(':id/register')
-  addParticipant(@Param('id') id, @Req() req) {
+  addParticipant(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.eventsService.addParticipant(id, req.user.id);
   }
 
@@ -112,7 +119,7 @@ export class EventsController {
   addParticipants(
     @Param('id') id: string,
     @Body('participants') participants: string[],
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     return this.eventsService.addParticipants(id, participants, req.user.id);
   }
@@ -128,7 +135,7 @@ export class EventsController {
   removeParticipant(
     @Param('id') id: string,
     @Param('userId') userId: string,
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     return this.eventsService.removeParticipant(id, userId, req.user.id);
   }
@@ -147,7 +154,7 @@ export class EventsController {
   addProducts(
     @Param('id') id: string,
     @Body('products') productIds: string[],
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     return this.eventsService.addProducts(id, productIds, req.user.id);
   }
@@ -163,7 +170,7 @@ export class EventsController {
   removeProduct(
     @Param('id') id: string,
     @Param('productId') productId: string,
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     return this.eventsService.removeProduct(id, productId, req.user.id);
   }
