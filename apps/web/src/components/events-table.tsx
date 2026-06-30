@@ -414,7 +414,7 @@ export function EventsTable() {
   );
 
   return (
-    <div className="max-w-8xl w-full p-1">
+    <div className="max-w-7xl w-full p-1">
       {loadingEvents ? (
         <LoadingMessage message="Cargando eventos" />
       ) : (

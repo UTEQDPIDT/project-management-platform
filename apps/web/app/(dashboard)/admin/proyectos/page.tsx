@@ -33,20 +33,9 @@ const Page = () => {
           </Button>
         </HeaderAction>
       </Header>
-      
-      {/* Contenedor principal con espaciado vertical */}
       <PageContent className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
-        
-        {/* Contenedor con scroll horizontal para ProjectsTable */}
-        <div className="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
-          <ProjectsTable />
-        </div>
-
-        {/* Contenedor con scroll horizontal para ProductsTable */}
-        <div className="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
-          <ProductsTable />
-        </div>
-
+        <ProjectsTable />
+        <ProductsTable />
       </PageContent>
     </div>
   );
