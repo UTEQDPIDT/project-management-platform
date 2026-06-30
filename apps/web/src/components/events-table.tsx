@@ -139,12 +139,12 @@ const columns: ColumnDef<IEvent>[] = [
 
       return (
         <div className="flex gap-1 items-center justify-start group">
-          <div className="max-w-65 truncate">
+          <div className="max-w-40 sm:max-w-65 truncate">
             <span>{name}</span>
           </div>
           <CopyButton
             valueToCopy={name}
-            className="group-hover:opacity-100 opacity-0"
+            className="group-hover:opacity-100 opacity-0 hidden sm:flex"
           />
         </div>
       );
@@ -161,6 +161,7 @@ const columns: ColumnDef<IEvent>[] = [
   {
     accessorKey: 'isPrivate',
     header: 'Acceso',
+    meta: { className: 'whitespace-nowrap' }, // Siempre visible, pero evitamos que rompa línea
     cell: ({ row }) => {
       const event = row.original;
       const { isPrivate } = event;
@@ -179,14 +180,17 @@ const columns: ColumnDef<IEvent>[] = [
   {
     accessorKey: 'type',
     header: 'Tipo',
+    meta: { className: 'hidden md:table-cell' }, // Visible desde tablets pequeñas (md)
   },
   {
     accessorKey: 'organization',
     header: 'Organización',
+    meta: { className: 'hidden md:table-cell' }, // Visible desde tablets verticales (md)
   },
   {
     id: 'fechas',
     header: 'Fechas',
+    meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => {
       const event = row.original;
       const start = new Date(event.startDate);
@@ -194,7 +198,7 @@ const columns: ColumnDef<IEvent>[] = [
       if (event.endDate) {
         const end = new Date(event.endDate);
         return (
-          <div>
+          <div className="whitespace-nowrap">
             {format(start, "d 'de' MMMM 'al' ", { locale: es })}
             {format(end, "d 'de' MMMM 'del' yyyy", { locale: es })}
           </div>
@@ -202,13 +206,12 @@ const columns: ColumnDef<IEvent>[] = [
       }
 
       return (
-        <div>
+        <div className="whitespace-nowrap">
           {format(start, "d',' MMM 'del' yyyy", { locale: es })}
         </div>
       );
     },
   },
-  // 🛠️ ADICIÓN: Esta columna oculta procesa el string de año que requiere el FacetedFilter
   {
     id: 'period',
     accessorFn: (event) => {
@@ -219,6 +222,7 @@ const columns: ColumnDef<IEvent>[] = [
     },
     header: 'Periodo',
     filterFn: facetedFilter,
+    meta: { className: 'hidden lg:table-cell' }, // Visible desde pantallas de laptop (lg)
     cell: ({ row }) => {
       const event = row.original;
       const start = new Date(event.startDate);
@@ -231,12 +235,13 @@ const columns: ColumnDef<IEvent>[] = [
   {
     accessorKey: 'location',
     header: 'Ubicación',
+    meta: { className: 'hidden lg:table-cell' },
     cell: ({ row }) => {
       const { location } = row.original;
 
       return (
         <div className="flex gap-1 items-center justify-start group">
-          <div className="max-w-72 truncate">
+          <div className="max-w-44 truncate">
             <span>{location}</span>
           </div>
           <CopyButton
@@ -250,6 +255,7 @@ const columns: ColumnDef<IEvent>[] = [
   {
     accessorKey: 'participants',
     header: 'Participantes',
+    meta: { className: 'hidden xl:table-cell' }, // Visible solo en monitores grandes (xl)
     cell: ({ row }) => {
       const event = row.original;
       const { participants } = event;
@@ -267,6 +273,7 @@ const columns: ColumnDef<IEvent>[] = [
   {
     accessorKey: 'products',
     header: 'Productos',
+    meta: { className: 'hidden lg:table-cell' },
     cell: ({ row }) => {
       const event = row.original;
       const { products } = event;
@@ -276,6 +283,7 @@ const columns: ColumnDef<IEvent>[] = [
   {
     accessorKey: 'createdBy',
     header: 'Creado por',
+    meta: { className: 'hidden xl:table-cell' },
     cell: ({ row }) => {
       const event = row.original;
       const { createdBy } = event;
@@ -299,50 +307,58 @@ const columns: ColumnDef<IEvent>[] = [
   {
     accessorKey: 'createdAt',
     header: 'Fecha de creación',
+    meta: { className: 'hidden xl:table-cell' },
     cell: ({ row }) => {
       const date = format(
         new Date(row.getValue('createdAt')),
         "d',' MMM 'del' yyyy kk':'mm",
         { locale: es },
       );
-      return <div>{date}</div>;
+      return <div className="whitespace-nowrap">{date}</div>;
     },
   },
   {
     accessorKey: 'updatedAt',
     header: 'Fecha de modificación',
+    meta: { className: 'hidden xl:table-cell' },
     cell: ({ row }) => {
       const date = format(
         new Date(row.getValue('updatedAt')),
         "d',' MMM 'del' yyyy kk':'mm",
         { locale: es },
       );
-      return <div>{date}</div>;
+      return <div className="whitespace-nowrap">{date}</div>;
     },
   },
   {
     id: 'technical-report',
     header: 'Informe Técnico',
+    meta: { className: 'hidden lg:table-cell' },
     cell: ({ row }) => {
       const event = row.original;
       return (
-        <EventFileButton
-          eventId={event._id}
-          filePurpose={FilePurpose.EVENT_TECHNICAL_REPORT}
-        />
+        <div className="min-w-32">
+          <EventFileButton
+            eventId={event._id}
+            filePurpose={FilePurpose.EVENT_TECHNICAL_REPORT}
+          />
+        </div>
       );
     },
   },
   {
     id: 'financial-report',
     header: 'Informe Financiero',
+    meta: { className: 'hidden lg:table-cell' },
     cell: ({ row }) => {
       const event = row.original;
       return (
-        <EventFileButton
-          eventId={event._id}
-          filePurpose={FilePurpose.EVENT_FINANCIAL_REPORT}
-        />
+        <div className="min-w-32">
+          <EventFileButton
+            eventId={event._id}
+            filePurpose={FilePurpose.EVENT_FINANCIAL_REPORT}
+          />
+        </div>
       );
     },
   },
@@ -368,7 +384,6 @@ export function EventsTable() {
   const { data: events, isLoading: loadingEvents } = useGetAllEvents();
   const typedEvents = React.useMemo(() => (events ?? []) as IEvent[], [events]);
 
-  //Genera dinámicamente las opciones de filtro de años a partir de los eventos
   const yearFilterOptions = React.useMemo<FacetedFilterConfig['options']>(() => {
     if (!typedEvents.length) return [];
 
@@ -383,12 +398,11 @@ export function EventsTable() {
           })
           .filter((year): year is string => Boolean(year)),
       ),
-    ).sort((a, b) => Number(b) - Number(a)); // Orden descendente (2026, 2025...)
+    ).sort((a, b) => Number(b) - Number(a));
 
     return years.map((year) => ({ label: year, value: year }));
   }, [typedEvents]);
 
-  //Une la estructura estática con los años dinámicos
   const eventFacetedFilters = React.useMemo<FacetedFilterConfig[]>(
     () =>
       facetedFiltersConfig.map((filter): FacetedFilterConfig =>
@@ -400,7 +414,7 @@ export function EventsTable() {
   );
 
   return (
-    <div className="max-w-8xl w-full">
+    <div className="max-w-8xl w-full p-1">
       {loadingEvents ? (
         <LoadingMessage message="Cargando eventos" />
       ) : (
