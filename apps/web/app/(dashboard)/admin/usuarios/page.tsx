@@ -18,12 +18,8 @@ const Page = () => {
           </HeaderDescription>
         </HeaderHeading>
       </Header>
-      
-      {/* Contenedor adaptado con scroll horizontal de seguridad y sombras consistentes */}
       <PageContent className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
-        <div className="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
-          <UsersTable />
-        </div>
+        <UsersTable />
       </PageContent>
     </div>
   );

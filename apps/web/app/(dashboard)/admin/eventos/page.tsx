@@ -33,11 +33,8 @@ export default function Page() {
         </HeaderAction>
       </Header>
 
-      {/* Contenedor principal con control de desbordamiento horizontal */}
       <PageContent className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
-        <div className="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
-          <EventsTable />
-        </div>
+        <EventsTable />
       </PageContent>
     </div>
   );

@@ -20,12 +20,8 @@ const Page = () => {
           </HeaderDescription>
         </HeaderHeading>
       </Header>
-      
-      {/* Contenedor principal adaptado con scroll de emergencia y bordes limpios */}
       <PageContent className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
-        <div className="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
-          <FilesTable />
-        </div>
+        <FilesTable />
       </PageContent>
     </div>
   );
