@@ -3,6 +3,7 @@ import { AbilityFactory } from "./ability.factory";
 import { Reflector } from "@nestjs/core/services/reflector.service";
 import { CHECK_ABILITY_KEY, RequiredRule } from "./abilities.decorator";
 import { ForbiddenError } from "@casl/ability";
+import { User } from "../schemas";
 
 @Injectable()
 export class AbilitiesGuard implements CanActivate {
@@ -14,7 +15,7 @@ export class AbilitiesGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         
         const requiredRules = this.reflector.get<RequiredRule[]>(CHECK_ABILITY_KEY, context.getHandler()) || [];
-        const { user } = context.switchToHttp().getRequest();
+        const { user } = context.switchToHttp().getRequest<{ user: User }>();
         const ability = this.abilityFactory.defineAbility(user);
 
         try {

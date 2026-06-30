@@ -22,6 +22,12 @@ import {
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
 
+type AuthenticatedRequest = {
+  user: {
+    id: string;
+  };
+};
+
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
@@ -34,7 +40,7 @@ export class ProjectsController {
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @Post()
   @ApiConsumes('multipart/form-data')
-  create(@Body() createProjectDto: CreateProjectDto, @Req() req) {
+  create(@Body() createProjectDto: CreateProjectDto, @Req() req: AuthenticatedRequest) {
     return this.projectsService.create(createProjectDto, req.user.id);
   }
 
@@ -50,7 +56,7 @@ export class ProjectsController {
   @ApiAcceptedResponse({ description: 'Proyectos encontrados por dueño.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @Get('/by-owner')
-  findByOwner(@Req() req) {
+  findByOwner(@Req() req: AuthenticatedRequest) {
     return this.projectsService.findByOwner(req.user.id);
   }
 
@@ -59,7 +65,7 @@ export class ProjectsController {
     description: 'No hay proyectos con el ID del equipo proporcionado.',
   })
   @Get('/by-team/:teamId')
-  findByTeam(@Param('teamId') teamId) {
+  findByTeam(@Param('teamId') teamId: string) {
     return this.projectsService.findByTeam(teamId);
   }
 
@@ -84,7 +90,7 @@ export class ProjectsController {
   update(
     @Param('id') id: string,
     @Body() updateProjectDto: UpdateProjectDto,
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
   ) {
     return this.projectsService.update(id, updateProjectDto, req.user.id);
   }
