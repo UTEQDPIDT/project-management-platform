@@ -124,11 +124,11 @@ const columns: ColumnDef<ITeam>[] = [
     cell: ({ row }) => {
       const { teamName } = row.original;
       return (
-        <div className="max-w-96 truncate flex items-center gap-1 group">
+        <div className="max-w-44 sm:max-w-64 md:max-w-96 truncate flex items-center gap-1 group">
           <span className="truncate">{teamName}</span>
           <CopyButton
             valueToCopy={teamName}
-            className="opacity-0 group-hover:opacity-100"
+            className="opacity-0 group-hover:opacity-100 hidden sm:flex"
           />
         </div>
       );
@@ -138,11 +138,12 @@ const columns: ColumnDef<ITeam>[] = [
     id: 'division',
     accessorFn: (row) => row.division?.name,
     header: 'Divisón',
+    meta: { className: 'hidden md:table-cell' }, // Oculto en móviles comunes
     cell: ({ row }) => {
       const { division } = row.original;
 
       return (
-        <div>
+        <div className="max-w-50 truncate">
           {division ? (
             <span>{division.name}</span>
           ) : (
@@ -155,10 +156,11 @@ const columns: ColumnDef<ITeam>[] = [
   {
     accessorKey: 'grade',
     header: 'Grado',
+    // Se mantiene visible en pantallas pequeñas para una rápida categorización
     cell: ({ row }) => {
       const { grade } = row.original;
       return (
-        <div>
+        <div className="whitespace-nowrap">
           <Badge variant={gradeBadgeVariantMap[grade]}>{grade}</Badge>
         </div>
       );
@@ -167,6 +169,7 @@ const columns: ColumnDef<ITeam>[] = [
   {
     accessorKey: 'isPrivate',
     header: 'Acceso',
+    meta: { className: 'hidden sm:table-cell' }, // Visible en tablets y celulares horizontales
     cell: ({ row }) => {
       const { isPrivate } = row.original;
       return (
@@ -183,6 +186,7 @@ const columns: ColumnDef<ITeam>[] = [
   {
     id: 'owner',
     header: 'Líder',
+    meta: { className: 'hidden lg:table-cell' }, // Visible a partir de portátiles (lg)
     cell: ({ row }) => {
       const { memberships } = row.original;
       const ownerMembership = memberships.find(
@@ -207,6 +211,7 @@ const columns: ColumnDef<ITeam>[] = [
   {
     id: 'members',
     header: 'Miembros',
+    meta: { className: 'hidden md:table-cell' }, // Visible desde pantallas medianas (md)
     cell: ({ row }) => {
       const { memberships } = row.original;
       const members = memberships
@@ -230,10 +235,11 @@ const columns: ColumnDef<ITeam>[] = [
   {
     accessorKey: 'createdAt',
     header: 'Fecha de creación',
+    meta: { className: 'hidden xl:table-cell' }, // Exclusivo de monitores anchos (xl)
     cell: ({ row }) => {
       const { createdAt } = row.original;
       return (
-        <div>
+        <div className="whitespace-nowrap">
           {format(createdAt, "d 'de' MMM 'de' yyyy HH:mm", { locale: es })}
         </div>
       );
@@ -242,10 +248,11 @@ const columns: ColumnDef<ITeam>[] = [
   {
     accessorKey: 'updatedAt',
     header: 'Fecha de actualización',
+    meta: { className: 'hidden xl:table-cell' },
     cell: ({ row }) => {
       const { updatedAt } = row.original;
       return (
-        <div>
+        <div className="whitespace-nowrap">
           {format(updatedAt, "d 'de' MMM 'de' yyyy HH:mm", { locale: es })}
         </div>
       );
@@ -290,7 +297,7 @@ export default function TeamsTable() {
   }, [divisions]);
 
   return (
-    <div className="max-w-7xl w-full">
+    <div className="max-w-7xl w-full p-1">
       {isLoading ? (
         <LoadingMessage message="Cargando equipos" />
       ) : (

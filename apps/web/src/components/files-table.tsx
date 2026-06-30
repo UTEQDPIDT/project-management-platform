@@ -26,46 +26,10 @@ const columns: ColumnDef<IFile>[] = [
     header: 'Nombre',
     cell: ({ row }) => {
       const { originalName } = row.original;
-
-      return <div>{trimFileNameMiddle(originalName)}</div>;
-    },
-  },
-  {
-    accessorKey: 'size',
-    header: 'Tamaño de archivo',
-    cell: ({ row }) => {
-      const { size } = row.original;
-      return <div>{formatFileSize(size)}</div>;
-    },
-  },
-  {
-    accessorKey: 'createdAt',
-    header: 'Subido el',
-    cell: ({ row }) => {
-      const { createdAt } = row.original;
-
       return (
-        <div>
-          {format(createdAt, "d 'de' MMMM 'de' yyyy HH':'mm ", { locale: es })}
+        <div className="max-w-36 sm:max-w-64 md:max-w-xs truncate">
+          {trimFileNameMiddle(originalName)}
         </div>
-      );
-    },
-  },
-  {
-    accessorKey: 'owner',
-    header: 'Propietario',
-    cell: ({ row }) => {
-      const { owner } = row.original;
-
-      if (!owner) return <div className="w-52 text-muted-foreground">Vacío</div>;
-
-      return (
-        <ProfileInfo
-          size="sm"
-          givenName={owner.givenName}
-          familyName={owner.familyName}
-          avatarUrl={owner.avatarUrl}
-        />
       );
     },
   },
@@ -80,10 +44,8 @@ const columns: ColumnDef<IFile>[] = [
           await downloadFile(file._id, file.originalName);
         } catch (error) {
           console.error('Failed to download file:', error);
-          // You can add a toast notification here if you have one
         }
       };
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -137,14 +99,58 @@ const columns: ColumnDef<IFile>[] = [
       );
     },
   },
+  {
+    accessorKey: 'size',
+    header: 'Tamaño de archivo',
+    meta: { className: 'hidden sm:table-cell' }, // Oculto en móviles verticales
+    cell: ({ row }) => {
+      const { size } = row.original;
+      return <div className="whitespace-nowrap">{formatFileSize(size)}</div>;
+    },
+  },
+  {
+    accessorKey: 'createdAt',
+    header: 'Subido el',
+    meta: { className: 'hidden md:table-cell' }, // Oculto en móviles y tablets verticales
+    cell: ({ row }) => {
+      const { createdAt } = row.original;
+      return (
+        <div className="whitespace-nowrap">
+          {format(createdAt, "d 'de' MMMM 'de' yyyy HH':'mm ", { locale: es })}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'owner',
+    header: 'Propietario',
+    // Se mantiene completamente visible en móviles junto a nombre y acciones
+    cell: ({ row }) => {
+      const { owner } = row.original;
+
+      if (!owner) return <div className="w-36 md:w-52 text-muted-foreground">Vacío</div>;
+
+      return (
+        <div className="w-36 md:w-52">
+          <ProfileInfo
+            size="sm"
+            givenName={owner.givenName}
+            familyName={owner.familyName}
+            avatarUrl={owner.avatarUrl}
+          />
+        </div>
+      );
+    },
+  },
 ];
+
 export default function FilesTable() {
   const { data, isLoading } = useFiles();
 
   return (
-    <div className="max-w-8xl w-full">
+    <div className="max-w-8xl w-full p-1">
       {isLoading ? (
-        <LoadingMessage message="Cargando equipos" />
+        <LoadingMessage message="Cargando archivos" />
       ) : (
         <DataTable data={data} columns={columns} />
       )}

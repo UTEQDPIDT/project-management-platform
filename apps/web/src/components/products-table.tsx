@@ -73,12 +73,13 @@ const columns: ColumnDef<IProduct>[] = [
     cell: ({ row }) => {
       const { name } = row.original;
       return (
-        <div className="flex max-w-96 group">
+        /* max-w-40 en móvil que escala a max-w-96 en pantallas grandes para no romper la celda */
+        <div className="flex max-w-40 sm:max-w-60 md:max-w-96 group">
           <span className="truncate">{name}</span>
           <CopyButton
             variant="ghost"
             valueToCopy={name}
-            className="opacity-0 group-hover:opacity-100"
+            className="opacity-0 group-hover:opacity-100 hidden sm:flex"
           />
         </div>
       );
@@ -88,23 +89,32 @@ const columns: ColumnDef<IProduct>[] = [
     id: 'category',
     accessorFn: (row) => row.category.name,
     header: 'Categoría',
+    /* Se oculta en móviles, visible desde pantallas medianas (md) */
+    meta: { className: 'hidden md:table-cell' }, 
   },
   {
     id: 'subcategory',
     accessorFn: (row) => row.subcategory.name,
     header: 'Subcategoría',
+    /* Se oculta en móviles y tablets, visible desde pantallas grandes (lg) */
+    meta: { className: 'hidden lg:table-cell' },
   },
-  { accessorKey: 'coAuthor', header: 'Co Autor' },
+  { 
+    accessorKey: 'coAuthor', 
+    header: 'Co Autor',
+    meta: { className: 'hidden xl:table-cell' },
+  },
   {
     accessorKey: 'owner',
-    header: 'Proprietario',
+    header: 'Propietario',
+    meta: { className: 'hidden sm:table-cell' }, /* Visible a partir de celulares horizontales/tablets */
     cell: ({ row }) => {
       const { owner } = row.original;
 
-      if (!owner) return <div className="w-52">—</div>;
+      if (!owner) return <div className="w-36 md:w-52">—</div>;
 
       return (
-        <div className="w-52">
+        <div className="w-36 md:w-52">
           <ProfileInfo
             size="sm"
             givenName={owner.givenName}
@@ -119,10 +129,11 @@ const columns: ColumnDef<IProduct>[] = [
   {
     accessorKey: 'createdAt',
     header: 'Fecha de creación',
+    meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => {
       const { createdAt } = row.original;
       return (
-        <div>{format(createdAt, "d 'de' MMMM 'de' yyyy", { locale: es })}</div>
+        <div className="whitespace-nowrap">{format(createdAt, "d 'de' MMMM 'de' yyyy", { locale: es })}</div>
       );
     },
   },
@@ -174,7 +185,7 @@ export function ProductsTable() {
   }, [categories, subcategories]);
 
   return (
-    <div className="w-full max-w-8xl flex flex-col gap-4">
+    <div className="w-full max-w-8xl flex flex-col gap-4 p-1">
       <div>
         <h2 className="text-base font-semibold">Productos</h2>
         <span className="text-muted-foreground text-sm">

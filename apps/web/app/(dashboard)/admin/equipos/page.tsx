@@ -14,7 +14,7 @@ import React from 'react';
 
 const Page = () => {
   return (
-    <div>
+    <div className="w-full min-h-screen">
       <Header>
         <HeaderHeading>
           <HeaderTitle>Equipos</HeaderTitle>
@@ -22,18 +22,25 @@ const Page = () => {
             Gestiona los equipos existentes.
           </HeaderDescription>
         </HeaderHeading>
-        <HeaderAction>
-          <Button asChild>
-            <Link href="/admin/equipos/crear">
-              <Plus /> Crear Equipo
+        {/* Ajustado para que el botón fluya correctamente abajo o se adapte en móvil */}
+        <HeaderAction className="w-full sm:w-auto mt-4 sm:mt-0">
+          <Button asChild className="w-full sm:w-auto">
+            <Link href="/admin/equipos/crear" className="flex items-center justify-center gap-2">
+              <Plus className="h-4 w-4" /> 
+              <span>Crear Equipo</span>
             </Link>
           </Button>
         </HeaderAction>
       </Header>
-      <PageContent>
-        <TeamsTable />
+      
+      {/* Contenedor principal adaptado con scroll de emergencia y bordes consistentes */}
+      <PageContent className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
+        <div className="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <TeamsTable />
+        </div>
       </PageContent>
     </div>
   );
 };
+
 export default Page;

@@ -25,8 +25,16 @@ import { useDivisions } from '@/hooks/catalogs/use-divisions';
 import { usePrograms } from '@/hooks/catalogs/use-programs';
 
 const columns: ColumnDef<IUser>[] = [
-  { accessorKey: 'givenName', header: 'Nombre(s)' },
-  { accessorKey: 'familyName', header: 'Apellido(s)' },
+  { 
+    accessorKey: 'givenName', 
+    header: 'Nombre(s)',
+    cell: ({ row }) => <span className="whitespace-nowrap">{row.original.givenName}</span>
+  },
+  { 
+    accessorKey: 'familyName', 
+    header: 'Apellido(s)',
+    cell: ({ row }) => <span className="whitespace-nowrap">{row.original.familyName}</span>
+  },
   {
     accessorKey: 'type',
     header: 'Rol',
@@ -49,13 +57,14 @@ const columns: ColumnDef<IUser>[] = [
   {
     id: 'identificator',
     header: 'Matricula/No. Empleado',
+    meta: { className: 'hidden sm:table-cell' }, // Se oculta en móviles verticales
     cell: ({ row }) => {
       const { type } = row.original;
       const { matricula } = row.original;
       const { employeeNumber } = row.original;
 
       return (
-        <div>
+        <div className="min-w-35">
           {type === UserType.MAESTRO || type === UserType.ADMINISTRATIVO ? (
             employeeNumber ? (
               <div className="flex justify-between group">
@@ -87,11 +96,12 @@ const columns: ColumnDef<IUser>[] = [
   {
     accessorKey: 'email',
     header: 'Correo',
+    meta: { className: 'hidden md:table-cell' }, // Oculto en celulares
     cell: ({ row }) => {
       const { email } = row.original;
 
       return (
-        <div className="flex justify-between group">
+        <div className="flex justify-between group min-w-45">
           <span>{email}</span>
           <CopyButton
             className="opacity-0 group-hover:opacity-100"
@@ -101,15 +111,20 @@ const columns: ColumnDef<IUser>[] = [
       );
     },
   },
-  { accessorKey: 'sex', header: 'Sexo' },
+  { 
+    accessorKey: 'sex', 
+    header: 'Sexo',
+    meta: { className: 'hidden lg:table-cell' }
+  },
   {
     accessorKey: 'dateOfBirth',
     header: 'Fecha de nacimiento',
+    meta: { className: 'hidden lg:table-cell' },
     cell: ({ row }) => {
       const { dateOfBirth } = row.original;
 
       return (
-        <div>
+        <div className="whitespace-nowrap">
           {dateOfBirth ? (
             <span>
               {format(dateOfBirth, "d 'de' MMMM 'de' yyyy", { locale: es })}
@@ -121,16 +136,21 @@ const columns: ColumnDef<IUser>[] = [
       );
     },
   },
-  { accessorKey: 'state', header: 'Estado de recidencia' },
+  { 
+    accessorKey: 'state', 
+    header: 'Estado de recidencia',
+    meta: { className: 'hidden lg:table-cell' }
+  },
   {
     id: 'division',
     accessorFn: (row) => row.division?.name,
     header: 'División',
+    meta: { className: 'hidden xl:table-cell' },
     cell: ({ row }) => {
       const { division } = row.original;
 
       return (
-        <div>
+        <div className="max-w-50 truncate">
           {division ? (
             <span>{division.name}</span>
           ) : (
@@ -144,11 +164,12 @@ const columns: ColumnDef<IUser>[] = [
     id: 'educationalProgram',
     accessorFn: (row) => row.educationalProgram?.name,
     header: 'Programa educativo',
+    meta: { className: 'hidden xl:table-cell' },
     cell: ({ row }) => {
       const { educationalProgram } = row.original;
 
       return (
-        <div>
+        <div className="max-w-50 truncate">
           {educationalProgram ? (
             <span>{educationalProgram.name}</span>
           ) : (
@@ -161,11 +182,12 @@ const columns: ColumnDef<IUser>[] = [
   {
     accessorKey: 'createdAt',
     header: 'Se unió el',
+    meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => {
       const { createdAt } = row.original;
 
       return (
-        <div>
+        <div className="whitespace-nowrap">
           {format(createdAt, "d 'de' MMMM 'de' yyyy HH':'mm", { locale: es })}
         </div>
       );
@@ -265,7 +287,7 @@ export default function UsersTable() {
   }, [divisions, educationalPrograms]);
 
   return (
-    <div className="max-w-7xl">
+    <div className="max-w-7xl w-full p-1">
       {isLoading ? (
         <LoadingMessage message="Cargando usuarios" />
       ) : (

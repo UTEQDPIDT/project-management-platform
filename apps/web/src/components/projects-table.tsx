@@ -12,7 +12,7 @@ import { calculateProgress, copyValue, formatDatePeriod } from '@/lib/utils';
 import { Progress } from './ui/progress';
 import CopyButton from './ui/copy';
 import { Button } from './ui/button';
-import {useProjectPrograms} from '@/hooks/catalogs';
+import { useProjectPrograms } from '@/hooks/catalogs';
 import {
   Dialog,
   DialogClose,
@@ -100,10 +100,10 @@ type ProjectTableRow = IProject & {
 };
 
 const ProjectProgress = ({ progress }: { progress: number }) => {
-
   return (
     <div>
-      <div className="p-2 hover:bg-secondary rounded-md flex gap-2 w-full min-w-48 items-center">
+      {/* Reducimos el min-w para pantallas medianas */}
+      <div className="p-1 hover:bg-secondary rounded-md flex gap-2 w-full min-w-32 md:min-w-48 items-center">
         <Progress value={progress} />
         <div className="flex text-xs select-none">
           <span>{progress}</span>
@@ -197,13 +197,14 @@ const columns: ColumnDef<ProjectTableRow>[] = [
       const name = String(row.getValue('name'));
 
       return (
+        /* Controlamos los anchos máximos por breakpoint para evitar textos infinitos en pantallas compactas */
         <div className="relative group flex justify-between w-full">
-          <div className="max-w-85 overflow-x-auto">
+          <div className="max-w-44 sm:max-w-60 md:max-w-85 overflow-x-auto truncate">
             <span>{name}</span>
           </div>
           <CopyButton
             valueToCopy={name}
-            className=" opacity-0 group-hover:opacity-100"
+            className="opacity-0 group-hover:opacity-100 hidden sm:flex"
           />
         </div>
       );
@@ -213,16 +214,16 @@ const columns: ColumnDef<ProjectTableRow>[] = [
     id: 'actions',
     header: 'Acciones',
     cell: ({ row }) => {
-    const project = row.original;
-    return <ProjectsActions project={project} />;
+      const project = row.original;
+      return <ProjectsActions project={project} />;
     },
   },
   {
     id: 'progress',
     header: 'Progreso',
+    meta: { className: 'hidden sm:table-cell' }, /* Visible en tablets pequeñas en adelante */
     cell: ({ row }) => {
       const project = row.original;
-
       return <ProjectProgress progress={project.__derivedProgress} />;
     },
   },
@@ -231,23 +232,27 @@ const columns: ColumnDef<ProjectTableRow>[] = [
     accessorFn: (project) => project.__derivedStatus,
     header: 'Estado',
     filterFn: facetedFilter,
+    meta: { className: 'hidden md:table-cell' }, /* Oculto en móviles comunes */
     cell: ({ row }) => {
       const project = row.original;
       return <ProjectStatusBadge status={project.__derivedStatus} />;
     },
-  },{
+  },
+  {
     id: 'program',
     accessorFn: (project) => project.program?.name ?? 'Sin programa',
     header: 'Programa',
     filterFn: facetedFilter,
+    meta: { className: 'hidden lg:table-cell' }, /* Visible solo en pantallas medianas-grandes */
     cell: ({ row }) => {
       const project = row.original;
-      return <span>{project.program?.name ?? 'Sin programa'}</span>;
+      return <span className="truncate max-w-40 block">{project.program?.name ?? 'Sin programa'}</span>;
     },
   },
   {
     id: 'products',
     header: 'Productos',
+    meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => {
       const { _id } = row.original;
       return <ProductCount projectId={_id} />;
@@ -264,11 +269,11 @@ const columns: ColumnDef<ProjectTableRow>[] = [
     },
     header: 'Periodo',
     filterFn: facetedFilter,
+    meta: { className: 'hidden xl:table-cell' }, /* Solo en monitores anchos */
     cell: ({ row }) => {
       const { startDate, endDate } = row.original;
-
       return (
-        <div>
+        <div className="whitespace-nowrap">
           <span>{formatDatePeriod(startDate, endDate)}</span>
         </div>
       );
@@ -278,18 +283,20 @@ const columns: ColumnDef<ProjectTableRow>[] = [
     accessorKey: 'impactLevel',
     header: 'Impacto',
     filterFn: facetedFilter,
+    meta: { className: 'hidden lg:table-cell' },
   },
   {
     accessorKey: 'owner',
     header: 'Propietario',
+    meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => {
       const project = row.original;
       const { owner } = project;
 
-      if (!owner) return <div className="w-52 text-muted-foreground">Vacío</div>;
+      if (!owner) return <div className="w-40 md:w-52 text-muted-foreground">Vacío</div>;
 
       return (
-        <div className="w-52">
+        <div className="w-40 md:w-52">
           <ProfileInfo
             size="sm"
             givenName={owner.givenName}
@@ -305,6 +312,7 @@ const columns: ColumnDef<ProjectTableRow>[] = [
     accessorKey: 'trlRating',
     header: 'Nivel TRL',
     filterFn: facetedFilter,
+    meta: { className: 'hidden xl:table-cell' },
   },
 ];
 
@@ -363,7 +371,7 @@ export default function ProjectsTable() {
       queryKey: ['activities', project._id],
       queryFn: () => getActivitiesByEntityId(project._id),
       enabled: Boolean(project._id),
-    })),
+     })),
   });
 
   const projectsWithDerivedStatus = React.useMemo<ProjectTableRow[]>(() => {
@@ -443,7 +451,7 @@ export default function ProjectsTable() {
   }, [projectsWithDerivedStatus]);
 
   return (
-    <div className="max-w-8xl w-full">
+    <div className="max-w-8xl w-full p-1">
       {loadingProjects ? (
         <LoadingMessage message="Cargando proyectos" />
       ) : (

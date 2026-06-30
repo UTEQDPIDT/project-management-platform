@@ -1,3 +1,5 @@
+'use client';
+
 import { IEvent, UserRole } from '@repo/types';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -32,6 +34,7 @@ export default function EventsBoard({
 }: EventsBoardProps) {
   const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
+  
   return (
     <Card className="w-full">
       <CardHeader>
@@ -50,13 +53,31 @@ export default function EventsBoard({
           <LoadingMessage message="Cargando Eventos" />
         ) : isError ? (
           <ErrorCard />
+        ) : events.length > 0 ? (
+          /* Grid responsivo idéntico al de proyectos y equipos: de 1 a 4 columnas */
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
+            {events.map((e: IEvent) => (
+              <div key={e._id} className="w-full h-36 flex">
+                <EventCard event={e} variant="compact" className="w-full h-full" />
+              </div>
+            ))}
+            
+            {user.role === UserRole.ADMIN && (
+              <Link href={`${baseUrl}/eventos/crear`} className="w-full h-36 block">
+                <Card className="w-full border-neutral-200 hover:shadow-xl flex items-center justify-center h-full transition-shadow duration-200">
+                  <CardContent className="p-0 flex items-center justify-center w-full h-full">
+                    <Button variant="ghost" className="pointer-events-none gap-2">
+                      <Plus className="h-4 w-4" /> Nuevo Evento
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
+            )}
+          </div>
         ) : (
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            {events.length > 0 ? (
-              events.map((e: IEvent) => (
-                <EventCard key={e._id} event={e} variant="compact" />
-              ))
-            ) : user.role === UserRole.ADMIN ? (
+          /* Fuera del grid para mantener el centrado nativo del estado vacío */
+          <div className="w-full flex items-center justify-center">
+            {user.role === UserRole.ADMIN ? (
               <Empty>
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
@@ -94,17 +115,6 @@ export default function EventsBoard({
                   </Button>
                 </EmptyContent>
               </Empty>
-            )}
-            {user.role === UserRole.ADMIN && events.length > 0 && (
-              <Link href={`${baseUrl}/eventos/crear`} className="w-52 h-36">
-                <Card className="w-full hover:shadow-xl min-w-52 shrink-0 flex items-center justify-center h-full">
-                  <CardContent>
-                    <Button variant="ghost" disabled>
-                      <Plus /> Nuevo Evento
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Link>
             )}
           </div>
         )}
