@@ -35,7 +35,7 @@ const Page = () => {
   } = useEventsByUser();
 
   return (
-    <div>
+    <div className="w-full min-h-screen">
       <Header>
         <HeaderHeading>
           <HeaderTitle>Panel de Control Administrativo</HeaderTitle>
@@ -44,24 +44,40 @@ const Page = () => {
           </HeaderDescription>
         </HeaderHeading>
       </Header>
-      <PageContent>
-        <ProjectsBoard
-          projects={projects}
-          loading={loadingProjects}
-          error={errorFetchingProjects}
-        />
-        <TeamsBoard
-          teams={teams}
-          isLoading={loadingTeams}
-          isError={errorFetchingTeams}
-        />
-        <EventsBoard
-          events={events}
-          isLoading={loadingEvents}
-          isError={errorFetchingEvents}
-        />
+      
+      {/* Forzamos un flujo vertical con espaciado constante y control de desbordamiento general */}
+      <PageContent className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
+        
+        {/* Contenedor responsivo individual para ProjectsBoard */}
+        <div className="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <ProjectsBoard
+            projects={projects}
+            loading={loadingProjects}
+            error={errorFetchingProjects}
+          />
+        </div>
+
+        {/* Contenedor responsivo individual para TeamsBoard */}
+        <div className="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <TeamsBoard
+            teams={teams}
+            isLoading={loadingTeams}
+            isError={errorFetchingTeams}
+          />
+        </div>
+
+        {/* Contenedor responsivo individual para EventsBoard */}
+        <div className="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <EventsBoard
+            events={events}
+            isLoading={loadingEvents}
+            isError={errorFetchingEvents}
+          />
+        </div>
+
       </PageContent>
     </div>
   );
 };
+
 export default Page;
