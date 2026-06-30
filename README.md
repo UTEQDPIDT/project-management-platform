@@ -201,6 +201,13 @@ The following secrets must be configured in GitHub repository settings:
 | `SEED_PASSWORD`           | Password for seeded users       |
 | `NEXT_PRIVATE_JWT_SECRET` | Frontend JWT secret             |
 | `BACKEND_URL`             | API URL for frontend            |
+| `PASSWORD_PEPPER`         | Secret global string appended to passwords before hashing for extra security. |
+| `MAIL_USER`               | Username or email address used to authenticate with the SMTP server.          |
+| `MAIL_PORT`               | Connection port for the SMTP mail server                                      |
+| `MAIL_PASSWORD`           | App password or token used to authorize email sending.                        |
+| `MAIL_HOST`               | Hostname/address of the SMTP mail server.                                     |
+| `MAIL_FROM`               | Default email address and name displayed as the message sender.               |
+
 
 ---
 
