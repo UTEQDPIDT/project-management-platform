@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
           <CardTitle className='font-normal text-xl'>¿Olvidaste tu contraseña?</CardTitle>
           <CardDescription className='text-sm text-muted-foreground font-normal'>
             Ingresa tu correo institucional y te enviaremos un enlace para
-            restablecer tu contraseña.
+            establecer una nueva contraseña.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
