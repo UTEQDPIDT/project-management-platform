@@ -286,8 +286,10 @@ const columns: ColumnDef<ProjectTableRow>[] = [
     meta: { className: 'hidden lg:table-cell' },
   },
   {
-    accessorKey: 'owner',
+    id: 'owner',
+    accessorFn: (project) => project.owner?._id ?? 'Sin propietario',
     header: 'Propietario',
+    filterFn: facetedFilter,
     meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => {
       const project = row.original;
@@ -360,6 +362,11 @@ const facetedFilters: FacetedFilterConfig[] = [
     title: 'Programa',
     options: [],
   },
+  {
+    columnId: 'owner',
+    title: 'Usuario',
+    options: [],
+  },
 ];
 
 export default function ProjectsTable() {
@@ -423,6 +430,33 @@ export default function ProjectsTable() {
     return programs.map((program) => ({ label: program, value: program }));
   }, [projectsWithDerivedStatus]);
 
+  const ownerFilterOptions = React.useMemo<FacetedFilterConfig['options']>(() => {
+    if (!projectsWithDerivedStatus.length) return [];
+
+    const ownersMap = new Map<string, string>();
+
+    projectsWithDerivedStatus.forEach((project) => {
+      const ownerId = project.owner?._id ?? 'Sin propietario';
+
+      if (ownersMap.has(ownerId)) {
+        return;
+      }
+
+      if (!project.owner) {
+        ownersMap.set(ownerId, 'Sin propietario');
+        return;
+      }
+
+      const fullName = `${project.owner.givenName ?? ''} ${project.owner.familyName ?? ''}`.trim();
+      const ownerLabel = fullName || project.owner.email || 'Sin nombre';
+      ownersMap.set(ownerId, ownerLabel);
+    });
+
+    return Array.from(ownersMap.entries())
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'es'));
+  }, [projectsWithDerivedStatus]);
+
   const projectFacetedFilters = React.useMemo<FacetedFilterConfig[]>(
     () =>
       facetedFilters.map((filter): FacetedFilterConfig =>
@@ -430,9 +464,11 @@ export default function ProjectsTable() {
           ? { ...filter, options: yearFilterOptions }
           : filter.columnId === 'program'
           ? { ...filter, options: programFilterOptions }
+          : filter.columnId === 'owner'
+          ? { ...filter, options: ownerFilterOptions }
           : filter,
       ),
-    [yearFilterOptions, programFilterOptions],
+    [yearFilterOptions, programFilterOptions, ownerFilterOptions],
   );
 
   const sortedProjects = React.useMemo(() => {
