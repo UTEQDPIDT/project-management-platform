@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import LoadingMessage from './loading-message';
-import { DataTable, FacetedFilterConfig } from './ui/data-table';
+import { DataTable, FacetedFilterConfig, facetedFilter } from './ui/data-table';
 import { useProducts } from '@/hooks/products';
 import { ColumnDef } from '@tanstack/react-table';
 import { CoAuthor, IProduct, SeedCategory } from '@repo/types';
@@ -67,6 +67,11 @@ function ProductActionsCell({ product }: { product: IProduct }) {
 }
 
 const columns: ColumnDef<IProduct>[] = [
+   {
+    id: 'actions',
+    header: 'Acciones',
+    cell: ({ row }) => <ProductActionsCell product={row.original} />,
+  },
   {
     accessorKey: 'name',
     header: 'Nombre',
@@ -105,8 +110,10 @@ const columns: ColumnDef<IProduct>[] = [
     meta: { className: 'hidden xl:table-cell' },
   },
   {
-    accessorKey: 'owner',
+    id: 'owner',
+    accessorFn: (row) => row.owner?._id ?? 'Sin propietario',
     header: 'Propietario',
+    filterFn: facetedFilter,
     meta: { className: 'hidden sm:table-cell' }, /* Visible a partir de celulares horizontales/tablets */
     cell: ({ row }) => {
       const { owner } = row.original;
@@ -137,17 +144,13 @@ const columns: ColumnDef<IProduct>[] = [
       );
     },
   },
-  {
-    id: 'actions',
-    header: 'Acciones',
-    cell: ({ row }) => <ProductActionsCell product={row.original} />,
-  },
 ];
 
 export function ProductsTable() {
   const { data, isLoading } = useProducts();
   const { data: categories } = useProductCategories();
   const { data: subcategories } = useProductSubcategories();
+  const typedProducts = useMemo(() => (data ?? []) as IProduct[], [data]);
 
   const facetedFilters = useMemo((): FacetedFilterConfig[] => {
     const categoriesOptions =
@@ -161,6 +164,25 @@ export function ProductsTable() {
         label: subcategory.name,
         value: subcategory.name,
       })) ?? [];
+
+    const ownerOptions = Array.from(
+      new Map(
+        typedProducts.map((product) => {
+          const ownerId = product.owner?._id ?? 'Sin propietario';
+
+          if (!product.owner) {
+            return [ownerId, 'Sin propietario'] as const;
+          }
+
+          const fullName = `${product.owner.givenName ?? ''} ${product.owner.familyName ?? ''}`.trim();
+          const ownerLabel = fullName || product.owner.email || 'Sin nombre';
+
+          return [ownerId, ownerLabel] as const;
+        }),
+      ).entries(),
+    )
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'es'));
 
     return [
       {
@@ -181,8 +203,13 @@ export function ProductsTable() {
           value: coAuthor,
         })),
       },
+      {
+        columnId: 'owner',
+        title: 'Usuario',
+        options: ownerOptions,
+      },
     ];
-  }, [categories, subcategories]);
+  }, [categories, subcategories, typedProducts]);
 
   return (
     <div className="w-full max-w-7xl flex flex-col gap-4 p-1">
@@ -197,7 +224,7 @@ export function ProductsTable() {
       ) : (
         <DataTable
           columns={columns}
-          data={data}
+          data={typedProducts}
           facetedFilters={facetedFilters}
         />
       )}
