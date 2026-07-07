@@ -378,7 +378,7 @@ export default function ProjectsTable() {
       queryKey: ['activities', project._id],
       queryFn: () => getActivitiesByEntityId(project._id),
       enabled: Boolean(project._id),
-     })),
+    })),
   });
 
   const projectsWithDerivedStatus = React.useMemo<ProjectTableRow[]>(() => {
