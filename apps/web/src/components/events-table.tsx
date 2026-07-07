@@ -281,8 +281,10 @@ const columns: ColumnDef<IEvent>[] = [
     },
   },
   {
-    accessorKey: 'createdBy',
+    id: 'owner',
+    accessorFn: (event) => event.createdBy?._id ?? 'Sin propietario',
     header: 'Creado por',
+    filterFn: facetedFilter,
     meta: { className: 'hidden xl:table-cell' },
     cell: ({ row }) => {
       const event = row.original;
@@ -378,6 +380,11 @@ const facetedFiltersConfig: FacetedFilterConfig[] = [
     title: 'Año',
     options: [], 
   },
+  {
+    columnId: 'owner',
+    title: 'Propietario',
+    options: [], 
+  },
 ];
 
 export function EventsTable() {
@@ -402,15 +409,44 @@ export function EventsTable() {
 
     return years.map((year) => ({ label: year, value: year }));
   }, [typedEvents]);
+    
+  const ownerFilterOptions = React.useMemo<FacetedFilterConfig['options']>(() => {
+      if (!typedEvents.length) return [];
+  
+      const ownersMap = new Map<string, string>();
+  
+      typedEvents.forEach((event) => {
+        const ownerId = event.createdBy?._id ?? 'Sin propietario';
+  
+        if (ownersMap.has(ownerId)) {
+          return;
+        }
+  
+        if (!event.createdBy) {
+          ownersMap.set(ownerId, 'Sin propietario');
+          return;
+        }
+  
+        const fullName = `${event.createdBy.givenName ?? ''} ${event.createdBy.familyName ?? ''}`.trim();
+        const ownerLabel = fullName || event.createdBy.email || 'Sin nombre';
+        ownersMap.set(ownerId, ownerLabel);
+      });
+  
+      return Array.from(ownersMap.entries())
+        .map(([value, label]) => ({ value, label }))
+        .sort((a, b) => a.label.localeCompare(b.label, 'es'));
+    }, [typedEvents]);
 
   const eventFacetedFilters = React.useMemo<FacetedFilterConfig[]>(
     () =>
       facetedFiltersConfig.map((filter): FacetedFilterConfig =>
         filter.columnId === 'period'
           ? { ...filter, options: yearFilterOptions }
+          : filter.columnId === 'owner'
+          ? { ...filter, options: ownerFilterOptions }
           : filter,
       ),
-    [yearFilterOptions],
+    [yearFilterOptions, ownerFilterOptions],
   );
 
   return (
