@@ -1,6 +1,6 @@
 'use client';
 
-import { House, Users, Folder, Calendar } from 'lucide-react';
+import { House, Users, Folder, Calendar, Shapes } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -23,6 +23,11 @@ const items = [
   { title: 'Inicio', url: '/user/inicio', icon: House },
   { title: 'Equipos', url: '/user/equipos', icon: Users },
   { title: 'Proyectos', url: '/user/proyectos', icon: Folder },
+  {
+    title: 'Productos Independientes',
+    url: '/user/productos-independientes',
+    icon: Shapes,
+  },
   { title: 'Eventos', url: '/user/eventos', icon: Calendar },
 ];
 
