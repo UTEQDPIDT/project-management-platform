@@ -24,6 +24,7 @@ export * from './resolved-email.type';
 export * from './activity.type';
 export * from './file.type';
 export * from './product.type';
+export * from './standalone-product.type';
 export * from './project.type';
 export * from './seed-category.type';
 export * from './event.type';
