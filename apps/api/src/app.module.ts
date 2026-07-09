@@ -18,6 +18,7 @@ import { CaslModule } from './casl/casl.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { StandaloneProductsModule } from './standalone-products/standalone-products.module';
 
 @Module({
   imports: [
@@ -92,6 +93,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
     CaslModule,
 
     DashboardModule,
+
+    StandaloneProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],

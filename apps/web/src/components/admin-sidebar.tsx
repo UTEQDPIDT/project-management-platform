@@ -1,6 +1,16 @@
 'use client';
 
-import { House, Users, Contact, Calendar, Folder, File, BarChart4, BarChart2 } from 'lucide-react';
+import {
+  House,
+  Users,
+  Contact,
+  Calendar,
+  Folder,
+  File,
+  BarChart4,
+  BarChart2,
+  Shapes,
+} from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +32,11 @@ const items = [
   { title: 'Usuarios', url: '/admin/usuarios', icon: Contact },
   { title: 'Equipos', url: '/admin/equipos', icon: Users },
   { title: 'Proyectos', url: '/admin/proyectos', icon: Folder },
+  {
+    title: 'Productos Independientes',
+    url: '/admin/productos-independientes',
+    icon: Shapes,
+  },
   { title: 'Eventos', url: '/admin/eventos', icon: Calendar },
   { title: 'Archivos', url: '/admin/archivos', icon: File },
   { title: 'Eventos Métricas', url: '/admin/event-dashboard', icon: BarChart4 },
