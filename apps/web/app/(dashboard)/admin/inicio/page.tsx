@@ -74,7 +74,6 @@ const Page = () => {
             isError={errorFetchingEvents}
           />
         </div>
-
       </PageContent>
     </div>
   );
