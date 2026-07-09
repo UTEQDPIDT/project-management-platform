@@ -5,10 +5,14 @@ export class FileValidationPipe implements PipeTransform {
   constructor(
     private readonly maxSize = 5 * 1024 * 1024,
     private readonly allowedMimeTypes: string[] = [],
+    private readonly fileIsRequired = true,
   ) {}
 
   transform(value: Express.Multer.File | Express.Multer.File[]) {
     if (!value) {
+      if (!this.fileIsRequired) {
+        return value;
+      }
       throw new BadRequestException('No file(s) provided');
     }
 
