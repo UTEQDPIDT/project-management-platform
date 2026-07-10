@@ -1,10 +1,31 @@
 'use client';
 
 import { cn, formatFileSize, trimFileNameMiddle } from '@/lib/utils';
+import { getFileBlobUrl } from '@/services/files.service';
 import { IFile, UserRole } from '@repo/types';
-import { Download, FileText, Image, MoreHorizontal, Trash } from 'lucide-react';
-import { PropsWithChildren, createContext, useContext } from 'react';
+import {
+  Download,
+  Eye,
+  FileText,
+  Image,
+  MoreHorizontal,
+  Trash,
+} from 'lucide-react';
+import {
+  PropsWithChildren,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { Button } from './ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from './ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -106,10 +127,46 @@ FileList.Item = function FileListItem({
 
 FileList.Actions = function FileActions({ file }: { file: IFile }) {
   const { onDelete, onDownload, currentUser, isAdmin } = useFileContext();
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [isLoadingPdf, setIsLoadingPdf] = useState(false);
 
   const canDelete: boolean =
     isAdmin ||
     (currentUser && file.owner && currentUser._id === file.owner._id);
+  const isPdf = file.mimetype === 'application/pdf';
+
+  const handleOpenPdf = async () => {
+    if (!isPdf) return;
+
+    try {
+      setIsLoadingPdf(true);
+      const blobUrl = await getFileBlobUrl(file._id);
+      setPdfBlobUrl(blobUrl);
+      setIsViewerOpen(true);
+    } catch (error) {
+      console.error('Failed to open PDF preview:', error);
+    } finally {
+      setIsLoadingPdf(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isViewerOpen) return;
+
+    if (pdfBlobUrl) {
+      window.URL.revokeObjectURL(pdfBlobUrl);
+      setPdfBlobUrl(null);
+    }
+  }, [isViewerOpen, pdfBlobUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (pdfBlobUrl) {
+        window.URL.revokeObjectURL(pdfBlobUrl);
+      }
+    };
+  }, [pdfBlobUrl]);
 
   return (
     <div className="flex gap-2">
@@ -121,6 +178,12 @@ FileList.Actions = function FileActions({ file }: { file: IFile }) {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="flex flex-col gap-1">
+          {isPdf && (
+            <DropdownMenuItem onClick={handleOpenPdf} disabled={isLoadingPdf}>
+              <Eye /> {isLoadingPdf ? 'Abriendo PDF...' : 'Ver PDF'}
+            </DropdownMenuItem>
+          )}
+
           <DropdownMenuItem onClick={() => onDownload?.(file._id)}>
             <Download /> Descargar archivo
           </DropdownMenuItem>
@@ -134,6 +197,28 @@ FileList.Actions = function FileActions({ file }: { file: IFile }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Dialog open={isViewerOpen} onOpenChange={setIsViewerOpen}>
+        <DialogContent className="flex h-[95dvh] w-[80vw] max-w-[78vw] flex-col p-2 sm:max-w-[78vw] sm:p-4" showCloseButton>
+          <DialogHeader className="px-1">
+            <DialogTitle className="truncate">{file.originalName}</DialogTitle>
+            <DialogDescription>Vista previa nativa de PDF</DialogDescription>
+          </DialogHeader>
+          <div className="min-h-0 flex-1">
+            {pdfBlobUrl ? (
+              <iframe
+                src={pdfBlobUrl}
+                title={`Vista previa de ${file.originalName}`}
+                className="h-full w-full rounded-md border"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                No se pudo cargar la vista previa del PDF.
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

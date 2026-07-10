@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import LoadingMessage from './loading-message';
 import { DataTable, FacetedFilterConfig, facetedFilter } from './ui/data-table';
 import { useProducts } from '@/hooks/products';
 import { ColumnDef } from '@tanstack/react-table';
-import { CoAuthor, IProduct, SeedCategory } from '@repo/types';
+import { CoAuthor, IFile, IProduct, SeedCategory } from '@repo/types';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,14 +13,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { Copy, Download, ExternalLink, MoreHorizontal } from 'lucide-react';
+import { Copy, Download, ExternalLink, Eye, MoreHorizontal } from 'lucide-react';
 import { copyValue } from '@/lib/utils';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import { ProfileInfo } from './profile-info';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { downloadFile } from '@/services/files.service';
+import { downloadFile, getFileBlobUrl } from '@/services/files.service';
 import { useFilesForEntity } from '@/hooks/files';
 import { toast } from 'sonner';
 import CopyButton from './ui/copy';
@@ -28,41 +28,128 @@ import {
   useProductCategories,
   useProductSubcategories,
 } from '@/hooks/catalogs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from './ui/dialog';
 
 function ProductActionsCell({ product }: { product: IProduct }) {
   const { data: files = [] } = useFilesForEntity(product._id);
+  const typedFiles = files as IFile[];
+  const firstFile = typedFiles[0];
+  const previewableFile = typedFiles.find(
+    (file) => file.mimetype === 'application/pdf',
+  );
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [isLoadingPdf, setIsLoadingPdf] = useState(false);
 
   const handleDownload = async () => {
+    if (!firstFile) {
+      toast.error('No hay archivo para descargar');
+      return;
+    }
+
     try {
-      await downloadFile(files[0]._id, files[0].originalName);
+      await downloadFile(firstFile._id, firstFile.originalName);
     } catch (error) {
       toast.error('No se pudo descargar el archivo');
       throw error;
     }
   };
 
+  const handleOpenPdf = async () => {
+    if (!previewableFile) {
+      toast.error('No hay archivo PDF para previsualizar');
+      return;
+    }
+
+    try {
+      setIsLoadingPdf(true);
+      const blobUrl = await getFileBlobUrl(previewableFile._id);
+      setPdfBlobUrl(blobUrl);
+      setIsViewerOpen(true);
+    } catch (error) {
+      toast.error('No se pudo abrir la vista previa del PDF');
+      throw error;
+    } finally {
+      setIsLoadingPdf(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isViewerOpen) return;
+
+    if (pdfBlobUrl) {
+      window.URL.revokeObjectURL(pdfBlobUrl);
+      setPdfBlobUrl(null);
+    }
+  }, [isViewerOpen, pdfBlobUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (pdfBlobUrl) {
+        window.URL.revokeObjectURL(pdfBlobUrl);
+      }
+    };
+  }, [pdfBlobUrl]);
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon-sm">
-          <MoreHorizontal />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-        <DropdownMenuItem onClick={handleDownload}>
-          <Download /> Descargar producto
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href={`/admin/proyectos/${product.projectId}`}>
-            <ExternalLink /> Visitar proyecto
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => copyValue(product._id)}>
-          <Copy /> Copiar ID
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon-sm">
+            <MoreHorizontal />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+          {previewableFile && (
+            <DropdownMenuItem onClick={handleOpenPdf} disabled={isLoadingPdf}>
+              <Eye /> {isLoadingPdf ? 'Abriendo PDF...' : 'Ver PDF'}
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem onClick={handleDownload}>
+            <Download /> Descargar producto
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href={`/admin/proyectos/${product.projectId}`}>
+              <ExternalLink /> Visitar proyecto
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => copyValue(product._id)}>
+            <Copy /> Copiar ID
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Dialog open={isViewerOpen} onOpenChange={setIsViewerOpen}>
+        <DialogContent className="flex h-[76dvh] w-[78vw] max-w-[78vw] flex-col p-2 sm:max-w-[78vw] sm:p-4" showCloseButton>
+          <DialogHeader className="px-1">
+            <DialogTitle className="truncate">
+              {previewableFile?.originalName ?? 'Vista previa de PDF'}
+            </DialogTitle>
+            <DialogDescription>Vista previa nativa de PDF</DialogDescription>
+          </DialogHeader>
+          <div className="min-h-0 flex-1">
+            {pdfBlobUrl ? (
+              <iframe
+                src={pdfBlobUrl}
+                title={`Vista previa de ${previewableFile?.originalName ?? 'PDF'}`}
+                className="h-full w-full rounded-md border"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                No se pudo cargar la vista previa del PDF.
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
