@@ -89,6 +89,19 @@ const downloadFile = async (fileId: string, fileName: string) => {
   }
 };
 
+const getFileBlobUrl = async (fileId: string) => {
+  try {
+    const { data } = await api.get(`/files/download/${fileId}`, {
+      responseType: 'blob',
+    });
+
+    return window.URL.createObjectURL(data);
+  } catch (err) {
+    console.error('Error getting file blob URL:', err);
+    throw err;
+  }
+};
+
 const deleteFile = async ({ fileId }: { fileId: string }) => {
   try {
     const { data } = await api.delete(`/files/${fileId}`);
@@ -106,5 +119,6 @@ export {
   getAllFiles,
   getFilesForEntity,
   downloadFile,
+  getFileBlobUrl,
   deleteFile,
 };
