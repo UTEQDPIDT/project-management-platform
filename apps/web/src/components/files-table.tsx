@@ -99,7 +99,11 @@ function FileRowActions({ file }: { file: IFile }) {
       </DropdownMenu>
 
       <Dialog open={isViewerOpen} onOpenChange={setIsViewerOpen}>
-        <DialogContent className="flex h-[95dvh] w-[80vw] max-w-[78vw] flex-col p-2 sm:max-w-[78vw] sm:p-4" showCloseButton>
+        <DialogContent
+          className="flex h-[92dvh] w-[96vw] max-w-[96vw] flex-col p-2 sm:h-[88dvh] sm:w-[88vw] sm:max-w-[88vw] sm:p-4 lg:h-[80dvh] lg:w-[78vw] lg:max-w-[78vw]"
+          showCloseButton
+          closeButtonClassName="top-2 right-2 sm:top-4 sm:right-4 bg-background/80"
+        >
           <DialogHeader className="px-1">
             <DialogTitle className="truncate">{file.originalName}</DialogTitle>
             <DialogDescription>Vista previa nativa de PDF</DialogDescription>
