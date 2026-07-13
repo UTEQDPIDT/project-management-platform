@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import LoadingMessage from './loading-message';
-import { DataTable, FacetedFilterConfig, facetedFilter } from './ui/data-table';
+import { DataTable, FacetedFilterConfig, facetedFilter, fuzzyFilter } from './ui/data-table';
 import { useProducts } from '@/hooks/products';
 import { ColumnDef } from '@tanstack/react-table';
 import { CoAuthor, IFile, IProduct, SeedCategory } from '@repo/types';
@@ -166,6 +166,7 @@ const columns: ColumnDef<IProduct>[] = [
   {
     accessorKey: 'name',
     header: 'Nombre',
+    filterFn: fuzzyFilter,
     cell: ({ row }) => {
       const { name } = row.original;
       return (
@@ -317,6 +318,7 @@ export function ProductsTable() {
           columns={columns}
           data={typedProducts}
           facetedFilters={facetedFilters}
+          searchColumnId="name"
         />
       )}
     </div>

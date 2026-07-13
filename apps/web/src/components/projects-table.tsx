@@ -12,6 +12,7 @@ import { calculateProgress, copyValue, formatDatePeriod } from '@/lib/utils';
 import { Progress } from './ui/progress';
 import CopyButton from './ui/copy';
 import { Button } from './ui/button';
+import { fuzzyFilter } from './ui/data-table';
 import { useProjectPrograms } from '@/hooks/catalogs';
 import {
   Dialog,
@@ -193,6 +194,7 @@ const columns: ColumnDef<ProjectTableRow>[] = [
   {
     accessorKey: 'name',
     header: 'Nombre',
+    filterFn: fuzzyFilter,
     cell: ({ row }) => {
       const name = String(row.getValue('name'));
 

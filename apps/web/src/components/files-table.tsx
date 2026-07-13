@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from 'react';
 import LoadingMessage from './loading-message';
 import { ProfileInfo } from './profile-info';
 import { Button } from './ui/button';
-import { DataTable } from './ui/data-table';
+import { DataTable, fuzzyFilter } from './ui/data-table';
 import {
   Dialog,
   DialogContent,
@@ -135,6 +135,7 @@ export default function FilesTable() {
   {
     accessorKey: 'originalName',
     header: 'Nombre',
+    filterFn: fuzzyFilter,
     cell: ({ row }) => {
       const { originalName } = row.original;
       return (
@@ -204,7 +205,11 @@ export default function FilesTable() {
       {isLoading ? (
         <LoadingMessage message="Cargando archivos" />
       ) : (
-        <DataTable data={data} columns={columns} />
+        <DataTable 
+        data={data} 
+        columns={columns} 
+        searchColumnId='originalName' 
+        />
       )}
     </div>
   );
