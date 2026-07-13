@@ -20,6 +20,7 @@ export interface IProject {
   owner: IUser;
   team?: ITeam;
   program?: SeedCategory;
+  isFunded?: boolean;
   relatedProjects?: IProject[];
   updatedBy?: IUser;
   startDate: Date;

@@ -15,17 +15,22 @@ import {
 import { useTeamsByUser } from '@/hooks/team';
 
 import { useCreateProject, useProjectsByOwner } from '@/hooks/projects';
+import { useUploadMultipleFiles } from '@/hooks/files';
 import { projectSchema } from '@/schemas/project.schema';
 import {
+  EntityType,
+  FilePurpose,
   ImpactLevel,
+  IFile,
   IProject,
   ITeam,
   SeedCategory,
   UserRole,
 } from '@repo/types';
-import { Check, ChevronsUpDown, XIcon } from 'lucide-react';
+import { Check, ChevronsUpDown, Upload, XIcon } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import LoadingMessage from '../loading-message';
 import { Button } from '../ui/button';
 import {
@@ -60,6 +65,16 @@ import {
   FieldSet,
 } from '../ui/field';
 import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+  FileUploadTrigger,
+} from '../ui/file-upload';
+import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
@@ -80,6 +95,7 @@ import { toast } from 'sonner';
 import { useUserProfile } from 'context/profile-provider';
 
 export function CreateProjectForm() {
+  const router = useRouter();
   const { user } = useUserProfile();
   const baseUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
   /**
@@ -100,8 +116,12 @@ export function CreateProjectForm() {
   const { data: teams, isLoading: loadingTeams } = useTeamsByUser();
   const { data: projects, isLoading: loadingProjects } = useProjectsByOwner();
   const createProject = useCreateProject();
+  const uploadFiles = useUploadMultipleFiles();
 
   const [trlOpen, setTrlOpen] = useState(false);
+  const [financialReportToUpload, setFinancialReportToUpload] = useState<
+    File[]
+  >([]);
 
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
@@ -111,6 +131,7 @@ export function CreateProjectForm() {
       objective: '',
       trlRating: 3,
       program: '',
+      isFunded: false,
       knowledgeAreas: [],
       impactAreas: [],
       prioritiesPND: [],
@@ -134,12 +155,37 @@ export function CreateProjectForm() {
     control: form.control,
     name: 'activities',
   });
+  const isFunded = form.watch('isFunded');
+
+  const onFinancialFileValidate = useCallback((file: File): string | null => {
+    if (!file.type.endsWith('pdf')) {
+      return 'Solo se aceptan PDFs';
+    }
+
+    const MAX_SIZE = 2 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      return `El peso del archivo no debe exceder ${MAX_SIZE / (1024 * 1024)}MB`;
+    }
+
+    return null;
+  }, []);
+
+  const onFileReject = useCallback((file: File, message: string) => {
+    toast(message, {
+      description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" fue rechazado`,
+    });
+  }, []);
 
   /**
    * Handlers
    */
   const onSubmit = async (data: z.infer<typeof projectSchema>) => {
     try {
+      if (data.isFunded && !financialReportToUpload.length) {
+        toast.error('Si el proyecto recibió financiamiento, debes subir el informe financiero');
+        return;
+      }
+
       const cleanedData = {
         ...data,
         organization: data.organization === '' ? undefined : data.organization,
@@ -147,7 +193,18 @@ export function CreateProjectForm() {
         program: data.program === '' ? undefined : data.program,
       };
 
-      createProject.mutate(cleanedData);
+      const createdProject = await createProject.mutateAsync(cleanedData);
+
+      if (data.isFunded) {
+        await uploadFiles.mutateAsync({
+          files: financialReportToUpload,
+          entityId: createdProject._id,
+          entityType: EntityType.PROJECT,
+          purpose: FilePurpose.PROJECT_FINANCIAL_REPORT,
+        });
+      }
+
+      router.push(`${baseUrl}/proyectos/${createdProject._id}`);
     } catch (err) {
       console.error('Error cleaning data', err);
     }
@@ -398,6 +455,111 @@ export function CreateProjectForm() {
                 </Field>
               )}
             />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>El Proyecto recibio o recibirá financiamiento</CardTitle>
+            <CardDescription>Selecciona si el proyecto recibió o recibirá financiamiento.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FieldGroup>
+              <Controller
+                control={form.control}
+                name="isFunded"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="isFunded">
+                      ¿El proyecto recibió o recibirá financiamiento?
+                    </FieldLabel>
+                    <Select
+                      value={field.value ? 'yes' : 'no'}
+                      onValueChange={(value) => field.onChange(value === 'yes')}
+                    >
+                      <SelectTrigger
+                        id="isFunded"
+                        onBlur={field.onBlur}
+                        aria-invalid={fieldState.invalid}
+                        className="border border-gray-300"
+                      >
+                        <SelectValue placeholder="Selecciona una opción" />
+                      </SelectTrigger>
+                      <SelectContent className="border border-gray-400">
+                        <SelectItem value="yes" className="cursor-pointer">
+                          Sí
+                        </SelectItem>
+                        <SelectItem value="no" className="cursor-pointer">
+                          No
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              {isFunded && (
+                <Field>
+                  <FieldContent>
+                    <FieldLabel>Informe financiero (PDF)</FieldLabel>
+                    <FieldDescription>
+                      Sube el informe financiero del proyecto (máximo 2 MB).
+                    </FieldDescription>
+                    <FieldDescription>
+                      Nota: En caso de no contar con el reporte financiero, dejar vacío y subirlo posteriormente en la parte de información del proyecto.
+                    </FieldDescription>
+                  </FieldContent>
+
+                  <FileUpload
+                    value={financialReportToUpload}
+                    onValueChange={setFinancialReportToUpload}
+                    onFileValidate={onFinancialFileValidate}
+                    onFileReject={onFileReject}
+                    accept="application/pdf"
+                    maxFiles={1}
+                  >
+                    <FileUploadDropzone>
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="flex items-center justify-center rounded-full border p-2.5">
+                          <Upload className="size-6 text-muted-foreground" />
+                        </div>
+                        <p className="font-medium text-sm">
+                          Arrastra el archivo aquí
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          o haz click para buscar (max 2 MB)
+                        </p>
+                      </div>
+                      <FileUploadTrigger asChild>
+                        <Button size="sm" variant="outline">
+                          Buscar
+                        </Button>
+                      </FileUploadTrigger>
+                    </FileUploadDropzone>
+
+                    <FileUploadList>
+                      {financialReportToUpload.map((file, index) => (
+                        <FileUploadItem
+                          key={`${file.name}-${file.lastModified}-${index}`}
+                          value={file}
+                        >
+                          <FileUploadItemPreview />
+                          <FileUploadItemMetadata />
+                          <FileUploadItemDelete asChild>
+                            <Button variant="ghost" size="icon-xs">
+                              <XIcon />
+                            </Button>
+                          </FileUploadItemDelete>
+                        </FileUploadItem>
+                      ))}
+                    </FileUploadList>
+                  </FileUpload>
+                </Field>
+              )}
+            </FieldGroup>
           </CardContent>
         </Card>
 

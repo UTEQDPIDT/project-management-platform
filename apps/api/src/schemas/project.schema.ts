@@ -147,6 +147,12 @@ export class Project extends Document {
   })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Programa', index: true })
   program: Programa;
+
+  @ApiPropertyOptional({
+    description: 'Es proyecto Financiado',
+  })
+  @Prop({ default: false })
+  isFunded?: boolean;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

@@ -1,4 +1,4 @@
-import { IProject, ProjectStatus, SeedCategory } from '@repo/types';
+import { IProject, ProjectStatus, SeedCategory,EntityType,FilePurpose,IFile,UserRole } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -16,8 +16,11 @@ import {
   MoveRight,
   Percent,
   Target,
+  Upload,
+  User,
   UserCircle,
   Users,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 import { ProfileInfo } from './profile-info';
@@ -25,6 +28,29 @@ import { Button } from './ui/button';
 import { Progress } from './ui/progress';
 import { concatWithCommaAndDot, getBaseUrlBasedOnRole } from '@/lib/utils';
 import { useUserProfile } from 'context/profile-provider';
+
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+  FileUploadTrigger,
+} from './ui/file-upload';
+import FileButton from './file-button';
+import  CopyButton  from './ui/copy';
+import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
+import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from './ui/dialog';
 
 interface ProjectInfoProps {
   project: IProject;
@@ -35,6 +61,63 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
   const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
 
+  const isOwner =
+    user?._id && project?.owner?._id && user._id === project.owner._id;
+  const canManageFinancialReport =
+    user?.role === UserRole.ADMIN || Boolean(isOwner);
+
+  const { data: files = [], isLoading, isError } = useFilesForEntity(project._id);
+  const uploadFiles = useUploadMultipleFiles();
+    
+  const financialReport = files.find(
+    (file: IFile) => file.purpose === FilePurpose.PROJECT_FINANCIAL_REPORT,
+  );
+
+  const [financialReportToUpload, setFinancialReportToUpload] = useState<
+      File[]
+    >([]);
+
+    // Validation for financial report upload
+    const onFinancialFileValidate = useCallback(
+      (file: File): string | null => {
+        if (financialReport) {
+          return 'Sólo puedes subir un archivo';
+        }
+        if (!file.type.endsWith('pdf')) {
+          return 'Solo se aceptan PDFs';
+        }
+        const MAX_SIZE = 2 * 1024 * 1024;
+        if (file.size > MAX_SIZE) {
+          return `El peso del archivo no debe exceder ${MAX_SIZE / (1024 * 1024)}MB`;
+        }
+        return null;
+      },
+      [financialReport],
+    );
+
+    const onFileReject = useCallback((file: File, message: string) => {
+    toast(message, {
+      description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" fue rechazado`,
+    });
+  }, []);
+
+    const handleFinancialReportUpload = () => {
+      if (!financialReportToUpload.length) {
+        toast.error('Selecciona un PDF antes de subirlo');
+        return;
+      }
+
+      uploadFiles.mutate({
+        files: financialReportToUpload,
+        entityId: project._id,
+        entityType: EntityType.PROJECT,
+        purpose: FilePurpose.PROJECT_FINANCIAL_REPORT,
+      });
+  
+      setFinancialReportToUpload([]);
+    };
+
+    
   const normalizeProjectStatus = (value?: string): ProjectStatus => {
     const normalizedValue = (value ?? '').trim().toUpperCase();
 
@@ -90,6 +173,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
     innovationLines,
     relatedProjects,
     status,
+    isFunded,
   } = project;
 
   // Clase reutilizable para cada fila de datos del proyecto
@@ -174,6 +258,93 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
           )}
         </div>
       </div>
+    
+    {isFunded && (user.role === UserRole.ADMIN || isOwner) && (
+      <div className="flex items-start">
+        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <Folder size={14} /> Reporte financiero
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md">
+              {financialReport ? (
+                <FileButton
+                  canDelete={canManageFinancialReport}
+                  file={financialReport}
+                  className="max-w-52"
+                />
+              ) : canManageFinancialReport ? (
+                <Dialog>
+                  <DialogTrigger className="border h-7 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
+                    <Upload />
+                    Subir Informe
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogTitle>Informe Financiero del Evento</DialogTitle>
+
+                    <FileUpload
+                      value={financialReportToUpload}
+                      onValueChange={setFinancialReportToUpload}
+                      onFileValidate={onFinancialFileValidate}
+                      onFileReject={onFileReject}
+                      accept="application/pdf"
+                      maxFiles={1}
+                    >
+                      <FileUploadDropzone>
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="flex items-center justify-center rounded-full border p-2.5">
+                            <Upload className="size-6 text-muted-foreground" />
+                          </div>
+                          <p className="font-medium text-sm">
+                            Arrastra el archivo aquí
+                          </p>
+                          <p className="text-muted-foreground text-xs">
+                            o haz click para buscar (max 2 MB)
+                          </p>
+                        </div>
+                        <FileUploadTrigger asChild>
+                          <Button size="sm" variant="outline">
+                            Buscar
+                          </Button>
+                        </FileUploadTrigger>
+                      </FileUploadDropzone>
+
+                      <FileUploadList className='max-w-115'>
+                        {financialReportToUpload.map((file, index) => (
+                          <FileUploadItem
+                            key={`${file.name}-${file.lastModified}-${index}`}
+                            value={file}
+                          >
+                            <FileUploadItemPreview />
+                            <FileUploadItemMetadata />
+                            <FileUploadItemDelete asChild>
+                              <Button variant="ghost" size="icon-xs">
+                                <X />
+                              </Button>
+                            </FileUploadItemDelete>
+                          </FileUploadItem>
+                        ))}
+                      </FileUploadList>
+                    </FileUpload>
+
+                    <div className="flex gap-2">
+                      <DialogClose asChild>
+                        <Button variant="outline">Cerrar</Button>
+                      </DialogClose>
+                      <DialogClose asChild>
+                        <Button onClick={handleFinancialReportUpload}>
+                          Subir Informe
+                        </Button>
+                      </DialogClose>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              ) : (
+                <span className="text-xs text-muted-foreground">
+                  Sin informe financiero
+                </span>
+              )}
+            </div>
+      </div>
+    )}
 
       <div className={rowClass}>
         <span className={labelClass}>

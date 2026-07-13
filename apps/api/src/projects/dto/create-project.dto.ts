@@ -3,6 +3,7 @@ import { ImpactLevel } from '@repo/types';
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsDate,
   IsEnum,
   IsInt,
@@ -130,4 +131,11 @@ export class CreateProjectDto {
   @IsOptional()
   @IsMongoId()
   program?: string;
+
+  @ApiPropertyOptional({
+    description: 'Indica si el proyecto recibió o recibirá financiamiento.',
+  })
+  @IsOptional()
+  @IsBoolean()
+  isFunded?: boolean;
 }
