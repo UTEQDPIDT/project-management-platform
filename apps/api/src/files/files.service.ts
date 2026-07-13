@@ -35,6 +35,8 @@ export class FilesService {
       throw new BadRequestException('No file provided');
     }
 
+    await this.validateUploadRules(file, entityId, entityType, purpose);
+
     // 1. Upload to gridFs
     const gridFsId = await this.uploadToGridFS(file);
 
@@ -58,6 +60,41 @@ export class FilesService {
       await this.bucket.delete(new mongoose.Types.ObjectId(gridFsId));
 
       throw new BadRequestException(error.message);
+    }
+  }
+
+  private async validateUploadRules(
+    file: Express.Multer.File,
+    entityId: string,
+    entityType: EntityType,
+    purpose: FilePurpose,
+  ) {
+    if (purpose !== FilePurpose.PROJECT_FINANCIAL_REPORT) {
+      return;
+    }
+
+    if (entityType !== EntityType.PROJECT) {
+      throw new BadRequestException(
+        'PROJECT_FINANCIAL_REPORT solo puede usarse con proyectos',
+      );
+    }
+
+    if (file.mimetype !== 'application/pdf') {
+      throw new BadRequestException(
+        'El informe financiero del proyecto debe ser un PDF',
+      );
+    }
+
+    const existingFinancialReport = await this.fileModel.exists({
+      entityId,
+      entityType: EntityType.PROJECT,
+      purpose: FilePurpose.PROJECT_FINANCIAL_REPORT,
+    });
+
+    if (existingFinancialReport) {
+      throw new BadRequestException(
+        'El proyecto ya cuenta con un informe financiero',
+      );
     }
   }
 

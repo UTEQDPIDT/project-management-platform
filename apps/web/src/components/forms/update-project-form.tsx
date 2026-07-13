@@ -13,17 +13,21 @@ import {
   useProjectPrograms,
 } from '@/hooks/catalogs';
 import { useTeamsByUser } from '@/hooks/team';
+import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
 
 import { useProjectsByOwner, useUpdateProject } from '@/hooks/projects';
 import { updateProjectSchema } from '@/schemas/update-project.schema';
 import {
+  EntityType,
+  FilePurpose,
   ImpactLevel,
+  IFile,
   IProject,
   ITeam,
   SeedCategory,
   UserRole,
 } from '@repo/types';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, Upload, XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -54,6 +58,16 @@ import {
   FieldLabel,
 } from '../ui/field';
 import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+  FileUploadTrigger,
+} from '../ui/file-upload';
+import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
@@ -72,6 +86,7 @@ import { Separator } from '../ui/separator';
 import { TRLForm } from './trl-assesment-form';
 import { useUserProfile } from 'context/profile-provider';
 import { toast } from 'sonner';
+import FileButton from '../file-button';
 
 type UpdateProjectFormProps = {
   project: IProject;
@@ -99,10 +114,15 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
     useProjectPrograms();
   const { data: teams, isLoading: loadingTeams } = useTeamsByUser();
   const { data: projects, isLoading: loadingProjects } = useProjectsByOwner();
+  const { data: files = [] } = useFilesForEntity(project._id);
 
   const updateProject = useUpdateProject();
+  const uploadFiles = useUploadMultipleFiles();
 
   const [trlOpen, setTrlOpen] = useState(false);
+  const [financialReportToUpload, setFinancialReportToUpload] = useState<
+    File[]
+  >([]);
 
   const filteredProjects = useMemo(() => {
     if (loadingProjects || !projects) return [];
@@ -137,6 +157,7 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
       organization: project?.organization ? project.organization : '',
       team: project?.team && project.team._id ? project.team._id : '',
       program: project?.program?._id ?? '',
+      isFunded: project?.isFunded ?? false,
       relatedProjects: project?.relatedProjects
         ? project.relatedProjects.map((p) => p?._id).filter(Boolean)
         : [],
@@ -144,6 +165,32 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
       endDate: project?.endDate ? new Date(project.endDate) : undefined,
     },
   });
+  const isFunded = form.watch('isFunded');
+  const financialReport = (files as IFile[]).find(
+    (file) => file.purpose === FilePurpose.PROJECT_FINANCIAL_REPORT,
+  );
+
+  const onFinancialFileValidate = (file: File): string | null => {
+    if (financialReport) {
+      return 'El proyecto ya cuenta con un informe financiero, elimina el actual para reemplazarlo';
+    }
+    if (!file.type.endsWith('pdf')) {
+      return 'Solo se aceptan PDFs';
+    }
+
+    const MAX_SIZE = 2 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      return `El peso del archivo no debe exceder ${MAX_SIZE / (1024 * 1024)}MB`;
+    }
+
+    return null;
+  };
+
+  const onFileReject = (file: File, message: string) => {
+    toast(message, {
+      description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" fue rechazado`,
+    });
+  };
 
   /**
    * Handlers
@@ -156,12 +203,21 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
         team: data.team === '' ? undefined : data.team,
         program: data.program === '' ? undefined : data.program,
       };
-      console.log(cleanedData);
 
-      updateProject.mutate({
+      await updateProject.mutateAsync({
         projectId: project._id,
         projectData: cleanedData,
       });
+
+      if (data.isFunded && !financialReport && financialReportToUpload.length) {
+        await uploadFiles.mutateAsync({
+          files: financialReportToUpload,
+          entityId: project._id,
+          entityType: EntityType.PROJECT,
+          purpose: FilePurpose.PROJECT_FINANCIAL_REPORT,
+        });
+      }
+
       router.push(`${baseUrl}/proyectos/${project._id}`);
     } catch (err) {
       console.error('Error cleaning data', err);
@@ -313,6 +369,134 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                   </Field>
                 )}
               />
+            </FieldGroup>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>El Proyecto recibio o recibirá financiamiento</CardTitle>
+            <CardDescription>
+              Selecciona si el proyecto recibió o recibirá financiamiento.
+            </CardDescription>
+              <FieldDescription>
+                Nota: En caso de no contar con el reporte financiero, dejar vacío y subirlo posteriormente en la parte de información del proyecto.
+              </FieldDescription>
+          </CardHeader>
+          <CardContent>
+            <FieldGroup>
+              <Controller
+                control={form.control}
+                name="isFunded"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="isFunded">
+                      ¿El proyecto recibió o recibirá financiamiento?
+                    </FieldLabel>
+                    <Select
+                      value={field.value ? 'yes' : 'no'}
+                      onValueChange={(value) => field.onChange(value === 'yes')}
+                    >
+                      <SelectTrigger
+                        id="isFunded"
+                        onBlur={field.onBlur}
+                        aria-invalid={fieldState.invalid}
+                        className="border border-gray-300"
+                      >
+                        <SelectValue placeholder="Selecciona una opción" />
+                      </SelectTrigger>
+                      <SelectContent className="border border-gray-400">
+                        <SelectItem value="yes" className="cursor-pointer">
+                          Sí
+                        </SelectItem>
+                        <SelectItem value="no" className="cursor-pointer">
+                          No
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              {isFunded && (
+                <>
+                  <Field>
+                    <FieldContent>
+                      <FieldLabel>Informe financiero actual</FieldLabel>
+                    </FieldContent>
+                    {financialReport ? (
+                      <FileButton
+                        canDelete
+                        file={financialReport}
+                        className="max-w-72"
+                      />
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        No hay informe financiero registrado.
+                      </span>
+                    )}
+                  </Field>
+
+                  {!financialReport && (
+                    <Field>
+                      <FieldContent>
+                        <FieldLabel>Subir informe financiero (PDF)</FieldLabel>
+                        <FieldDescription>
+                          Sube el informe financiero del proyecto (máximo 2 MB).
+                        </FieldDescription>
+                      </FieldContent>
+
+                      <FileUpload
+                        value={financialReportToUpload}
+                        onValueChange={setFinancialReportToUpload}
+                        onFileValidate={onFinancialFileValidate}
+                        onFileReject={onFileReject}
+                        accept="application/pdf"
+                        maxFiles={1}
+                      >
+                        <FileUploadDropzone>
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="flex items-center justify-center rounded-full border p-2.5">
+                              <Upload className="size-6 text-muted-foreground" />
+                            </div>
+                            <p className="font-medium text-sm">
+                              Arrastra el archivo aquí
+                            </p>
+                            <p className="text-muted-foreground text-xs">
+                              o haz click para buscar (max 2 MB)
+                            </p>
+                          </div>
+                          <FileUploadTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              Buscar
+                            </Button>
+                          </FileUploadTrigger>
+                        </FileUploadDropzone>
+
+                        <FileUploadList>
+                          {financialReportToUpload.map((file, index) => (
+                            <FileUploadItem
+                              key={`${file.name}-${file.lastModified}-${index}`}
+                              value={file}
+                            >
+                              <FileUploadItemPreview />
+                              <FileUploadItemMetadata />
+                              <FileUploadItemDelete asChild>
+                                <Button variant="ghost" size="icon-xs">
+                                  <XIcon />
+                                </Button>
+                              </FileUploadItemDelete>
+                            </FileUploadItem>
+                          ))}
+                        </FileUploadList>
+                      </FileUpload>
+                    </Field>
+                  )}
+                </>
+              )}
             </FieldGroup>
           </CardContent>
         </Card>

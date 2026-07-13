@@ -13,6 +13,7 @@ export const projectSchema = z.object({
     .max(500, 'Excede el máximo de 500 carecteres'),
   trlRating: z.number().min(0, 'El Nivel de TRL no puede ser 0'),
   program: mongoId.or(z.literal('')).optional(),
+  isFunded: z.boolean().optional(),
   knowledgeAreas: z.array(mongoId),
   impactAreas: z.array(mongoId),
   prioritiesPND: z.array(mongoId),
