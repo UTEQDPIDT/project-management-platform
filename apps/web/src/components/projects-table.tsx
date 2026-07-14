@@ -201,7 +201,7 @@ const columns: ColumnDef<ProjectTableRow>[] = [
       return (
         /* Controlamos los anchos máximos por breakpoint para evitar textos infinitos en pantallas compactas */
         <div className="relative group flex justify-between w-full">
-          <div className="max-w-44 sm:max-w-60 md:max-w-85 overflow-x-auto truncate">
+          <div className="max-w-44 sm:max-w-60 md:max-w-85 overflow-x-auto">
             <span>{name}</span>
           </div>
           <CopyButton
