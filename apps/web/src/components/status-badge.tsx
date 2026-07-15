@@ -6,6 +6,7 @@ const statusVariants: Record<Status, 'gray' | 'blue' | 'green'> = {
   Pendiente: 'gray',
   'En Progreso': 'blue',
   Completado: 'green',
+  Cerrado: 'gray',
 };
 
 interface StatusBadgeProps {
