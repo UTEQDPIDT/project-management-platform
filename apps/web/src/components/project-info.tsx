@@ -15,7 +15,9 @@ import {
   MapPinned,
   MoveRight,
   Percent,
+  ShieldCheck,
   Target,
+  Lock,
   Upload,
   User,
   UserCircle,
@@ -136,6 +138,10 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
       return ProjectStatus.COMPLETED;
     }
 
+    if (normalizedValue === 'CLOSED' || normalizedValue === 'CERRADO') {
+      return ProjectStatus.CLOSED;
+    }
+
     return ProjectStatus.PENDING;
   };
 
@@ -149,6 +155,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
 
     if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'En progreso';
     if (normalizedStatus === ProjectStatus.COMPLETED) return 'Completado';
+    if (normalizedStatus === ProjectStatus.CLOSED) return 'Cerrado';
     return 'Pendiente';
   };
 
@@ -174,6 +181,9 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
     relatedProjects,
     status,
     isFunded,
+    firstValidatedBy,
+    ValidationBy,
+    closedBy,
   } = project;
 
   // Clase reutilizable para cada fila de datos del proyecto
@@ -221,6 +231,38 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
           <span>{getProjectStatusLabel(status)}</span>
         </div>
       </div>
+
+{firstValidatedBy && (
+        <div className={rowClass}>
+          <span className={`${labelClass} text-blue-600 font-medium`}>
+            <ShieldCheck size={14} /> Validado por
+          </span>
+          <div className="p-2 hover:bg-secondary rounded-md w-full">
+            <ProfileInfo
+              size="sm"
+              givenName={firstValidatedBy.givenName}
+              familyName={firstValidatedBy.familyName}
+              avatarUrl={firstValidatedBy.avatarUrl}
+            />
+          </div>
+        </div>
+      )}
+
+      {closedBy && (
+        <div className={rowClass}>
+          <span className={`${labelClass} text-red-600 font-medium`}>
+            <Lock size={14} /> Cerrado por
+          </span>
+          <div className="p-2 hover:bg-secondary rounded-md w-full">
+            <ProfileInfo
+              size="sm"
+              givenName={closedBy.givenName}
+              familyName={closedBy.familyName}
+              avatarUrl={closedBy.avatarUrl}
+            />
+          </div>
+        </div>
+      )}
 
       <div className={rowClass}>
         <span className={labelClass}>

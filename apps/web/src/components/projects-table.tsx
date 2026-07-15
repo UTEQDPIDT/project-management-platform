@@ -1,12 +1,18 @@
 'use client';
 
-import { useAllProjects, useDeleteProject } from '@/hooks/projects';
+import {
+  useAllProjects,
+  useCloseProject,
+  useDeleteProject,
+  useFirstValidationProject,
+  useReopenProject,
+} from '@/hooks/projects';
 import React from 'react';
 import LoadingMessage from './loading-message';
 import { DataTable, FacetedFilterConfig, facetedFilter } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useQueries } from '@tanstack/react-query';
-import { IActivity, IProject, ProjectStatus } from '@repo/types';
+import { IActivity, IProject, ProjectStatus, UserRole } from '@repo/types';
 import { ProfileInfo } from './profile-info';
 import { calculateProgress, copyValue, formatDatePeriod } from '@/lib/utils';
 import { Progress } from './ui/progress';
@@ -32,10 +38,13 @@ import {
 } from './ui/dropdown-menu';
 import {
   Copy,
+  DoorOpen,
   ExternalLink,
   MoreHorizontal,
   Pencil,
   Trash,
+  Lock,
+  Pin,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
@@ -43,6 +52,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useProjectProducts } from '@/hooks/products';
 import { getActivitiesByEntityId } from '@/services/activities.service';
+import { useUserProfile } from 'context/profile-provider';
 
 const normalizeProjectStatus = (status?: string): ProjectStatus => {
   const value = (status ?? '').trim().toUpperCase();
@@ -55,12 +65,17 @@ const normalizeProjectStatus = (status?: string): ProjectStatus => {
     return ProjectStatus.COMPLETED;
   }
 
+  if (value === 'CLOSED' || value === 'CERRADO') {
+    return ProjectStatus.CLOSED;
+  }
+
   return ProjectStatus.PENDING;
 };
 
 const getProjectStatusLabel = (status?: string) => {
   const normalizedStatus = normalizeProjectStatus(status);
 
+  if (normalizedStatus === ProjectStatus.CLOSED) return 'Cerrado';
   if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'En progreso';
   if (normalizedStatus === ProjectStatus.COMPLETED) return 'Completado';
   return 'Pendiente';
@@ -69,6 +84,7 @@ const getProjectStatusLabel = (status?: string) => {
 const getProjectStatusVariant = (status?: string) => {
   const normalizedStatus = normalizeProjectStatus(status);
 
+  if (normalizedStatus === ProjectStatus.CLOSED) return 'gray' as const;
   if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'blue' as const;
   if (normalizedStatus === ProjectStatus.COMPLETED) return 'green' as const;
   return 'orange' as const;
@@ -128,8 +144,29 @@ const ProductCount = ({ projectId }: { projectId: string }) => {
   return <div>{isLoading ? <LoadingMessage /> : products.length}</div>;
 };
 
-const ProjectsActions = ({ project }: { project: IProject }) => {
+const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
+  const { user } = useUserProfile();
   const deleteProject = useDeleteProject();
+  const firstValidationProject = useFirstValidationProject();
+  const closeProject = useCloseProject();
+  const reopenProject = useReopenProject();
+  const effectiveStatus = project.__derivedStatus;
+  const isClosed = effectiveStatus === ProjectStatus.CLOSED;
+  const closedById =
+    typeof project.closedBy === 'string' ? project.closedBy : project.closedBy?._id;
+  const hasFirstValidation = Boolean(project.firstValidatedBy);
+  const canFirstValidate = Boolean(
+    !isClosed &&
+      effectiveStatus === ProjectStatus.COMPLETED &&
+      user?.role === UserRole.ADMIN &&
+      !hasFirstValidation,
+  );
+  const canReopen = Boolean(isClosed && closedById && closedById === user?._id);
+  const canClose = Boolean(
+    !isClosed &&
+      effectiveStatus === ProjectStatus.COMPLETED &&
+      hasFirstValidation,
+  );
 
   return (
     <DropdownMenu>
@@ -141,50 +178,85 @@ const ProjectsActions = ({ project }: { project: IProject }) => {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuItem asChild>
-          <Link href={`/admin/proyectos/${project._id}/editar`}>
-            <Pencil /> Editar proyecto
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
           <Link href={`/admin/proyectos/${project._id}`}>
             <ExternalLink /> Visitar proyecto
           </Link>
         </DropdownMenuItem>
+        {!isClosed && (
+          <DropdownMenuItem asChild>
+            <Link href={`/admin/proyectos/${project._id}/editar`}>
+              <Pencil /> Editar proyecto
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild onClick={() => copyValue(project._id)}>
           <span>
             <Copy /> Copiar ID
           </span>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild className="hover:text-destructive-foreground">
-          <Dialog>
-            <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
-              <Trash />
-              Eliminar proyecto
-            </DialogTrigger>
-            <DialogContent>
-              <Badge variant="destructive">Eliminando</Badge>
-              <DialogTitle>{project.name}</DialogTitle>
-              <DialogDescription>
-                ¿Seguro deseas eliminar el proyecto? Esta es una operación
-                irreversible.
-              </DialogDescription>
-              <div className="flex gap-2">
-                <DialogClose asChild>
-                  <Button variant="outline">Cancelar</Button>
-                </DialogClose>
-                <DialogClose asChild>
-                  <Button
-                    onClick={() => deleteProject.mutate(project._id)}
-                    variant="destructive"
-                  >
-                    Eliminar
-                  </Button>
-                </DialogClose>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </DropdownMenuItem>
+
+        {canFirstValidate && (
+          <DropdownMenuItem
+            onClick={() => firstValidationProject.mutate(project._id)}
+            disabled={firstValidationProject.isPending}
+          >
+            <Pin />
+            Primera validación
+          </DropdownMenuItem>
+        )}
+
+        {canClose && (
+          <DropdownMenuItem
+            onClick={() => closeProject.mutate(project._id)}
+            disabled={closeProject.isPending}
+          >
+            <Lock /> Cerrar proyecto (2da validación)
+          </DropdownMenuItem>
+        )}
+
+        {canReopen && (
+          <DropdownMenuItem
+            onClick={() => reopenProject.mutate(project._id)}
+            disabled={reopenProject.isPending}
+          >
+            <DoorOpen /> Reabrir proyecto
+          </DropdownMenuItem>
+        )}
+
+        {!isClosed && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild className="hover:text-destructive-foreground">
+              <Dialog>
+                <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
+                  <Trash />
+                  Eliminar proyecto
+                </DialogTrigger>
+                <DialogContent>
+                  <Badge variant="destructive">Eliminando</Badge>
+                  <DialogTitle>{project.name}</DialogTitle>
+                  <DialogDescription>
+                    ¿Seguro deseas eliminar el proyecto? Esta es una operación
+                    irreversible.
+                  </DialogDescription>
+                  <div className="flex gap-2">
+                    <DialogClose asChild>
+                      <Button variant="outline">Cancelar</Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                      <Button
+                        onClick={() => deleteProject.mutate(project._id)}
+                        variant="destructive"
+                      >
+                        Eliminar
+                      </Button>
+                    </DialogClose>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -352,6 +424,7 @@ const facetedFilters: FacetedFilterConfig[] = [
       { label: 'Pendiente', value: ProjectStatus.PENDING },
       { label: 'En progreso', value: ProjectStatus.IN_PROGRESS },
       { label: 'Completado', value: ProjectStatus.COMPLETED },
+      { label: 'Cerrado', value: ProjectStatus.CLOSED },
     ],
   },
   {

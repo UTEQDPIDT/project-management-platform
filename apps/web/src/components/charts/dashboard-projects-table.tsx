@@ -30,6 +30,10 @@ const normalizeProjectStatus = (status?: string): ProjectStatus => {
 		return ProjectStatus.COMPLETED;
 	}
 
+	if (value === 'CLOSED' || value === 'CERRADO') {
+		return ProjectStatus.CLOSED;
+	}
+
 	return ProjectStatus.PENDING;
 };
 
