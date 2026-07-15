@@ -23,7 +23,7 @@ import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
 import { useProjectProducts } from '@/hooks/products';
 import { useProject } from '@/hooks/projects';
 import { calculateProgress, getBaseUrlBasedOnRole } from '@/lib/utils';
-import { EntityType, FilePurpose } from '@repo/types';
+import { EntityType, FilePurpose, ProjectStatus } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -75,6 +75,13 @@ const ProjectPage = () => {
     user?._id && project?.owner?._id && user._id === project.owner._id,
   );
 
+  const progress = calculateProgress(activities ?? []);
+  const statusForActions =
+    project?.status === ProjectStatus.PENDING && progress >= 100
+      ? ProjectStatus.COMPLETED
+      : project?.status;
+  const isProjectClosed = project?.status === ProjectStatus.CLOSED;
+
   return (
     <div className="w-full h-full">
       {loadingProject ? (
@@ -104,7 +111,13 @@ const ProjectPage = () => {
 
             {(isOwner || user.role === 'ADMIN') && (
               <HeaderAction>
-                <ProjectMenu projectId={projectId} name={project.name} />
+                <ProjectMenu
+                  projectId={projectId}
+                  name={project.name}
+                  status={statusForActions}
+                  firstValidatedBy={project.firstValidatedBy}
+                  closedBy={project.closedBy}
+                />
               </HeaderAction>
             )}
           </Header>
@@ -115,16 +128,21 @@ const ProjectPage = () => {
             ) : (
               <ProjectInfo
                 project={project}
-                progress={calculateProgress(activities)}
+                progress={progress}
               />
             )}
             <div className="bg-neutral-200 border rounded-2xl w-full gap-6 flex flex-col p-4">
-              <ActivitiesBoard activities={activities} projectId={projectId} />
+              <ActivitiesBoard
+                activities={activities}
+                projectId={projectId}
+                isProjectClosed={isProjectClosed}
+              />
               <ProductsBoard
                 products={products}
                 projectId={projectId}
                 isLoading={loadingProducts}
                 isError={errorFetchingProducts}
+                isProjectClosed={isProjectClosed}
               />
               <div className="flex flex-col lg:flex-row w-full justify-between gap-4">
                 {project.team && <CardMembers team={project.team} redirect />}
@@ -141,6 +159,7 @@ const ProjectPage = () => {
                     isError={errorFetchingFiles}
                     isUploading={uploadMultipleFiles.isPending}
                     accept=".pdf,.doc,.docx,.xlsx"
+                    isProjectClosed={isProjectClosed}
                   />
                 )}
               </div>

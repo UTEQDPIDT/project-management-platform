@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  ForbiddenException,
+  HttpException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,14 +11,38 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../schemas/product.schema';
 import { ClientSession, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
-import { EntityType, FilePurpose } from '@repo/types';
+import {
+  EntityType,
+  FilePurpose,
+  ProjectStatus,
+  ProjectValidation,
+} from '@repo/types';
+import { Project } from '../schemas/project.schema';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
+    @InjectModel(Project.name) private projectModel: Model<Project>,
     private readonly filesService: FilesService,
   ) {}
+
+  private async ensureProjectIsWritable(projectId: string) {
+    const project = await this.projectModel
+      .findById(projectId)
+      .select('status validationStatus');
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${projectId} not found`);
+    }
+
+    if (
+      project.status === ProjectStatus.CLOSED ||
+      project.validationStatus === ProjectValidation.FINAL_VALIDATION
+    ) {
+      throw new ForbiddenException('Cannot create products for a closed project.');
+    }
+  }
 
   async create(
     createProductDto: CreateProductDto,
@@ -24,6 +50,8 @@ export class ProductsService {
     userId: string,
   ) {
     try {
+      await this.ensureProjectIsWritable(createProductDto.projectId.toString());
+
       const product = new this.productModel({
         ...createProductDto,
         owner: userId,
@@ -44,6 +72,9 @@ export class ProductsService {
 
       return product;
     } catch (err: any) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
       throw new BadRequestException(
         'Error al crear el producto: ' + err.message,
       );
@@ -95,6 +126,14 @@ export class ProductsService {
     file?: Express.Multer.File,
   ) {
     try {
+      const product = await this.productModel.findById(id).select('projectId');
+
+      if (!product) {
+        throw new NotFoundException(`Product with ID: ${id} not found`);
+      }
+
+      await this.ensureProjectIsWritable(product.projectId.toString());
+
       if (file) {
         // Delete previous files
         const previousFiles = await this.filesService.findFilesForEntity(id);
@@ -126,12 +165,23 @@ export class ProductsService {
 
       return { id, message: 'Product updated successfully' };
     } catch (err: any) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
       throw new BadRequestException(err.message);
     }
   }
 
   async remove(id: string) {
     try {
+      const product = await this.productModel.findById(id).select('projectId');
+
+      if (!product) {
+        throw new NotFoundException(`Product with ID: ${id} not found`);
+      }
+
+      await this.ensureProjectIsWritable(product.projectId.toString());
+
       const files = await this.filesService.findFilesForEntity(id);
 
       await this.filesService.deleteFiles(files);
@@ -140,6 +190,9 @@ export class ProductsService {
 
       return { message: 'Product deleted successfully' };
     } catch (error: any) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new BadRequestException(error.message);
     }
   }

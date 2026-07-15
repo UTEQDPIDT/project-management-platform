@@ -5,11 +5,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Activity, ActivitySchema } from '../schemas/activities.schema';
 import { FilesModule } from '../files/files.module';
 import { ProjectsModule } from '../projects/projects.module';
+import { Project, ProjectSchema } from '../schemas/project.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Activity.name, schema: ActivitySchema },
+      { name: Project.name, schema: ProjectSchema },
     ]),
     FilesModule,
     forwardRef(() => ProjectsModule),

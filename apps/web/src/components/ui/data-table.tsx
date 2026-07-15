@@ -33,14 +33,14 @@ import {
 export type { FacetedFilterConfig };
 export type { FacetedFilterOption } from './data-table-faceted-filter';
 
-// 1. Esto le dice a TypeScript que 'meta' puede aceptar un 'className' de tipo string
 declare module '@tanstack/react-table' {
   interface ColumnMeta<TData, TValue> {
     className?: string;
   }
 }
 
-const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+// 1. Conservamos fuzzyFilter para que las columnas individuales puedan invocarlo si lo configuras
+export const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   const itemRank = rankItem(row.getValue(columnId), value);
   addMeta({ itemRank });
   return itemRank.passed;
@@ -60,28 +60,29 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   facetedFilters?: FacetedFilterConfig[];
+  searchColumnId?: string; 
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   facetedFilters,
+  searchColumnId,
 }: DataTableProps<TData, TValue>) {
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [globalFilter, setGlobalFilter] = React.useState('');
+  // Manejamos únicamente el estado de los filtros por columna
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 
   const table = useReactTable({
     data,
     columns,
     state: {
-      columnFilters,
-      globalFilter,
+      columnFilters, // Pasamos el estado de los filtros de columna
     },
     onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: fuzzyFilter,
+    // Registramos fuzzyFilter globalmente para poder usarlo por string 'fuzzy' en las columnas
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -92,7 +93,11 @@ export function DataTable<TData, TValue>({
   return (
     <div className="flex flex-col gap-4 w-full overflow-hidden">
       <div className="w-full overflow-x-auto sm:overflow-x-visible pb-1">
-        <DataTableToolbar table={table} facetedFilters={facetedFilters} />
+        <DataTableToolbar 
+          table={table} 
+          facetedFilters={facetedFilters} 
+          searchColumnId={searchColumnId} 
+        />
       </div>
 
       <div className="overflow-hidden rounded-md border w-full">
@@ -101,7 +106,6 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  // Extraemos la propiedad de forma segura gracias al tipado de arriba
                   const metaClassName = header.column.columnDef.meta?.className || '';
                   
                   return (

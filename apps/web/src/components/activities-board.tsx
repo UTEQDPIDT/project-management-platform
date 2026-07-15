@@ -23,12 +23,14 @@ interface Props {
   activities: IActivity[];
   projectId?: string;
   isLoading?: boolean;
+  isProjectClosed?: boolean;
 }
 
 export function ActivitiesBoard({
   activities = [],
   projectId,
   isLoading = false,
+  isProjectClosed = false,
 }: Props) {
   const pendingActivities = (activities ?? []).filter(
     (a: IActivity) => a.status === 'Pendiente',
@@ -53,16 +55,18 @@ export function ActivitiesBoard({
 
             <CardTitle>Actividades</CardTitle>
           </div>
-          <Dialog>
-            <DialogTrigger className="h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
-              Crear
-            </DialogTrigger>
-            <DialogContent>
-              <DialogTitle>Nueva Actividad</DialogTitle>
-              <Separator />
-              <ActivityForm projectId={projectId} />
-            </DialogContent>
-          </Dialog>
+          {!isProjectClosed && (
+            <Dialog>
+              <DialogTrigger className="h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
+                Crear
+              </DialogTrigger>
+              <DialogContent>
+                <DialogTitle>Nueva Actividad</DialogTitle>
+                <Separator />
+                <ActivityForm projectId={projectId} />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -89,10 +93,11 @@ export function ActivitiesBoard({
                         projectId={projectId!}
                         activity={a}
                         activitiesLength={activities.length}
+                        isReadOnly={isProjectClosed}
                       />
                     }
                     className="border-neutral-500 hover:border-neutral-800"
-                    enableOptions
+                    enableOptions={!isProjectClosed}
                     showPriority
                     showStatus
                   />
@@ -119,10 +124,11 @@ export function ActivitiesBoard({
                         projectId={projectId!}
                         activity={a}
                         activitiesLength={activities.length}
+                        isReadOnly={isProjectClosed}
                       />
                     }
                     className="border-neutral-500 hover:border-neutral-800"
-                    enableOptions
+                    enableOptions={!isProjectClosed}
                     showPriority
                     showStatus
                   />
@@ -149,10 +155,11 @@ export function ActivitiesBoard({
                         projectId={projectId!}
                         activity={a}
                         activitiesLength={activities.length}
+                        isReadOnly={isProjectClosed}
                       />
                     }
                     className="border-neutral-500 hover:border-neutral-800"
-                    enableOptions
+                    enableOptions={!isProjectClosed}
                     showPriority
                     showStatus
                   />

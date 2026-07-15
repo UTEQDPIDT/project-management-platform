@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ImpactLevel, ProjectStatus } from '@repo/types';
+import { ImpactLevel, ProjectStatus, ProjectValidation} from '@repo/types';
 import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { Team } from './team.schema';
@@ -153,6 +153,30 @@ export class Project extends Document {
   })
   @Prop({ default: false })
   isFunded?: boolean;
+
+  //Validaciones de Cierre de Proyecto
+  @ApiProperty({
+    description: 'Estado secuencial del flujo de validación del proyecto.',
+    enum: Object.values(ProjectValidation)
+  })
+  @Prop({
+    type: String,
+    enum: Object.values(ProjectValidation),
+    default: null,
+  })
+  validationStatus?: ProjectValidation | null;
+
+  @ApiPropertyOptional({
+    description: 'Usuario administrativo que aplicó la primera validación.',
+  })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null })
+  firstValidatedBy?: User | mongoose.Types.ObjectId | null;
+
+  @ApiPropertyOptional({
+    description: 'Cuenta única o superadministrador que cerró definitivamente el proyecto.',
+  })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null })
+  closedBy?: User | mongoose.Types.ObjectId | null;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

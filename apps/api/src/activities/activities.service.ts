@@ -1,6 +1,8 @@
 import {
   BadRequestException,
+  ForbiddenException,
   forwardRef,
+  HttpException,
   Inject,
   Injectable,
   NotFoundException,
@@ -11,23 +13,50 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Activity } from '../schemas/activities.schema';
 import { ClientSession, Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
-import { EntityType, Priority, Status } from '@repo/types';
+import {
+  EntityType,
+  Priority,
+  ProjectStatus,
+  ProjectValidation,
+  Status,
+} from '@repo/types';
 import { ProjectsService } from '../projects/projects.service';
+import { Project } from '../schemas/project.schema';
 
 @Injectable()
 export class ActivitiesService {
   constructor(
     @InjectModel(Activity.name) private activityModel: Model<Activity>,
+    @InjectModel(Project.name) private projectModel: Model<Project>,
     private readonly filesService: FilesService,
     @Inject(forwardRef(() => ProjectsService))
     private readonly projectsService: ProjectsService,
   ) {}
+
+  private async ensureProjectIsWritable(projectId: string) {
+    const project = await this.projectModel.findById(projectId).select('status validationStatus');
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${projectId} not found`);
+    }
+
+    if (
+      project.status === ProjectStatus.CLOSED ||
+      project.validationStatus === ProjectValidation.FINAL_VALIDATION
+    ) {
+      throw new ForbiddenException('Cannot create activities for a closed project.');
+    }
+  }
 
   async create(
     createActivityDto: CreateActivityDto,
     userId: string,
   ): Promise<Activity> {
     try {
+      if (createActivityDto.entityType === EntityType.PROJECT) {
+        await this.ensureProjectIsWritable(createActivityDto.entityId.toString());
+      }
+
       const createdActivity = new this.activityModel({
         ...createActivityDto,
         createdBy: userId,
@@ -37,6 +66,9 @@ export class ActivitiesService {
 
       return createdActivity;
     } catch (err: any) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
       throw new BadRequestException(err.message);
     }
   }
@@ -109,6 +141,10 @@ export class ActivitiesService {
     if (!activity) {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
     }
+
+    if (activity.entityType === EntityType.PROJECT) {
+      await this.ensureProjectIsWritable(activity.entityId.toString());
+    }
 // Check if the status is being updated to COMPLETED and if it was not already COMPLETED
     const isTransitionToCompleted =
       updateActivityDto.status === Status.COMPLETED &&
@@ -138,22 +174,48 @@ export class ActivitiesService {
 
   async addAssignee(activityId: string, userId: string, updaterId: string) {
     try {
+      const activity = await this.activityModel.findById(activityId);
+
+      if (!activity) {
+        throw new NotFoundException(`Activity with ID: ${activityId} not found`);
+      }
+
+      if (activity.entityType === EntityType.PROJECT) {
+        await this.ensureProjectIsWritable(activity.entityId.toString());
+      }
+
       await this.activityModel.findByIdAndUpdate(
         { _id: activityId },
         { $addToSet: { assignees: userId }, $set: { updatedBy: updaterId } },
       );
     } catch (err: any) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
       throw new BadRequestException(err.message);
     }
   }
 
   async removeAssignee(activityId: string, userId: string, updaterId: string) {
     try {
+      const activity = await this.activityModel.findById(activityId);
+
+      if (!activity) {
+        throw new NotFoundException(`Activity with ID: ${activityId} not found`);
+      }
+
+      if (activity.entityType === EntityType.PROJECT) {
+        await this.ensureProjectIsWritable(activity.entityId.toString());
+      }
+
       await this.activityModel.findByIdAndUpdate(
         { _id: activityId },
         { $pull: { assignees: userId }, $set: { updatedBy: updaterId } },
       );
     } catch (err: any) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
       throw new BadRequestException(err.message);
     }
   }
@@ -163,6 +225,10 @@ export class ActivitiesService {
 
     if (!activity) {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
+    }
+
+    if (activity.entityType === EntityType.PROJECT) {
+      await this.ensureProjectIsWritable(activity.entityId.toString());
     }
 
     const files = await this.filesService.findFilesForEntity(

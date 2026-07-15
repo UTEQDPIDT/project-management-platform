@@ -16,11 +16,13 @@ import {
 interface ProjectProductMenuProps {
   projectId: string;
   product: IProduct;
+  isReadOnly?: boolean;
 }
 
 export default function ProjectProductMenu({
   projectId,
   product,
+  isReadOnly = false,
 }: ProjectProductMenuProps) {
   const deleteProduct = useDeleteProduct();
 
@@ -30,6 +32,8 @@ export default function ProjectProductMenu({
 
   return (
     <div className="flex flex-col gap-1 max-w-fit">
+      {isReadOnly ? null : (
+        <>
       {/* Edit */}
       <Dialog>
         <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground px-0 h-8 border-transparent w-full justify-start font-normal">
@@ -72,6 +76,8 @@ export default function ProjectProductMenu({
           </div>
         </DialogContent>
       </Dialog>
+        </>
+      )}
     </div>
   );
 }

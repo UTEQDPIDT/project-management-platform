@@ -20,11 +20,13 @@ import {
   ApiTags,
   ApiConsumes,
   ApiBadRequestResponse,
+  ApiForbiddenResponse,
 } from '@nestjs/swagger';
 
 type AuthenticatedRequest = {
   user: {
     id: string;
+    role: string;
   };
 };
 
@@ -100,5 +102,59 @@ export class ProjectsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.projectsService.remove(id);
+  }
+
+  // =========================================================================
+  // PROJECT VALIDATION ENDPOINTS (Simplified 2-step flow)
+  // =========================================================================
+
+  /**
+   * Endpoint for administrative users to apply the first level of validation.
+   */
+  @ApiAcceptedResponse({ description: 'First validation applied successfully.' })
+  @ApiBadRequestResponse({ description: 'Project is not in COMPLETED status or validation is already active.' })
+  @ApiNotFoundResponse({ description: 'Project not found.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized or expired cookie.' })
+  @Post(':id/first-validation')
+  applyFirstValidation(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.projectsService.applyFirstValidation(
+      id,
+      req.user.id,
+      req.user.role,
+    );
+  }
+
+  /**
+   * Endpoint for the manager/final account to perform the closure validation.
+   */
+  @ApiAcceptedResponse({ description: 'Project closed successfully.' })
+  @ApiBadRequestResponse({ description: 'Project does not satisfy completion status or lacks first validation.' })
+  @ApiNotFoundResponse({ description: 'Project not found.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized or expired cookie.' })
+  @Post(':id/close')
+  closeProject(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.projectsService.closeProject(id, req.user.id);
+  }
+
+  /**
+   * Endpoint to unlock and reopen a closed project.
+   */
+  @ApiAcceptedResponse({ description: 'Project reopened successfully.' })
+  @ApiBadRequestResponse({ description: 'Project is not closed.' })
+  @ApiForbiddenResponse({ description: 'Only the user who closed the project can reopen it.' })
+  @ApiNotFoundResponse({ description: 'Project not found.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized or expired cookie.' })
+  @Post(':id/reopen')
+  reopenProject(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.projectsService.reopenProject(id, req.user.id);
   }
 }

@@ -22,12 +22,14 @@ interface ProjectActivityMenu {
   projectId: string;
   activity: IActivity;
   activitiesLength: number;
+  isReadOnly?: boolean;
 }
 
 export function ProjectActivityMenu({
   projectId,
   activity,
   activitiesLength,
+  isReadOnly = false,
 }: ProjectActivityMenu) {
   const { user } = useUserProfile();
 
@@ -44,6 +46,8 @@ export function ProjectActivityMenu({
 
   return (
     <div className="flex flex-col gap-1">
+      {isReadOnly ? null : (
+        <>
       {/* Edit */}
       <Dialog>
         <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground px-0 h-8 border-transparent w-full justify-start font-normal">
@@ -98,6 +102,8 @@ export function ProjectActivityMenu({
           </div>
         </DialogContent>
       </Dialog>
+        </>
+      )}
     </div>
   );
 }

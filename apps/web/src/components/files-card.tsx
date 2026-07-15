@@ -59,6 +59,7 @@ type FileCardProps = {
   isLoading?: boolean;
   isError?: boolean;
   isUploading?: boolean;
+  isProjectClosed?: boolean;
 };
 
 export default function FilesCard({
@@ -75,6 +76,7 @@ export default function FilesCard({
   isLoading,
   isError,
   isUploading,
+  isProjectClosed = false,
 }: FileCardProps) {
   const deleteFileMutation = useDeleteFile();
 
@@ -113,15 +115,16 @@ export default function FilesCard({
               </HoverCardContent>
             </HoverCard>
           </div>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Upload />
-                Subir
-              </Button>
-            </SheetTrigger>
+          {!isProjectClosed && (
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Upload />
+                  Subir
+                </Button>
+              </SheetTrigger>
 
-            <SheetContent className="flex h-dvh flex-col">
+              <SheetContent className="flex h-dvh flex-col">
               <SheetHeader>
                 <SheetTitle>{`Subir ${title}`}</SheetTitle>
                 <SheetDescription>
@@ -187,8 +190,9 @@ export default function FilesCard({
                   <Button variant="outline">Cerrar</Button>
                 </SheetClose>
               </SheetFooter>
-            </SheetContent>
-          </Sheet>
+              </SheetContent>
+            </Sheet>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -197,7 +201,12 @@ export default function FilesCard({
         ) : isError ? (
           <ErrorCard />
         ) : savedFiles.length ? (
-          <FileList onDelete={handleDelete} onDownload={handleDownload} className="lg:max-h-[50dvh] overflow-y-auto scroll-smooth pr-2.5">
+          <FileList
+            onDelete={handleDelete}
+            onDownload={handleDownload}
+            allowDelete={!isProjectClosed}
+            className="lg:max-h-[50dvh] overflow-y-auto scroll-smooth pr-2.5"
+          >
             {savedFiles.map((f: IFile) => (
               <FileList.Item key={f._id} file={f}>
                 <FileList.Actions file={f} />

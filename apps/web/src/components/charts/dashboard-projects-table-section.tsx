@@ -1,7 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { Copy, ExternalLink, MoreHorizontal, Pencil, Trash } from 'lucide-react';
+import {
+	Copy,
+	DoorOpen,
+	ExternalLink,
+	MoreHorizontal,
+	Pencil,
+	Pin,
+	Trash,
+	Lock,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,8 +38,19 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { copyValue, formatDatePeriod } from '@/lib/utils';
-import { useDeleteProject } from '@/hooks/projects';
-import { IProject, ProjectStatus, TeamMembershipStatus } from '@repo/types';
+import {
+	useCloseProject,
+	useDeleteProject,
+	useFirstValidationProject,
+	useReopenProject,
+} from '@/hooks/projects';
+import {
+	IProject,
+	ProjectStatus,
+	TeamMembershipStatus,
+	UserRole,
+} from '@repo/types';
+import { useUserProfile } from 'context/profile-provider';
 
 const MAX_PROJECT_NAME_LENGTH = 50;
 
@@ -51,12 +71,14 @@ const truncateText = (value: string, maxLength: number) => {
 };
 
 const getProjectStatusLabel = (status: ProjectStatus) => {
+	if (status === ProjectStatus.CLOSED) return 'Cerrado';
 	if (status === ProjectStatus.IN_PROGRESS) return 'En progreso';
 	if (status === ProjectStatus.COMPLETED) return 'Completado';
 	return 'Pendiente';
 };
 
 const getProjectStatusVariant = (status: ProjectStatus) => {
+	if (status === ProjectStatus.CLOSED) return 'gray' as const;
 	if (status === ProjectStatus.IN_PROGRESS) return 'blue' as const;
 	if (status === ProjectStatus.COMPLETED) return 'green' as const;
 	return 'orange' as const;
@@ -84,7 +106,27 @@ const getParticipantsCount = (project: IProject) => {
 };
 
 const ProjectActions = ({ project }: { project: IProject }) => {
+	const { user } = useUserProfile();
 	const deleteProject = useDeleteProject();
+	const firstValidationProject = useFirstValidationProject();
+	const closeProject = useCloseProject();
+	const reopenProject = useReopenProject();
+	const isClosed = project.status === ProjectStatus.CLOSED;
+	const closedById =
+		typeof project.closedBy === 'string' ? project.closedBy : project.closedBy?._id;
+	const hasFirstValidation = Boolean(project.firstValidatedBy);
+	const canFirstValidate = Boolean(
+		!isClosed &&
+			project.status === ProjectStatus.COMPLETED &&
+			user?.role === UserRole.ADMIN &&
+			!hasFirstValidation,
+	);
+	const canReopen = Boolean(isClosed && closedById && closedById === user?._id);
+	const canClose = Boolean(
+		!isClosed &&
+			project.status === ProjectStatus.COMPLETED &&
+			hasFirstValidation,
+	);
 
 	return (
 		<DropdownMenu>
@@ -96,48 +138,82 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 			<DropdownMenuContent align="end">
 				<DropdownMenuLabel>Acciones</DropdownMenuLabel>
 				<DropdownMenuItem asChild>
-					<Link href={`/admin/proyectos/${project._id}/editar`}>
-						<Pencil /> Editar proyecto
-					</Link>
-				</DropdownMenuItem>
-				<DropdownMenuItem asChild>
 					<Link href={`/admin/proyectos/${project._id}`}>
 						<ExternalLink /> Visitar proyecto
 					</Link>
 				</DropdownMenuItem>
+				{!isClosed && (
+					<DropdownMenuItem asChild>
+						<Link href={`/admin/proyectos/${project._id}/editar`}>
+							<Pencil /> Editar proyecto
+						</Link>
+					</DropdownMenuItem>
+				)}
 				<DropdownMenuItem onClick={() => copyValue(project._id)}>
 					<Copy /> Copiar ID
 				</DropdownMenuItem>
-				<DropdownMenuSeparator />
-				<DropdownMenuItem asChild className="hover:text-destructive-foreground">
-					<Dialog>
-						<DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
-							<Trash />
-							Eliminar proyecto
-						</DialogTrigger>
-						<DialogContent>
-							<Badge variant="destructive">Eliminando</Badge>
-							<DialogTitle>{project.name}</DialogTitle>
-							<DialogDescription>
-								¿Seguro deseas eliminar el proyecto? Esta es una operación
-								irreversible.
-							</DialogDescription>
-							<div className="flex gap-2">
-								<DialogClose asChild>
-									<Button variant="outline">Cancelar</Button>
-								</DialogClose>
-								<DialogClose asChild>
-									<Button
-										onClick={() => deleteProject.mutate(project._id)}
-										variant="destructive"
-									>
-										Eliminar
-									</Button>
-								</DialogClose>
-							</div>
-						</DialogContent>
-					</Dialog>
-				</DropdownMenuItem>
+
+				{canFirstValidate && (
+					<DropdownMenuItem
+						onClick={() => firstValidationProject.mutate(project._id)}
+						disabled={firstValidationProject.isPending}
+					>
+						<Pin /> Primera validación
+					</DropdownMenuItem>
+				)}
+
+				{canClose && (
+					<DropdownMenuItem
+						onClick={() => closeProject.mutate(project._id)}
+						disabled={closeProject.isPending}
+					>
+						<Lock /> Cerrar proyecto (2da validación)
+					</DropdownMenuItem>
+				)}
+
+				{canReopen && (
+					<DropdownMenuItem
+						onClick={() => reopenProject.mutate(project._id)}
+						disabled={reopenProject.isPending}
+					>
+						<DoorOpen /> Reabrir proyecto
+					</DropdownMenuItem>
+				)}
+
+				{!isClosed && (
+					<>
+						<DropdownMenuSeparator />
+						<DropdownMenuItem asChild className="hover:text-destructive-foreground">
+							<Dialog>
+								<DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
+									<Trash />
+									Eliminar proyecto
+								</DialogTrigger>
+								<DialogContent>
+									<Badge variant="destructive">Eliminando</Badge>
+									<DialogTitle>{project.name}</DialogTitle>
+									<DialogDescription>
+										¿Seguro deseas eliminar el proyecto? Esta es una operación
+										irreversible.
+									</DialogDescription>
+									<div className="flex gap-2">
+										<DialogClose asChild>
+											<Button variant="outline">Cancelar</Button>
+										</DialogClose>
+										<DialogClose asChild>
+											<Button
+												onClick={() => deleteProject.mutate(project._id)}
+												variant="destructive"
+											>
+												Eliminar
+											</Button>
+										</DialogClose>
+									</div>
+								</DialogContent>
+							</Dialog>
+						</DropdownMenuItem>
+					</>
+				)}
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
