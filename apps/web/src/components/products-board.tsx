@@ -23,6 +23,7 @@ type ProductsCardProps = {
   projectId: string;
   isLoading?: boolean;
   isError?: boolean;
+  isProjectClosed?: boolean;
 };
 
 export function ProductsBoard({
@@ -30,6 +31,7 @@ export function ProductsBoard({
   projectId,
   isLoading,
   isError,
+  isProjectClosed = false,
 }: ProductsCardProps) {
   return (
     <Card className="w-full border-neutral-400">
@@ -42,15 +44,17 @@ export function ProductsBoard({
 
             <CardTitle>Productos</CardTitle>
           </div>
-          <Dialog>
-            <DialogTrigger className="h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
-              Crear
-            </DialogTrigger>
-            <DialogContent>
-              <DialogTitle>Nuevo Producto</DialogTitle>
-              <ProductForm projectId={projectId} />
-            </DialogContent>
-          </Dialog>
+          {!isProjectClosed && (
+            <Dialog>
+              <DialogTrigger className="h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
+                Crear
+              </DialogTrigger>
+              <DialogContent>
+                <DialogTitle>Nuevo Producto</DialogTitle>
+                <ProductForm projectId={projectId} />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -64,9 +68,13 @@ export function ProductsBoard({
               <ProductCard
                 key={p._id}
                 product={p}
-                enableOptions
+                enableOptions={!isProjectClosed}
                 options={
-                  <ProjectProductMenu projectId={projectId} product={p} />
+                  <ProjectProductMenu
+                    projectId={projectId}
+                    product={p}
+                    isReadOnly={isProjectClosed}
+                  />
                 }
               />
             ))}
