@@ -3,6 +3,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/admin-sidebar';
 import { cookies } from 'next/headers';
 import { ProfileProvider } from 'context/profile-provider';
+import { redirect } from 'next/navigation';
 
 export default async function AdminDashboardLayout({
   children,
@@ -11,22 +12,30 @@ export default async function AdminDashboardLayout({
 }) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/profile`,
-    {
+  if (!accessToken || !apiBaseUrl) {
+    redirect('/');
+  }
+
+  let user: any;
+
+  try {
+    const res = await fetch(`${apiBaseUrl}/users/profile`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
       cache: 'no-store',
-    },
-  );
+    });
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch user profile: ${res.status}`);
+    if (!res.ok) {
+      redirect('/');
+    }
+
+    user = await res.json();
+  } catch {
+    redirect('/');
   }
-
-  const user = await res.json();
 
   return (
     <ProfileProvider initialUser={user}>
