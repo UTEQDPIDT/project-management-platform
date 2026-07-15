@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,7 +10,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { File } from '../schemas/file.schema';
 import { mongo } from 'mongoose';
-import { EntityType, FilePurpose } from '@repo/types';
+import {
+  EntityType,
+  FilePurpose,
+  ProjectStatus,
+  ProjectValidation,
+} from '@repo/types';
+import { Project } from '../schemas/project.schema';
+import { Activity } from '../schemas/activities.schema';
+import { Product } from '../schemas/product.schema';
 
 @Injectable()
 export class FilesService {
@@ -18,10 +27,76 @@ export class FilesService {
   constructor(
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(File.name) private readonly fileModel: Model<File>,
+    @InjectModel(Project.name) private readonly projectModel: Model<Project>,
+    @InjectModel(Activity.name) private readonly activityModel: Model<Activity>,
+    @InjectModel(Product.name) private readonly productModel: Model<Product>,
   ) {
     this.bucket = new mongo.GridFSBucket(this.connection.db, {
       bucketName: 'uploads',
     });
+  }
+
+  private async resolveParentProjectId(
+    entityId: string,
+    entityType: EntityType,
+  ): Promise<string | null> {
+    if (entityType === EntityType.PROJECT) {
+      return entityId;
+    }
+
+    if (entityType === EntityType.ACTIVITY) {
+      const activity = await this.activityModel
+        .findById(entityId)
+        .select('entityType entityId');
+
+      if (!activity) {
+        throw new NotFoundException(`Activity with ID: ${entityId} not found`);
+      }
+
+      if (activity.entityType === EntityType.PROJECT) {
+        return activity.entityId.toString();
+      }
+
+      return null;
+    }
+
+    if (entityType === EntityType.PRODUCT) {
+      const product = await this.productModel.findById(entityId).select('projectId');
+
+      if (!product) {
+        throw new NotFoundException(`Product with ID: ${entityId} not found`);
+      }
+
+      return product.projectId.toString();
+    }
+
+    return null;
+  }
+
+  private async ensureProjectAllowsFileWrites(
+    entityId: string,
+    entityType: EntityType,
+  ) {
+    const parentProjectId = await this.resolveParentProjectId(entityId, entityType);
+
+    if (!parentProjectId) {
+      return;
+    }
+
+    const project = await this.projectModel
+      .findById(parentProjectId)
+      .select('status validationStatus');
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${parentProjectId} not found`);
+    }
+
+    if (
+      project.status === ProjectStatus.CLOSED ||
+      project.validationStatus === ProjectValidation.FINAL_VALIDATION
+    ) {
+      throw new ForbiddenException('Files cannot be modified on closed projects.');
+    }
   }
 
   async uploadFile(
@@ -34,6 +109,8 @@ export class FilesService {
     if (!file) {
       throw new BadRequestException('No file provided');
     }
+
+    await this.ensureProjectAllowsFileWrites(entityId, entityType);
 
     await this.validateUploadRules(file, entityId, entityType, purpose);
 
@@ -214,6 +291,11 @@ export class FilesService {
     if (!file) {
       throw new NotFoundException('File metadata not found');
     }
+
+    await this.ensureProjectAllowsFileWrites(
+      file.entityId.toString(),
+      file.entityType,
+    );
 
     let deletedFile: File;
     try {
