@@ -67,6 +67,37 @@ const getProjectsDashboard = async (
   return data;
 };
 
+// =========================================================================
+// PROJECT VALIDATION FLOW SERVICES (Simplified 2-Step Flow)
+// =========================================================================
+
+/**
+ * Sends a request to apply the first administrative validation.
+ * @param id The unique identifier of the project.
+ */
+const applyFirstValidation = async (id: string) => {
+  const { data } = await api.post(`/projects/${id}/first-validation`);
+  return data;
+};
+
+/**
+ * Sends a request to close the project permanently (final validation).
+ * @param id The unique identifier of the project.
+ */
+const closeProject = async (id: string) => {
+  const { data } = await api.post(`/projects/${id}/close`);
+  return data;
+};
+
+/**
+ * Sends a request to reopen a closed project.
+ * @param id The unique identifier of the project.
+ */
+const reopenProject = async (id: string) => {
+  const { data } = await api.post(`/projects/${id}/reopen`);
+  return data;
+};
+
 export {
   createProject,
   getAllProjects,
@@ -76,4 +107,7 @@ export {
   updateProject,
   deleteProject,
   getProjectsDashboard,
+  applyFirstValidation,
+  closeProject,
+  reopenProject,
 };
