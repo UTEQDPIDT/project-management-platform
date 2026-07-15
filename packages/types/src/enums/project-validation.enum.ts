@@ -1,0 +1,4 @@
+export enum ProjectValidation{
+    FIRST_VALIDATION = 'FIRST_VALIDATION',
+    FINAL_VALIDATION = 'FINAL_VALIDATION',
+}

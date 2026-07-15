@@ -28,4 +28,7 @@ export interface IProject {
   createdAt: Date;
   updatedAt: Date;
   status: ProjectStatus;
+  firstValidatedBy?: IUser;
+  ValidationBy?: IUser;
+  closedBy?: IUser;
 }
