@@ -36,15 +36,31 @@ export class FilesService {
     });
   }
 
+  private normalizeEntityType(value: EntityType | string | null | undefined): EntityType | null {
+    const normalized = String(value ?? '')
+      .trim()
+      .toLowerCase();
+
+    if (normalized === EntityType.PROJECT) return EntityType.PROJECT;
+    if (normalized === EntityType.ACTIVITY) return EntityType.ACTIVITY;
+    if (normalized === EntityType.PRODUCT) return EntityType.PRODUCT;
+    if (normalized === EntityType.EVENT) return EntityType.EVENT;
+    if (normalized === EntityType.STANDALONE_PRODUCT) return EntityType.STANDALONE_PRODUCT;
+
+    return null;
+  }
+
   private async resolveParentProjectId(
     entityId: string,
-    entityType: EntityType,
+    entityType: EntityType | string,
   ): Promise<string | null> {
-    if (entityType === EntityType.PROJECT) {
+    const normalizedEntityType = this.normalizeEntityType(entityType);
+
+    if (normalizedEntityType === EntityType.PROJECT) {
       return entityId;
     }
 
-    if (entityType === EntityType.ACTIVITY) {
+    if (normalizedEntityType === EntityType.ACTIVITY) {
       const activity = await this.activityModel
         .findById(entityId)
         .select('entityType entityId');
@@ -53,14 +69,18 @@ export class FilesService {
         throw new NotFoundException(`Activity with ID: ${entityId} not found`);
       }
 
-      if (activity.entityType === EntityType.PROJECT) {
+      const activityEntityType = this.normalizeEntityType(
+        activity.entityType as EntityType | string,
+      );
+
+      if (activityEntityType === EntityType.PROJECT) {
         return activity.entityId.toString();
       }
 
       return null;
     }
 
-    if (entityType === EntityType.PRODUCT) {
+    if (normalizedEntityType === EntityType.PRODUCT) {
       const product = await this.productModel.findById(entityId).select('projectId');
 
       if (!product) {
@@ -75,7 +95,7 @@ export class FilesService {
 
   private async ensureProjectAllowsFileWrites(
     entityId: string,
-    entityType: EntityType,
+    entityType: EntityType | string,
   ) {
     const parentProjectId = await this.resolveParentProjectId(entityId, entityType);
 
@@ -150,7 +170,9 @@ export class FilesService {
       return;
     }
 
-    if (entityType !== EntityType.PROJECT) {
+    const normalizedEntityType = this.normalizeEntityType(entityType);
+
+    if (normalizedEntityType !== EntityType.PROJECT) {
       throw new BadRequestException(
         'PROJECT_FINANCIAL_REPORT solo puede usarse con proyectos',
       );
@@ -292,10 +314,7 @@ export class FilesService {
       throw new NotFoundException('File metadata not found');
     }
 
-    await this.ensureProjectAllowsFileWrites(
-      file.entityId.toString(),
-      file.entityType,
-    );
+    await this.ensureProjectAllowsFileWrites(file.entityId.toString(), file.entityType);
 
     let deletedFile: File;
     try {
