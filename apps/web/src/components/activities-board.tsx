@@ -98,6 +98,7 @@ export function ActivitiesBoard({
                     }
                     className="border-neutral-500 hover:border-neutral-800"
                     enableOptions={!isProjectClosed}
+                    isReadOnly={isProjectClosed}
                     showPriority
                     showStatus
                   />
@@ -129,6 +130,7 @@ export function ActivitiesBoard({
                     }
                     className="border-neutral-500 hover:border-neutral-800"
                     enableOptions={!isProjectClosed}
+                    isReadOnly={isProjectClosed}
                     showPriority
                     showStatus
                   />
@@ -160,6 +162,7 @@ export function ActivitiesBoard({
                     }
                     className="border-neutral-500 hover:border-neutral-800"
                     enableOptions={!isProjectClosed}
+                    isReadOnly={isProjectClosed}
                     showPriority
                     showStatus
                   />

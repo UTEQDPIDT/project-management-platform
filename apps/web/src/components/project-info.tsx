@@ -65,8 +65,6 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
 
   const isOwner =
     user?._id && project?.owner?._id && user._id === project.owner._id;
-  const canManageFinancialReport =
-    user?.role === UserRole.ADMIN || Boolean(isOwner);
 
   const { data: files = [], isLoading, isError } = useFilesForEntity(project._id);
   const uploadFiles = useUploadMultipleFiles();
@@ -194,6 +192,11 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
     ValidationBy,
     closedBy,
   } = project;
+
+  const normalizedProjectStatus = normalizeProjectStatus(status);
+  const isProjectClosed = normalizedProjectStatus === ProjectStatus.CLOSED;
+  const canManageFinancialReport =
+    !isProjectClosed && (user?.role === UserRole.ADMIN || Boolean(isOwner));
 
   // Clase reutilizable para cada fila de datos del proyecto
   const rowClass = "flex flex-col sm:flex-row sm:items-start py-1 sm:py-0 border-b border-neutral-100 sm:border-0";

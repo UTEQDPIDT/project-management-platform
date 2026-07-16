@@ -69,6 +69,7 @@ interface Props {
   enableOptions?: boolean;
   showStatus?: boolean;
   showPriority?: boolean;
+  isReadOnly?: boolean;
   className?: string;
 }
 
@@ -78,6 +79,7 @@ export function ActivityCard({
   enableOptions,
   showStatus,
   showPriority,
+  isReadOnly = false,
   className,
 }: Props) {
   const { user } = useUserProfile();
@@ -315,85 +317,87 @@ export function ActivityCard({
           <div className="flex flex-col gap-4 w-full">
             <div className="w-full flex justify-between items-center">
               <h2 className="font-medium">Evidencias</h2>
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Upload />
-                    Subir
-                  </Button>
-                </SheetTrigger>
-
-                <SheetContent className="flex h-dvh flex-col">
-                  <SheetHeader>
-                    <SheetTitle>Subir Archivos</SheetTitle>
-                    <SheetDescription>
-                      Selecciona y sube los archivos
-                    </SheetDescription>
-                  </SheetHeader>
-
-                  <div className="flex min-h-0 flex-1 flex-col px-4">
-                    <FileUpload
-                      value={filesToUpload}
-                      onValueChange={setFilesToUpload}
-                      maxSize={5 * 1024 * 1024}
-                      accept={
-                        '.pdf, .doc, .docx, .xls, .xlsx, .png, .jpg, .jpeg'
-                      }
-                      multiple
-                    >
-                      <FileUploadDropzone>
-                        <div className="flex flex-col items-center gap-1">
-                          <div className="flex items-center justify-center rounded-full border p-2.5">
-                            <Upload className="size-6 text-muted-foreground" />
-                          </div>
-                          <p className="font-medium text-sm">
-                            Arrastra archivos aquí
-                          </p>
-                          <p className="text-muted-foreground text-xs">
-                            o haz click para buscar (max 5 MB)
-                          </p>
-                        </div>
-                        <FileUploadTrigger asChild>
-                          <Button size="sm" variant="outline">
-                            Buscar
-                          </Button>
-                        </FileUploadTrigger>
-                      </FileUploadDropzone>
-                      <FileUploadList className="flex-1 max-h-[55vh] overflow-y-auto pr-1">
-                        {filesToUpload.map((file, index) => (
-                          <FileUploadItem
-                            key={`${file.name}-${file.lastModified}-${index}`}
-                            value={file}
-                          >
-                            <FileUploadItemPreview />
-                            <FileUploadItemMetadata />
-                            <FileUploadItemDelete asChild>
-                              <Button variant="ghost" size="icon-xs">
-                                <X />
-                              </Button>
-                            </FileUploadItemDelete>
-                          </FileUploadItem>
-                        ))}
-                      </FileUploadList>
-                    </FileUpload>
-                  </div>
-                  <SheetFooter className="shrink-0">
-                    <Button
-                      disabled={uploadFiles.isPending}
-                      onClick={handleUpload}
-                    >
-                      {uploadFiles.isPending ? (
-                        <LoadingMessage message="Subiendo archivos" />
-                      ) : (
-                        'Subir archivos'
-                      )}
+              {!isReadOnly && (
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Upload />
+                      Subir
                     </Button>
-                    <SheetClose asChild>
-                      <Button variant="outline">Cerrar</Button>
-                    </SheetClose>
-                  </SheetFooter>
-                </SheetContent>
-              </Sheet>
+                  </SheetTrigger>
+
+                  <SheetContent className="flex h-dvh flex-col">
+                    <SheetHeader>
+                      <SheetTitle>Subir Archivos</SheetTitle>
+                      <SheetDescription>
+                        Selecciona y sube los archivos
+                      </SheetDescription>
+                    </SheetHeader>
+
+                    <div className="flex min-h-0 flex-1 flex-col px-4">
+                      <FileUpload
+                        value={filesToUpload}
+                        onValueChange={setFilesToUpload}
+                        maxSize={5 * 1024 * 1024}
+                        accept={
+                          '.pdf, .doc, .docx, .xls, .xlsx, .png, .jpg, .jpeg'
+                        }
+                        multiple
+                      >
+                        <FileUploadDropzone>
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="flex items-center justify-center rounded-full border p-2.5">
+                              <Upload className="size-6 text-muted-foreground" />
+                            </div>
+                            <p className="font-medium text-sm">
+                              Arrastra archivos aquí
+                            </p>
+                            <p className="text-muted-foreground text-xs">
+                              o haz click para buscar (max 5 MB)
+                            </p>
+                          </div>
+                          <FileUploadTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              Buscar
+                            </Button>
+                          </FileUploadTrigger>
+                        </FileUploadDropzone>
+                        <FileUploadList className="flex-1 max-h-[55vh] overflow-y-auto pr-1">
+                          {filesToUpload.map((file, index) => (
+                            <FileUploadItem
+                              key={`${file.name}-${file.lastModified}-${index}`}
+                              value={file}
+                            >
+                              <FileUploadItemPreview />
+                              <FileUploadItemMetadata />
+                              <FileUploadItemDelete asChild>
+                                <Button variant="ghost" size="icon-xs">
+                                  <X />
+                                </Button>
+                              </FileUploadItemDelete>
+                            </FileUploadItem>
+                          ))}
+                        </FileUploadList>
+                      </FileUpload>
+                    </div>
+                    <SheetFooter className="shrink-0">
+                      <Button
+                        disabled={uploadFiles.isPending}
+                        onClick={handleUpload}
+                      >
+                        {uploadFiles.isPending ? (
+                          <LoadingMessage message="Subiendo archivos" />
+                        ) : (
+                          'Subir archivos'
+                        )}
+                      </Button>
+                      <SheetClose asChild>
+                        <Button variant="outline">Cerrar</Button>
+                      </SheetClose>
+                    </SheetFooter>
+                  </SheetContent>
+                </Sheet>
+              )}
             </div>
 
             {isLoadingFiles ? (
@@ -404,6 +408,7 @@ export function ActivityCard({
               <FileList
                 onDelete={handleDelete}
                 onDownload={handleDownload}
+                allowDelete={!isReadOnly}
                 className="lg:max-h-[40dvh] overflow-y-auto scroll-smooth pr-2"
               >
                 {files.length ? (
