@@ -8,6 +8,8 @@ import { SeedCategory } from './seed-category.type';
 export interface IUser {
   _id: string;
   role: UserRole;
+  canValidateProjets: boolean;
+  canCloseProject: boolean;
   type: UserType;
   givenName: string;
   familyName: string;

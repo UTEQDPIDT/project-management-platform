@@ -16,6 +16,20 @@ export class User extends Document {
   role: UserRole;
 
   @ApiPropertyOptional({
+    description: 'Permite que el usuario aplique la primera validación de proyectos.',
+    default: false,
+  })
+  @Prop({ type: Boolean, default: false })
+  canValidateProjets: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Permite que el usuario cierre proyectos con validación final.',
+    default: false,
+  })
+  @Prop({ type: Boolean, default: false })
+  canCloseProject: boolean;
+
+  @ApiPropertyOptional({
     description: 'El tipo de usuario.',
     default: UserType.ESTUDIANTE,
     enum: UserType,

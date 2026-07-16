@@ -120,11 +120,7 @@ export class ProjectsController {
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.projectsService.applyFirstValidation(
-      id,
-      req.user.id,
-      req.user.role,
-    );
+    return this.projectsService.applyFirstValidation(id, req.user.id);
   }
 
   /**

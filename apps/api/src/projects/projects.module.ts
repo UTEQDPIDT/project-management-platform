@@ -3,13 +3,17 @@ import { ProjectsService } from './projects.service';
 import { ProjectsController } from './projects.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Project, ProjectSchema } from '../schemas/project.schema';
+import { User, UserSchema } from '../schemas/user.schema';
 import { FilesModule } from '../files/files.module';
 import { ProductsModule } from '../products/products.module';
 import { ActivitiesModule } from '../activities/activities.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Project.name, schema: ProjectSchema }]),
+    MongooseModule.forFeature([
+      { name: Project.name, schema: ProjectSchema },
+      { name: User.name, schema: UserSchema },
+    ]),
     FilesModule,
     ProductsModule,
     forwardRef(() => ActivitiesModule),

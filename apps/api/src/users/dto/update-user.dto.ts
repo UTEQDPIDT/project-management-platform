@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDate,
   IsEnum,
   IsMongoId,
@@ -14,6 +15,14 @@ export class UpdateUserDto {
   @IsOptional()
   @IsEnum(UserRole)
   role: UserRole;
+
+  @IsOptional()
+  @IsBoolean()
+  canValidateProjets?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  canCloseProject?: boolean;
 
   @IsOptional()
   @IsEnum(UserType)

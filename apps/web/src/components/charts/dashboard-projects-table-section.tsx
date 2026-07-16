@@ -48,7 +48,6 @@ import {
 	IProject,
 	ProjectStatus,
 	TeamMembershipStatus,
-	UserRole,
 } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
 
@@ -118,13 +117,19 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 	const canFirstValidate = Boolean(
 		!isClosed &&
 			project.status === ProjectStatus.COMPLETED &&
-			user?.role === UserRole.ADMIN &&
+			user?.canValidateProjets &&
 			!hasFirstValidation,
 	);
-	const canReopen = Boolean(isClosed && closedById && closedById === user?._id);
+	const canReopen = Boolean(
+		isClosed &&
+			user?.canCloseProject &&
+			closedById &&
+			closedById === user?._id,
+	);
 	const canClose = Boolean(
 		!isClosed &&
 			project.status === ProjectStatus.COMPLETED &&
+			user?.canCloseProject &&
 			hasFirstValidation,
 	);
 

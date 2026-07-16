@@ -10,6 +10,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Project } from '../schemas/project.schema';
+import { User } from '../schemas/user.schema';
 import { Connection, Model, Types } from 'mongoose';
 import { FilesService } from '../files/files.service';
 import { ProductsService } from '../products/products.service';
@@ -19,7 +20,6 @@ import {
   ProjectStatus,
   Status,
   ProjectValidation,
-  UserRole,
 } from '@repo/types';
 
 @Injectable()
@@ -27,11 +27,27 @@ export class ProjectsService {
   constructor(
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(Project.name) private projectModel: Model<Project>,
+    @InjectModel(User.name) private userModel: Model<User>,
     private readonly productService: ProductsService,
     @Inject(forwardRef(() => ActivitiesService))
     private readonly activitiesService: ActivitiesService,
     private readonly filesService: FilesService,
   ) {}
+
+  private async getValidationPermissions(userId: string) {
+    const user = await this.userModel
+      .findById(userId)
+      .select('canValidateProjets canCloseProject');
+
+    if (!user) {
+      throw new NotFoundException(`User with ID: ${userId} not found`);
+    }
+
+    return {
+      canValidate: Boolean(user.get('canValidateProjets')),
+      canClose: Boolean(user.get('canCloseProject')),
+    };
+  }
 
   /**
    * Validates that the project contains the minimum required activities.
@@ -322,9 +338,11 @@ export class ProjectsService {
    * @param projectId The unique identifier of the project.
    * @param userId The ID of the administrative user applying the validation.
    */
-  async applyFirstValidation(projectId: string, userId: string, userRole: string) {
-    if (userRole !== UserRole.ADMIN) {
-      throw new ForbiddenException('Only admin users can apply the first validation.');
+  async applyFirstValidation(projectId: string, userId: string) {
+    const permissions = await this.getValidationPermissions(userId);
+
+    if (!permissions.canValidate) {
+      throw new ForbiddenException('This user is not authorized to apply the first validation.');
     }
 
     const currentStatus = await this.recomputeProjectStatus(projectId);
@@ -364,17 +382,35 @@ export class ProjectsService {
    * @param userId The ID of the final manager account closing the project.
    */
   async closeProject(projectId: string, userId: string) {
+    const permissions = await this.getValidationPermissions(userId);
+
+    if (!permissions.canClose) {
+      throw new ForbiddenException('This user is not authorized to close projects.');
+    }
+
     const project = await this.projectModel.findById(projectId);
 
     if (!project) {
       throw new NotFoundException(`Project with ID: ${projectId} not found`);
     }
 
-    if (project.status !== ProjectStatus.COMPLETED) {
+    const validationStatus = project.get('validationStatus');
+
+    if (validationStatus === ProjectValidation.FINAL_VALIDATION) {
+      throw new BadRequestException('The project is already closed.');
+    }
+
+    const currentStatus = await this.recomputeProjectStatus(projectId);
+
+    if (currentStatus !== ProjectStatus.COMPLETED) {
       throw new BadRequestException('The project must be in COMPLETED status to be closed.');
     }
 
-    if (project.get('validationStatus') !== ProjectValidation.FIRST_VALIDATION) {
+    const hasFirstValidation =
+      validationStatus === ProjectValidation.FIRST_VALIDATION ||
+      Boolean(project.get('firstValidatedBy'));
+
+    if (!hasFirstValidation) {
       throw new BadRequestException('The project must pass the first validation level before it can be closed.');
     }
 

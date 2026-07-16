@@ -1,4 +1,11 @@
-import { IsEmail, IsEnum, IsOptional, IsString, IsUrl } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 import { UserRole, UserType } from '@repo/types';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -44,6 +51,22 @@ export class CreateUserDto {
   @IsOptional()
   @IsEnum(UserRole)
   role: UserRole;
+
+  @ApiProperty({
+    description: 'Permiso para aplicar primera validación de proyectos.',
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  canValidateProjets?: boolean;
+
+  @ApiProperty({
+    description: 'Permiso para cerrar proyectos (validación final).',
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  canCloseProject?: boolean;
 
   @ApiProperty({
     description: 'El tipo de usuario.',
