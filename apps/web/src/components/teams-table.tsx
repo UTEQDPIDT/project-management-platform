@@ -54,6 +54,7 @@ const gradeBadgeVariantMap: Record<
   [TeamsGrade.CA_CONSOLIDADO]: 'green',
   [TeamsGrade.CA_EN_CONSOLIDACION]: 'orange',
   [TeamsGrade.GRUPO_DE_INVESTIGACION]: 'purple',
+  [TeamsGrade.SIN_GRADO]: 'blue',
 };
 
 const TeamsActions = ({ team }: { team: ITeam }) => {
