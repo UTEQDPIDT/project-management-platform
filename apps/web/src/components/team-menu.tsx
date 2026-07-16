@@ -28,7 +28,15 @@ import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { useUserProfile } from 'context/profile-provider';
 import { UserRole } from '@repo/types';
 
-export function TeamMenu({ teamId, name }: { teamId: string; name: string }) {
+export function TeamMenu({
+  teamId,
+  name,
+  isOwner = false,
+}: {
+  teamId: string;
+  name: string;
+  isOwner?: boolean;
+}) {
   const deleteTeam = useDeleteTeam();
   const router = useRouter();
   const { user } = useUserProfile();
@@ -44,7 +52,7 @@ export function TeamMenu({ teamId, name }: { teamId: string; name: string }) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuGroup>
-          {user.role === UserRole.ADMIN && (
+          {(user.role === UserRole.ADMIN || isOwner) && (
             <>
               <DropdownMenuItem asChild>
                 <Link href={`${baseUrl}/equipos/${teamId}/editar`}>

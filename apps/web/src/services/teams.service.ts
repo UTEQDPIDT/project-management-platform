@@ -1,6 +1,16 @@
 import { api } from '@/lib/axios';
 import { ITeam } from '@repo/types';
 
+type TeamWritePayload = {
+  teamName: string;
+  summary?: string;
+  grade?: ITeam['grade'];
+  isPrivate?: boolean;
+  division?: string;
+  members?: string[];
+  collaborators?: string[];
+};
+
 const getAllTeams = async (isPrivate?: boolean) => {
   let url;
 
@@ -25,10 +35,7 @@ const getByUser = async () => {
 };
 
 const createTeam = async (
-  teamData: Pick<
-    ITeam,
-    'teamName' | 'summary' | 'grade' | 'isPrivate' | 'division'
-  >,
+  teamData: TeamWritePayload,
 ) => {
   const { data } = await api.post('/teams', teamData);
   return data.id; // Return team ID for further member/collaborator addition
@@ -36,7 +43,7 @@ const createTeam = async (
 
 const updateTeam = async (
   teamId: string,
-  teamData: Pick<ITeam, 'teamName' | 'summary' | 'grade' | 'isPrivate'>,
+  teamData: TeamWritePayload,
 ) => {
   const { data } = await api.patch(`/teams/${teamId}`, teamData);
   return data._id;

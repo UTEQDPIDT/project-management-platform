@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,82 +9,94 @@ import { UpdateTeamDto } from './dto/update-team.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Team } from '../schemas/team.schema';
 import { Model } from 'mongoose';
+import { UserRole } from '@repo/types';
 
 @Injectable()
 export class TeamsService {
   constructor(@InjectModel(Team.name) private teamModel: Model<Team>) {}
 
   async create(createTeamDto: CreateTeamDto, userId: string) {
-    // Build memberships array
-    const memberships = [
-      {
-        user: userId,
-        role: 'OWNER',
-        status: 'ACTIVE',
-      },
-    ];
-
-    if (Array.isArray(createTeamDto.members)) {
-      memberships.push(
-        ...createTeamDto.members.map((id: string) => ({
-          user: id,
-          role: 'MEMBER',
+    try {
+      // Build memberships array
+      const memberships = [
+        {
+          user: userId,
+          role: 'OWNER',
           status: 'ACTIVE',
-        })),
-      );
+        },
+      ];
+
+      if (Array.isArray(createTeamDto.members)) {
+        memberships.push(
+          ...createTeamDto.members.map((id: string) => ({
+            user: id,
+            role: 'MEMBER',
+            status: 'ACTIVE',
+          })),
+        );
+      }
+
+      if (Array.isArray(createTeamDto.collaborators)) {
+        memberships.push(
+          ...createTeamDto.collaborators.map((id: string) => ({
+            user: id,
+            role: 'COLLABORATOR',
+            status: 'ACTIVE',
+          })),
+        );
+      }
+
+      const teamData = {
+        ...createTeamDto,
+        memberships,
+      };
+
+      // Remove members/collaborators from top-level dto before saving
+      delete teamData.members;
+      delete teamData.collaborators;
+
+      const createdTeam = await this.teamModel.create(teamData);
+
+      return {
+        id: createdTeam._id.toString(),
+        message: 'Team created successfully',
+      };
+    } catch (err: any) {
+      if (err?.code === 11000) {
+        throw new BadRequestException('Team with this name already exists');
+      }
+      throw new BadRequestException(err?.message || 'Failed to create team');
     }
-
-    if (Array.isArray(createTeamDto.collaborators)) {
-      memberships.push(
-        ...createTeamDto.collaborators.map((id: string) => ({
-          user: id,
-          role: 'COLLABORATOR',
-          status: 'ACTIVE',
-        })),
-      );
-    }
-
-    const teamData = {
-      ...createTeamDto,
-      memberships,
-    };
-
-    // Remove members/collaborators from top-level dto before saving
-    delete teamData.members;
-    delete teamData.collaborators;
-
-    const createdTeam = await this.teamModel.create(teamData);
-
-    return {
-      id: createdTeam._id.toString(),
-      message: 'Team created successfully',
-    };
   }
 
   async findAll({
     userId,
     isPrivate,
   }: {
-    userId: string;
+    userId?: string;
     isPrivate?: boolean;
   }) {
-    const orConditions: any[] = [
-      {
+    const orConditions: any[] = [];
+
+    if (userId) {
+      orConditions.push({
         memberships: {
           $elemMatch: {
             user: userId,
             status: 'ACTIVE',
           },
         },
-      },
-    ];
+      });
+    }
 
     if (isPrivate !== undefined) {
       orConditions.push({ isPrivate });
     }
 
+    const filter = orConditions.length > 0 ? { $or: orConditions } : {};
+
     return this.teamModel
-      .find({ $or: orConditions })
+      .find(filter)
       .populate('memberships.user')
       .populate('division')
       .exec();
@@ -132,8 +145,32 @@ export class TeamsService {
       .exec();
   }
 
-  async updateTeam(id: string, updateTeamDto: UpdateTeamDto) {
+  async updateTeam(
+    id: string,
+    updateTeamDto: UpdateTeamDto,
+    userId: string,
+    userRole: string,
+  ) {
     try {
+      const existingTeam = await this.teamModel.findById(id).select('memberships');
+
+      if (!existingTeam) {
+        throw new NotFoundException(`Team with ID: ${id} not found`);
+      }
+
+      const isOwner = existingTeam.memberships.some(
+        (membership) =>
+          membership.user.toString() === userId &&
+          membership.role === 'OWNER' &&
+          membership.status === 'ACTIVE',
+      );
+
+      const isAdmin = userRole === UserRole.ADMIN;
+
+      if (!isOwner && !isAdmin) {
+        throw new ForbiddenException('Only team owners or admin users can edit this team.');
+      }
+
       const updatedTeam = await this.teamModel
         .findByIdAndUpdate(id, updateTeamDto, { new: true })
         .exec();
