@@ -71,6 +71,7 @@ const truncateText = (value: string, maxLength: number) => {
 
 const getProjectStatusLabel = (status: ProjectStatus) => {
 	if (status === ProjectStatus.CLOSED) return 'Cerrado';
+	if (status === ProjectStatus.FIRST_VALIDATION) return 'Primera validacion';
 	if (status === ProjectStatus.IN_PROGRESS) return 'En progreso';
 	if (status === ProjectStatus.COMPLETED) return 'Completado';
 	return 'Pendiente';
@@ -78,6 +79,7 @@ const getProjectStatusLabel = (status: ProjectStatus) => {
 
 const getProjectStatusVariant = (status: ProjectStatus) => {
 	if (status === ProjectStatus.CLOSED) return 'gray' as const;
+	if (status === ProjectStatus.FIRST_VALIDATION) return 'blue' as const;
 	if (status === ProjectStatus.IN_PROGRESS) return 'blue' as const;
 	if (status === ProjectStatus.COMPLETED) return 'green' as const;
 	return 'orange' as const;
@@ -128,7 +130,8 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 	);
 	const canClose = Boolean(
 		!isClosed &&
-			project.status === ProjectStatus.COMPLETED &&
+			(project.status === ProjectStatus.COMPLETED ||
+				project.status === ProjectStatus.FIRST_VALIDATION) &&
 			user?.canCloseProject &&
 			hasFirstValidation,
 	);

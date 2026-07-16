@@ -65,6 +65,14 @@ const normalizeProjectStatus = (status?: string): ProjectStatus => {
     return ProjectStatus.COMPLETED;
   }
 
+  if (
+    value === 'FIRST_VALIDATION' ||
+    value === 'PRIMERA VALIDACION' ||
+    value === 'PRIMERA VALIDACIÓN'
+  ) {
+    return ProjectStatus.FIRST_VALIDATION;
+  }
+
   if (value === 'CLOSED' || value === 'CERRADO') {
     return ProjectStatus.CLOSED;
   }
@@ -76,6 +84,7 @@ const getProjectStatusLabel = (status?: string) => {
   const normalizedStatus = normalizeProjectStatus(status);
 
   if (normalizedStatus === ProjectStatus.CLOSED) return 'Cerrado';
+  if (normalizedStatus === ProjectStatus.FIRST_VALIDATION) return 'Primera validacion';
   if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'En progreso';
   if (normalizedStatus === ProjectStatus.COMPLETED) return 'Completado';
   return 'Pendiente';
@@ -85,6 +94,7 @@ const getProjectStatusVariant = (status?: string) => {
   const normalizedStatus = normalizeProjectStatus(status);
 
   if (normalizedStatus === ProjectStatus.CLOSED) return 'gray' as const;
+  if (normalizedStatus === ProjectStatus.FIRST_VALIDATION) return 'blue' as const;
   if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'blue' as const;
   if (normalizedStatus === ProjectStatus.COMPLETED) return 'green' as const;
   return 'orange' as const;
@@ -131,7 +141,11 @@ const ProjectProgress = ({ progress }: { progress: number }) => {
   );
 };
 
-const ProjectStatusBadge = ({ status }: { status: ProjectStatus }) => {
+const ProjectStatusBadge = ({
+  status,
+}: {
+  status: ProjectStatus;
+}) => {
   return (
     <Badge variant={getProjectStatusVariant(status)}>
       {getProjectStatusLabel(status)}
@@ -169,7 +183,8 @@ const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
   );
   const canClose = Boolean(
     !isClosed &&
-      effectiveStatus === ProjectStatus.COMPLETED &&
+      (effectiveStatus === ProjectStatus.COMPLETED ||
+        effectiveStatus === ProjectStatus.FIRST_VALIDATION) &&
       user?.canCloseProject &&
       hasFirstValidation,
   );
@@ -430,6 +445,7 @@ const facetedFilters: FacetedFilterConfig[] = [
       { label: 'Pendiente', value: ProjectStatus.PENDING },
       { label: 'En progreso', value: ProjectStatus.IN_PROGRESS },
       { label: 'Completado', value: ProjectStatus.COMPLETED },
+      { label: 'Primera validacion', value: ProjectStatus.FIRST_VALIDATION },
       { label: 'Cerrado', value: ProjectStatus.CLOSED },
     ],
   },

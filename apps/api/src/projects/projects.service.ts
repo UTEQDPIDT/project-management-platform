@@ -366,6 +366,7 @@ export class ProjectsService {
     }
 
     await this.projectModel.findByIdAndUpdate(projectId, {
+      status: ProjectStatus.FIRST_VALIDATION,
       validationStatus: ProjectValidation.FIRST_VALIDATION,
       firstValidatedBy: new Types.ObjectId(userId),
       updatedBy: userId,

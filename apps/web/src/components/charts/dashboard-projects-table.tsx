@@ -30,6 +30,14 @@ const normalizeProjectStatus = (status?: string): ProjectStatus => {
 		return ProjectStatus.COMPLETED;
 	}
 
+	if (
+		value === 'FIRST_VALIDATION' ||
+		value === 'PRIMERA VALIDACION' ||
+		value === 'PRIMERA VALIDACIÓN'
+	) {
+		return ProjectStatus.FIRST_VALIDATION;
+	}
+
 	if (value === 'CLOSED' || value === 'CERRADO') {
 		return ProjectStatus.CLOSED;
 	}

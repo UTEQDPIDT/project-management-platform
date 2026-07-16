@@ -138,6 +138,14 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
       return ProjectStatus.COMPLETED;
     }
 
+    if (
+      normalizedValue === 'FIRST_VALIDATION' ||
+      normalizedValue === 'PRIMERA VALIDACION' ||
+      normalizedValue === 'PRIMERA VALIDACIÓN'
+    ) {
+      return ProjectStatus.FIRST_VALIDATION;
+    }
+
     if (normalizedValue === 'CLOSED' || normalizedValue === 'CERRADO') {
       return ProjectStatus.CLOSED;
     }
@@ -155,6 +163,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
 
     if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'En progreso';
     if (normalizedStatus === ProjectStatus.COMPLETED) return 'Completado';
+    if (normalizedStatus === ProjectStatus.FIRST_VALIDATION) return 'Primera validacion';
     if (normalizedStatus === ProjectStatus.CLOSED) return 'Cerrado';
     return 'Pendiente';
   };
