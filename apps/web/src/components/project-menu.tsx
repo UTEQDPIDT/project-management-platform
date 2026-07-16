@@ -71,7 +71,8 @@ export function ProjectMenu({
   );
   const canClose = Boolean(
     !isClosed &&
-      status === ProjectStatus.COMPLETED &&
+      (status === ProjectStatus.COMPLETED ||
+        status === ProjectStatus.FIRST_VALIDATION) &&
       hasFirstValidation &&
       user?.canCloseProject,
   );
