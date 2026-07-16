@@ -19,7 +19,7 @@ import {
 import { useProjectsByTeam } from '@/hooks/projects';
 import { useTeam } from '@/hooks/team';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
-import { ITeamMembership, TeamMembershipRole } from '@repo/types';
+import { ITeamMembership, TeamMembershipRole, UserRole } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -62,10 +62,14 @@ const TeamPage = () => {
               </Breadcrumb>
             </HeaderHeading>
 
-            {user._id === ownerId && (
+            {(user._id === ownerId || user.role === UserRole.ADMIN) && (
               <HeaderAction>
                 <TeamNotifications team={team} />
-                <TeamMenu teamId={teamId} name={team.teamName} />
+                <TeamMenu
+                  teamId={teamId}
+                  name={team.teamName}
+                  isOwner={user._id === ownerId}
+                />
               </HeaderAction>
             )}
           </Header>

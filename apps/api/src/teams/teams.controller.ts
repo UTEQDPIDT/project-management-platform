@@ -25,6 +25,7 @@ import {
 type AuthenticatedRequest = {
   user: {
     id: string;
+    role: string;
   };
 };
 
@@ -117,8 +118,17 @@ export class TeamsController {
   @ApiOkResponse({ description: 'Datos del equipo actualizado correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontró el equipo.' })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTeamDto: UpdateTeamDto) {
-    return this.teamsService.updateTeam(id, updateTeamDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateTeamDto: UpdateTeamDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.teamsService.updateTeam(
+      id,
+      updateTeamDto,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiOkResponse({

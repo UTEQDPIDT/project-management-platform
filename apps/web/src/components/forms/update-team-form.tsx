@@ -117,16 +117,11 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
 
   const onSubmit = async (data: z.infer<ReturnType<typeof teamSchema>>) => {
     try {
-      const divisionObj =
-        data.division && divisions
-          ? divisions.find((d: SeedCategory) => d._id === data.division)
-          : undefined;
-
       const cleanedData = {
         ...data,
         teamName: data.teamName,
         summary: data.summary === '' ? undefined : data.summary,
-        division: divisionObj,
+        division: data.division || undefined,
       };
       updateTeam.mutate({ teamId: team._id, teamData: cleanedData });
       form.reset();
