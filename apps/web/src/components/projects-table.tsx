@@ -12,7 +12,7 @@ import LoadingMessage from './loading-message';
 import { DataTable, FacetedFilterConfig, facetedFilter } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useQueries } from '@tanstack/react-query';
-import { IActivity, IProject, ProjectStatus, UserRole } from '@repo/types';
+import { IActivity, IProject, ProjectStatus } from '@repo/types';
 import { ProfileInfo } from './profile-info';
 import { calculateProgress, copyValue, formatDatePeriod } from '@/lib/utils';
 import { Progress } from './ui/progress';
@@ -158,13 +158,19 @@ const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
   const canFirstValidate = Boolean(
     !isClosed &&
       effectiveStatus === ProjectStatus.COMPLETED &&
-      user?.role === UserRole.ADMIN &&
+      user?.canValidateProjets &&
       !hasFirstValidation,
   );
-  const canReopen = Boolean(isClosed && closedById && closedById === user?._id);
+  const canReopen = Boolean(
+    isClosed &&
+      user?.canCloseProject &&
+      closedById &&
+      closedById === user?._id,
+  );
   const canClose = Boolean(
     !isClosed &&
       effectiveStatus === ProjectStatus.COMPLETED &&
+      user?.canCloseProject &&
       hasFirstValidation,
   );
 

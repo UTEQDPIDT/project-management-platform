@@ -57,18 +57,23 @@ export function ProjectMenu({
   const closedById =
     typeof closedBy === 'string' ? closedBy : closedBy?._id;
   const hasFirstValidation = Boolean(firstValidatedBy);
-  const canReopen = Boolean(isClosed && closedById && user?._id === closedById);
+  const canReopen = Boolean(
+    isClosed &&
+      user?.canCloseProject &&
+      closedById &&
+      user?._id === closedById,
+  );
   const canFirstValidate = Boolean(
     !isClosed &&
       status === ProjectStatus.COMPLETED &&
       !hasFirstValidation &&
-      user.role === UserRole.ADMIN,
+      user?.canValidateProjets,
   );
   const canClose = Boolean(
     !isClosed &&
       status === ProjectStatus.COMPLETED &&
       hasFirstValidation &&
-      user.role === UserRole.ADMIN,
+      user?.canCloseProject,
   );
 
   return (
