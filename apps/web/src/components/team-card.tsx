@@ -148,6 +148,9 @@ function TeamCardDefault({ team, className }: { team: ITeam; className?: string 
     case TeamsGrade.GRUPO_DE_INVESTIGACION:
       badgeVariant = BadgeVariants.PURPLE;
       break;
+    case TeamsGrade.SIN_GRADO:
+      badgeVariant = BadgeVariants.GREEN;
+      break;
   }
 
   /**
@@ -175,15 +178,16 @@ function TeamCardDefault({ team, className }: { team: ITeam; className?: string 
 
   return (
     /* Eliminado min-w-96 e inyectado gap adaptable para pantallas muy pequeñas */
-    <Card className={`w-full flex flex-col gap-2 md:gap-4 border-neutral-400 ${className}`}>
+    <Card className={`w-80 flex flex-col gap-2 md:gap-4 border-neutral-500 ${className}`}>
       <CardHeader>
         <div className="flex justify-between items-start gap-2">
           <div className="flex gap-2 items-start min-w-0">
             <IconSquare color="blue">
               <Users />
             </IconSquare>
-            <div className="flex flex-col gap-1 min-w-0">
-              <CardTitle className="line-clamp-1 leading-5">
+            <div className="flex flex-col gap-0.5 min-w-0">
+              {/* Eliminado leading-5 para evitar conflictos con el truncado */}
+              <CardTitle className="line-clamp-1">
                 {team.teamName}
               </CardTitle>
               <CardDescription className="text-xs line-clamp-1">
@@ -191,21 +195,22 @@ function TeamCardDefault({ team, className }: { team: ITeam; className?: string 
               </CardDescription>
             </div>
           </div>
-          <Badge variant={badgeVariant} className="h-6 shrink-0 text-center whitespace-nowrap text-[10px] sm:text-xs">
-            {team.grade}
-          </Badge>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4 h-full min-h-0">
-        <CardDescription className="h-28 line-clamp-5 overflow-hidden">
+      
+      <CardContent className="flex flex-col gap-4 flex-1 min-h-0">
+        {/* Cambiado h-28 por min-h para que sea flexible si hay poco texto, o line-clamp limite si hay mucho */}
+        <CardDescription className="min-h-28 line-clamp-5 overflow-hidden">
           {team.summary}
         </CardDescription>
       </CardContent>
+      
       <CardFooter className="flex gap-2 justify-between items-center mt-auto flex-wrap sm:flex-nowrap">
         <div className="shrink-0">
           <AvatarRow profiles={profiles} />
         </div>
-        <CardAction className="w-full sm:w-auto flex justify-end mt-2 sm:mt-0">
+        {/* Cambiado a w-full sm:w-auto. En móvil estira el botón (si tu renderActionButton lo permite) o lo centra convenientemente */}
+        <CardAction className="w-full sm:w-auto flex justify-stretch sm:justify-end mt-2 sm:mt-0">
           {renderActionButton()}
         </CardAction>
       </CardFooter>
