@@ -12,6 +12,11 @@ import { CreateUserDto } from '../../users/dto/create-user.dto';
 import { Programa } from 'src/schemas/project-programs.seed';
 
 //Users
+export const divisionsList: Partial<Division>[] = [
+
+];
+
+//Users
 export const educationalProgramsList: Partial<EducationalProgram>[] = [
   { name: 'Licenciatura en Administración' },
   { name: 'Licenciatura en Negocios y Mercadotecnia' },
@@ -264,3 +269,6 @@ export const ProgramaList: Partial<Programa>[] = [
   { name: 'Feria de Ciencias'},
 ];
 
+export const initialUsers: Partial<CreateUserDto>[] = [
+
+];
