@@ -306,6 +306,7 @@ export default function TeamsTable() {
           data={data}
           columns={columns}
           facetedFilters={facetedFilters}
+          searchColumnId="teamName"
         />
       )}
     </div>
