@@ -1,4 +1,4 @@
-import { calculateProgress } from '@/lib/utils';
+import { calculateProgress, isCompletedActivityStatus } from '@/lib/utils';
 import { IActivity, IProject, Status } from '@repo/types';
 import { useActivitiesByEntity } from '../activities';
 import { useProjectProducts } from '../products';
@@ -42,7 +42,7 @@ export function useProjectCardData(project: IProject) {
 
   // Progress calculation (by completed activities)
   const completedActivities =
-    activities?.filter((a: IActivity) => a.status === Status.COMPLETED) ?? [];
+    activities?.filter((a: IActivity) => isCompletedActivityStatus(a.status)) ?? [];
   const progress = calculateProgress(activities ?? []);
 
   return {

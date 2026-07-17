@@ -32,6 +32,11 @@ export function ActivitiesBoard({
   isLoading = false,
   isProjectClosed = false,
 }: Props) {
+  const isCompletedStatus = (status: unknown) => {
+    const value = String(status ?? '');
+    return value === 'Completado' || value === 'Completada';
+  };
+
   const pendingActivities = (activities ?? []).filter(
     (a: IActivity) => a.status === 'Pendiente',
   );
@@ -41,7 +46,7 @@ export function ActivitiesBoard({
   );
 
   const completedActivities = (activities ?? []).filter(
-    (a: IActivity) => a.status === 'Completado',
+    (a: IActivity) => isCompletedStatus(a.status),
   );
 
   return (

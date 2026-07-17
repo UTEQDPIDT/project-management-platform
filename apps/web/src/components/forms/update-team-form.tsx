@@ -39,7 +39,13 @@ import { useUserProfile } from 'context/profile-provider';
 import Link from 'next/link';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Command, CommandGroup, CommandItem } from '../ui/command';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from '../ui/command';
 import { ProfileInfo } from '../profile-info';
 import { useGetAllUsers } from '@/hooks/user';
 import { Check, ChevronsUpDown } from 'lucide-react';
@@ -318,7 +324,19 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-full md:w-xl max-h-96 overflow-y-auto p-0">
-                          <Command>
+                          <Command
+                            filter={(value, search) =>
+                              value
+                                .toLowerCase()
+                                .includes(search.toLowerCase())
+                                ? 1
+                                : 0
+                            }
+                          >
+                            <CommandInput placeholder="Buscar participante..." />
+                            <CommandEmpty>
+                              No se encontraron participantes.
+                            </CommandEmpty>
                             <CommandGroup>
                               {loadingUsers ? (
                                 <CommandItem disabled>
@@ -330,6 +348,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                                   return (
                                     <CommandItem
                                       key={user._id}
+                                      value={`${user.givenName} ${user.familyName}`}
                                       onSelect={() => {
                                         field.onChange(
                                           selected
