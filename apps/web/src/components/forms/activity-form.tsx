@@ -229,7 +229,9 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
                     <SelectValue placeholder="Estado" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.values(Status).map((type) => {
+                    {Object.values(Status)
+                      .filter((type) => type !== Status.CLOSED)
+                      .map((type) => {
                       const isCompletedOption = type === Status.COMPLETED;
                       const disableCompleted =
                         isCompletedOption && !canMarkAsCompleted;
