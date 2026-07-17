@@ -12,14 +12,6 @@ import { CreateUserDto } from '../../users/dto/create-user.dto';
 import { Programa } from 'src/schemas/project-programs.seed';
 
 //Users
-export const divisionsList: Partial<Division>[] = [
-  { name: 'Division de Idiomas' },
-  { name: 'Division Económica Administrativa' },
-  { name: 'Division Industrial' },
-  { name: 'Division de Tecnologías' },
-];
-
-//Users
 export const educationalProgramsList: Partial<EducationalProgram>[] = [
   { name: 'Licenciatura en Administración' },
   { name: 'Licenciatura en Negocios y Mercadotecnia' },
@@ -272,59 +264,3 @@ export const ProgramaList: Partial<Programa>[] = [
   { name: 'Feria de Ciencias'},
 ];
 
-export const initialUsers: Partial<CreateUserDto>[] = [
-  {
-    givenName: 'Gabriela',
-    familyName: 'Suárez',
-    email: 'jsuarez@uteq.edu.mx',
-    role: UserRole.ADMIN,
-  },
-  {
-    givenName: 'Leticia',
-    familyName: 'Vera',
-    email: 'leticia.vera@uteq.edu.mx',
-    role: UserRole.ADMIN,
-  },
-  {
-    givenName: 'Juan Manuel',
-    familyName: 'Peña Aguilar',
-    email: 'juan.aguilar@uteq.edu.mx',
-    role: UserRole.ADMIN,
-  },
-  {
-    givenName: 'Aeon Julien',
-    familyName: 'Ruiz Clouzeau',
-    email: 'aeon.ruiz@uteq.edu.mx',
-    role: UserRole.ADMIN,
-  },
-  {
-    givenName: 'Adrián',
-    familyName: 'Morales Pérez',
-    email: 'adrian.morales@uteq.edu.mx',
-    role: UserRole.USER,
-  },
-  {
-    givenName: 'Yara Odeth',
-    familyName: 'Sainz García',
-    email: 'yara.sainz@uteq.edu.mx',
-    role: UserRole.USER,
-  },
-  {
-    givenName: 'Maria Susana',
-    familyName: 'Corral Campuzano',
-    email: 'scorral@uteq.edu.mx',
-    role: UserRole.USER,
-  },
-  {
-    givenName: 'Michelle María Fernanda',
-    familyName: 'Tirado Guerrero',
-    email: 'michelle.tirado@uteq.edu.mx',
-    role: UserRole.USER,
-  },
-  {
-    givenName: 'Miriam Liliana',
-    familyName: 'Barajas Ruíz',
-    email: 'mbarajas@uteq.edu.mx',
-    role: UserRole.USER,
-  },
-];
