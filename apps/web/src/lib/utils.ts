@@ -93,12 +93,16 @@ export const mongoId = z
   .string()
   .regex(/^[0-9a-fA-F]{24}$/, 'No es una opción válida');
 
+export const isCompletedActivityStatus = (status?: string): boolean => {
+  return status === Status.COMPLETED || status === 'Completada';
+};
+
 // Calculate progress
 export const calculateProgress = (activities?: IActivity[]) => {
   if (!activities || activities.length === 0) return 0;
   const totalActivities = activities.length;
   const completedActivities = activities.filter(
-    (a) => a.status === Status.COMPLETED,
+    (a) => isCompletedActivityStatus(a.status),
   );
   const progress = Math.round(
     (completedActivities.length / totalActivities) * 100,
