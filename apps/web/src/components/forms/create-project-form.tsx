@@ -181,11 +181,6 @@ export function CreateProjectForm() {
    */
   const onSubmit = async (data: z.infer<typeof projectSchema>) => {
     try {
-      if (data.isFunded && !financialReportToUpload.length) {
-        toast.error('Si el proyecto recibió financiamiento, debes subir el informe financiero');
-        return;
-      }
-
       const cleanedData = {
         ...data,
         organization: data.organization === '' ? undefined : data.organization,
@@ -195,7 +190,7 @@ export function CreateProjectForm() {
 
       const createdProject = await createProject.mutateAsync(cleanedData);
 
-      if (data.isFunded) {
+      if (data.isFunded && financialReportToUpload.length > 0) {
         await uploadFiles.mutateAsync({
           files: financialReportToUpload,
           entityId: createdProject._id,
