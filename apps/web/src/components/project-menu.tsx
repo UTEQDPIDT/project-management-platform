@@ -24,6 +24,7 @@ import {
 } from './ui/dialog';
 import { useRouter } from 'next/navigation';
 import {
+  useCancelFirstValidationProject,
   useCloseProject,
   useDeleteProject,
   useFirstValidationProject,
@@ -31,6 +32,7 @@ import {
 } from '@/hooks/projects';
 import { useUserProfile } from 'context/profile-provider';
 import { IProject, ProjectStatus, UserRole } from '@repo/types';
+import { XCircle } from 'lucide-react';
 
 export function ProjectMenu({
   projectId,
@@ -47,6 +49,7 @@ export function ProjectMenu({
 }) {
   const deleteProject = useDeleteProject();
   const firstValidationProject = useFirstValidationProject();
+  const cancelFirstValidationProject = useCancelFirstValidationProject();
   const closeProject = useCloseProject();
   const reopenProject = useReopenProject();
   const router = useRouter();
@@ -75,6 +78,12 @@ export function ProjectMenu({
         status === ProjectStatus.FIRST_VALIDATION) &&
       hasFirstValidation &&
       user?.canCloseProject,
+  );
+  const canCancelFirstValidation = Boolean(
+    !isClosed &&
+      status === ProjectStatus.FIRST_VALIDATION &&
+      hasFirstValidation &&
+      user?.canValidateProjets,
   );
 
   return (
@@ -137,6 +146,19 @@ export function ProjectMenu({
               >
                 <Pin />
                 Primera validación
+              </DropdownMenuItem>
+            </>
+          )}
+
+          {canCancelFirstValidation && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                disabled={cancelFirstValidationProject.isPending}
+                onClick={() => cancelFirstValidationProject.mutate(projectId)}
+              >
+                <XCircle />
+                Cancelar primera validación
               </DropdownMenuItem>
             </>
           )}
