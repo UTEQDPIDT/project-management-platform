@@ -124,6 +124,21 @@ export class ProjectsController {
   }
 
   /**
+   * Endpoint for administrative users to cancel the first validation level.
+   */
+  @ApiAcceptedResponse({ description: 'First validation cancelled successfully.' })
+  @ApiBadRequestResponse({ description: 'Project is not in FIRST_VALIDATION status.' })
+  @ApiNotFoundResponse({ description: 'Project not found.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized or expired cookie.' })
+  @Post(':id/cancel-first-validation')
+  cancelFirstValidation(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.projectsService.cancelFirstValidation(id, req.user.id);
+  }
+
+  /**
    * Endpoint for the manager/final account to perform the closure validation.
    */
   @ApiAcceptedResponse({ description: 'Project closed successfully.' })

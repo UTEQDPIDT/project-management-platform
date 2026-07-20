@@ -10,6 +10,7 @@ import {
 	Pin,
 	Trash,
 	Lock,
+ 	XCircle,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -43,6 +44,7 @@ import {
 	useDeleteProject,
 	useFirstValidationProject,
 	useReopenProject,
+ 	useCancelFirstValidationProject,
 } from '@/hooks/projects';
 import {
 	IProject,
@@ -110,6 +112,7 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 	const { user } = useUserProfile();
 	const deleteProject = useDeleteProject();
 	const firstValidationProject = useFirstValidationProject();
+	const cancelFirstValidationProject = useCancelFirstValidationProject();
 	const closeProject = useCloseProject();
 	const reopenProject = useReopenProject();
 	const isClosed = project.status === ProjectStatus.CLOSED;
@@ -133,6 +136,12 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 			(project.status === ProjectStatus.COMPLETED ||
 				project.status === ProjectStatus.FIRST_VALIDATION) &&
 			user?.canCloseProject &&
+			hasFirstValidation,
+	);
+	const canCancelFirstValidation = Boolean(
+		!isClosed &&
+			project.status === ProjectStatus.FIRST_VALIDATION &&
+			user?.canValidateProjets &&
 			hasFirstValidation,
 	);
 
@@ -167,6 +176,15 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 						disabled={firstValidationProject.isPending}
 					>
 						<Pin /> Primera validación
+					</DropdownMenuItem>
+				)}
+
+				{canCancelFirstValidation && (
+					<DropdownMenuItem
+						onClick={() => cancelFirstValidationProject.mutate(project._id)}
+						disabled={cancelFirstValidationProject.isPending}
+					>
+						<XCircle /> Cancelar primera validación
 					</DropdownMenuItem>
 				)}
 
