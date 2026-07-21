@@ -37,8 +37,8 @@ export function DataTableToolbar<TData>({
 
   return (
     <div className="flex items-center justify-between">
-      <div className="flex flex-1 items-center gap-2">
-        <InputGroup className="max-w-xs">
+      <div className="flex flex-1 flex-wrap items-center gap-2">
+        <InputGroup className="w-full sm:w-auto sm:min-w-64 sm:max-w-xs">
           <InputGroupInput
             placeholder="Buscar por nombre..."
             // 3. Leemos el valor actual del filtro de la columna 'name'

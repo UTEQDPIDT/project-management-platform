@@ -17,14 +17,14 @@ function Header({
     >
       <div
         className={cn(
-          'flex w-full items-center gap-1 px-4 py-2 lg:gap-2',
+          'flex w-full flex-wrap items-start gap-1 px-4 py-2 sm:flex-nowrap sm:items-center lg:gap-2',
           className,
         )}
       >
-        <SidebarTrigger />
+        <SidebarTrigger className="shrink-0" />
         <Separator
           orientation="vertical"
-          className="mx-2 data-[orientation=vertical]:h-4"
+          className="mx-2 hidden data-[orientation=vertical]:h-4 sm:block"
         />
         {children}
       </div>
@@ -36,7 +36,7 @@ function HeaderHeading({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="header-title"
-      className={cn('flex flex-col', className)}
+      className={cn('flex min-w-0 flex-col', className)}
       {...props}
     />
   );

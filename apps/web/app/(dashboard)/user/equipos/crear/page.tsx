@@ -24,9 +24,9 @@ const Page = () => {
             Llena los detalles del nuevo equipo e invita a los integrantes.
           </HeaderDescription>
         </HeaderHeading>
-        <HeaderAction>
-          <Button asChild variant="ghost">
-            <Link href={'/user/equipos'}>
+        <HeaderAction className="w-full sm:w-auto mt-4 sm:mt-0">
+          <Button asChild variant="ghost" className="w-full sm:w-auto">
+            <Link href={'/user/equipos'} className="flex items-center justify-center gap-2">
               <ArrowLeft />
               Cancelar
             </Link>

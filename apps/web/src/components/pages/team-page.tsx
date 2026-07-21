@@ -63,7 +63,7 @@ const TeamPage = () => {
             </HeaderHeading>
 
             {(user._id === ownerId || user.role === UserRole.ADMIN) && (
-              <HeaderAction>
+              <HeaderAction className="w-full sm:w-auto mt-4 sm:mt-0 flex flex-wrap sm:flex-nowrap items-center gap-2 justify-end">
                 <TeamNotifications team={team} />
                 <TeamMenu
                   teamId={teamId}
@@ -74,11 +74,15 @@ const TeamPage = () => {
             )}
           </Header>
 
-          <PageContent>
+          <PageContent className="w-full max-w-full overflow-hidden">
             <TeamInfo team={team} />
-            <div className="w-full flex gap-4">
-              <CardMembers team={team} />
-              <ProjectsBoard loading={loadingProjects} projects={projects} />
+            <div className="w-full flex flex-col gap-2 p-2 bg-neutral-200 rounded-2xl md:flex-row md:gap-4 md:p-4">
+              <div className="w-full lg:max-w-sm flex flex-col gap-4">
+                <CardMembers team={team} />
+              </div>
+              <div className="w-full flex flex-col gap-2">
+                <ProjectsBoard loading={loadingProjects} projects={projects} />
+              </div>
             </div>
           </PageContent>
         </div>

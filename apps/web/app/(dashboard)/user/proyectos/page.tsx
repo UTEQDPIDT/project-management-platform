@@ -42,9 +42,9 @@ const Page = () => {
           </HeaderDescription>
         </HeaderHeading>
 
-        <HeaderAction>
-          <Button asChild>
-            <Link href={'/user/proyectos/crear'}>
+        <HeaderAction className="w-full sm:w-auto mt-4 sm:mt-0">
+          <Button asChild className="w-full sm:w-auto">
+            <Link href={'/user/proyectos/crear'} className="flex items-center justify-center gap-2">
               <Plus /> Nuevo Proyecto
             </Link>
           </Button>

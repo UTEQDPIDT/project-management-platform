@@ -53,11 +53,7 @@ export function ProjectsBoard({
         ) : error ? (
           <ErrorCard />
         ) : projects.length > 0 ? (
-          /* Cambiado a un grid responsivo:
-            1 columna en móvil, 2 en tablets, 3 en laptops chicas y 4 en pantallas grandes.
-            Se eliminó el centrado que desalineaba las tarjetas.
-          */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 w-full">
             {projects.map((p: IProject) => (
               /* Envolvemos la tarjeta para asegurarnos de que herede el ancho total de su columna de manera fluida */
               <div key={p._id} className="w-full h-36 flex">

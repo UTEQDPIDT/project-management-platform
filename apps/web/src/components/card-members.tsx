@@ -46,14 +46,14 @@ export function CardMembers({
   }, [team.memberships]);
 
   return (
-    <Card className="w-full lg:max-w-96 min-w-80 border-neutral-400">
-      <CardHeader className="flex justify-between">
-        <div className="flex gap-3 items-center">
+    <Card className="w-full min-w-0 lg:max-w-96 border-neutral-400">
+      <CardHeader className="flex justify-between gap-2">
+        <div className="flex gap-3 items-center min-w-0">
           <IconSquare color="blue">
             <Users />
           </IconSquare>
 
-          <CardTitle>
+          <CardTitle className="line-clamp-1 min-w-0">
             {team.teamName ? team.teamName : 'Integrantes del Equipo'}
           </CardTitle>
         </div>
@@ -97,7 +97,7 @@ export function CardMembers({
                     <Button
                       size="icon-sm"
                       variant="ghost"
-                      className="opacity-0 group-hover:opacity-100"
+                      className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       <Ellipsis />
                     </Button>

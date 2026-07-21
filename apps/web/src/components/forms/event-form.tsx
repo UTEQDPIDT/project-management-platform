@@ -152,7 +152,7 @@ export default function EventForm({ event }: EventFormProps) {
 
   return (
     <form
-      className="flex flex-col gap-6 md:w-2xl"
+      className="flex flex-col gap-6 w-full max-w-2xl"
       onSubmit={form.handleSubmit(onSubmit, onError)}
     >
       <Card>
@@ -370,7 +370,7 @@ export default function EventForm({ event }: EventFormProps) {
                       </Button>
                     </PopoverTrigger>
 
-                    <PopoverContent className="w-full md:w-xl max-h-96 overflow-y-auto p-0">
+                    <PopoverContent className="w-[calc(100vw-2rem)] sm:w-full md:w-xl max-h-96 overflow-y-auto p-0">
                       <Command>
                         <CommandGroup>
                           {loadingUsers ? (

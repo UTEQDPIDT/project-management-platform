@@ -229,9 +229,9 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
   };
 
   return (
-    <div>
+    <div className="w-full flex justify-center">
       <form
-        className="flex flex-col gap-6 md:w-2xl"
+        className="flex flex-col gap-6 w-full max-w-2xl"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
         <Card>
@@ -1001,7 +1001,7 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                           </Button>
                         </PopoverTrigger>
 
-                        <PopoverContent className="w-full lg:max-w-2xl max-h-96 overflow-y-auto p-0">
+                        <PopoverContent className="w-[calc(100vw-2rem)] sm:w-full lg:max-w-2xl max-h-96 overflow-y-auto p-0">
                           <Command>
                             <CommandGroup>
                               {loadingDevelopmentLines ? (
@@ -1136,7 +1136,7 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                           </Button>
                         </PopoverTrigger>
 
-                        <PopoverContent className="w-full md:w-xl max-h-96 overflow-y-auto p-0">
+                        <PopoverContent className="w-[calc(100vw-2rem)] sm:w-full md:w-xl max-h-96 overflow-y-auto p-0">
                           <Command>
                             <CommandGroup>
                               {loadingProjects ? (

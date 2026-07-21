@@ -332,13 +332,6 @@ export function StandaloneProductsTable({
   return (
     <div className="w-full max-w-7xl flex flex-col gap-4 p-1">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-base font-semibold">Productos independientes</h2>
-          <span className="text-muted-foreground text-sm">
-            Gestiona los productos independientes existentes.
-          </span>
-        </div>
-
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto">
