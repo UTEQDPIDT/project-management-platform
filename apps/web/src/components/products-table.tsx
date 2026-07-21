@@ -30,22 +30,22 @@ import {
 } from '@/hooks/catalogs';
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
 } from './ui/dialog';
+import FilePreviewDialog from './file-preview-dialog';
 
 function ProductActionsCell({ product }: { product: IProduct }) {
   const { data: files = [] } = useFilesForEntity(product._id);
   const typedFiles = files as IFile[];
   const firstFile = typedFiles[0];
   const previewableFile = typedFiles.find(
-    (file) => file.mimetype === 'application/pdf',
+    (file) =>
+      file.mimetype === 'application/pdf' ||
+      file.mimetype?.startsWith('image/'),
   );
   const [isViewerOpen, setIsViewerOpen] = useState(false);
-  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
-  const [isLoadingPdf, setIsLoadingPdf] = useState(false);
+  const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
 
   const handleDownload = async () => {
     if (!firstFile) {
@@ -61,41 +61,58 @@ function ProductActionsCell({ product }: { product: IProduct }) {
     }
   };
 
-  const handleOpenPdf = async () => {
+  const handleOpenPreview = async () => {
     if (!previewableFile) {
-      toast.error('No hay archivo PDF para previsualizar');
+      toast.error('No hay archivo compatible para previsualizar');
       return;
     }
 
     try {
-      setIsLoadingPdf(true);
-      const blobUrl = await getFileBlobUrl(previewableFile._id);
-      setPdfBlobUrl(blobUrl);
       setIsViewerOpen(true);
+      setIsLoadingPreview(true);
+      setPreviewError(null);
+      setPreviewBlobUrl(null);
+      const blobUrl = await getFileBlobUrl(previewableFile._id);
+      setPreviewBlobUrl(blobUrl);
     } catch (error) {
-      toast.error('No se pudo abrir la vista previa del PDF');
-      throw error;
+      toast.error('No se pudo abrir la vista previa del archivo');
+      setPreviewError('No se pudo cargar la vista previa del archivo.');
     } finally {
-      setIsLoadingPdf(false);
+      setIsLoadingPreview(false);
+    }
+  };
+
+  const handlePreviewDownload = async () => {
+    if (!previewableFile) {
+      toast.error('No hay archivo para descargar');
+      return;
+    }
+
+    try {
+      await downloadFile(previewableFile._id, previewableFile.originalName);
+    } catch (error) {
+      toast.error('No se pudo descargar el archivo');
+      throw error;
     }
   };
 
   useEffect(() => {
     if (isViewerOpen) return;
 
-    if (pdfBlobUrl) {
-      window.URL.revokeObjectURL(pdfBlobUrl);
-      setPdfBlobUrl(null);
+    if (previewBlobUrl) {
+      window.URL.revokeObjectURL(previewBlobUrl);
+      setPreviewBlobUrl(null);
     }
-  }, [isViewerOpen, pdfBlobUrl]);
+    setPreviewError(null);
+  }, [isViewerOpen, previewBlobUrl]);
 
   useEffect(() => {
     return () => {
-      if (pdfBlobUrl) {
-        window.URL.revokeObjectURL(pdfBlobUrl);
+      if (previewBlobUrl) {
+        window.URL.revokeObjectURL(previewBlobUrl);
       }
     };
-  }, [pdfBlobUrl]);
+  }, [previewBlobUrl]);
 
   return (
     <>
@@ -108,8 +125,8 @@ function ProductActionsCell({ product }: { product: IProduct }) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Acciones</DropdownMenuLabel>
           {previewableFile && (
-            <DropdownMenuItem onClick={handleOpenPdf} disabled={isLoadingPdf}>
-              <Eye /> {isLoadingPdf ? 'Abriendo PDF...' : 'Ver PDF'}
+            <DropdownMenuItem onClick={handleOpenPreview} disabled={isLoadingPreview}>
+              <Eye /> {isLoadingPreview ? 'Abriendo archivo...' : 'Ver archivo'}
             </DropdownMenuItem>
           )}
           <DropdownMenuItem onClick={handleDownload}>
@@ -126,33 +143,17 @@ function ProductActionsCell({ product }: { product: IProduct }) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog open={isViewerOpen} onOpenChange={setIsViewerOpen}>
-        <DialogContent
-          className="flex h-[92dvh] w-[96vw] max-w-[96vw] flex-col p-2 sm:h-[88dvh] sm:w-[88vw] sm:max-w-[88vw] sm:p-4 lg:h-[80dvh] lg:w-[78vw] lg:max-w-[78vw]"
-          showCloseButton
-          closeButtonClassName="top-2 right-2 sm:top-4 sm:right-4 bg-background/80"
-        >
-          <DialogHeader className="px-1">
-            <DialogTitle className="truncate">
-              {previewableFile?.originalName ?? 'Vista previa de PDF'}
-            </DialogTitle>
-            <DialogDescription>Vista previa nativa de PDF</DialogDescription>
-          </DialogHeader>
-          <div className="min-h-0 flex-1">
-            {pdfBlobUrl ? (
-              <iframe
-                src={pdfBlobUrl}
-                title={`Vista previa de ${previewableFile?.originalName ?? 'PDF'}`}
-                className="h-full w-full rounded-md border"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                No se pudo cargar la vista previa del PDF.
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <FilePreviewDialog
+        open={isViewerOpen}
+        onOpenChange={setIsViewerOpen}
+        fileName={previewableFile?.originalName ?? 'Vista previa de archivo'}
+        mimeType={previewableFile?.mimetype}
+        previewBlobUrl={previewBlobUrl}
+        isLoading={isLoadingPreview}
+        errorMessage={previewError}
+        onRetry={handleOpenPreview}
+        onDownload={handlePreviewDownload}
+      />
     </>
   );
 }
