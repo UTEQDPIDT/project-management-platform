@@ -185,7 +185,6 @@ export function CreateProjectForm() {
         ...data,
         organization: data.organization === '' ? undefined : data.organization,
         team: data.team === '' ? undefined : data.team,
-        program: data.program === '' ? undefined : data.program,
       };
 
       const createdProject = await createProject.mutateAsync(cleanedData);
@@ -238,7 +237,7 @@ export function CreateProjectForm() {
                         placeholder="Ingresa el nombre del proyecto"
                       />
                       <InputGroupAddon align="inline-end">
-                        {field.value?.length}/200
+                        {field.value?.length}/250
                       </InputGroupAddon>
                     </InputGroup>
                     {fieldState.invalid && (
@@ -408,7 +407,7 @@ export function CreateProjectForm() {
           <CardHeader>
             <CardTitle>Programa del proyecto</CardTitle>
             <CardDescription>
-              Selecciona el programa al que pertenece el proyecto, si aplica.
+              Selecciona el programa al que pertenece el proyecto.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -418,7 +417,7 @@ export function CreateProjectForm() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="program">
-                    Programa del proyecto
+                    Programa del proyecto *
                   </FieldLabel>
                   <Select
                     value={field.value ?? ''}

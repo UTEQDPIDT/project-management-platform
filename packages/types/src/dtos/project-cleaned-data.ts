@@ -1,7 +1,7 @@
 export type ProjectCleanedData = {
   organization: string | undefined;
   team: string | undefined;
-  program?: string;
+  program: string;
   isFunded?: boolean;
   activities: any;
   name: string;
