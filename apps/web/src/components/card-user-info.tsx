@@ -111,7 +111,7 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                       <Pencil /> Editar
                     </DialogTrigger>
 
-                    <DialogContent>
+                    <DialogContent className="max-h-[85vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Editar Perfil</DialogTitle>
                         <DialogDescription>
@@ -120,7 +120,7 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                         </DialogDescription>
                       </DialogHeader>
                       <Separator />
-                      <div className="max-h-[600px] overflow-y-auto px-2">
+                      <div className="px-2">
                         <UserForm profile={user} />
                       </div>
                     </DialogContent>

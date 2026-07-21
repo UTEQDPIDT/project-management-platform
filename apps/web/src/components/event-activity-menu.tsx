@@ -50,7 +50,7 @@ export default function EventActivityMenu({ activity }: ProjectActivityMenu) {
             <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground px-0 border-transparent w-full h-8 justify-start font-normal">
               <Pencil /> Editar actividad
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[85vh] overflow-y-auto">
               <Badge variant="orange">Editando</Badge>
               <DialogTitle className="line-clamp-1 h-5">
                 {activity.name}
