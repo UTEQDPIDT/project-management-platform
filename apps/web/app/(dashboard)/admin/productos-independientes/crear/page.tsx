@@ -21,9 +21,12 @@ export default function Page() {
             Crea un producto sin relacionarlo con un proyecto.
           </HeaderDescription>
         </HeaderHeading>
-        <HeaderAction>
-          <Button asChild variant="ghost">
-            <Link href="/admin/productos-independientes">
+        <HeaderAction className="w-full sm:w-auto mt-4 sm:mt-0">
+          <Button asChild variant="ghost" className="w-full sm:w-auto">
+            <Link
+              href="/admin/productos-independientes"
+              className="flex items-center justify-center gap-2"
+            >
               <ArrowLeft />
               Cancelar
             </Link>
