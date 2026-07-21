@@ -125,12 +125,11 @@ export class CreateProjectDto {
   @IsDate()
   endDate: Date;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Programa al que pertenece el proyecto.',
   })
-  @IsOptional()
   @IsMongoId()
-  program?: string;
+  program: string;
 
   @ApiPropertyOptional({
     description: 'Indica si el proyecto recibió o recibirá financiamiento.',

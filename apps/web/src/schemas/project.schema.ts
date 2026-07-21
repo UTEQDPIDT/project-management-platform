@@ -6,13 +6,16 @@ export const projectSchema = z.object({
   name: z
     .string()
     .min(1, 'El proyecto debe tener un nombre')
-    .max(200, 'Excede el máximo de 200 carecteres'),
+    .max(250, 'Excede el máximo de 250 carecteres'),
   objective: z
     .string()
     .min(1, 'El proyecto debe tener un objetivo')
     .max(500, 'Excede el máximo de 500 carecteres'),
   trlRating: z.number().min(0, 'El Nivel de TRL no puede ser 0'),
-  program: mongoId.or(z.literal('')).optional(),
+  program: z
+    .string()
+    .min(1, 'Debes seleccionar un programa')
+    .pipe(mongoId),
   isFunded: z.boolean().optional(),
   knowledgeAreas: z.array(mongoId),
   impactAreas: z.array(mongoId),

@@ -6,7 +6,7 @@ export const updateProjectSchema = z.object({
   name: z
     .string()
     .min(1, 'El proyecto debe tener un nombre')
-    .max(200, 'Excede el máximo de 200 carecteres'),
+    .max(250, 'Excede el máximo de 250 carecteres'),
   objective: z
     .string()
     .min(1, 'El proyecto debe tener un objetivo')

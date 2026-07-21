@@ -257,7 +257,7 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                         placeholder="Ingresa el nombre del proyecto"
                       />
                       <InputGroupAddon align="inline-end">
-                        {field.value?.length}/200
+                        {field.value?.length}/250
                       </InputGroupAddon>
                     </InputGroup>
                     {fieldState.invalid && (

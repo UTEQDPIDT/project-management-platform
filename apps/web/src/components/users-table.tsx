@@ -1,9 +1,9 @@
 'use client';
 
 import { useGetAllUsers } from '@/hooks/user';
-import React, { use, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import LoadingMessage from './loading-message';
-import { DataTable, FacetedFilterConfig } from './ui/data-table';
+import { DataTable, FacetedFilterConfig, fuzzyFilter } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { IUser, SeedCategory, Sex, State, UserType } from '@repo/types';
 import { Badge } from './ui/badge';
@@ -28,11 +28,20 @@ const columns: ColumnDef<IUser>[] = [
   { 
     accessorKey: 'givenName', 
     header: 'Nombre(s)',
+    filterFn: (row, _columnId, filterValue) => {
+      // Search input in this table should match either given name or family name.
+      return (
+        fuzzyFilter(row, 'givenName', filterValue, () => undefined) ||
+        fuzzyFilter(row, 'familyName', filterValue, () => undefined)
+      );
+    },
     cell: ({ row }) => <span className="whitespace-nowrap">{row.original.givenName}</span>
   },
   { 
     accessorKey: 'familyName', 
     header: 'Apellido(s)',
+    filterFn: (row, _columnId, filterValue) =>
+      fuzzyFilter(row, 'familyName', filterValue, () => undefined),
     cell: ({ row }) => <span className="whitespace-nowrap">{row.original.familyName}</span>
   },
   {
@@ -295,6 +304,7 @@ export default function UsersTable() {
           data={data}
           columns={columns}
           facetedFilters={facetedFilters}
+          searchColumnId="givenName"
         />
       )}
     </div>
