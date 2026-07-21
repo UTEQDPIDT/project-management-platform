@@ -30,7 +30,7 @@ const Page = () => {
   const { data: teams, isLoading: loadingTeams, isError } = useAllTeams(false);
 
   return (
-    <div>
+    <div className="w-full min-h-screen">
       <Header>
         <HeaderHeading>
           <HeaderTitle>Equipos</HeaderTitle>
@@ -38,22 +38,25 @@ const Page = () => {
             Encuentra equipos y gestiona los equipos a los que perteneces.
           </HeaderDescription>
         </HeaderHeading>
-        <HeaderAction>
-          <Button asChild>
-            <Link href={'/user/equipos/crear'}>
+        <HeaderAction className="w-full sm:w-auto mt-4 sm:mt-0">
+          <Button asChild className="w-full sm:w-auto">
+            <Link
+              href={'/user/equipos/crear'}
+              className="flex items-center justify-center gap-2"
+            >
               <Plus />
               Nuevo Equipo
             </Link>
           </Button>
         </HeaderAction>
       </Header>
-      <PageContent>
+      <PageContent className="w-full max-w-full overflow-hidden">
         {loadingTeams ? (
           <LoadingMessage message="Cargando equipos" />
         ) : isError ? (
           <ErrorCard />
         ) : teams.length ? (
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
             {teams.map((team: ITeam) => (
               <TeamCard key={team._id} team={team} />
             ))}
