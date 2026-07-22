@@ -12,6 +12,17 @@ import { ObjectId } from 'mongoose';
 import { UserRole, CareerLevel, Sex, State, UserType } from '@repo/types';
 
 export class UpdateUserDto {
+
+  @IsOptional()
+  @IsString()
+  @Length(2, 40)
+  givenName: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(2, 40)
+  familyName: string;
+
   @IsOptional()
   @IsEnum(UserRole)
   role: UserRole;
