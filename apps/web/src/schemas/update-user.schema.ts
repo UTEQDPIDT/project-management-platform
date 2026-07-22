@@ -7,12 +7,12 @@ export const updateUserSchema = z.object({
     .string()
     .trim()
     .min(2, 'El nombre debe tener al menos 2 caracteres')
-    .max(80, 'El nombre no puede exceder 80 caracteres'),
+    .max(40, 'El nombre no puede exceder 40 caracteres'),
   familyName: z
     .string()
     .trim()
     .min(2, 'El apellido debe tener al menos 2 caracteres')
-    .max(80, 'El apellido no puede exceder 80 caracteres'),
+    .max(40, 'El apellido no puede exceder 40 caracteres'),
   type: z.enum(UserType, 'No es una opción válida').optional(),
   sex: z.enum(Sex, 'No es una opción válida'),
   state: z.enum(State, 'No es una opción válida'),
