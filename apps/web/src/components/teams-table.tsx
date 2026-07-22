@@ -10,7 +10,7 @@ import {
 } from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
-import { DataTable, FacetedFilterConfig } from './ui/data-table';
+import { DataTable, FacetedFilterConfig, facetedFilter } from './ui/data-table';
 import LoadingMessage from './loading-message';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -55,6 +55,10 @@ const gradeBadgeVariantMap: Record<
   [TeamsGrade.CA_EN_CONSOLIDACION]: 'orange',
   [TeamsGrade.GRUPO_DE_INVESTIGACION]: 'purple',
   [TeamsGrade.SIN_GRADO]: 'blue',
+};
+
+const getTeamLeaderMembership = (team: ITeam) => {
+  return team.memberships.find((membership) => membership.role === TeamMembershipRole.OWNER);
 };
 
 const TeamsActions = ({ team }: { team: ITeam }) => {
@@ -119,6 +123,14 @@ const TeamsActions = ({ team }: { team: ITeam }) => {
 };
 
 const columns: ColumnDef<ITeam>[] = [
+    {
+    id: 'actions',
+    header: 'Acciones',
+    cell: ({ row }) => {
+      const team = row.original;
+      return <TeamsActions team={team} />;
+    },
+  },
   {
     accessorKey: 'teamName',
     header: 'Nombre',
@@ -186,13 +198,12 @@ const columns: ColumnDef<ITeam>[] = [
   },
   {
     id: 'owner',
+    accessorFn: (team) => getTeamLeaderMembership(team)?.user?._id ?? 'Sin líder',
     header: 'Líder',
+    filterFn: facetedFilter,
     meta: { className: 'hidden lg:table-cell' }, // Visible a partir de portátiles (lg)
     cell: ({ row }) => {
-      const { memberships } = row.original;
-      const ownerMembership = memberships.find(
-        (m) => m.role === TeamMembershipRole.OWNER,
-      );
+      const ownerMembership = getTeamLeaderMembership(row.original);
       const owner = ownerMembership?.user;
       return owner ? (
         <div className="min-w-56">
@@ -258,20 +269,40 @@ const columns: ColumnDef<ITeam>[] = [
         </div>
       );
     },
-  },
-  {
-    id: 'actions',
-    header: 'Acciones',
-    cell: ({ row }) => {
-      const team = row.original;
-      return <TeamsActions team={team} />;
-    },
-  },
+  }
 ];
 
 export default function TeamsTable() {
   const { data, isLoading } = useAllTeams(true);
   const { data: divisions } = useDivisions();
+
+  const leaderFilterOptions = useMemo<FacetedFilterConfig['options']>(() => {
+    if (!data?.length) return [];
+
+    const leadersMap = new Map<string, string>();
+
+    data.forEach((team: ITeam) => {
+      const leader = getTeamLeaderMembership(team)?.user;
+      const leaderId = leader?._id ?? 'Sin líder';
+
+      if (leadersMap.has(leaderId)) {
+        return;
+      }
+
+      if (!leader) {
+        leadersMap.set(leaderId, 'Sin líder');
+        return;
+      }
+
+      const fullName = `${leader.givenName ?? ''} ${leader.familyName ?? ''}`.trim();
+      const leaderLabel = fullName || leader.email || 'Sin nombre';
+      leadersMap.set(leaderId, leaderLabel);
+    });
+
+    return Array.from(leadersMap.entries())
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'es'));
+  }, [data]);
 
   const facetedFilters: FacetedFilterConfig[] = useMemo(() => {
     const divisionsOptions =
@@ -294,8 +325,24 @@ export default function TeamsTable() {
           value: grade,
         })),
       },
+      {
+        columnId: 'owner',
+        title: 'Líder',
+        options: leaderFilterOptions,
+      },
     ];
-  }, [divisions]);
+  }, [divisions, leaderFilterOptions]);
+
+
+  const sortedTeams = useMemo(() => {
+    if (!data) return [];
+
+    return [...data].sort((a, b) => {
+      const aMain = new Date(a.createdAt);
+      const bMain = new Date(b.createdAt);
+      return bMain.getTime() - aMain.getTime(); // Orden descendente por fecha de creación
+    });
+  }, [data]);
 
   return (
     <div className="max-w-7xl w-full p-1">
@@ -303,7 +350,7 @@ export default function TeamsTable() {
         <LoadingMessage message="Cargando equipos" />
       ) : (
         <DataTable
-          data={data}
+          data={sortedTeams}
           columns={columns}
           facetedFilters={facetedFilters}
           searchColumnId="teamName"
