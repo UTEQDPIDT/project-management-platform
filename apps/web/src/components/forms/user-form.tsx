@@ -41,7 +41,13 @@ import {
 import { DialogClose } from '../ui/dialog';
 import { toast } from 'sonner';
 
-export default function UserForm({ profile }: { profile: IUser }) {
+export default function UserForm({
+  profile,
+  onSuccess,
+}: {
+  profile: IUser;
+  onSuccess?: () => void;
+}) {
   /**
    * React Query Hooks
    */
@@ -53,6 +59,8 @@ export default function UserForm({ profile }: { profile: IUser }) {
     resolver: zodResolver(updateUserSchema),
     mode: 'onChange',
     defaultValues: {
+      givenName: profile.givenName || '',
+      familyName: profile.familyName || '',
       sex: profile.sex || Sex.HOMBRE,
       state: profile.state || State.QRO,
       dateOfBirth: profile.dateOfBirth
@@ -77,7 +85,14 @@ export default function UserForm({ profile }: { profile: IUser }) {
         data.educationalProgram === '' ? undefined : data.educationalProgram,
       division: data.division === '' ? undefined : data.division,
     };
-    updateUserMutation.mutate({ userId: profile._id, data: cleanedData });
+    updateUserMutation.mutate(
+      { userId: profile._id, data: cleanedData },
+      {
+        onSuccess: () => {
+          onSuccess?.();
+        },
+      },
+    );
   };
 
   const onError = () => {
@@ -110,7 +125,36 @@ export default function UserForm({ profile }: { profile: IUser }) {
           <FieldSet>
             <FieldLegend>Información Personal</FieldLegend>
             <FieldGroup>
-              <div className="flex gap-6 flex-col md:flex-row">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+                
+                <Controller
+                  control={form.control}
+                  name="givenName"
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Nombre/s</FieldLabel>
+                      <Input {...field} id={field.name} />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <Controller
+                  control={form.control}
+                  name="familyName"
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Apellido/s</FieldLabel>
+                      <Input {...field} id={field.name} />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+
                 <Controller
                   control={form.control}
                   name="sex"
@@ -124,6 +168,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
                         <SelectTrigger
                           id={field.name}
                           onBlur={onBlur}
+                          className="w-full"
                           aria-invalid={fieldState.invalid}
                         >
                           <SelectValue />
@@ -181,6 +226,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
                       <SelectTrigger
                         id={field.name}
                         onBlur={onBlur}
+                        className="w-full"
                         aria-invalid={fieldState.invalid}
                       >
                         <SelectValue placeholder="Selecciona un estado" />
@@ -228,6 +274,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
                       <SelectTrigger
                         id={field.name}
                         onBlur={onBlur}
+                        className="w-full"
                         aria-invalid={fieldState.invalid}
                       >
                         <SelectValue placeholder="Selecciona un papel" />
@@ -284,6 +331,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
                           <SelectTrigger
                             id={field.name}
                             onBlur={onBlur}
+                            className="w-full"
                             aria-invalid={fieldState.invalid}
                           >
                             <SelectValue placeholder="Selecciona tu nivel" />
@@ -318,6 +366,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
                           <SelectTrigger
                             id={field.name}
                             onBlur={onBlur}
+                            className="w-full"
                             aria-invalid={fieldState.invalid}
                           >
                             <SelectValue placeholder="Selecciona un programa" />
@@ -382,6 +431,7 @@ export default function UserForm({ profile }: { profile: IUser }) {
                       <SelectTrigger
                         id={field.name}
                         onBlur={onBlur}
+                        className="w-full"
                         aria-invalid={fieldState.invalid}
                       >
                         <SelectValue placeholder="Selecciona una división" />

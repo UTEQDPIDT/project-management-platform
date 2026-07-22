@@ -32,6 +32,7 @@ import {
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
 import CopyButton from './ui/copy';
+import { useState } from 'react';
 
 interface CardUserInfoProps {
   profile: IUser;
@@ -39,6 +40,7 @@ interface CardUserInfoProps {
 
 export default function CardUserInfo({ profile }: CardUserInfoProps) {
   const { user } = useUserProfile();
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const {
     _id,
     role,
@@ -106,7 +108,7 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem asChild>
-                  <Dialog>
+                  <Dialog open={isEditProfileOpen} onOpenChange={setIsEditProfileOpen}>
                     <DialogTrigger className="w-full justify-start font-normal">
                       <Pencil /> Editar
                     </DialogTrigger>
@@ -121,7 +123,10 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                       </DialogHeader>
                       <Separator />
                       <div className="px-2">
-                        <UserForm profile={user} />
+                        <UserForm
+                          profile={profile}
+                          onSuccess={() => setIsEditProfileOpen(false)}
+                        />
                       </div>
                     </DialogContent>
                   </Dialog>

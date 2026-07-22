@@ -1,5 +1,6 @@
 import {
   Controller,
+  ForbiddenException,
   Get,
   Post,
   Body,
@@ -13,6 +14,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserRole } from '@repo/types';
 import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -24,6 +26,7 @@ import {
 type AuthenticatedRequest = {
   user: {
     id: string;
+    role: UserRole;
   };
 };
 
@@ -77,7 +80,19 @@ export class UsersController {
   @ApiNotFoundResponse({ description: 'No se encontro al usuario.' })
   @ApiUnauthorizedResponse({ description: 'Las credenciales son incorrectas.' })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const canEditUser = req.user.id === id || req.user.role === UserRole.ADMIN;
+
+    if (!canEditUser) {
+      throw new ForbiddenException(
+        'Solo puedes editar tu propio perfil o debes ser administrador.',
+      );
+    }
+
     return this.usersService.update(id, updateUserDto);
   }
 
