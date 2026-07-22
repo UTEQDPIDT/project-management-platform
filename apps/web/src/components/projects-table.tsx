@@ -20,7 +20,6 @@ import { Progress } from './ui/progress';
 import CopyButton from './ui/copy';
 import { Button } from './ui/button';
 import { fuzzyFilter } from './ui/data-table';
-import { useProjectPrograms } from '@/hooks/catalogs';
 import {
   Dialog,
   DialogClose,
@@ -50,8 +49,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { useProjectProducts } from '@/hooks/products';
 import { getActivitiesByEntityId } from '@/services/activities.service';
 import { useUserProfile } from 'context/profile-provider';
@@ -86,7 +83,7 @@ const getProjectStatusLabel = (status?: string) => {
   const normalizedStatus = normalizeProjectStatus(status);
 
   if (normalizedStatus === ProjectStatus.CLOSED) return 'Cerrado';
-  if (normalizedStatus === ProjectStatus.FIRST_VALIDATION) return 'Primera validacion';
+  if (normalizedStatus === ProjectStatus.FIRST_VALIDATION) return 'Primera validación';
   if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'En progreso';
   if (normalizedStatus === ProjectStatus.COMPLETED) return 'Completado';
   return 'Pendiente';
