@@ -36,6 +36,9 @@ type AccessEditableUserFields = Pick<
   'role' | 'canValidateProjets' | 'canCloseProject'
 >;
 
+const AUTH_SENSITIVE_FIELDS_SELECT =
+  '+passwordHash +hashedRefreshToken +passwordResetTokenHash +passwordResetExpiresAt +passwordResetUsedAt';
+
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
@@ -181,8 +184,29 @@ export class UsersService {
     return user;
   }
 
+  async findOneWithSensitiveById(id: string): Promise<User> {
+    const user = await this.userModel
+      .findById(id)
+      .select(AUTH_SENSITIVE_FIELDS_SELECT)
+      .populate('division')
+      .populate('educationalProgram')
+      .exec();
+
+    if (!user) throw new NotFoundException(`User with ID: ${id} not found`);
+    return user;
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userModel.findOne({ email: email }).exec();
+    return user || null;
+  }
+
+  async findByEmailWithSensitive(email: string): Promise<User | null> {
+    const user = await this.userModel
+      .findOne({ email: email })
+      .select(AUTH_SENSITIVE_FIELDS_SELECT)
+      .exec();
+
     return user || null;
   }
 
@@ -190,7 +214,21 @@ export class UsersService {
     const results = await Promise.all(
       emails.map(async (email) => {
         const user = await this.findByEmail(email);
-        return { email, _id: user ? user._id.toString() : null, user };
+        if (!user) {
+          return { email, _id: null, user: null };
+        }
+
+        return {
+          email,
+          _id: user._id.toString(),
+          user: {
+            _id: user._id.toString(),
+            givenName: user.givenName,
+            familyName: user.familyName,
+            email: user.email,
+            avatarUrl: user.avatarUrl,
+          },
+        };
       }),
     );
 
