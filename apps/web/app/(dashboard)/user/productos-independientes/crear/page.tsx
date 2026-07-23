@@ -35,7 +35,10 @@ export default function Page() {
 			</Header>
 
 			<PageContent className="items-center">
-				<StandaloneProductForm useDialogClose={false} />
+				<StandaloneProductForm
+					useDialogClose={false}
+					successRedirectTo="/user/productos-independientes"
+				/>
 			</PageContent>
 		</div>
 	);
