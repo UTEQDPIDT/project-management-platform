@@ -102,6 +102,29 @@ Inside each application's root there are `sample.env` files provided with the ne
 - `apps/api/sample.env` - Backend configuration (MongoDB, Google OAuth, JWT secrets)
 - `apps/web/sample.env` - Frontend configuration (API URL, JWT secret)
 
+### Current Security Posture
+
+This environment currently operates over HTTP in development and in some controlled internal deployments. Because there is no TLS termination at the application layer, authentication cookies are intentionally configured with `secure: false` in the API. This is a deployment constraint, not an omission in application logic.
+
+Changing cookies to `secure: true` without placing the platform behind HTTPS would break browser delivery of authentication cookies and prevent normal login/refresh flows.
+
+Compensating controls currently in place:
+
+- JWT cookies are set as `httpOnly` to reduce client-side script access.
+- Cookies use `sameSite: 'lax'` to reduce opportunistic cross-site submission.
+- CORS is restricted to the configured frontend origin through `FRONTEND_URL`.
+- Helmet is enabled in the API to harden HTTP headers.
+- A global NestJS `ValidationPipe` enforces DTO allowlists, rejects unexpected fields, and transforms request payloads.
+- Administrative endpoints now require explicit role-based authorization checks.
+- Sensitive user fields are hidden by default from standard read queries.
+- File upload endpoints are rate-limited to reduce abuse.
+
+Operational recommendation for production-like environments:
+
+- Terminate TLS at a reverse proxy, load balancer, or gateway before exposing the platform outside a trusted network.
+- After HTTPS is enforced end-to-end, switch authentication cookies to `secure: true`.
+- Keep the application behind trusted network boundaries until TLS termination is available.
+
 ### Build app for development
 
 Once Docker Desktop and Docker Compose are installed, build the `api` and `mongodb` services for development:

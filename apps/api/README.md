@@ -82,6 +82,33 @@ http://localhost:3001/api/docs
 
 ---
 
+## Security Notes
+
+### HTTP and Cookie Behavior
+
+This API may run in environments where TLS termination is not yet available at the application boundary. In those cases, authentication cookies remain configured with `secure: false` by design so browsers will continue sending them over HTTP during login and refresh flows.
+
+This should not be interpreted as the target end state for an internet-exposed deployment. Setting `secure: true` is still the recommended posture once HTTPS is available, but enabling it before TLS exists would break authentication.
+
+### Compensating Controls
+
+The current implementation relies on the following controls while HTTP remains an infrastructure constraint:
+
+- `httpOnly` authentication cookies to reduce script-level token access.
+- `sameSite: 'lax'` cookies to limit some cross-site request scenarios.
+- CORS restricted to `FRONTEND_URL` in the Nest bootstrap.
+- Helmet enabled for HTTP header hardening.
+- Global `ValidationPipe` with `whitelist`, `forbidNonWhitelisted`, and `transform` enabled.
+- Explicit authorization checks for privileged user-management operations.
+- Sensitive user fields excluded from standard query results by default.
+- Rate limiting on file upload routes.
+
+### Deployment Recommendation
+
+Before exposing this API outside a trusted internal network, place it behind a reverse proxy or gateway that terminates TLS. Once HTTPS is enforced, update cookie configuration to use `secure: true`.
+
+---
+
 ## Project Structure
 
 ```
