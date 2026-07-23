@@ -35,10 +35,12 @@ jobs:
           echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> ./apps/api/.env.production
           echo "MAIL_FROM=${{ secrets.MAIL_FROM }}" >> ./apps/api/.env.production
           echo "INITIALIZE_PASSWORD_SECRET=${{ secrets.INITIALIZE_PASSWORD_SECRET }}" >> ./apps/api/.env.production
+          echo "RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SECRET_KEY }}" >> ./apps/api/.env.production
 
           # WEB Env
           echo "NEXT_PRIVATE_JWT_SECRET=${{ secrets.NEXT_PRIVATE_JWT_SECRET }}" > ./apps/web/.env.production
           echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.BACKEND_URL }}" >> ./apps/web/.env.production
+            echo "NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }}" >> ./apps/web/.env.production
       - name: Build and Restart Services
         env:
           MONGO_USER: ${{ secrets.MONGO_USER }}

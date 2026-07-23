@@ -14,4 +14,11 @@ export class MockLoginDto {
 	@IsString()
 	@MinLength(8)
 	password: string;
+
+    @ApiProperty({
+        description: 'Token de verificación de reCAPTCHA v2 invisible.',
+    })
+    @IsString()
+    @MinLength(1)
+    recaptchaToken: string;
 }

@@ -9,6 +9,8 @@ import {
   UseGuards,
   Headers,
   UnauthorizedException,
+  ValidationPipe,
+  UsePipes,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
@@ -22,6 +24,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { InitializePasswordDto } from './dto/initialize-password.dto';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
+import { RecaptchaService } from './recaptcha.service';
 
 type AuthenticatedRequest = Request & {
   user: {
@@ -42,6 +45,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    private readonly recaptchaService: RecaptchaService,
   ) {}
 
   @UseGuards(RefreshAuthGuard)
@@ -101,8 +105,11 @@ export class AuthController {
 
   @Public()
   @Post('mock-login')
-  async mockLogin(@Body() body: MockLoginDto, @Res() res: Response) {
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async mockLogin(@Body() body: MockLoginDto, @Req() req: Request, @Res() res: Response) {
     try {
+      await this.recaptchaService.verifyTokenOrThrow(body.recaptchaToken, req.ip);
+
       const user = await this.authService.validateUser(body.email, body.password);
 
       const response = await this.authService.login(
@@ -137,8 +144,11 @@ export class AuthController {
   @Post('mock-register')
   async mockRegister(
     @Body() body: MockRegisterDto,
+    @Req() req: Request,
     @Res() res: Response,
   ) {
+    await this.recaptchaService.verifyTokenOrThrow(body.recaptchaToken, req.ip);
+
     const user = await this.authService.registerUser(body);
 
     const response = await this.authService.login(
@@ -168,8 +178,11 @@ export class AuthController {
 
   @Public()
   @Post('forgot-password')
-  async forgotPassword(@Body() body: ForgotPasswordDto, @Res() res: Response) {
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async forgotPassword(@Body() body: ForgotPasswordDto, @Req() req: Request, @Res() res: Response) {
     try {
+      await this.recaptchaService.verifyTokenOrThrow(body.recaptchaToken, req.ip);
+
       const response = await this.authService.forgotPassword(body.email);
       return res.status(200).json(response);
     } catch (error) {

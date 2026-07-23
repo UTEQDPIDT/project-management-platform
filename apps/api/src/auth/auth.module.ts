@@ -15,6 +15,7 @@ import { RefreshJwtStrategy } from './strategies/refresh.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import { EmailModule } from '../email/email.module';
+import { RecaptchaService } from './recaptcha.service';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { EmailModule } from '../email/email.module';
     GoogleStrategy,
     JwtStrategy,
     RefreshJwtStrategy,
+    RecaptchaService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard, // @UseGuards(JwtAuthGuard) applied globally

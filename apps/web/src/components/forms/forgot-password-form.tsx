@@ -10,6 +10,7 @@ import { uteqEmailRegex } from '@/lib/utils';
 import { toast } from 'sonner';
 import { forgotPassword } from '@/services/auth.service';
 import { useState } from 'react';
+import { getRecaptchaToken } from '@/lib/recaptcha';
 
 const schema = z.object({
   email: z
@@ -29,7 +30,8 @@ export default function ForgotPasswordForm() {
 
   const onSubmit = async (payload: z.infer<typeof schema>) => {
     try {
-      await forgotPassword(payload.email);
+      const recaptchaToken = await getRecaptchaToken();
+      await forgotPassword(payload.email, recaptchaToken);
     } catch {
       // siempre mostramos el mismo mensaje para no revelar si el correo existe
     } finally {

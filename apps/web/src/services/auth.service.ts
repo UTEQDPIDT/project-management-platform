@@ -1,7 +1,13 @@
 import { api } from '@/lib/axios';
 
-export const forgotPassword = async (email: string) => {
-  const { data } = await api.post('/auth/forgot-password', { email });
+export const forgotPassword = async (
+  email: string,
+  recaptchaToken: string,
+) => {
+  const { data } = await api.post('/auth/forgot-password', {
+    email,
+    recaptchaToken,
+  });
   return data;
 };
 

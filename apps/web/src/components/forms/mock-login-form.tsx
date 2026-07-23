@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { EyePasswordInput } from '../ui/eye-password-input';
+import { getRecaptchaToken } from '@/lib/recaptcha';
 
 const schema = z.object({
   email: z
@@ -36,11 +37,15 @@ export default function MockLoginForm() {
 
   const onSubmit = async (payload: z.infer<typeof schema>) => {
     try {
-      const { data } = await api.post('/auth/mock-login', payload);
+      const recaptchaToken = await getRecaptchaToken();
+      const { data } = await api.post('/auth/mock-login', {
+        ...payload,
+        recaptchaToken,
+      });
       router.push(data.redirectUrl);
       toast.success('Inicio de sesión exitoso');
     } catch (error) {
-      toast.error('Error al iniciar sesión, credenciales inválidas');
+      toast.error('No se pudo validar el acceso. Intenta de nuevo.');
     }
   };
 

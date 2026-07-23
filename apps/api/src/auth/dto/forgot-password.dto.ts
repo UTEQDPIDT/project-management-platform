@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, Matches } from 'class-validator';
+import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
 
 export class ForgotPasswordDto {
     @ApiProperty({
@@ -11,5 +11,12 @@ export class ForgotPasswordDto {
         message: 'El correo debe terminar en @uteq.edu.mx',
     })
     email: string;
+
+    @ApiProperty({
+        description: 'Token de verificación de reCAPTCHA v2 invisible.',
+    })
+    @IsString()
+    @MinLength(1)
+    recaptchaToken: string;
 
 }
