@@ -7,8 +7,6 @@ import {
   Req,
   Res,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
   Headers,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -103,7 +101,6 @@ export class AuthController {
 
   @Public()
   @Post('mock-login')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async mockLogin(@Body() body: MockLoginDto, @Res() res: Response) {
     try {
       const user = await this.authService.validateUser(body.email, body.password);
@@ -138,7 +135,6 @@ export class AuthController {
 
   @Public()
   @Post('mock-register')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async mockRegister(
     @Body() body: MockRegisterDto,
     @Res() res: Response,
@@ -172,7 +168,6 @@ export class AuthController {
 
   @Public()
   @Post('forgot-password')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async forgotPassword(@Body() body: ForgotPasswordDto, @Res() res: Response) {
     try {
       const response = await this.authService.forgotPassword(body.email);
@@ -187,7 +182,6 @@ export class AuthController {
 
   @Public()
   @Post('reset-password')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async resetPassword(@Body() body: ResetPasswordDto, @Res() res: Response) {
     try {
       const response = await this.authService.resetPassword(body);
@@ -206,7 +200,6 @@ export class AuthController {
 
   @Public()
   @Post('initialize-password')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async initializePassword(
     @Body() body: InitializePasswordDto,
     @Headers('x-internal-key') internalKey: string,
