@@ -84,7 +84,7 @@ export class AuthService {
 
   async validateRefreshToken(userId: string, refreshToken: string) {
     // extract user form db
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.findOneWithSensitiveById(userId);
 
     // check if user doesn't exists or doesn't have a hashed refresh token
     if (!user || !user.hashedRefreshToken) {
@@ -117,7 +117,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string) {
     const normalizedEmail = this.normalizeEmail(email);
-    const user = await this.userService.findByEmail(normalizedEmail);
+    const user = await this.userService.findByEmailWithSensitive(normalizedEmail);
 
     if (!user || !user.passwordHash) {
       throw new UnauthorizedException('Invalid credentials');
@@ -157,7 +157,7 @@ export class AuthService {
 
   async forgotPassword(email: string) {
     const normalizedEmail = this.normalizeEmail(email);
-    const user = await this.userService.findByEmail(normalizedEmail);
+    const user = await this.userService.findByEmailWithSensitive(normalizedEmail);
 
     if (!user) {
       return {
@@ -204,7 +204,7 @@ export class AuthService {
     }
 
     const normalizedEmail = this.normalizeEmail(payload.email);
-    const user = await this.userService.findByEmail(normalizedEmail);
+    const user = await this.userService.findByEmailWithSensitive(normalizedEmail);
 
     if (!user) {
       throw new BadRequestException('Invalid or expired reset token');
@@ -244,7 +244,7 @@ export class AuthService {
 
 async initializePassword(email: string) {
   const normalizedEmail = this.normalizeEmail(email);
-  const user = await this.userService.findByEmail(normalizedEmail);
+  const user = await this.userService.findByEmailWithSensitive(normalizedEmail);
 
   const genericResponse = {
     message:
