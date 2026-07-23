@@ -12,6 +12,7 @@ import { uteqEmailRegex } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { EyePasswordInput } from '../ui/eye-password-input';
+import { getRecaptchaToken } from '@/lib/recaptcha';
 
 const schema = z.object({
     givenName: z.string().min(1, 'El nombre debe tener al menos 1 caracter'),
@@ -44,8 +45,12 @@ export default function MockRegisterForm() {
 
 const onSubmit = async (payload: z.infer<typeof schema>) => {
     try {
+        const recaptchaToken = await getRecaptchaToken();
         const { confirmPassword, ...registerPayload } = payload;
-        const { data } = await api.post('/auth/mock-register', registerPayload);
+        const { data } = await api.post('/auth/mock-register', {
+            ...registerPayload,
+            recaptchaToken,
+        });
         router.push(data.redirectUrl);
         toast.success('Registro exitoso');
     } catch (error) {
