@@ -86,8 +86,20 @@ export class UsersController {
   @ApiOkResponse({
     description: 'Regresa un objeto con los ids de usuario, correos y usuarios',
   })
+  @ApiForbiddenResponse({
+    description: 'Solo los administradores pueden resolver correos.',
+  })
   @Post('resolve-emails')
-  async resolveEmails(@Body('emails') emails: string[]) {
+  async resolveEmails(
+    @Body('emails') emails: string[],
+    @Req() req: AuthenticatedRequest,
+  ) {
+    if (req.user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException(
+        'Solo los administradores pueden resolver correos.',
+      );
+    }
+
     return this.usersService.resolveEmails(emails);
   }
 
