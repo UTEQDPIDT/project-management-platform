@@ -39,18 +39,22 @@ import { DialogClose } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { useFilesForEntity } from '@/hooks/files';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   product?: IStandaloneProduct;
   useDialogClose?: boolean;
   onSuccess?: () => void;
+  successRedirectTo?: string;
 }
 
 export function StandaloneProductForm({
   product,
   useDialogClose = true,
   onSuccess,
+  successRedirectTo,
 }: Props) {
+  const router = useRouter();
   const { data: categories, isLoading: loadingCategories } =
     useProductCategories();
   const { data: subcategories, isLoading: loadingSubcategories } =
@@ -105,6 +109,9 @@ export function StandaloneProductForm({
           {
             onSuccess: () => {
               form.reset();
+              if (successRedirectTo) {
+                router.push(successRedirectTo);
+              }
               onSuccess?.();
             },
           },
@@ -121,7 +128,7 @@ export function StandaloneProductForm({
 
   return (
     <form
-      className="w-full max-w-2xl mx-auto px-2 sm:px-0 flex flex-col gap-4 sm:gap-6"
+      className="w-full max-w-2xl mx-auto my-4 sm:my-6 rounded-lg border border-neutral-400 bg-card p-4 sm:p-6 flex flex-col gap-4 sm:gap-6"
       onSubmit={form.handleSubmit(onSubmit, onError)}
     >
       <FieldGroup>
@@ -131,7 +138,7 @@ export function StandaloneProductForm({
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>Nombre *</FieldLabel>
-              <InputGroup>
+              <InputGroup className="border border-neutral-400">
                 <InputGroupInput
                   {...field}
                   id={field.name}
@@ -160,6 +167,7 @@ export function StandaloneProductForm({
                   id={field.name}
                   onBlur={field.onBlur}
                   aria-invalid={fieldState.invalid}
+                  className="border border-neutral-400"
                 >
                   <SelectValue placeholder="Selecciona una categoría" />
                 </SelectTrigger>
@@ -191,6 +199,7 @@ export function StandaloneProductForm({
                   id={field.name}
                   onBlur={field.onBlur}
                   aria-invalid={fieldState.invalid}
+                  className="border border-neutral-400"
                 >
                   <SelectValue placeholder="Selecciona una subcategoría" />
                 </SelectTrigger>
@@ -222,6 +231,7 @@ export function StandaloneProductForm({
                   id={field.name}
                   onBlur={field.onBlur}
                   aria-invalid={fieldState.invalid}
+                  className="border border-neutral-400"
                 >
                   <SelectValue placeholder="Selecciona un co autor" />
                 </SelectTrigger>
@@ -269,6 +279,7 @@ export function StandaloneProductForm({
                 onChange={(e) => field.onChange(e.target.files?.[0])}
                 onBlur={field.onBlur}
                 disabled={field.disabled}
+                className="border border-neutral-400 cursor-pointer"
               />
 
               {fieldState.invalid ? (
