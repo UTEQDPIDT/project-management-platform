@@ -14,6 +14,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserAccessDto } from './dto/update-user-access.dto';
 import { UserRole } from '@repo/types';
 import {
   ApiCreatedResponse,
@@ -94,6 +95,24 @@ export class UsersController {
     }
 
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @ApiOkResponse({ description: 'Accesos del usuario actualizados correctamente.' })
+  @ApiNotFoundResponse({ description: 'No se encontro al usuario.' })
+  @ApiUnauthorizedResponse({ description: 'Las credenciales son incorrectas.' })
+  @Patch(':id/access')
+  updateAccess(
+    @Param('id') id: string,
+    @Body() updateUserAccessDto: UpdateUserAccessDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    if (req.user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException(
+        'Solo los administradores pueden cambiar roles o permisos.',
+      );
+    }
+
+    return this.usersService.updateAccess(id, updateUserAccessDto);
   }
 
   @ApiNotFoundResponse({ description: 'No se encontro al usuario.' })
