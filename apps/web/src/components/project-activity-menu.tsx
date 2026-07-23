@@ -53,7 +53,7 @@ export function ProjectActivityMenu({
         <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground px-0 h-8 border-transparent w-full justify-start font-normal">
           <Pencil /> Editar actividad
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
           <Badge variant="orange">Editando</Badge>
           <DialogTitle className="line-clamp-1 h-5">
             {activity.name}

@@ -376,6 +376,40 @@ export class ProjectsService {
   }
 
   /**
+   * Cancels the first validation stage and returns the project to COMPLETED status.
+   * @param projectId The unique identifier of the project.
+   * @param userId The ID of the administrative user cancelling the first validation.
+   */
+  async cancelFirstValidation(projectId: string, userId: string) {
+    const permissions = await this.getValidationPermissions(userId);
+
+    if (!permissions.canValidate) {
+      throw new ForbiddenException('This user is not authorized to cancel the first validation.');
+    }
+
+    const project = await this.projectModel.findById(projectId);
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${projectId} not found`);
+    }
+
+    const validationStatus = project.get('validationStatus');
+
+    if (validationStatus !== ProjectValidation.FIRST_VALIDATION) {
+      throw new BadRequestException('The project is not in FIRST_VALIDATION status.');
+    }
+
+    await this.projectModel.findByIdAndUpdate(projectId, {
+      status: ProjectStatus.COMPLETED,
+      validationStatus: null,
+      firstValidatedBy: null,
+      updatedBy: userId,
+    });
+
+    return { id: projectId, message: 'First validation cancelled successfully' };
+  }
+
+  /**
    * Closes the project permanently, applying the FINAL_VALIDATION stage.
    * Requires the project to possess the FIRST_VALIDATION mark beforehand.
    * Locks down write permissions system-wide.

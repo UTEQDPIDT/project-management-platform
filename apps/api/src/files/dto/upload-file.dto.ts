@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EntityType, FilePurpose } from '@repo/types';
-import { IsEnum, IsMongoId } from 'class-validator';
+import { Allow, IsEnum, IsMongoId, IsOptional } from 'class-validator';
 
 export class UploadFileDto {
   @ApiProperty({
@@ -22,9 +22,22 @@ export class UploadFileDto {
   @IsEnum(FilePurpose)
   purpose: FilePurpose;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: 'string',
     format: 'binary',
+    required: false,
   })
-  file: any;
+  @IsOptional()
+  @Allow()
+  file?: any;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    format: 'binary',
+    isArray: true,
+    required: false,
+  })
+  @IsOptional()
+  @Allow()
+  files?: any;
 }

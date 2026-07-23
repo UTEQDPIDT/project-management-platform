@@ -16,13 +16,7 @@ import {
 } from './ui/dropdown-menu';
 import { useDeleteFile } from '@/hooks/files';
 import { cn } from '@/lib/utils';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from './ui/dialog';
+import FilePreviewDialog from './file-preview-dialog';
 
 type FileButtonProps = {
   file: IFile;
@@ -41,9 +35,12 @@ export default function FileButton({
 
   const [isLoading, setIsLoading] = useState(false);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
-  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
-  const [isLoadingPdf, setIsLoadingPdf] = useState(false);
+  const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const isPdf = file.mimetype === 'application/pdf';
+  const isImage = file.mimetype?.startsWith('image/');
+  const canPreview = isPdf || isImage;
 
   const handleDownload = async () => {
     try {
@@ -60,37 +57,41 @@ export default function FileButton({
     deleteFile.mutate({ fileId: file._id });
   };
 
-  const handleOpenPdf = async () => {
-    if (!isPdf) return;
+  const handleOpenPreview = async () => {
+    if (!canPreview) return;
 
     try {
-      setIsLoadingPdf(true);
-      const blobUrl = await getFileBlobUrl(file._id);
-      setPdfBlobUrl(blobUrl);
       setIsViewerOpen(true);
+      setIsLoadingPreview(true);
+      setPreviewError(null);
+      setPreviewBlobUrl(null);
+      const blobUrl = await getFileBlobUrl(file._id);
+      setPreviewBlobUrl(blobUrl);
     } catch (error) {
-      console.error('Failed to open PDF preview:', error);
+      console.error('Failed to open file preview:', error);
+      setPreviewError('No se pudo cargar la vista previa del archivo.');
     } finally {
-      setIsLoadingPdf(false);
+      setIsLoadingPreview(false);
     }
   };
 
   useEffect(() => {
     if (isViewerOpen) return;
 
-    if (pdfBlobUrl) {
-      window.URL.revokeObjectURL(pdfBlobUrl);
-      setPdfBlobUrl(null);
+    if (previewBlobUrl) {
+      window.URL.revokeObjectURL(previewBlobUrl);
+      setPreviewBlobUrl(null);
     }
-  }, [isViewerOpen, pdfBlobUrl]);
+    setPreviewError(null);
+  }, [isViewerOpen, previewBlobUrl]);
 
   useEffect(() => {
     return () => {
-      if (pdfBlobUrl) {
-        window.URL.revokeObjectURL(pdfBlobUrl);
+      if (previewBlobUrl) {
+        window.URL.revokeObjectURL(previewBlobUrl);
       }
     };
-  }, [pdfBlobUrl]);
+  }, [previewBlobUrl]);
 
   return (
     <>
@@ -130,10 +131,10 @@ export default function FileButton({
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            {isPdf && (
-              <DropdownMenuItem onClick={handleOpenPdf} disabled={isLoadingPdf}>
+            {canPreview && (
+              <DropdownMenuItem onClick={handleOpenPreview} disabled={isLoadingPreview}>
                 <Eye />
-                {isLoadingPdf ? 'Abriendo PDF...' : 'Ver PDF'}
+                {isLoadingPreview ? 'Abriendo archivo...' : 'Ver archivo'}
               </DropdownMenuItem>
             )}
             <DropdownMenuItem onClick={handleDownload} disabled={isLoading}>
@@ -152,31 +153,17 @@ export default function FileButton({
         </DropdownMenuContent>
       </DropdownMenu>
     </ButtonGroup>
-    <Dialog open={isViewerOpen} onOpenChange={setIsViewerOpen}>
-      <DialogContent
-        className="flex h-[92dvh] w-[96vw] max-w-[96vw] flex-col p-2 sm:h-[88dvh] sm:w-[88vw] sm:max-w-[88vw] sm:p-4 lg:h-[80dvh] lg:w-[78vw] lg:max-w-[78vw]"
-        showCloseButton
-        closeButtonClassName="top-2 right-2 sm:top-4 sm:right-4 bg-background/80"
-      >
-        <DialogHeader className="px-1">
-          <DialogTitle className="truncate">{file.originalName}</DialogTitle>
-          <DialogDescription>Vista previa nativa de PDF</DialogDescription>
-        </DialogHeader>
-        <div className="min-h-0 flex-1">
-          {pdfBlobUrl ? (
-            <iframe
-              src={pdfBlobUrl}
-              title={`Vista previa de ${file.originalName}`}
-              className="h-full w-full rounded-md border"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              No se pudo cargar la vista previa del PDF.
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+    <FilePreviewDialog
+      open={isViewerOpen}
+      onOpenChange={setIsViewerOpen}
+      fileName={file.originalName}
+      mimeType={file.mimetype}
+      previewBlobUrl={previewBlobUrl}
+      isLoading={isLoadingPreview}
+      errorMessage={previewError}
+      onRetry={handleOpenPreview}
+      onDownload={handleDownload}
+    />
     </>
   );
 }

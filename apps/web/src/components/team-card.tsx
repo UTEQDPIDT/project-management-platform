@@ -177,8 +177,7 @@ function TeamCardDefault({ team, className }: { team: ITeam; className?: string 
   }
 
   return (
-    /* Eliminado min-w-96 e inyectado gap adaptable para pantallas muy pequeñas */
-    <Card className={`w-80 flex flex-col gap-2 md:gap-4 border-neutral-500 ${className}`}>
+    <Card className={`w-full min-w-0 flex flex-col gap-2 md:gap-4 border-neutral-500 ${className}`}>
       <CardHeader>
         <div className="flex justify-between items-start gap-2">
           <div className="flex gap-2 items-start min-w-0">

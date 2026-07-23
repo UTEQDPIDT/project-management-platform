@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  useCancelFirstValidationProject,
   useAllProjects,
   useCloseProject,
   useDeleteProject,
@@ -19,7 +20,6 @@ import { Progress } from './ui/progress';
 import CopyButton from './ui/copy';
 import { Button } from './ui/button';
 import { fuzzyFilter } from './ui/data-table';
-import { useProjectPrograms } from '@/hooks/catalogs';
 import {
   Dialog,
   DialogClose,
@@ -45,11 +45,10 @@ import {
   Trash,
   Lock,
   Pin,
+  XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { useProjectProducts } from '@/hooks/products';
 import { getActivitiesByEntityId } from '@/services/activities.service';
 import { useUserProfile } from 'context/profile-provider';
@@ -84,7 +83,7 @@ const getProjectStatusLabel = (status?: string) => {
   const normalizedStatus = normalizeProjectStatus(status);
 
   if (normalizedStatus === ProjectStatus.CLOSED) return 'Cerrado';
-  if (normalizedStatus === ProjectStatus.FIRST_VALIDATION) return 'Primera validacion';
+  if (normalizedStatus === ProjectStatus.FIRST_VALIDATION) return 'Primera validación';
   if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'En progreso';
   if (normalizedStatus === ProjectStatus.COMPLETED) return 'Completado';
   return 'Pendiente';
@@ -162,6 +161,7 @@ const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
   const { user } = useUserProfile();
   const deleteProject = useDeleteProject();
   const firstValidationProject = useFirstValidationProject();
+  const cancelFirstValidationProject = useCancelFirstValidationProject();
   const closeProject = useCloseProject();
   const reopenProject = useReopenProject();
   const effectiveStatus = project.__derivedStatus;
@@ -186,6 +186,12 @@ const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
       (effectiveStatus === ProjectStatus.COMPLETED ||
         effectiveStatus === ProjectStatus.FIRST_VALIDATION) &&
       user?.canCloseProject &&
+      hasFirstValidation,
+  );
+  const canCancelFirstValidation = Boolean(
+    !isClosed &&
+      effectiveStatus === ProjectStatus.FIRST_VALIDATION &&
+      user?.canValidateProjets &&
       hasFirstValidation,
   );
 
@@ -223,6 +229,16 @@ const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
           >
             <Pin />
             Primera validación
+          </DropdownMenuItem>
+        )}
+
+        {canCancelFirstValidation && (
+          <DropdownMenuItem
+            onClick={() => cancelFirstValidationProject.mutate(project._id)}
+            disabled={cancelFirstValidationProject.isPending}
+          >
+            <XCircle />
+            Cancelar primera validación
           </DropdownMenuItem>
         )}
 

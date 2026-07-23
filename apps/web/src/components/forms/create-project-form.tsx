@@ -185,7 +185,6 @@ export function CreateProjectForm() {
         ...data,
         organization: data.organization === '' ? undefined : data.organization,
         team: data.team === '' ? undefined : data.team,
-        program: data.program === '' ? undefined : data.program,
       };
 
       const createdProject = await createProject.mutateAsync(cleanedData);
@@ -210,9 +209,9 @@ export function CreateProjectForm() {
   };
 
   return (
-    <div>
+    <div className="w-full flex justify-center">
       <form
-        className="flex flex-col gap-6 md:w-2xl"
+        className="flex flex-col gap-6 w-full max-w-2xl"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
         <Card>
@@ -238,7 +237,7 @@ export function CreateProjectForm() {
                         placeholder="Ingresa el nombre del proyecto"
                       />
                       <InputGroupAddon align="inline-end">
-                        {field.value?.length}/200
+                        {field.value?.length}/250
                       </InputGroupAddon>
                     </InputGroup>
                     {fieldState.invalid && (
@@ -408,7 +407,7 @@ export function CreateProjectForm() {
           <CardHeader>
             <CardTitle>Programa del proyecto</CardTitle>
             <CardDescription>
-              Selecciona el programa al que pertenece el proyecto, si aplica.
+              Selecciona el programa al que pertenece el proyecto.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -418,7 +417,7 @@ export function CreateProjectForm() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="program">
-                    Programa del proyecto
+                    Programa del proyecto *
                   </FieldLabel>
                   <Select
                     value={field.value ?? ''}
@@ -946,7 +945,7 @@ export function CreateProjectForm() {
                           </Button>
                         </PopoverTrigger>
 
-                        <PopoverContent className="w-full lg:max-w-2xl max-h-96 overflow-y-auto p-0 border border-gray-400">
+                        <PopoverContent className="w-[calc(100vw-2rem)] sm:w-full lg:max-w-2xl max-h-96 overflow-y-auto p-0 border border-gray-400">
                           <Command
                             filter={(value, search) =>
                               value
@@ -1157,7 +1156,7 @@ export function CreateProjectForm() {
                           </Button>
                         </PopoverTrigger>
 
-                        <PopoverContent className="w-full md:w-xl max-h-96 overflow-y-auto p-0">
+                        <PopoverContent className="w-[calc(100vw-2rem)] sm:w-full md:w-xl max-h-96 overflow-y-auto p-0">
                           <Command>
                             <CommandGroup>
                               {loadingProjects ? (

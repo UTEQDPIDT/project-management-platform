@@ -62,7 +62,7 @@ export class User extends Document {
   @ApiPropertyOptional({
     description: 'Contraseña del usuario.',
   })
-  @Prop({required: false})
+  @Prop({ required: false, select: false })
   passwordHash?: string;
 
   @ApiPropertyOptional({
@@ -151,25 +151,25 @@ export class User extends Document {
   @ApiPropertyOptional({
     description: 'El token de refresco hasheado del usuario.',
   })
-  @Prop()
+  @Prop({ select: false })
   hashedRefreshToken?: string | null;
 
   @ApiPropertyOptional({
     description: 'El token para restablecer contraseña hasheado del usuario.',
   })
-  @Prop()
+  @Prop({ select: false })
   passwordResetTokenHash?: string | null;
 
   @ApiPropertyOptional({
     description: 'La fecha de expiración del token para restablecer contraseña.',
   })
-  @Prop()
+  @Prop({ select: false })
   passwordResetExpiresAt?: Date | null;
 
   @ApiPropertyOptional({
     description: 'Token de un solo uso para restablecer contraseña ha sido utilizado.',
   })
-  @Prop()
+  @Prop({ select: false })
   passwordResetUsedAt?: Date | null;
 }
 export const UserSchema = SchemaFactory.createForClass(User);

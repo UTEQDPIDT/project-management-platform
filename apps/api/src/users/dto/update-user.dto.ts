@@ -1,5 +1,4 @@
 import {
-  IsBoolean,
   IsDate,
   IsEnum,
   IsMongoId,
@@ -8,34 +7,38 @@ import {
   IsString,
   Length,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ObjectId } from 'mongoose';
-import { UserRole, CareerLevel, Sex, State, UserType } from '@repo/types';
+import { CareerLevel, Sex, State, UserType } from '@repo/types';
 
 export class UpdateUserDto {
-  @IsOptional()
-  @IsEnum(UserRole)
-  role: UserRole;
 
   @IsOptional()
-  @IsBoolean()
-  canValidateProjets?: boolean;
+  @IsString()
+  @Length(2, 40)
+  givenName: string;
 
   @IsOptional()
-  @IsBoolean()
-  canCloseProject?: boolean;
+  @IsString()
+  @Length(2, 40)
+  familyName: string;
 
   @IsOptional()
   @IsEnum(UserType)
   type: UserType;
 
+  @IsOptional()
   @IsEnum(Sex)
-  sex: Sex;
+  sex?: Sex;
 
+  @IsOptional()
   @IsEnum(State)
-  state: State;
+  state?: State;
 
+  @IsOptional()
+  @Type(() => Date)
   @IsDate()
-  dateOfBirth: Date;
+  dateOfBirth?: Date;
 
   @IsOptional()
   @IsNumberString()
@@ -59,7 +62,4 @@ export class UpdateUserDto {
   @Length(5, 10)
   employeeNumber?: string;
 
-  @IsOptional()
-  @IsString()
-  hashedRefreshToken?: string;
 }

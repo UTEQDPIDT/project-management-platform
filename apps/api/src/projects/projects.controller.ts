@@ -18,7 +18,6 @@ import {
   ApiUnauthorizedResponse,
   ApiNotFoundResponse,
   ApiTags,
-  ApiConsumes,
   ApiBadRequestResponse,
   ApiForbiddenResponse,
 } from '@nestjs/swagger';
@@ -41,7 +40,6 @@ export class ProjectsController {
   })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @Post()
-  @ApiConsumes('multipart/form-data')
   create(@Body() createProjectDto: CreateProjectDto, @Req() req: AuthenticatedRequest) {
     return this.projectsService.create(createProjectDto, req.user.id);
   }
@@ -88,7 +86,6 @@ export class ProjectsController {
   @ApiNotFoundResponse({ description: 'No se encontro el proyecto.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @Patch(':id')
-  @ApiConsumes('multipart/form-data')
   update(
     @Param('id') id: string,
     @Body() updateProjectDto: UpdateProjectDto,
@@ -121,6 +118,21 @@ export class ProjectsController {
     @Req() req: AuthenticatedRequest,
   ) {
     return this.projectsService.applyFirstValidation(id, req.user.id);
+  }
+
+  /**
+   * Endpoint for administrative users to cancel the first validation level.
+   */
+  @ApiAcceptedResponse({ description: 'First validation cancelled successfully.' })
+  @ApiBadRequestResponse({ description: 'Project is not in FIRST_VALIDATION status.' })
+  @ApiNotFoundResponse({ description: 'Project not found.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized or expired cookie.' })
+  @Post(':id/cancel-first-validation')
+  cancelFirstValidation(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.projectsService.cancelFirstValidation(id, req.user.id);
   }
 
   /**

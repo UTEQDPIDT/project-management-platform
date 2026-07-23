@@ -27,6 +27,7 @@ const updateUser = async ({
   } catch (err) {
     console.error('Error when updating user', err);
     toast.error('No se actualizó el perfil');
+    throw err;
   }
 };
 

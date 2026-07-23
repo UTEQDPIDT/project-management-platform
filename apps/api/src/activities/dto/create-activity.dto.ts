@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { EntityType, Priority, Status } from '@repo/types';
 import {
-    IsArray,
+  IsArray,
   IsBoolean,
   IsDate,
   IsEnum,
@@ -10,6 +10,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ObjectId } from 'mongoose';
 
 export class CreateActivityDto {
@@ -62,6 +63,7 @@ export class CreateActivityDto {
     example: '2024-12-30T23:59:59.999Z',
   })
   @IsOptional()
+  @Type(() => Date)
   @IsDate()
   dueDate?: Date;
 
@@ -70,6 +72,7 @@ export class CreateActivityDto {
     example: '2024-12-31T23:59:59.999Z',
   })
   @IsOptional()
+  @Type(() => Date)
   @IsDate()
   dueDateEnd?: Date;
 
@@ -80,6 +83,16 @@ export class CreateActivityDto {
   @ApiProperty({description: 'Tipo de entidad a la que pertenece la actividad (proyecto o evento)'})
   @IsEnum(EntityType)
   entityType: EntityType
+
+  @ApiProperty({
+    description: 'Listado de IDs de usuarios asignados a la actividad',
+    type: [String],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsMongoId({ each: true })
+  assignees?: string[];
 
   @ApiProperty({
     type: 'string',

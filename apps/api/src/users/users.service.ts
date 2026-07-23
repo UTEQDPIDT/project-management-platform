@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserAccessDto } from './dto/update-user-access.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../schemas/user.schema';
 import { Model } from 'mongoose';
@@ -15,9 +16,72 @@ type UserUpdateOperations = {
   $unset?: Record<string, ''>;
 };
 
+type ProfileEditableUserFields = Pick<
+  UpdateUserDto,
+  | 'givenName'
+  | 'familyName'
+  | 'type'
+  | 'sex'
+  | 'state'
+  | 'dateOfBirth'
+  | 'matricula'
+  | 'division'
+  | 'educationalProgram'
+  | 'careerLevel'
+  | 'employeeNumber'
+>;
+
+type AccessEditableUserFields = Pick<
+  UpdateUserAccessDto,
+  'role' | 'canValidateProjets' | 'canCloseProject'
+>;
+
+const AUTH_SENSITIVE_FIELDS_SELECT =
+  '+passwordHash +hashedRefreshToken +passwordResetTokenHash +passwordResetExpiresAt +passwordResetUsedAt';
+
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+
+  private sanitizeProfileUpdatePayload(
+    data: UpdateUserDto,
+  ): Partial<ProfileEditableUserFields> {
+    const safeData: Partial<ProfileEditableUserFields> = {};
+
+    if (data.givenName !== undefined) safeData.givenName = data.givenName;
+    if (data.familyName !== undefined) safeData.familyName = data.familyName;
+    if (data.type !== undefined) safeData.type = data.type;
+    if (data.sex !== undefined) safeData.sex = data.sex;
+    if (data.state !== undefined) safeData.state = data.state;
+    if (data.dateOfBirth !== undefined) safeData.dateOfBirth = data.dateOfBirth;
+    if (data.matricula !== undefined) safeData.matricula = data.matricula;
+    if (data.division !== undefined) safeData.division = data.division;
+    if (data.educationalProgram !== undefined) {
+      safeData.educationalProgram = data.educationalProgram;
+    }
+    if (data.careerLevel !== undefined) safeData.careerLevel = data.careerLevel;
+    if (data.employeeNumber !== undefined) {
+      safeData.employeeNumber = data.employeeNumber;
+    }
+
+    return safeData;
+  }
+
+  private sanitizeAccessUpdatePayload(
+    data: UpdateUserAccessDto,
+  ): Partial<AccessEditableUserFields> {
+    const safeData: Partial<AccessEditableUserFields> = {};
+
+    if (data.role !== undefined) safeData.role = data.role;
+    if (data.canValidateProjets !== undefined) {
+      safeData.canValidateProjets = data.canValidateProjets;
+    }
+    if (data.canCloseProject !== undefined) {
+      safeData.canCloseProject = data.canCloseProject;
+    }
+
+    return safeData;
+  }
 
   /**
    * Clears properties based on user type:
@@ -25,7 +89,9 @@ export class UsersService {
    * - MAESTRO/ADMINISTRATIVO: clears matricula and educationalProgram
    * Returns an object with $set and $unset operations for MongoDB
    */
-  private clearPropertiesByUserType(data: UpdateUserDto): UserUpdateOperations {
+  private clearPropertiesByUserType(
+    data: Partial<ProfileEditableUserFields>,
+  ): UserUpdateOperations {
     const fieldsToSet: Record<string, unknown> = { ...data };
     const fieldsToUnset: Record<string, ''> = {};
 
@@ -118,8 +184,29 @@ export class UsersService {
     return user;
   }
 
+  async findOneWithSensitiveById(id: string): Promise<User> {
+    const user = await this.userModel
+      .findById(id)
+      .select(AUTH_SENSITIVE_FIELDS_SELECT)
+      .populate('division')
+      .populate('educationalProgram')
+      .exec();
+
+    if (!user) throw new NotFoundException(`User with ID: ${id} not found`);
+    return user;
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userModel.findOne({ email: email }).exec();
+    return user || null;
+  }
+
+  async findByEmailWithSensitive(email: string): Promise<User | null> {
+    const user = await this.userModel
+      .findOne({ email: email })
+      .select(AUTH_SENSITIVE_FIELDS_SELECT)
+      .exec();
+
     return user || null;
   }
 
@@ -127,7 +214,21 @@ export class UsersService {
     const results = await Promise.all(
       emails.map(async (email) => {
         const user = await this.findByEmail(email);
-        return { email, _id: user ? user._id.toString() : null, user };
+        if (!user) {
+          return { email, _id: null, user: null };
+        }
+
+        return {
+          email,
+          _id: user._id.toString(),
+          user: {
+            _id: user._id.toString(),
+            givenName: user.givenName,
+            familyName: user.familyName,
+            email: user.email,
+            avatarUrl: user.avatarUrl,
+          },
+        };
       }),
     );
 
@@ -139,9 +240,11 @@ export class UsersService {
     updateUserDto: UpdateUserDto,
   ): Promise<{ id: string; message: string }> {
     try {
+      const safeProfilePayload = this.sanitizeProfileUpdatePayload(updateUserDto);
+
       // Clear properties based on user type
       // Use MongoDB operators to properly set and unset fields
-      const updateOperations = this.clearPropertiesByUserType(updateUserDto);
+      const updateOperations = this.clearPropertiesByUserType(safeProfilePayload);
 
       const updatedUser = await this.userModel
         .findByIdAndUpdate(id, updateOperations, { new: true })
@@ -159,6 +262,27 @@ export class UsersService {
       }
       throw new BadRequestException(err.message);
     }
+  }
+
+  async updateAccess(
+    id: string,
+    updateUserAccessDto: UpdateUserAccessDto,
+  ): Promise<{ id: string; message: string }> {
+    const safeAccessPayload = this.sanitizeAccessUpdatePayload(updateUserAccessDto);
+
+    if (Object.keys(safeAccessPayload).length === 0) {
+      throw new BadRequestException('No access fields provided for update.');
+    }
+
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(id, { $set: safeAccessPayload }, { new: true })
+      .exec();
+
+    if (!updatedUser) {
+      throw new NotFoundException(`User with ID: ${id} not found`);
+    }
+
+    return { id, message: 'User access updated successfully' };
   }
 
   async updateHashedRefreshToken(userId: string, hashedRefreshToken: string) {

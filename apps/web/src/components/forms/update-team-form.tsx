@@ -142,9 +142,9 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
   };
 
   return (
-    <div>
+    <div className="w-full flex justify-center">
       <form
-        className="flex flex-col gap-6 lg:w-2xl"
+        className="flex flex-col gap-6 w-full max-w-2xl"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
         <Card>
@@ -323,7 +323,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                             <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-full md:w-xl max-h-96 overflow-y-auto p-0">
+                        <PopoverContent className="w-[calc(100vw-2rem)] sm:w-full md:w-xl max-h-96 overflow-y-auto p-0">
                           <Command
                             filter={(value, search) =>
                               value

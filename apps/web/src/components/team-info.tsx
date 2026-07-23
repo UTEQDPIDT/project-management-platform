@@ -60,28 +60,33 @@ export function TeamInfo({ team }: TeamInfoProps) {
       break;
   }
 
+  const rowClass =
+    'flex flex-col sm:flex-row sm:items-start py-1 sm:py-0 border-b border-neutral-100 sm:border-0';
+  const labelClass =
+    'p-2 flex gap-2 text-muted-foreground w-full sm:w-40 items-center font-medium sm:font-normal rounded-md shrink-0';
+
   return (
-    <div className="text-sm border-b pb-4 w-full px-4">
+    <div className="text-sm border-b pb-4 w-full px-2 sm:px-4 space-y-1">
       <div className="pb-2">
         <h1 className="text-xl font-semibold">{teamName}</h1>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <BadgeCheck size={14} /> Grado
         </span>
 
-        <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md">
+        <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md w-full">
           <Badge variant={badgeVariant}>{grade}</Badge>
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <GraduationCap size={14} /> División
         </span>
 
-        <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md">
+        <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md w-full">
           {division ? (
             division.name
           ) : (
@@ -90,32 +95,32 @@ export function TeamInfo({ team }: TeamInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Target size={14} /> Propósito
         </span>
 
-        <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md">
+        <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md w-full">
           {summary ? summary : <span className="text-gray-400">Vacío</span>}
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <HatGlasses size={14} /> Estado
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
           <Badge variant={isPrivate ? 'purple' : 'blue'}>
             {isPrivate ? 'Privado' : 'Público'}
           </Badge>
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <UserCircle size={14} /> Creado por
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
           {owner && typeof owner === 'object' && owner.givenName ? (
             <ProfileInfo
               size="sm"
@@ -129,22 +134,22 @@ export function TeamInfo({ team }: TeamInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Calendar size={14} /> Creado el
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
           {format(createdAt, "d 'de' MMMM 'de' yyyy k':'mm", {
             locale: es,
           })}
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className={rowClass}>
+        <span className={labelClass}>
           <Calendar size={14} /> Modificado el
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
           {format(updatedAt, "d 'de' MMMM 'de' yyyy k':'mm", {
             locale: es,
           })}

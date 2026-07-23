@@ -32,9 +32,9 @@ const Page = () => {
           <Badge variant="orange">Editando</Badge>
           <HeaderTitle>{loadingEvent ? 'Evento' : event.name}</HeaderTitle>
         </HeaderHeading>
-        <HeaderAction>
-          <Button asChild variant="ghost">
-            <Link href={`/admin/eventos/${eventId}`}>
+        <HeaderAction className="w-full sm:w-auto mt-4 sm:mt-0">
+          <Button asChild variant="ghost" className="w-full sm:w-auto">
+            <Link href={`/admin/eventos/${eventId}`} className="flex items-center justify-center gap-2">
               <ArrowLeft />
               Cancelar
             </Link>

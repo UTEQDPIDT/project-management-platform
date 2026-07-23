@@ -87,7 +87,7 @@ export function ParticipantsForm({
                   </Button>
                 </PopoverTrigger>
 
-                <PopoverContent className="w-full md:w-md max-h-96 overflow-y-auto p-0">
+                <PopoverContent className="w-[calc(100vw-2rem)] sm:w-full md:w-md max-h-96 overflow-y-auto p-0">
                   <Command>
                     <CommandGroup>
                       {loadingUsers ? (

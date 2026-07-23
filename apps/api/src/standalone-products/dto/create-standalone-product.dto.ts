@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CoAuthor } from '@repo/types';
-import { IsString, IsMongoId, IsEnum, IsOptional } from 'class-validator';
+import { Allow, IsString, IsMongoId, IsEnum, IsOptional } from 'class-validator';
 import { ObjectId } from 'mongoose';
 
 export class CreateStandaloneProductDto {
@@ -28,5 +28,6 @@ export class CreateStandaloneProductDto {
     required: false,
     })
     @IsOptional()
+    @Allow()
     file?: any;
 }

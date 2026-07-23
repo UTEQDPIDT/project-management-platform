@@ -81,6 +81,15 @@ const applyFirstValidation = async (id: string) => {
 };
 
 /**
+ * Sends a request to cancel the first administrative validation.
+ * @param id The unique identifier of the project.
+ */
+const cancelFirstValidation = async (id: string) => {
+  const { data } = await api.post(`/projects/${id}/cancel-first-validation`);
+  return data;
+};
+
+/**
  * Sends a request to close the project permanently (final validation).
  * @param id The unique identifier of the project.
  */
@@ -108,6 +117,7 @@ export {
   deleteProject,
   getProjectsDashboard,
   applyFirstValidation,
+  cancelFirstValidation,
   closeProject,
   reopenProject,
 };

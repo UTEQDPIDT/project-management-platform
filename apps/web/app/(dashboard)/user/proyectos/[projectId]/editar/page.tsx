@@ -28,9 +28,12 @@ const Page = () => {
           <Badge variant="orange">Editando</Badge>
           <HeaderTitle className="line-clamp-1">{project.name}</HeaderTitle>
         </HeaderHeading>
-        <HeaderAction>
-          <Button asChild variant="ghost">
-            <Link href={`/user/proyectos/${projectId}`}>
+        <HeaderAction className="w-full sm:w-auto mt-4 sm:mt-0">
+          <Button asChild variant="ghost" className="w-full sm:w-auto">
+            <Link
+              href={`/user/proyectos/${projectId}`}
+              className="flex items-center justify-center gap-2"
+            >
               <ArrowLeft />
               Cancelar
             </Link>
