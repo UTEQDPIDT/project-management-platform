@@ -7,7 +7,6 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
   Req,
   Query,
 } from '@nestjs/common';
@@ -18,6 +17,7 @@ import { UpdateUserAccessDto } from './dto/update-user-access.dto';
 import { UserRole } from '@repo/types';
 import {
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
@@ -37,22 +37,49 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiCreatedResponse({ description: 'Usuario creado correctamente.' })
+  @ApiForbiddenResponse({
+    description: 'Solo los administradores pueden crear usuarios.',
+  })
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body() createUserDto: CreateUserDto, @Req() req: AuthenticatedRequest) {
+    if (req.user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException(
+        'Solo los administradores pueden crear usuarios.',
+      );
+    }
+
     return this.usersService.create(createUserDto);
   }
 
   @ApiOkResponse({ description: 'Lista de usuarios obtenida correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontraron usuarios.' })
+  @ApiForbiddenResponse({
+    description: 'Solo los administradores pueden listar usuarios.',
+  })
   @Get()
-  findAll() {
+  findAll(@Req() req: AuthenticatedRequest) {
+    if (req.user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException(
+        'Solo los administradores pueden listar usuarios.',
+      );
+    }
+
     return this.usersService.findAll();
   }
 
   @ApiOkResponse({ description: 'Usario existe en la base de datos.' })
   @ApiUnauthorizedResponse({ description: 'Las credenciales son incorrectas.' })
+  @ApiForbiddenResponse({
+    description: 'Solo los administradores pueden buscar por correo.',
+  })
   @Get('email')
-  findByEmail(@Query('email') email: string) {
+  findByEmail(@Query('email') email: string, @Req() req: AuthenticatedRequest) {
+    if (req.user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException(
+        'Solo los administradores pueden buscar por correo.',
+      );
+    }
+
     return this.usersService.findByEmail(email);
   }
 
@@ -100,6 +127,9 @@ export class UsersController {
   @ApiOkResponse({ description: 'Accesos del usuario actualizados correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontro al usuario.' })
   @ApiUnauthorizedResponse({ description: 'Las credenciales son incorrectas.' })
+  @ApiForbiddenResponse({
+    description: 'Solo los administradores pueden cambiar roles o permisos.',
+  })
   @Patch(':id/access')
   updateAccess(
     @Param('id') id: string,
@@ -116,8 +146,17 @@ export class UsersController {
   }
 
   @ApiNotFoundResponse({ description: 'No se encontro al usuario.' })
+  @ApiForbiddenResponse({
+    description: 'Solo los administradores pueden eliminar usuarios.',
+  })
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    if (req.user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException(
+        'Solo los administradores pueden eliminar usuarios.',
+      );
+    }
+
     return this.usersService.remove(id);
   }
 }
