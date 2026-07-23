@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsEnum,
   IsMongoId,
   IsOptional,
@@ -63,4 +64,12 @@ export class CreateTeamDto {
   @IsOptional()
   @IsEnum(TeamsGrade)
   grade?: TeamsGrade;
+
+  @ApiPropertyOptional({
+    description: 'Indica si el equipo es privado.',
+    default: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isPrivate?: boolean;
 }

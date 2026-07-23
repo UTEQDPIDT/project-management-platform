@@ -7,6 +7,7 @@ import {
   IsString,
   Length,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ObjectId } from 'mongoose';
 import { CareerLevel, Sex, State, UserType } from '@repo/types';
 
@@ -35,6 +36,7 @@ export class UpdateUserDto {
   state?: State;
 
   @IsOptional()
+  @Type(() => Date)
   @IsDate()
   dateOfBirth?: Date;
 
