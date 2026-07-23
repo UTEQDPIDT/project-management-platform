@@ -18,7 +18,6 @@ import {
   ApiUnauthorizedResponse,
   ApiNotFoundResponse,
   ApiTags,
-  ApiConsumes,
   ApiBadRequestResponse,
   ApiForbiddenResponse,
 } from '@nestjs/swagger';
@@ -41,7 +40,6 @@ export class ProjectsController {
   })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @Post()
-  @ApiConsumes('multipart/form-data')
   create(@Body() createProjectDto: CreateProjectDto, @Req() req: AuthenticatedRequest) {
     return this.projectsService.create(createProjectDto, req.user.id);
   }
@@ -88,7 +86,6 @@ export class ProjectsController {
   @ApiNotFoundResponse({ description: 'No se encontro el proyecto.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @Patch(':id')
-  @ApiConsumes('multipart/form-data')
   update(
     @Param('id') id: string,
     @Body() updateProjectDto: UpdateProjectDto,

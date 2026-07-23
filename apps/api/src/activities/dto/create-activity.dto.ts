@@ -85,6 +85,16 @@ export class CreateActivityDto {
   entityType: EntityType
 
   @ApiProperty({
+    description: 'Listado de IDs de usuarios asignados a la actividad',
+    type: [String],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsMongoId({ each: true })
+  assignees?: string[];
+
+  @ApiProperty({
     type: 'string',
     format: 'binary',
     required: false,
