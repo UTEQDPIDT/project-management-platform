@@ -7,8 +7,6 @@ import {
   Patch,
   Post,
   Req,
-  UsePipes,
-  ValidationPipe,
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
@@ -37,13 +35,6 @@ export class EventsController {
 
   @ApiCreatedResponse({ description: 'Evento creado correctamente.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
-  @UsePipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  )
   @Post()
   create(@Body() createEventDto: CreateEventDto, @Req() req: AuthenticatedRequest) {
     return this.eventsService.create(createEventDto, req.user.id);
@@ -77,13 +68,6 @@ export class EventsController {
     type: UpdateEventDto,
   })
   @ApiNotFoundResponse({ description: 'Evento no encontrado' })
-  @UsePipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  )
   @Patch(':id')
   update(
     @Param('id') id: string,

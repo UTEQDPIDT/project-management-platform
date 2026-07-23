@@ -26,14 +26,17 @@ export class UpdateUserDto {
   @IsEnum(UserType)
   type: UserType;
 
+  @IsOptional()
   @IsEnum(Sex)
-  sex: Sex;
+  sex?: Sex;
 
+  @IsOptional()
   @IsEnum(State)
-  state: State;
+  state?: State;
 
+  @IsOptional()
   @IsDate()
-  dateOfBirth: Date;
+  dateOfBirth?: Date;
 
   @IsOptional()
   @IsNumberString()
