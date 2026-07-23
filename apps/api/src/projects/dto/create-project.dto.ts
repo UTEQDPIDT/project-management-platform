@@ -14,6 +14,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateProjectDto {
   @ApiProperty({
@@ -115,6 +116,7 @@ export class CreateProjectDto {
     description: 'Fecha de inicio del proyecto, esta será el inicio del plazo.',
   })
   @IsOptional()
+  @Type(() => Date)
   @IsDate()
   startDate: Date;
 
@@ -122,6 +124,7 @@ export class CreateProjectDto {
     description: 'Fecha final de vencimiento del proyecto',
   })
   @IsOptional()
+  @Type(() => Date)
   @IsDate()
   endDate: Date;
 
