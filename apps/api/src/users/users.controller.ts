@@ -109,6 +109,14 @@ export class UsersController {
     return this.usersService.findOne(req.user.id);
   }
 
+  @ApiOkResponse({
+    description: 'Lista de usuarios para selector de integrantes obtenida correctamente.',
+  })
+  @Get('team-picker')
+  findAllForTeamPicker() {
+    return this.usersService.findAllForTeamPicker();
+  }
+
   @ApiOkResponse({ description: 'Usario obtenido correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontro al usuario.' })
   @Get(':id')

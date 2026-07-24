@@ -7,6 +7,11 @@ const getAllUsers = async () => {
   return data;
 };
 
+const getTeamPickerUsers = async () => {
+  const { data } = await api.get('/users/team-picker');
+  return data;
+};
+
 const getUserById = async (userId: string) => {
   const { data } = await api.get(`/users/${userId}`);
   return data;
@@ -41,4 +46,11 @@ const resolveEmails = async (emails: string[]) => {
   return data;
 };
 
-export { getAllUsers, getUserById, updateUser, getUserProfile, resolveEmails };
+export {
+  getAllUsers,
+  getTeamPickerUsers,
+  getUserById,
+  updateUser,
+  getUserProfile,
+  resolveEmails,
+};
