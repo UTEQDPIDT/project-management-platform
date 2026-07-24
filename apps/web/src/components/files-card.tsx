@@ -1,20 +1,20 @@
 'use client';
 
 import { IFile } from '@repo/types';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import IconSquare from './icon-square';
 import { Info, Paperclip, Upload, X} from 'lucide-react';
 import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from './ui/sheet';
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from './ui/dialog';
 import { Button } from './ui/button';
 import {
   FileUpload,
@@ -43,7 +43,6 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
-import { useAddAssignee } from '@/hooks/activities';
 
 type FileCardProps = {
   title?: string;
@@ -54,7 +53,7 @@ type FileCardProps = {
   setFilesToUpload: Dispatch<SetStateAction<File[]>>;
   onFileReject?: (file: File, message: string) => void;
   onFileValidate?: (file: File) => string | null | undefined;
-  onUpload?: () => void;
+  onUpload?: () => Promise<boolean> | boolean;
   accept?: string;
   isLoading?: boolean;
   isError?: boolean;
@@ -79,8 +78,7 @@ export default function FilesCard({
   isProjectClosed = false,
 }: FileCardProps) {
   const deleteFileMutation = useDeleteFile();
-
-  const addAssigne = useAddAssignee();
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   const handleDelete = (fileId: string) => {
     deleteFileMutation.mutate({ fileId });
@@ -93,15 +91,24 @@ export default function FilesCard({
     }
   };
 
+  const handleUploadClick = async () => {
+    if (!onUpload) return;
+
+    const wasSuccessful = await onUpload();
+    if (wasSuccessful) {
+      setIsUploadDialogOpen(false);
+    }
+  };
+
   return (
-    <Card className="w-full max-w-md min-w-80 border border-neutral-400">
+    <Card className="w-full min-w-0 max-w-full border border-neutral-400 sm:max-w-md">
       <CardHeader>
-        <div className="flex gap-4 justify-between items-center">
-          <div className="flex gap-2 items-center">
+        <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <IconSquare color={iconColor}>
               <Paperclip />
             </IconSquare>
-            <CardTitle>{title}</CardTitle>
+            <CardTitle className="wrap-break-word">{title}</CardTitle>
             <HoverCard>
               <HoverCardTrigger asChild>
                 <Button variant="ghost" size="icon-xs">
@@ -116,23 +123,26 @@ export default function FilesCard({
             </HoverCard>
           </div>
           {!isProjectClosed && (
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm">
+            <Dialog
+              open={isUploadDialogOpen}
+              onOpenChange={setIsUploadDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="w-full sm:w-auto">
                   <Upload />
                   Subir
                 </Button>
-              </SheetTrigger>
+              </DialogTrigger>
 
-              <SheetContent className="flex h-dvh flex-col">
-              <SheetHeader>
-                <SheetTitle>{`Subir ${title}`}</SheetTitle>
-                <SheetDescription>
+              <DialogContent className="flex w-[calc(100vw-3rem)] sm:w-[calc(100vw-1rem)] max-w-2xl max-h-[92dvh] flex-col overflow-hidden p-0 lg:max-w-xl">
+              <DialogHeader className="px-4 pt-4 pb-2 sm:px-6 sm:pt-6">
+                <DialogTitle>{`Subir ${title}`}</DialogTitle>
+                <DialogDescription>
                   {`Selecciona y sube los ${title.toLowerCase()} relacionados con el evento.`}
-                </SheetDescription>
-              </SheetHeader>
+                </DialogDescription>
+              </DialogHeader>
 
-              <div className="flex min-h-0 flex-1 flex-col px-4">
+              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-4 pb-4 sm:px-6">
                 <FileUpload
                   value={filesToUpload}
                   onValueChange={setFilesToUpload}
@@ -160,7 +170,7 @@ export default function FilesCard({
                       </Button>
                     </FileUploadTrigger>
                   </FileUploadDropzone>
-                  <FileUploadList className="flex-1 max-h-[55vh] overflow-y-auto pr-1">
+                  <FileUploadList className="flex-1 max-h-[45vh] overflow-y-auto pr-1 sm:max-h-[55vh]">
                     {filesToUpload.map((file, index) => (
                       <FileUploadItem
                         key={`${file.name}-${file.lastModified}-${index}`}
@@ -178,20 +188,20 @@ export default function FilesCard({
                   </FileUploadList>
                 </FileUpload>
               </div>
-              <SheetFooter className="shrink-0">
-                <Button disabled={isUploading} onClick={onUpload}>
+                <DialogFooter className="shrink-0 px-4 pb-4 sm:px-6 sm:pb-6 [&>button]:w-full sm:[&>button]:w-auto">
+                <Button disabled={isUploading} onClick={handleUploadClick}>
                   {isUploading ? (
                     <LoadingMessage message="Subiendo archivos" />
                   ) : (
                     'Subir archivos'
                   )}
                 </Button>
-                <SheetClose asChild>
+                  <DialogClose asChild>
                   <Button variant="outline">Cerrar</Button>
-                </SheetClose>
-              </SheetFooter>
-              </SheetContent>
-            </Sheet>
+                  </DialogClose>
+                </DialogFooter>
+                </DialogContent>
+              </Dialog>
           )}
         </div>
       </CardHeader>
@@ -205,7 +215,7 @@ export default function FilesCard({
             onDelete={handleDelete}
             onDownload={handleDownload}
             allowDelete={!isProjectClosed}
-            className="lg:max-h-[50dvh] overflow-y-auto scroll-smooth pr-2.5"
+            className="max-h-[45dvh] overflow-y-auto scroll-smooth pr-2.5 lg:max-h-[50dvh]"
           >
             {savedFiles.map((f: IFile) => (
               <FileList.Item key={f._id} file={f}>

@@ -60,15 +60,22 @@ const ProjectPage = () => {
   // Manage file upload
   const uploadMultipleFiles = useUploadMultipleFiles();
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
-  const handleUpload = () => {
-    uploadMultipleFiles.mutate({
-      files: filesToUpload,
-      entityId: projectId,
-      entityType: EntityType.PROJECT,
-      purpose: FilePurpose.GENERIC,
-    });
+  const handleUpload = async () => {
+    if (filesToUpload.length === 0) return false;
 
-    setFilesToUpload([]);
+    try {
+      await uploadMultipleFiles.mutateAsync({
+        files: filesToUpload,
+        entityId: projectId,
+        entityType: EntityType.PROJECT,
+        purpose: FilePurpose.GENERIC,
+      });
+
+      setFilesToUpload([]);
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const isOwner = Boolean(
