@@ -29,6 +29,16 @@ import { ProfileInfo } from './profile-info';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import {
+  DialogClose,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from './ui/dialog';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
@@ -52,16 +62,6 @@ import {
   FileUploadTrigger,
 } from './ui/file-upload';
 import { Separator } from './ui/separator';
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from './ui/sheet';
 
 interface Props {
   activity: IActivity;
@@ -146,25 +146,34 @@ export function ActivityCard({
     }
   };
 
-  const handleUpload = () => {
-    uploadFiles.mutate({
-      files: filesToUpload,
-      entityId: activity._id,
-      entityType: EntityType.ACTIVITY,
-      purpose: FilePurpose.GENERIC,
-    });
-    setFilesToUpload([]);
+  const handleUpload = async () => {
+    if (filesToUpload.length === 0) return;
+
+    try {
+      await uploadFiles.mutateAsync({
+        files: filesToUpload,
+        entityId: activity._id,
+        entityType: EntityType.ACTIVITY,
+        purpose: FilePurpose.GENERIC,
+      });
+
+      setFilesToUpload([]);
+      setIsUploadDialogOpen(false);
+    } catch {
+      // Error toast is handled by the upload mutation hook.
+    }
   };
 
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const validAssignees = (activity.assignees ?? []).filter(
     (assignee): assignee is NonNullable<typeof assignee> => Boolean(assignee),
   );
   const firstAssignee = validAssignees[0];
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
+    <Dialog>
+      <DialogTrigger asChild>
         <Card
           className={cn(
             'hover:shadow-lg hover:cursor-pointer group hover:bg-secondary gap-2',
@@ -182,9 +191,7 @@ export function ActivityCard({
           <CardContent className="flex flex-col gap-4">
             {showPriority && <PriorityBadge priority={activity.priority} />}
 
-            {validAssignees.length > 0 && (
-              <AvatarRow profiles={validAssignees} />
-            )}
+            {validAssignees.length > 0 && <AvatarRow profiles={validAssignees} />}
 
             {activity.dueDate && (
               <div className="flex gap-1">
@@ -206,35 +213,34 @@ export function ActivityCard({
             )}
           </CardContent>
         </Card>
-      </SheetTrigger>
+      </DialogTrigger>
 
-      <SheetContent>
-        <SheetHeader>
-          <div className="pr-2 flex flex-col gap-2 relative">
-            <SheetTitle>Detalles</SheetTitle>
-            {enableOptions && (
-              <div className="absolute top-0 right-6 h-25">
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    asChild
-                    className="text-muted-foreground hover:text-neutral-800 [svg]:size-4"
-                  >
-                    <Ellipsis />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    className="flex flex-col items-start gap-1"
-                  >
-                    <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                    {options}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
+      <DialogContent className="flex w-[calc(100vw-3rem)] sm:w-[calc(100vw-1rem)] max-w-3xl max-h-[92dvh] flex-col overflow-hidden p-0 lg:max-w-2xl">
+        <DialogHeader className="px-4 pt-4 pb-2 pr-16 sm:px-6 sm:pt-6">
+          <DialogTitle>Detalles</DialogTitle>
+        </DialogHeader>
+        {enableOptions && (
+          <div className="absolute top-4 right-12">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                asChild
+                className="text-muted-foreground hover:text-neutral-800 [svg]:size-4"
+              >
+                <Ellipsis />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="flex flex-col items-start gap-1"
+              >
+                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                {options}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </SheetHeader>
+        )}
 
-        <div className="flex flex-col gap-6 px-4 items-end overflow-y-auto pb-4">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          <div className="flex flex-col gap-6 px-4 pb-4 sm:px-6 sm:pb-6">
           <div className="flex flex-col gap-4 w-full">
             <span className="font-medium text-lg">{activity.name}</span>
             <span className="text-muted-foreground text-sm">
@@ -242,14 +248,14 @@ export function ActivityCard({
             </span>
 
             {showStatus && (
-              <div className="flex items-center gap-2">
-                <div className="text-sm text-muted-foreground w-20">Estado</div>
+              <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-2">
+                <div className="text-sm text-muted-foreground shrink-0 sm:w-20">Estado</div>
                 <StatusBadge status={activity.status} />
               </div>
             )}
 
-            <div className="flex items-center gap-2">
-              <div className="text-sm text-muted-foreground w-20">
+            <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-2">
+              <div className="text-sm text-muted-foreground shrink-0 sm:w-20">
                 Encargados
               </div>
               {firstAssignee && validAssignees.length === 1 && (
@@ -270,8 +276,8 @@ export function ActivityCard({
               )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="text-sm text-muted-foreground w-20">
+            <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-2">
+              <div className="text-sm text-muted-foreground shrink-0 sm:w-20">
                 Creada por
               </div>
               {activity.createdBy ? (
@@ -286,8 +292,8 @@ export function ActivityCard({
               )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="text-sm text-muted-foreground w-20">
+            <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-2">
+              <div className="text-sm text-muted-foreground shrink-0 sm:w-20">
                 Vencimiento
               </div>
 
@@ -303,8 +309,8 @@ export function ActivityCard({
             </div>
 
             {showPriority && (
-              <div className="flex items-center gap-2">
-                <div className="text-sm text-muted-foreground w-20">
+              <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-2">
+                <div className="text-sm text-muted-foreground shrink-0 sm:w-20">
                   Prioridad
                 </div>
                 <PriorityBadge priority={activity.priority} />
@@ -315,26 +321,29 @@ export function ActivityCard({
           <Separator />
 
           <div className="flex flex-col gap-4 w-full">
-            <div className="w-full flex justify-between items-center">
+            <div className="w-full flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
               <h2 className="font-medium">Evidencias</h2>
               {!isReadOnly && (
-                <Sheet>
-                  <SheetTrigger asChild>
+                <Dialog
+                  open={isUploadDialogOpen}
+                  onOpenChange={setIsUploadDialogOpen}
+                >
+                  <DialogTrigger asChild>
                     <Button variant="outline" size="sm">
                       <Upload />
                       Subir
                     </Button>
-                  </SheetTrigger>
+                  </DialogTrigger>
 
-                  <SheetContent className="flex h-dvh flex-col">
-                    <SheetHeader>
-                      <SheetTitle>Subir Archivos</SheetTitle>
-                      <SheetDescription>
+                  <DialogContent className="flex w-[calc(100vw-3rem)] sm:w-[calc(100vw-1rem)] max-w-2xl max-h-[92dvh] flex-col overflow-hidden p-0 lg:max-w-xl">
+                    <DialogHeader className="px-4 pt-4 pb-2 sm:px-6 sm:pt-6">
+                      <DialogTitle>Subir Archivos</DialogTitle>
+                      <DialogDescription>
                         Selecciona y sube los archivos
-                      </SheetDescription>
-                    </SheetHeader>
+                      </DialogDescription>
+                    </DialogHeader>
 
-                    <div className="flex min-h-0 flex-1 flex-col px-4">
+                    <div className="flex min-h-0 flex-1 flex-col px-4 pb-4 overflow-y-auto overscroll-contain sm:px-6">
                       <FileUpload
                         value={filesToUpload}
                         onValueChange={setFilesToUpload}
@@ -362,7 +371,7 @@ export function ActivityCard({
                             </Button>
                           </FileUploadTrigger>
                         </FileUploadDropzone>
-                        <FileUploadList className="flex-1 max-h-[55vh] overflow-y-auto pr-1">
+                        <FileUploadList className="flex-1 max-h-[45vh] overflow-y-auto pr-1 sm:max-h-[55vh]">
                           {filesToUpload.map((file, index) => (
                             <FileUploadItem
                               key={`${file.name}-${file.lastModified}-${index}`}
@@ -380,7 +389,7 @@ export function ActivityCard({
                         </FileUploadList>
                       </FileUpload>
                     </div>
-                    <SheetFooter className="shrink-0">
+                    <DialogFooter className="shrink-0 px-4 pb-4 sm:px-6 sm:pb-6">
                       <Button
                         disabled={uploadFiles.isPending}
                         onClick={handleUpload}
@@ -391,12 +400,12 @@ export function ActivityCard({
                           'Subir archivos'
                         )}
                       </Button>
-                      <SheetClose asChild>
+                      <DialogClose asChild>
                         <Button variant="outline">Cerrar</Button>
-                      </SheetClose>
-                    </SheetFooter>
-                  </SheetContent>
-                </Sheet>
+                      </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               )}
             </div>
 
@@ -409,11 +418,11 @@ export function ActivityCard({
                 onDelete={handleDelete}
                 onDownload={handleDownload}
                 allowDelete={!isReadOnly}
-                className="lg:max-h-[40dvh] overflow-y-auto scroll-smooth pr-2"
+                className="max-h-[45dvh] overflow-y-auto scroll-smooth pr-2 lg:max-h-[40dvh]"
               >
                 {files.length ? (
                   files.map((file: IFile) => (
-                    <FileList.Item key={file._id} file={file}>
+                    <FileList.Item className="border border-neutral-400" key={file._id} file={file}>
                       <FileList.Actions file={file} />
                     </FileList.Item>
                   ))
@@ -434,7 +443,8 @@ export function ActivityCard({
             )}
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+      </DialogContent>
+    </Dialog>
   );
 }
