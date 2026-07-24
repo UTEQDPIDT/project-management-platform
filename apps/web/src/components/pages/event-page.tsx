@@ -91,7 +91,7 @@ const EventPage = () => {
   const [otherFiles, setOtherFiles] = useState<File[]>([]);
 
   const handleEvidenceUpload = async () => {
-    if(evidenceFiles.length === 0) return;
+    if(evidenceFiles.length === 0) return false;
       try {
       // 1. Esperamos a que la petición termine exitosamente en NestJS
       await uploadFiles.mutateAsync({
@@ -102,13 +102,15 @@ const EventPage = () => {
       });
       // 2. Limpiamos la lista local del Dropzone para que visualmente desaparezcan los archivos ya subidos
       setEvidenceFiles([]);
+      return true;
     } catch (error) {
       // El error ya lo maneja el onError global de tu hook useUploadMultipleFiles con Sonner
       console.error('Error al subir evidencias:', error);
+      return false;
     }
   }
   const handleOtherFilesUpload = async () => {
-    if(otherFiles.length === 0) return;
+    if(otherFiles.length === 0) return false;
     try {
       await uploadFiles.mutateAsync({
         files: otherFiles,
@@ -117,8 +119,10 @@ const EventPage = () => {
         purpose: FilePurpose.EVENT_OTHER,
       });
       setOtherFiles([]);
+      return true;
     } catch (error) {
       console.error('Error al subir otros archivos:', error);
+      return false;
     }
   }
 
