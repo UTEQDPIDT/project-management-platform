@@ -136,12 +136,12 @@ export function EventInfo({ event }: EventInfoProps) {
         <h1 className="text-xl font-semibold">{event.name}</h1>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+        <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
           <Building size={14} /> Organización
         </span>
 
-        <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md">
+        <div className="p-2 w-full lg:max-w-4xl text-pretty hover:bg-secondary rounded-md">
           {event.organization ? (
             event.organization
           ) : (
@@ -150,32 +150,34 @@ export function EventInfo({ event }: EventInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+        <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
           <Info size={14} /> Acerca del Evento
         </span>
 
-        <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md">
+        <div className="p-2 w-full lg:max-w-4xl text-pretty hover:bg-secondary rounded-md">
           {event.summary ? (
-            event.summary
+            <span className="block max-w-[80ch] wrap-break-word whitespace-pre-wrap">
+              {event.summary}
+            </span>
           ) : (
             <span className="text-gray-400">Vacío</span>
           )}
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+        <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
           <MapPin size={14} /> Ubicación
         </span>
 
-        <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md">
+        <div className="p-2 w-full lg:max-w-4xl text-pretty hover:bg-secondary rounded-md">
           {event.location ? (
             <div className="relative flex items-center group">
               <span>{event.location}</span>
               <CopyButton
                 valueToCopy={event.location}
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
               />
             </div>
           ) : (
@@ -184,11 +186,11 @@ export function EventInfo({ event }: EventInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+        <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
           <Calendar size={14} /> Fecha
         </span>
-        <div className="p-2 hover:bg-secondary rounded-md">
+        <div className="p-2 w-full hover:bg-secondary rounded-md">
           {event.endDate ? (
             <div>
               {format(event.startDate, "d 'de' MMMM 'al' ", {
@@ -208,12 +210,12 @@ export function EventInfo({ event }: EventInfoProps) {
         </div>
       </div>
 
-      <div className="flex items-start">
-        <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+      <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+        <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
           <UserCircle size={14} /> Asistencia
         </span>
 
-        <div className="p-2 hover:bg-secondary rounded-md grid grid-cols-3 gap-4">
+        <div className="p-2 w-full sm:w-auto hover:bg-secondary rounded-md grid sm:inline-grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <div className="text-center">
             <p className="text-sm text-muted-foreground">Total</p>
             <p className="text-lg font-semibold">
@@ -233,11 +235,11 @@ export function EventInfo({ event }: EventInfoProps) {
 
       {user.role === UserRole.ADMIN && (
         <div>
-          <div className="flex items-start">
-            <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+            <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
               <FileText size={14} /> Informe Técnico
             </span>
-            <div className="p-2 hover:bg-secondary rounded-md">
+            <div className="p-2 w-full hover:bg-secondary rounded-md">
               {technicalReport ? (
                 <FileButton
                   canDelete
@@ -250,55 +252,59 @@ export function EventInfo({ event }: EventInfoProps) {
                     <Upload />
                     Subir Informe
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="flex w-[calc(100vw-3rem)] sm:w-[calc(100vw-1rem)] max-w-2xl max-h-[92dvh] flex-col overflow-hidden p-0 lg:max-w-xl">
+                    <div className="px-4 pt-4 pb-2 sm:px-6 sm:pt-6">
                     <DialogTitle>Informe Técnico del Evento</DialogTitle>
+                    </div>
 
-                    <FileUpload
-                      value={technicalReportToUpload}
-                      onValueChange={setTechnicalReportToUpload}
-                      onFileValidate={onTechnicalFileValidate}
-                      onFileReject={onFileReject}
-                      accept="application/pdf"
-                      maxFiles={1}
-                    >
-                      <FileUploadDropzone>
-                        <div className="flex flex-col items-center gap-1">
-                          <div className="flex items-center justify-center rounded-full border p-2.5">
-                            <Upload className="size-6 text-muted-foreground" />
+                    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-4 pb-4 sm:px-6">
+                      <FileUpload
+                        value={technicalReportToUpload}
+                        onValueChange={setTechnicalReportToUpload}
+                        onFileValidate={onTechnicalFileValidate}
+                        onFileReject={onFileReject}
+                        accept="application/pdf"
+                        maxFiles={1}
+                      >
+                        <FileUploadDropzone>
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="flex items-center justify-center rounded-full border p-2.5">
+                              <Upload className="size-6 text-muted-foreground" />
+                            </div>
+                            <p className="font-medium text-sm">
+                              Arrastra el archivo aquí
+                            </p>
+                            <p className="text-muted-foreground text-xs">
+                              o haz click para buscar (max 2 MB)
+                            </p>
                           </div>
-                          <p className="font-medium text-sm">
-                            Arrastra el archivo aquí
-                          </p>
-                          <p className="text-muted-foreground text-xs">
-                            o haz click para buscar (max 2 MB)
-                          </p>
-                        </div>
-                        <FileUploadTrigger>
-                          <Button size="sm" variant="outline">
-                            Buscar
-                          </Button>
-                        </FileUploadTrigger>
-                      </FileUploadDropzone>
+                          <FileUploadTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              Buscar
+                            </Button>
+                          </FileUploadTrigger>
+                        </FileUploadDropzone>
 
-                      <FileUploadList className='max-w-115'>
-                        {technicalReportToUpload.map((file, index) => (
-                          <FileUploadItem
-                            key={`${file.name}-${file.lastModified}-${index}`}
-                            value={file}
-                          >
-                            <FileUploadItemPreview />
-                            <FileUploadItemMetadata />
-                            <FileUploadItemDelete asChild>
-                              <Button variant="ghost" size="icon-xs">
-                                <X />
-                              </Button>
-                            </FileUploadItemDelete>
-                          </FileUploadItem>
-                        ))}
-                      </FileUploadList>
-                    </FileUpload>
+                        <FileUploadList className="w-full max-h-[45vh] overflow-y-auto sm:max-h-[55vh]">
+                          {technicalReportToUpload.map((file, index) => (
+                            <FileUploadItem
+                              key={`${file.name}-${file.lastModified}-${index}`}
+                              value={file}
+                            >
+                              <FileUploadItemPreview />
+                              <FileUploadItemMetadata />
+                              <FileUploadItemDelete asChild>
+                                <Button variant="ghost" size="icon-xs">
+                                  <X />
+                                </Button>
+                              </FileUploadItemDelete>
+                            </FileUploadItem>
+                          ))}
+                        </FileUploadList>
+                      </FileUpload>
+                    </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-col-reverse gap-2 px-4 pb-4 sm:flex-row sm:px-6 sm:pb-6 [&>button]:w-full sm:[&>button]:w-auto">
                       <DialogClose asChild>
                         <Button variant="outline">Cerrar</Button>
                       </DialogClose>
@@ -314,11 +320,11 @@ export function EventInfo({ event }: EventInfoProps) {
             </div>
           </div>
 
-          <div className="flex items-start">
-            <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+            <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
               <FileText size={14} /> Informe Financiero
             </span>
-            <div className="p-2 hover:bg-secondary rounded-md">
+            <div className="p-2 w-full hover:bg-secondary rounded-md">
               {financialReport ? (
                 <FileButton
                   canDelete
@@ -331,55 +337,59 @@ export function EventInfo({ event }: EventInfoProps) {
                     <Upload />
                     Subir Informe
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="flex w-[calc(100vw-3rem)] sm:w-[calc(100vw-1rem)] max-w-2xl max-h-[92dvh] flex-col overflow-hidden p-0 lg:max-w-xl">
+                    <div className="px-4 pt-4 pb-2 sm:px-6 sm:pt-6">
                     <DialogTitle>Informe Financiero del Evento</DialogTitle>
+                    </div>
 
-                    <FileUpload
-                      value={financialReportToUpload}
-                      onValueChange={setFinancialReportToUpload}
-                      onFileValidate={onFinancialFileValidate}
-                      onFileReject={onFileReject}
-                      accept="application/pdf"
-                      maxFiles={1}
-                    >
-                      <FileUploadDropzone>
-                        <div className="flex flex-col items-center gap-1">
-                          <div className="flex items-center justify-center rounded-full border p-2.5">
-                            <Upload className="size-6 text-muted-foreground" />
+                    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-4 pb-4 sm:px-6">
+                      <FileUpload
+                        value={financialReportToUpload}
+                        onValueChange={setFinancialReportToUpload}
+                        onFileValidate={onFinancialFileValidate}
+                        onFileReject={onFileReject}
+                        accept="application/pdf"
+                        maxFiles={1}
+                      >
+                        <FileUploadDropzone>
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="flex items-center justify-center rounded-full border p-2.5">
+                              <Upload className="size-6 text-muted-foreground" />
+                            </div>
+                            <p className="font-medium text-sm">
+                              Arrastra el archivo aquí
+                            </p>
+                            <p className="text-muted-foreground text-xs">
+                              o haz click para buscar (max 2 MB)
+                            </p>
                           </div>
-                          <p className="font-medium text-sm">
-                            Arrastra el archivo aquí
-                          </p>
-                          <p className="text-muted-foreground text-xs">
-                            o haz click para buscar (max 2 MB)
-                          </p>
-                        </div>
-                        <FileUploadTrigger>
-                          <Button size="sm" variant="outline">
-                            Buscar
-                          </Button>
-                        </FileUploadTrigger>
-                      </FileUploadDropzone>
+                          <FileUploadTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              Buscar
+                            </Button>
+                          </FileUploadTrigger>
+                        </FileUploadDropzone>
 
-                      <FileUploadList className='max-w-115'>
-                        {financialReportToUpload.map((file, index) => (
-                          <FileUploadItem
-                            key={`${file.name}-${file.lastModified}-${index}`}
-                            value={file}
-                          >
-                            <FileUploadItemPreview />
-                            <FileUploadItemMetadata />
-                            <FileUploadItemDelete asChild>
-                              <Button variant="ghost" size="icon-xs">
-                                <X />
-                              </Button>
-                            </FileUploadItemDelete>
-                          </FileUploadItem>
-                        ))}
-                      </FileUploadList>
-                    </FileUpload>
+                        <FileUploadList className="w-full max-h-[45vh] overflow-y-auto sm:max-h-[55vh]">
+                          {financialReportToUpload.map((file, index) => (
+                            <FileUploadItem
+                              key={`${file.name}-${file.lastModified}-${index}`}
+                              value={file}
+                            >
+                              <FileUploadItemPreview />
+                              <FileUploadItemMetadata />
+                              <FileUploadItemDelete asChild>
+                                <Button variant="ghost" size="icon-xs">
+                                  <X />
+                                </Button>
+                              </FileUploadItemDelete>
+                            </FileUploadItem>
+                          ))}
+                        </FileUploadList>
+                      </FileUpload>
+                    </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-col-reverse gap-2 px-4 pb-4 sm:flex-row sm:px-6 sm:pb-6 [&>button]:w-full sm:[&>button]:w-auto">
                       <DialogClose asChild>
                         <Button variant="outline">Cerrar</Button>
                       </DialogClose>
@@ -395,22 +405,22 @@ export function EventInfo({ event }: EventInfoProps) {
             </div>
           </div>
 
-          <div className="flex items-start">
-            <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+            <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
               <Clock size={14} /> Creado el
             </span>
-            <div className="p-2 hover:bg-secondary rounded-md">
+            <div className="p-2 w-full hover:bg-secondary rounded-md">
               {format(event.createdAt, "d 'de' MMMM 'de' yyyy k':'mm", {
                 locale: es,
               })}
             </div>
           </div>
 
-          <div className="flex items-start">
-            <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+            <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
               <UserCircle size={14} /> Creado por
             </span>
-            <div className="p-2 hover:bg-secondary rounded-md">
+            <div className="p-2 w-full hover:bg-secondary rounded-md">
               {event.createdBy ? (
                 <ProfileInfo
                   givenName={event.createdBy.givenName}
@@ -422,21 +432,21 @@ export function EventInfo({ event }: EventInfoProps) {
             </div>
           </div>
 
-          <div className="flex items-start">
-            <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+            <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
               <Clock size={14} /> Modificado el
             </span>
-            <div className="p-2 hover:bg-secondary rounded-md">
+            <div className="p-2 w-full hover:bg-secondary rounded-md">
               {format(event.updatedAt, "d 'de' MMMM 'de' yyyy k':'mm", {
                 locale: es,
               })}
             </div>
           </div>
-          <div className="flex items-start">
-            <span className="p-2 flex gap-2 text-muted-foreground w-40 items-center rounded-md">
+          <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+            <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
               <UserCircle size={14} /> Modificado por
             </span>
-            <div className="p-2 hover:bg-secondary rounded-md">
+            <div className="p-2 w-full hover:bg-secondary rounded-md">
               {event.updatedBy ? (
                 <ProfileInfo
                   givenName={event.updatedBy.givenName}
