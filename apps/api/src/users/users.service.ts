@@ -174,6 +174,13 @@ export class UsersService {
       .exec();
   }
 
+  async findAllForTeamPicker() {
+    return this.userModel
+      .find()
+      .select('_id givenName familyName email avatarUrl type')
+      .exec();
+  }
+
   async findOne(id: string): Promise<User> {
     const user = await this.userModel
       .findById(id)

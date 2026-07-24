@@ -47,7 +47,7 @@ import {
   CommandItem,
 } from '../ui/command';
 import { ProfileInfo } from '../profile-info';
-import { useGetAllUsers } from '@/hooks/user';
+import { useGetTeamPickerUsers } from '@/hooks/user';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import {
   InputGroup,
@@ -78,7 +78,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
    * Tanstack
    */
   const { data: divisions, isLoading: loadingDivisions } = useDivisions();
-  const { data: users, isLoading: loadingUsers } = useGetAllUsers();
+  const { data: users, isLoading: loadingUsers } = useGetTeamPickerUsers();
   const updateTeam = useUpdateTeam();
 
   // Extract members and collaborators by role from memberships

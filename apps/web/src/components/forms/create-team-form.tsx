@@ -6,7 +6,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useDivisions } from '@/hooks/catalogs';
 import { useCreateTeam } from '@/hooks/team';
-import { useGetAllUsers } from '@/hooks/user';
+import { useGetTeamPickerUsers } from '@/hooks/user';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { IUser, SeedCategory, TeamsGrade, UserType } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
@@ -60,7 +60,7 @@ export function CreateTeamForm() {
   /**
    * React Query Hooks
    */
-  const { data: users, isLoading: loadingUsers } = useGetAllUsers();
+  const { data: users, isLoading: loadingUsers } = useGetTeamPickerUsers();
   const { data: divisions, isLoading: loadingDivisions } = useDivisions();
   const createTeamMutation = useCreateTeam();
 
