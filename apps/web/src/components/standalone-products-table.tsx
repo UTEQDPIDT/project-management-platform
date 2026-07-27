@@ -16,7 +16,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { Copy, Download, Eye, MoreHorizontal, Plus } from 'lucide-react';
+import { Copy, Download, Eye, MoreHorizontal } from 'lucide-react';
 import { copyValue } from '@/lib/utils';
 import { Button } from './ui/button';
 import { ProfileInfo } from './profile-info';
@@ -30,13 +30,6 @@ import {
   useProductCategories,
   useProductSubcategories,
 } from '@/hooks/catalogs';
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from './ui/dialog';
-import { StandaloneProductForm } from './forms/create-standalone-product-form';
 import StandaloneProductMenu from './standalone-product-menu';
 import FilePreviewDialog from './file-preview-dialog';
 
@@ -256,7 +249,6 @@ interface StandaloneProductsTableProps {
 export function StandaloneProductsTable({
   userId,
 }: StandaloneProductsTableProps) {
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const isUserScope = !!userId;
   const allProductsQuery = useStandaloneProducts(!isUserScope);
   const ownProductsQuery = useStandaloneProductsByUser(userId, isUserScope);
@@ -334,20 +326,6 @@ export function StandaloneProductsTable({
 
   return (
     <div className="w-full max-w-7xl flex flex-col gap-4 p-1">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto">
-              <Plus className="h-4 w-4" /> Crear producto
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogTitle>Nuevo producto independiente</DialogTitle>
-            <StandaloneProductForm onSuccess={() => setIsCreateDialogOpen(false)} />
-          </DialogContent>
-        </Dialog>
-      </div>
-
       {isLoading ? (
         <LoadingMessage message="Cargando productos independientes" />
       ) : (
