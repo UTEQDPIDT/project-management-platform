@@ -320,6 +320,7 @@ export function ProductsTable() {
           data={typedProducts}
           facetedFilters={facetedFilters}
           searchColumnId="name"
+          persistStateKey="products-table-state" // Clave para persistir el estado
         />
       )}
     </div>

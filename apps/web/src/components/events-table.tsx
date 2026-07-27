@@ -458,6 +458,7 @@ export function EventsTable() {
           columns={columns}
           data={typedEvents}
           facetedFilters={eventFacetedFilters}
+          persistStateKey="events-table"
         />
       )}
     </div>

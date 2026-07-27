@@ -196,6 +196,7 @@ export default function FilesTable() {
         data={data} 
         columns={columns} 
         searchColumnId='originalName' 
+        persistStateKey='files-table'
         />
       )}
     </div>

@@ -354,6 +354,7 @@ export default function TeamsTable() {
           columns={columns}
           facetedFilters={facetedFilters}
           searchColumnId="teamName"
+          persistStateKey="teams-table-state" // Clave para persistir el estado
         />
       )}
     </div>
