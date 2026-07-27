@@ -52,52 +52,10 @@ import { Badge } from './ui/badge';
 import { useProjectProducts } from '@/hooks/products';
 import { getActivitiesByEntityId } from '@/services/activities.service';
 import { useUserProfile } from 'context/profile-provider';
-
-const normalizeProjectStatus = (status?: string): ProjectStatus => {
-  const value = (status ?? '').trim().toUpperCase();
-
-  if (value === 'IN_PROGRESS' || value === 'EN PROGRESO' || value === 'PROGRESS') {
-    return ProjectStatus.IN_PROGRESS;
-  }
-
-  if (value === 'COMPLETED' || value === 'COMPLETADO') {
-    return ProjectStatus.COMPLETED;
-  }
-
-  if (
-    value === 'FIRST_VALIDATION' ||
-    value === 'PRIMERA VALIDACION' ||
-    value === 'PRIMERA VALIDACIÓN'
-  ) {
-    return ProjectStatus.FIRST_VALIDATION;
-  }
-
-  if (value === 'CLOSED' || value === 'CERRADO') {
-    return ProjectStatus.CLOSED;
-  }
-
-  return ProjectStatus.PENDING;
-};
-
-const getProjectStatusLabel = (status?: string) => {
-  const normalizedStatus = normalizeProjectStatus(status);
-
-  if (normalizedStatus === ProjectStatus.CLOSED) return 'Cerrado';
-  if (normalizedStatus === ProjectStatus.FIRST_VALIDATION) return 'Primera validación';
-  if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'En progreso';
-  if (normalizedStatus === ProjectStatus.COMPLETED) return 'Completado';
-  return 'Pendiente';
-};
-
-const getProjectStatusVariant = (status?: string) => {
-  const normalizedStatus = normalizeProjectStatus(status);
-
-  if (normalizedStatus === ProjectStatus.CLOSED) return 'gray' as const;
-  if (normalizedStatus === ProjectStatus.FIRST_VALIDATION) return 'blue' as const;
-  if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'blue' as const;
-  if (normalizedStatus === ProjectStatus.COMPLETED) return 'green' as const;
-  return 'orange' as const;
-};
+import {
+  getProjectStatusBadge,
+  normalizeProjectStatus,
+} from '@/lib/badge-mappings';
 
 const getDisplayProjectStatus = (
   status: string | undefined,
@@ -145,9 +103,10 @@ const ProjectStatusBadge = ({
 }: {
   status: ProjectStatus;
 }) => {
+  const statusBadge = getProjectStatusBadge(status);
   return (
-    <Badge variant={getProjectStatusVariant(status)}>
-      {getProjectStatusLabel(status)}
+    <Badge variant={statusBadge.variant}>
+      {statusBadge.label}
     </Badge>
   );
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { BadgeVariants, IEvent, IUser } from '@repo/types';
+import { IEvent, IUser } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -29,6 +29,7 @@ import CopyButton from './ui/copy';
 import { useRegisterParticipant } from '@/hooks/events';
 import { useActivitiesByEntity } from '@/hooks/activities';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
+import { getVisibilityBadge } from '@/lib/badge-mappings';
 
 type EventCardVariant = 'default' | 'compact';
 interface EventCardProps {
@@ -120,26 +121,7 @@ function EventCardComplete({ event }: { event: IEvent }) {
     }
   };
 
-  let badgeVariant:
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'green'
-    | 'gray'
-    | 'purple'
-    | 'orange'
-    | 'blue'
-    | null
-    | undefined;
-  switch (event.isPrivate) {
-    case true:
-      badgeVariant = BadgeVariants.PURPLE;
-      break;
-    case false:
-      badgeVariant = BadgeVariants.BLUE;
-      break;
-  }
+  const visibilityBadge = getVisibilityBadge(event.isPrivate);
 
   return (
     /* Eliminado el min-w-96 que causaba el desborde en pantallas móviles */
@@ -159,8 +141,8 @@ function EventCardComplete({ event }: { event: IEvent }) {
               </CardDescription>
             </div>
           </div>
-          <Badge variant={badgeVariant} className="h-6 shrink-0 whitespace-nowrap">
-            {event.isPrivate ? 'Privado' : 'Público'}
+          <Badge variant={visibilityBadge.variant} className="h-6 shrink-0 whitespace-nowrap">
+            {visibilityBadge.label}
           </Badge>
         </div>
       </CardHeader>

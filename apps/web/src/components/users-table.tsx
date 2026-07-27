@@ -23,6 +23,7 @@ import Link from 'next/link';
 import { copyValue } from '@/lib/utils';
 import { useDivisions } from '@/hooks/catalogs/use-divisions';
 import { usePrograms } from '@/hooks/catalogs/use-programs';
+import { getUserTypeBadge } from '@/lib/badge-mappings';
 
 const columns: ColumnDef<IUser>[] = [
   { 
@@ -49,16 +50,11 @@ const columns: ColumnDef<IUser>[] = [
     header: 'Rol',
     cell: ({ row }) => {
       const { type } = row.original;
+      const typeBadge = getUserTypeBadge(type);
 
       return (
         <div>
-          {type === UserType.ADMINISTRATIVO ? (
-            <Badge variant="purple">{type}</Badge>
-          ) : type === UserType.MAESTRO ? (
-            <Badge variant="green">{type}</Badge>
-          ) : (
-            <Badge variant="blue">{type}</Badge>
-          )}
+          <Badge variant={typeBadge.variant}>{typeBadge.label}</Badge>
         </div>
       );
     },

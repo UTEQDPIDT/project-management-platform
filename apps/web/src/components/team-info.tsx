@@ -1,4 +1,4 @@
-import { BadgeVariants, ITeam, ITeamMembership, TeamsGrade } from '@repo/types';
+import { ITeam, ITeamMembership } from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { ProfileInfo } from './profile-info';
 import { Badge } from './ui/badge';
+import { getTeamGradeBadge, getVisibilityBadge } from '@/lib/badge-mappings';
 
 interface TeamInfoProps {
   team: ITeam;
@@ -34,31 +35,8 @@ export function TeamInfo({ team }: TeamInfoProps) {
   );
   const owner = ownerMembership?.user;
 
-  let badgeVariant:
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'green'
-    | 'gray'
-    | 'purple'
-    | 'orange'
-    | null
-    | undefined;
-  switch (team?.grade) {
-    case TeamsGrade.CA_EN_FORMACION:
-      badgeVariant = BadgeVariants.GRAY;
-      break;
-    case TeamsGrade.CA_CONSOLIDADO:
-      badgeVariant = BadgeVariants.GREEN;
-      break;
-    case TeamsGrade.CA_EN_CONSOLIDACION:
-      badgeVariant = BadgeVariants.ORANGE;
-      break;
-    case TeamsGrade.GRUPO_DE_INVESTIGACION:
-      badgeVariant = BadgeVariants.PURPLE;
-      break;
-  }
+  const gradeBadge = getTeamGradeBadge(grade);
+  const visibilityBadge = getVisibilityBadge(isPrivate);
 
   const rowClass =
     'flex flex-col sm:flex-row sm:items-start py-1 sm:py-0 border-b border-neutral-100 sm:border-0';
@@ -77,7 +55,7 @@ export function TeamInfo({ team }: TeamInfoProps) {
         </span>
 
         <div className="p-2 lg:max-w-4xl text-pretty hover:bg-secondary rounded-md w-full">
-          <Badge variant={badgeVariant}>{grade}</Badge>
+          <Badge variant={gradeBadge.variant}>{gradeBadge.label}</Badge>
         </div>
       </div>
 
@@ -110,9 +88,7 @@ export function TeamInfo({ team }: TeamInfoProps) {
           <HatGlasses size={14} /> Estado
         </span>
         <div className="p-2 hover:bg-secondary rounded-md w-full">
-          <Badge variant={isPrivate ? 'purple' : 'blue'}>
-            {isPrivate ? 'Privado' : 'Público'}
-          </Badge>
+          <Badge variant={visibilityBadge.variant}>{visibilityBadge.label}</Badge>
         </div>
       </div>
 

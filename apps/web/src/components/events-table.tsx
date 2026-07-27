@@ -44,6 +44,7 @@ import { useFilesForEntity } from '@/hooks/files';
 import FileButton from './file-button';
 import { copyValue } from '@/lib/utils';
 import React from 'react';
+import { getVisibilityBadge } from '@/lib/badge-mappings';
 
 const EventFileButton = ({
   eventId,
@@ -164,15 +165,11 @@ const columns: ColumnDef<IEvent>[] = [
     meta: { className: 'whitespace-nowrap' }, // Siempre visible, pero evitamos que rompa línea
     cell: ({ row }) => {
       const event = row.original;
-      const { isPrivate } = event;
+      const visibilityBadge = getVisibilityBadge(event.isPrivate);
 
       return (
         <div>
-          {isPrivate ? (
-            <Badge variant="purple">Privado</Badge>
-          ) : (
-            <Badge variant="blue">Público</Badge>
-          )}
+          <Badge variant={visibilityBadge.variant}>{visibilityBadge.label}</Badge>
         </div>
       );
     },
