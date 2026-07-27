@@ -3,6 +3,8 @@
 import {
   ColumnDef,
   ColumnFiltersState,
+  PaginationState,
+  Updater,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -61,6 +63,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   facetedFilters?: FacetedFilterConfig[];
   searchColumnId?: string; 
+  persistStateKey?: string; // Nueva prop para la clave de persistencia
 }
 
 export function DataTable<TData, TValue>({
@@ -68,17 +71,73 @@ export function DataTable<TData, TValue>({
   data,
   facetedFilters,
   searchColumnId,
+  persistStateKey,
 }: DataTableProps<TData, TValue>) {
-  // Manejamos únicamente el estado de los filtros por columna
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  // Si no se proporciona una clave, la tabla funciona sin persistencia.
+  const storageKey = persistStateKey ? `data-table-state-${persistStateKey}` : null;
+  const filtersStorageKey = storageKey ? `${storageKey}_filters` : null;
+  const paginationStorageKey = storageKey ? `${storageKey}_pagination` : null;
+
+  // Helper pequeño para parsear JSON de localStorage sin romper la UI.
+  const parseJSON = <T,>(value: string | null, fallback: T): T => {
+    if (!value) return fallback;
+    try {
+      return JSON.parse(value) as T;
+    } catch {
+      return fallback;
+    }
+  };
+
+  // Estado de filtros por columna (restaurado si hay persistencia).
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(() => {
+    if (!filtersStorageKey || typeof window === 'undefined') return [];
+    return parseJSON<ColumnFiltersState>(localStorage.getItem(filtersStorageKey), []);
+  });
+
+  // Estado de paginación (restaurado si hay persistencia).
+  const [paginationState, setPaginationState] = React.useState<PaginationState>(() => {
+    const defaultState: PaginationState = { pageIndex: 0, pageSize: 10 };
+    if (!paginationStorageKey || typeof window === 'undefined') return defaultState;
+    return parseJSON<PaginationState>(
+      localStorage.getItem(paginationStorageKey),
+      defaultState,
+    );
+  });
+
+  // Persistimos filtros y paginación cuando cambian.
+  React.useEffect(() => {
+    if (!filtersStorageKey || typeof window === 'undefined') return;
+    localStorage.setItem(filtersStorageKey, JSON.stringify(columnFilters));
+  }, [columnFilters, filtersStorageKey]);
+
+  React.useEffect(() => {
+    if (!paginationStorageKey || typeof window === 'undefined') return;
+    localStorage.setItem(paginationStorageKey, JSON.stringify(paginationState));
+  }, [paginationState, paginationStorageKey]);
+
+  // Edge case: si un filtro reduce los resultados, una página alta puede quedar vacía.
+  // Al cambiar filtros, reiniciamos a la primera página para mantener resultados visibles.
+  const handleColumnFiltersChange = React.useCallback(
+    (updater: Updater<ColumnFiltersState>) => {
+      setColumnFilters(updater);
+      setPaginationState((prev) =>
+        prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 },
+      );
+    },
+    [],
+  );
+
 
   const table = useReactTable({
     data,
     columns,
     state: {
       columnFilters, // Pasamos el estado de los filtros de columna
+      pagination: paginationState, // Pasamos el estado de paginación
     },
-    onColumnFiltersChange: setColumnFilters,
+    onColumnFiltersChange: handleColumnFiltersChange,
+    onPaginationChange: setPaginationState,
+    autoResetPageIndex: true,
     // Registramos fuzzyFilter globalmente para poder usarlo por string 'fuzzy' en las columnas
     filterFns: {
       fuzzy: fuzzyFilter,

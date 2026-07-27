@@ -355,6 +355,7 @@ export function StandaloneProductsTable({
           columns={columns}
           data={typedProducts}
           facetedFilters={facetedFilters}
+          persistStateKey="standalone-products-table"
         />
       )}
     </div>

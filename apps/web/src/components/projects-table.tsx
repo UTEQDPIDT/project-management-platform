@@ -608,6 +608,7 @@ export default function ProjectsTable() {
           columns={columns}
           data={sortedProjects}
           facetedFilters={projectFacetedFilters}
+          persistStateKey="projects-table"
         />
       )}
     </div>

@@ -305,6 +305,7 @@ export default function UsersTable() {
           columns={columns}
           facetedFilters={facetedFilters}
           searchColumnId="givenName"
+          persistStateKey="users-table"
         />
       )}
     </div>
