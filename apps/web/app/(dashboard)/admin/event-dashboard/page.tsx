@@ -22,23 +22,76 @@ import {
 import { useEventsDashboard } from '@/hooks/dashboard';
 import { DASHBOARD_PERIOD_MONTH_LABELS, DASHBOARD_PERIOD_OPTIONS } from '@/constants/dashboard-period.const';
 import { DashboardPeriod } from '@repo/types';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import React from 'react';
 
+const EVENT_DASHBOARD_PERIOD_KEY = 'event-dashboard-period';
+const EVENT_DASHBOARD_YEAR_KEY = 'event-dashboard-year';
+
 const Page = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const currentYear = new Date().getFullYear();
-  const [period, setPeriod] = React.useState<DashboardPeriod>(DashboardPeriod.C1);
-  const [year, setYear] = React.useState<string>(String(currentYear));
+  const yearOptions = React.useMemo(
+    () => Array.from({ length: 5 }, (_, index) => String(currentYear - 1 + index)),
+    [currentYear],
+  );
+
+  const periodFromQuery = searchParams.get('period');
+  const period = DASHBOARD_PERIOD_OPTIONS.includes(periodFromQuery as DashboardPeriod)
+    ? (periodFromQuery as DashboardPeriod)
+    : DashboardPeriod.C1;
+
+  const yearFromQuery = searchParams.get('year');
+  const year = yearFromQuery && yearOptions.includes(yearFromQuery)
+    ? yearFromQuery
+    : String(currentYear);
+
   const selectedYear = Number(year);
+
+  const updateDashboardParams = React.useCallback(
+    (nextPeriod: DashboardPeriod, nextYear: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('period', nextPeriod);
+      params.set('year', nextYear);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const hasPeriodParam = searchParams.has('period');
+    const hasYearParam = searchParams.has('year');
+
+    const storedPeriod = localStorage.getItem(EVENT_DASHBOARD_PERIOD_KEY);
+    const storedYear = localStorage.getItem(EVENT_DASHBOARD_YEAR_KEY);
+
+    const fallbackPeriod = DASHBOARD_PERIOD_OPTIONS.includes(storedPeriod as DashboardPeriod)
+      ? (storedPeriod as DashboardPeriod)
+      : period;
+    const fallbackYear = storedYear && yearOptions.includes(storedYear)
+      ? storedYear
+      : year;
+
+    if (!hasPeriodParam || !hasYearParam) {
+      const params = new URLSearchParams(searchParams.toString());
+      if (!hasPeriodParam) params.set('period', fallbackPeriod);
+      if (!hasYearParam) params.set('year', fallbackYear);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      return;
+    }
+
+    localStorage.setItem(EVENT_DASHBOARD_PERIOD_KEY, period);
+    localStorage.setItem(EVENT_DASHBOARD_YEAR_KEY, year);
+  }, [pathname, period, router, searchParams, year, yearOptions]);
 
   const { data, isLoading, isError } = useEventsDashboard(
     period,
     Number.isInteger(selectedYear) ? selectedYear : currentYear,
-  );
-
-  const yearOptions = React.useMemo(
-    () => Array.from({ length: 5 }, (_, index) => String(currentYear - 4 + index)),
-    [currentYear],
   );
 
   return (
@@ -58,7 +111,7 @@ const Page = () => {
             <Select
               value={period}
               onValueChange={(value: DashboardPeriod) =>
-                setPeriod(value)
+                updateDashboardParams(value, year)
               }
             >
               <SelectTrigger className="w-28 border-zinc-500">
@@ -76,7 +129,10 @@ const Page = () => {
 
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Año -</span>
-            <Select value={year} onValueChange={setYear}>
+            <Select
+              value={year}
+              onValueChange={(value) => updateDashboardParams(period, value)}
+            >
               <SelectTrigger className="w-32 border-zinc-500">
                 <SelectValue placeholder="Año" />
               </SelectTrigger>
