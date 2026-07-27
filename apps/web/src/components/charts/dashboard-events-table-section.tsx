@@ -30,7 +30,8 @@ import {
 } from '@/components/ui/table';
 import { copyValue, formatDatePeriod } from '@/lib/utils';
 import { useDeleteEvent } from '@/hooks/events';
-import { EventType, IEvent } from '@repo/types';
+import { IEvent } from '@repo/types';
+import { getEventTypeBadge } from '@/lib/badge-mappings';
 
 const MAX_EVENT_NAME_LENGTH = 50;
 
@@ -43,11 +44,6 @@ type DashboardEventsTableSectionProps = {
 const truncateText = (value: string, maxLength: number) => {
 	if (value.length <= maxLength) return value;
 	return `${value.slice(0, maxLength)}...`;
-};
-
-const getEventTypeVariant = (type: EventType) => {
-	if (type === EventType.EXTERNO) return 'blue' as const;
-	return 'orange' as const;
 };
 
 const formatEventPeriod = (event: IEvent) => {
@@ -156,6 +152,7 @@ export function DashboardEventsTableSection({
 				</TableHeader>
 				<TableBody>
 					{events.map((event) => {
+						const eventTypeBadge = getEventTypeBadge(event.type);
 						const organizerName = event.organization?.trim() || 'Sin organizador';
 						const creatorName = event.createdBy
 							? `${event.createdBy.givenName} ${event.createdBy.familyName}`
@@ -167,7 +164,9 @@ export function DashboardEventsTableSection({
 									{truncateText(event.name, MAX_EVENT_NAME_LENGTH)}
 								</TableCell>
 								<TableCell>
-									<Badge variant={getEventTypeVariant(event.type)}>{event.type}</Badge>
+									<Badge variant={eventTypeBadge.variant}>
+										{eventTypeBadge.label}
+									</Badge>
 								</TableCell>
 								<TableCell className="text-center">
 									{getParticipantsCount(event)}

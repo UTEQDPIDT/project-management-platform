@@ -52,6 +52,7 @@ import {
 	TeamMembershipStatus,
 } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
+import { getProjectStatusBadge } from '@/lib/badge-mappings';
 
 const MAX_PROJECT_NAME_LENGTH = 50;
 
@@ -69,22 +70,6 @@ type DashboardProjectsTableSectionProps = {
 const truncateText = (value: string, maxLength: number) => {
 	if (value.length <= maxLength) return value;
 	return `${value.slice(0, maxLength)}...`;
-};
-
-const getProjectStatusLabel = (status: ProjectStatus) => {
-	if (status === ProjectStatus.CLOSED) return 'Cerrado';
-	if (status === ProjectStatus.FIRST_VALIDATION) return 'Primera validacion';
-	if (status === ProjectStatus.IN_PROGRESS) return 'En progreso';
-	if (status === ProjectStatus.COMPLETED) return 'Completado';
-	return 'Pendiente';
-};
-
-const getProjectStatusVariant = (status: ProjectStatus) => {
-	if (status === ProjectStatus.CLOSED) return 'gray' as const;
-	if (status === ProjectStatus.FIRST_VALIDATION) return 'blue' as const;
-	if (status === ProjectStatus.IN_PROGRESS) return 'blue' as const;
-	if (status === ProjectStatus.COMPLETED) return 'green' as const;
-	return 'orange' as const;
 };
 
 const formatProjectPeriod = (project: IProject) => {
@@ -275,6 +260,7 @@ export function DashboardProjectsTableSection({
 				</TableHeader>
 				<TableBody>
 					{projects.map((project) => {
+						const projectStatusBadge = getProjectStatusBadge(project.status);
 						const ownerName = project.owner
 							? `${project.owner.givenName} ${project.owner.familyName}`
 							: 'Sin responsable';
@@ -285,8 +271,8 @@ export function DashboardProjectsTableSection({
 									{truncateText(project.name, MAX_PROJECT_NAME_LENGTH)}
 								</TableCell>
 								<TableCell>
-									<Badge variant={getProjectStatusVariant(project.status)}>
-										{getProjectStatusLabel(project.status)}
+									<Badge variant={projectStatusBadge.variant}>
+										{projectStatusBadge.label}
 									</Badge>
 								</TableCell>
 								<TableCell className="text-center">

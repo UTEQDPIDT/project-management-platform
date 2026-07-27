@@ -45,17 +45,7 @@ import {
 import { copyValue } from '@/lib/utils';
 import CopyButton from './ui/copy';
 import { useDivisions } from '@/hooks/catalogs';
-
-const gradeBadgeVariantMap: Record<
-  TeamsGrade,
-  React.ComponentProps<typeof Badge>['variant']
-> = {
-  [TeamsGrade.CA_EN_FORMACION]: 'gray',
-  [TeamsGrade.CA_CONSOLIDADO]: 'green',
-  [TeamsGrade.CA_EN_CONSOLIDACION]: 'orange',
-  [TeamsGrade.GRUPO_DE_INVESTIGACION]: 'purple',
-  [TeamsGrade.SIN_GRADO]: 'blue',
-};
+import { getTeamGradeBadge, getVisibilityBadge } from '@/lib/badge-mappings';
 
 const getTeamLeaderMembership = (team: ITeam) => {
   return team.memberships.find((membership) => membership.role === TeamMembershipRole.OWNER);
@@ -172,9 +162,10 @@ const columns: ColumnDef<ITeam>[] = [
     // Se mantiene visible en pantallas pequeñas para una rápida categorización
     cell: ({ row }) => {
       const { grade } = row.original;
+      const gradeBadge = getTeamGradeBadge(grade);
       return (
         <div className="whitespace-nowrap">
-          <Badge variant={gradeBadgeVariantMap[grade]}>{grade}</Badge>
+          <Badge variant={gradeBadge.variant}>{gradeBadge.label}</Badge>
         </div>
       );
     },
@@ -185,13 +176,10 @@ const columns: ColumnDef<ITeam>[] = [
     meta: { className: 'hidden sm:table-cell' }, // Visible en tablets y celulares horizontales
     cell: ({ row }) => {
       const { isPrivate } = row.original;
+      const visibilityBadge = getVisibilityBadge(isPrivate);
       return (
         <div>
-          {isPrivate ? (
-            <Badge variant="purple">Privado</Badge>
-          ) : (
-            <Badge variant="blue">Público</Badge>
-          )}
+          <Badge variant={visibilityBadge.variant}>{visibilityBadge.label}</Badge>
         </div>
       );
     },

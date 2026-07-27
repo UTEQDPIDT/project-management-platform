@@ -33,6 +33,7 @@ import {
 import { Button } from './ui/button';
 import CopyButton from './ui/copy';
 import { useState } from 'react';
+import { getUserTypeBadge } from '@/lib/badge-mappings';
 
 interface CardUserInfoProps {
   profile: IUser;
@@ -60,29 +61,7 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
     createdAt,
   } = profile;
 
-  let badgeVariant:
-    | 'blue'
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'green'
-    | 'gray'
-    | 'purple'
-    | 'orange'
-    | null
-    | undefined;
-  switch (type) {
-    case UserType.ESTUDIANTE:
-      badgeVariant = 'blue';
-      break;
-    case UserType.MAESTRO:
-      badgeVariant = 'green';
-      break;
-    case UserType.ADMINISTRATIVO:
-      badgeVariant = 'purple';
-      break;
-  }
+  const typeBadge = getUserTypeBadge(type);
 
   return (
     <Card className="lg:max-w-lg w-full">
@@ -96,7 +75,7 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
               email={email}
             />
             <div>
-              <Badge variant={badgeVariant}>{type}</Badge>
+              <Badge variant={typeBadge.variant}>{typeBadge.label}</Badge>
             </div>
           </div>
           {(user._id === profile._id || user.role === UserRole.ADMIN) && (

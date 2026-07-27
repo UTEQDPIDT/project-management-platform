@@ -2,12 +2,10 @@
 
 import { useSendJoinRequest } from '@/hooks/team';
 import {
-  BadgeVariants,
   ITeam,
   ITeamMembership,
   TeamMembershipRole,
   TeamMembershipStatus,
-  TeamsGrade,
 } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
 import { ArrowUpRight, UserPlus, Users } from 'lucide-react';
@@ -15,7 +13,6 @@ import Link from 'next/link';
 import AvatarRow from './avatar-row';
 import IconSquare from './icon-square';
 import LoadingMessage from './loading-message';
-import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import {
   Card,
@@ -123,35 +120,6 @@ function TeamCardDefault({ team, className }: { team: ITeam; className?: string 
       </Button>
     );
   };
-
-  let badgeVariant:
-    | 'default'
-    | 'secondary'
-    | 'destructive'
-    | 'outline'
-    | 'green'
-    | 'gray'
-    | 'purple'
-    | 'orange'
-    | null
-    | undefined;
-  switch (team.grade) {
-    case TeamsGrade.CA_EN_FORMACION:
-      badgeVariant = BadgeVariants.GRAY;
-      break;
-    case TeamsGrade.CA_CONSOLIDADO:
-      badgeVariant = BadgeVariants.GREEN;
-      break;
-    case TeamsGrade.CA_EN_CONSOLIDACION:
-      badgeVariant = BadgeVariants.ORANGE;
-      break;
-    case TeamsGrade.GRUPO_DE_INVESTIGACION:
-      badgeVariant = BadgeVariants.PURPLE;
-      break;
-    case TeamsGrade.SIN_GRADO:
-      badgeVariant = BadgeVariants.GREEN;
-      break;
-  }
 
   /**
    * Team member count
