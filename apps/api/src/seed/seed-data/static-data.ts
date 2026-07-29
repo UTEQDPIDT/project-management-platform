@@ -53,54 +53,68 @@ export const productCategoryList: Partial<ProductCategory>[] = [
   { name: 'Cartel' },
   { name: 'Derecho de Autor' },
   { name: 'Diseño Industrial' },
-  { name: 'Informe Técnico' },
   { name: 'Libro con ISBN' },
-  { name: 'Licenciamientos' },
-  { name: 'Marca' },
-  { name: 'Modelo de Utilidad' },
   { name: 'Patente' },
   { name: 'Ponencia' },
-  { name: 'Prototipo Funcional' },
-  { name: 'Proyecto Tecnológico' },
   { name: 'Reconocimiento' },
+  { name:  'IMPI' },
 ];
 
 //Products
 export const productSubcategoryList: Partial<ProductSubcategory>[] = [
-  { name: 'Artículo Arbitrado Internacional' },
-  { name: 'Artículo Arbitrado Nacional' },
-  { name: 'Artículo de Difusión' },
-  { name: 'Artículo Indizado Internacional' },
-  { name: 'Artículo Indizado Nacional' },
-  { name: 'Capítulo de Libro con ISBN' },
-  { name: 'Cartel' },
+
+
   { name: 'Registro de Derecho de autor (ante INDAUTOR)' },
   { name: 'Registro de Diseño industrial (ante IMPI)' },
-  { name: 'Informe Técnico' },
-  { name: 'Libro con ISBN' },
   {
     name: 'Licenciamiento de Modelo de Utilidad (contrato para comercialización)',
   },
   {
     name: 'Licenciamiento de Patente (contrato para comercialización)',
   },
-  { name: 'Registro de Marca' },
-  {
-    name: 'Otorgamiento de Modelo de Utilidad por parte del IMPI',
-  },
-  {
-    name: 'Registro de Solicitud de Modelo de Utilidad (ante IMPI)',
-  },
-  { name: 'Otorgamiento de Patente por parte del IMPI' },
-  { name: 'Registro de Solicitud de Patente (ante IMPI)' },
   { name: 'Ponencia' },
   {
-    name: 'Prototipo funcional (nuevo o con mejora incremental)',
+    name: 'Artículo indizado en SCOPUS, JCR, WEB OF SCIENCE o EQUIVALENTE Internacional 1er. autor',
   },
-  { name: 'Proyecto tecnológico' },
   {
-    name: 'Distinción o Reconocimiento de Investigador SNII o de Cuerpo Académico',
+    name: 'Artículo indizado en SCOPUS, JCR, WEB OF SCIENCE o EQUIVALENTE Internacional 2o. autor',
   },
+  {
+    name: 'Artículo indizado en SCOPUS, JCR, WEB OF SCIENCE o EQUIVALENTE Internacional 3er. autor',
+  },
+  {
+    name: 'Artículo indizado en SCOPUS, JCR, WEB OF SCIENCE o EQUIVALENTE Internacional 4o. autor',
+  },
+  { name: 'Artículo arbitrado Internacional (1er Autor)' },
+  { name: 'Artículo arbitrado Internacional (2° Autor)' },
+  { name: 'Artículo arbitrado Internacional (3er. Autor)' },
+  { name: 'Artículo arbitrado Internacional (4° Autor)' },
+  { name: 'Artículo arbitrado Nacional (1er Autor)' },
+  { name: 'Artículo arbitrado Nacional (2° Autor)' },
+  { name: 'Artículo arbitrado Nacional (3er. Autor)' },
+  { name: 'Artículo arbitrado Nacional (4° Autor)' },
+  { name: 'Artículo difusión 1er. autor' },
+  { name: 'Artículo difusión 2o. autor' },
+  { name: 'Artículo difusión 3er. autor' },
+  { name: 'Artículo difusión 4o. autor' },
+  { name: 'Artículo indizado Internacional 1er. autor' },
+  { name: 'Artículo indizado Internacional 2o. autor' },
+  { name: 'Artículo indizado Internacional 3er. autor' },
+  { name: 'Artículo indizado Internacional 4o. autor' },
+  { name: 'Artículo indizado Nacional (revista Conahcyt) 1er. autor' },
+  { name: 'Artículo indizado Nacional (revista Conahcyt) 2o. autor' },
+  { name: 'Artículo indizado Nacional (revista Conahcyt) 3er. autor' },
+  { name: 'Artículo indizado Nacional (revista Conahcyt) 4o. autor' },
+  { name: 'Capítulo de libro con ISBN 1er. autor' },
+  { name: 'Capítulo de libro con ISBN 2o. autor' },
+  { name: 'Capítulo de libro con ISBN 3er. autor' },
+  { name: 'Cartel con participación de alumnos y docentes' },
+  { name: 'Libro con ISBN (1er Autor)' },
+  { name: 'Libro con ISBN (2° Autor)' },
+  { name: 'Libro con ISBN (3er. Autor)' },
+  { name: 'Libro con ISBN (4° Autor)' },
+  { name: 'Solicitud de patente' },
+
 ];
 
 //Projects
