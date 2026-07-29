@@ -70,15 +70,19 @@ export class ProjectsService {
     };
   }
 
+  private activeMembershipMatch(userId: string) {
+    return {
+      $elemMatch: {
+        user: userId,
+        $or: [{ status: 'ACTIVE' }, { status: { $exists: false } }],
+      },
+    };
+  }
+
   private async getAccessibleTeamIds(userId: string): Promise<string[]> {
     const teams = await this.teamModel
       .find({
-        memberships: {
-          $elemMatch: {
-            user: userId,
-            status: 'ACTIVE',
-          },
-        },
+        memberships: this.activeMembershipMatch(userId),
       })
       .select('_id')
       .exec();
@@ -116,12 +120,7 @@ export class ProjectsService {
 
     const isActiveTeamMember = await this.teamModel.exists({
       _id: projectTeamId,
-      memberships: {
-        $elemMatch: {
-          user: actorId,
-          status: 'ACTIVE',
-        },
-      },
+      memberships: this.activeMembershipMatch(actorId),
     });
 
     if (isActiveTeamMember) {
@@ -355,12 +354,7 @@ export class ProjectsService {
     if (actorRole !== UserRole.ADMIN) {
       const canReadTeam = await this.teamModel.exists({
         _id: teamId,
-        memberships: {
-          $elemMatch: {
-            user: actorId,
-            status: 'ACTIVE',
-          },
-        },
+        memberships: this.activeMembershipMatch(actorId),
       });
 
       if (!canReadTeam) {

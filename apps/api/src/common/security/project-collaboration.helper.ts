@@ -34,6 +34,7 @@ export function hasProjectCollaborationAccess(
 
   return (project.team?.memberships ?? []).some(
     (membership) =>
-      membership.status === 'ACTIVE' && toId(membership.user) === actorId,
+      (membership.status === 'ACTIVE' || membership.status === undefined) &&
+      toId(membership.user) === actorId,
   );
 }

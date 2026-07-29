@@ -17,10 +17,78 @@ import { AccessDeniedReason } from '../common/security/access-denied-reason.enum
 export class TeamsService {
   constructor(@InjectModel(Team.name) private teamModel: Model<Team>) {}
 
+  private async upsertMemberships(
+    teamId: string,
+    userIds: string[],
+    role: 'MEMBER' | 'COLLABORATOR',
+  ) {
+    const team = await this.teamModel.findById(teamId);
+    if (!team) throw new NotFoundException();
+
+    const existingMemberships = new Map(
+      team.memberships.map((membership) => [membership.user.toString(), membership]),
+    );
+
+    const membershipsToInsert: Array<{
+      user: string;
+      role: 'MEMBER' | 'COLLABORATOR';
+      status: 'ACTIVE';
+    }> = [];
+
+    for (const userId of userIds) {
+      const existingMembership = existingMemberships.get(userId);
+
+      if (!existingMembership) {
+        membershipsToInsert.push({
+          user: userId,
+          role,
+          status: 'ACTIVE',
+        });
+        continue;
+      }
+
+      if (
+        existingMembership.status !== 'ACTIVE' ||
+        existingMembership.role !== role
+      ) {
+        await this.teamModel.updateOne(
+          {
+            _id: teamId,
+            'memberships.user': userId,
+          },
+          {
+            $set: {
+              'memberships.$.role': role,
+              'memberships.$.status': 'ACTIVE',
+            },
+          },
+        );
+      }
+    }
+
+    if (membershipsToInsert.length > 0) {
+      await this.teamModel.findByIdAndUpdate(teamId, {
+        $push: { memberships: { $each: membershipsToInsert } },
+      });
+    }
+  }
+
+  private activeMembershipFilter(userId: string) {
+    return {
+      memberships: {
+        $elemMatch: {
+          user: userId,
+          $or: [{ status: 'ACTIVE' }, { status: { $exists: false } }],
+        },
+      },
+    };
+  }
+
   private isActiveMember(team: Team, userId: string): boolean {
     return team.memberships.some(
       (membership) =>
-        membership.user.toString() === userId && membership.status === 'ACTIVE',
+        membership.user.toString() === userId &&
+        (membership.status === 'ACTIVE' || membership.status === undefined),
     );
   }
 
@@ -29,7 +97,7 @@ export class TeamsService {
       (membership) =>
         membership.user.toString() === userId &&
         membership.role === 'OWNER' &&
-        membership.status === 'ACTIVE',
+        (membership.status === 'ACTIVE' || membership.status === undefined),
     );
   }
 
@@ -164,27 +232,18 @@ export class TeamsService {
       filter = isPrivate === undefined ? {} : { isPrivate };
     } else if (isPrivate === true) {
       filter = {
-        memberships: {
-          $elemMatch: {
-            user: userId,
-            status: 'ACTIVE',
-          },
-        },
+        $and: [{ isPrivate: true }, this.activeMembershipFilter(userId)],
       };
     } else if (isPrivate === false) {
-      filter = { isPrivate: false };
+      // Keep visibility of assigned private teams while browsing public teams.
+      filter = {
+        $or: [{ isPrivate: false }, this.activeMembershipFilter(userId)],
+      };
     } else {
       filter = {
         $or: [
           { isPrivate: false },
-          {
-            memberships: {
-              $elemMatch: {
-                user: userId,
-                status: 'ACTIVE',
-              },
-            },
-          },
+          this.activeMembershipFilter(userId),
         ],
       };
     }
@@ -198,14 +257,7 @@ export class TeamsService {
 
   async findByUser(userId: string) {
     return this.teamModel
-      .find({
-        memberships: {
-          $elemMatch: {
-            user: userId,
-            status: 'ACTIVE',
-          },
-        },
-      })
+      .find(this.activeMembershipFilter(userId))
       .populate('memberships.user')
       .populate('division')
       .exec();
@@ -222,7 +274,7 @@ export class TeamsService {
           $elemMatch: {
             user: userId,
             role: 'OWNER',
-            status: 'ACTIVE',
+            $or: [{ status: 'ACTIVE' }, { status: { $exists: false } }],
           },
         },
       })
@@ -278,22 +330,7 @@ export class TeamsService {
   }
 
   async addCollaborators(teamId: string, userIds: string[]) {
-    const team = await this.teamModel.findById(teamId);
-    if (!team) throw new NotFoundException();
-
-    const existingUserIds = team.memberships.map((m) => m.user.toString());
-
-    const newMemberships = userIds
-      .filter((id) => !existingUserIds.includes(id))
-      .map((id) => ({
-        user: id,
-        role: 'COLLABORATOR',
-        status: 'ACTIVE',
-      }));
-
-    await this.teamModel.findByIdAndUpdate(teamId, {
-      $push: { memberships: { $each: newMemberships } },
-    });
+    await this.upsertMemberships(teamId, userIds, 'COLLABORATOR');
 
     return { id: teamId, message: 'Collaborators added successfully' };
   }
@@ -310,22 +347,7 @@ export class TeamsService {
   }
 
   async addMembers(teamId: string, userIds: string[]) {
-    const team = await this.teamModel.findById(teamId);
-    if (!team) throw new NotFoundException();
-
-    const existingUserIds = team.memberships.map((m) => m.user.toString());
-
-    const newMemberships = userIds
-      .filter((id) => !existingUserIds.includes(id))
-      .map((id) => ({
-        user: id,
-        role: 'MEMBER',
-        status: 'ACTIVE',
-      }));
-
-    await this.teamModel.findByIdAndUpdate(teamId, {
-      $push: { memberships: { $each: newMemberships } },
-    });
+    await this.upsertMemberships(teamId, userIds, 'MEMBER');
 
     return { id: teamId, message: 'Members added successfully' };
   }
