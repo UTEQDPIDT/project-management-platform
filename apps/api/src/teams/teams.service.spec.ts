@@ -15,6 +15,7 @@ describe('TeamsService', () => {
 
   const teamModelMock = {
     findById: jest.fn().mockReturnValue(findByIdQueryMock),
+    exists: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -43,6 +44,8 @@ describe('TeamsService', () => {
       ],
     });
 
+    teamModelMock.exists.mockResolvedValue(true);
+
     await expect(service.findOne('team-1', 'user-1', UserRole.USER)).resolves.toEqual(
       expect.objectContaining({ _id: 'team-1' }),
     );
@@ -61,8 +64,35 @@ describe('TeamsService', () => {
       ],
     });
 
+    teamModelMock.exists.mockResolvedValue(false);
+
     await expect(service.findOne('team-1', 'user-1', UserRole.USER)).rejects.toBeInstanceOf(
       ForbiddenException,
+    );
+  });
+
+  it('should not recurse infinitely for ObjectId-like membership values', async () => {
+    const objectIdLike: { _id?: unknown; toString: () => string } = {
+      toString: () => 'user-1',
+    };
+    objectIdLike._id = objectIdLike;
+
+    findByIdQueryMock.exec.mockResolvedValue({
+      _id: 'team-1',
+      isPrivate: true,
+      memberships: [
+        {
+          user: objectIdLike,
+          role: 'MEMBER',
+          status: 'ACTIVE',
+        },
+      ],
+    });
+
+    teamModelMock.exists.mockResolvedValue(true);
+
+    await expect(service.findOne('team-1', 'user-1', UserRole.USER)).resolves.toEqual(
+      expect.objectContaining({ _id: 'team-1' }),
     );
   });
 });

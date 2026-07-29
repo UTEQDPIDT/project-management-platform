@@ -30,13 +30,30 @@ export class TeamsService {
       typeof value === 'object' &&
       '_id' in (value as Record<string, unknown>)
     ) {
-      return this.toId((value as { _id: unknown })._id);
+      const nestedId = (value as { _id: unknown })._id;
+      if (nestedId !== value) {
+        return this.toId(nestedId);
+      }
     }
 
-    if (typeof (value as { toString?: () => string }).toString === 'function') {
-      const normalized = (value as { toString: () => string }).toString();
-      if (normalized !== '[object Object]') {
-        return normalized;
+    if (typeof value === 'object') {
+      const objectIdLike = value as {
+        toHexString?: () => string;
+        toString?: () => string;
+      };
+
+      if (typeof objectIdLike.toHexString === 'function') {
+        return objectIdLike.toHexString();
+      }
+
+      if (typeof objectIdLike.toString === 'function') {
+        const normalized = objectIdLike.toString().trim();
+        const looksLikeSerializedDoc =
+          normalized.startsWith('{') || normalized.includes('\n');
+
+        if (normalized && normalized !== '[object Object]' && !looksLikeSerializedDoc) {
+          return normalized;
+        }
       }
     }
 
@@ -170,11 +187,21 @@ export class TeamsService {
       throw new NotFoundException(`Team with ID: ${teamId} not found`);
     }
 
-    if (
-      actorRole === UserRole.ADMIN ||
-      !team.isPrivate ||
-      this.isActiveMember(team, actorId)
-    ) {
+    if (actorRole === UserRole.ADMIN || !team.isPrivate) {
+      return team;
+    }
+
+    const isAssignedMember = await this.teamModel.exists({
+      _id: teamId,
+      memberships: {
+        $elemMatch: {
+          user: actorId,
+          $or: [{ status: 'ACTIVE' }, { status: { $exists: false } }],
+        },
+      },
+    });
+
+    if (isAssignedMember) {
       return team;
     }
 

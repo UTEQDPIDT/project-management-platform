@@ -318,4 +318,38 @@ describe('ProjectsService', () => {
       service.update('p1', updateDto, 'user-1', UserRole.USER),
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
+
+  it('should normalize populated team document before membership exists lookup', async () => {
+    const populatedTeam = {
+      _id: { toString: () => '6a0e0bf2e7c5277d3e3b2322' },
+      toString: () =>
+        "{ _id: new ObjectId('6a0e0bf2e7c5277d3e3b2322'), teamName: 'Equipo Prueba' }",
+    };
+    const project = {
+      _id: { toString: () => 'project-1' },
+      owner: { toString: () => 'owner-1' },
+      team: populatedTeam,
+    };
+    const populate = jest.fn((path: unknown) =>
+      path === 'closedBy' ? Promise.resolve(project) : query,
+    );
+    const query = { populate };
+
+    projectModelMock.findById.mockReturnValue(query);
+    teamModelMock.exists.mockResolvedValue(true);
+
+    await expect(
+      service.findOne('project-1', 'user-2', UserRole.USER),
+    ).resolves.toEqual(project);
+
+    expect(teamModelMock.exists).toHaveBeenCalledWith({
+      _id: '6a0e0bf2e7c5277d3e3b2322',
+      memberships: {
+        $elemMatch: {
+          user: 'user-2',
+          $or: [{ status: 'ACTIVE' }, { status: { $exists: false } }],
+        },
+      },
+    });
+  });
 });

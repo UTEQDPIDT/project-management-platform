@@ -48,8 +48,35 @@ export class ProjectsService {
       return value;
     }
 
-    if (typeof (value as { toString?: () => string }).toString === 'function') {
-      return (value as { toString: () => string }).toString();
+    if (
+      typeof value === 'object' &&
+      '_id' in (value as Record<string, unknown>)
+    ) {
+      const nestedId = (value as { _id: unknown })._id;
+      if (nestedId !== value) {
+        return this.toId(nestedId);
+      }
+    }
+
+    if (typeof value === 'object') {
+      const objectIdLike = value as {
+        toHexString?: () => string;
+        toString?: () => string;
+      };
+
+      if (typeof objectIdLike.toHexString === 'function') {
+        return objectIdLike.toHexString();
+      }
+
+      if (typeof objectIdLike.toString === 'function') {
+        const normalized = objectIdLike.toString().trim();
+        const looksLikeSerializedDoc =
+          normalized.startsWith('{') || normalized.includes('\n');
+
+        if (normalized && normalized !== '[object Object]' && !looksLikeSerializedDoc) {
+          return normalized;
+        }
+      }
     }
 
     return null;
