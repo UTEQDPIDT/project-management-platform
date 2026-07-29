@@ -124,17 +124,33 @@ export class TeamsService {
       memberships: {
         $elemMatch: {
           user: userId,
-          $or: [{ status: 'ACTIVE' }, { status: { $exists: false } }],
+          $or: [
+            { status: 'ACTIVE' },
+            { status: { $regex: /^active$/i } },
+            { status: { $exists: false } },
+          ],
         },
       },
     };
+  }
+
+  private isActiveMembershipStatus(status: unknown): boolean {
+    if (status === undefined || status === null) {
+      return true;
+    }
+
+    if (typeof status !== 'string') {
+      return false;
+    }
+
+    return status.trim().toUpperCase() === 'ACTIVE';
   }
 
   private isActiveMember(team: Team, userId: string): boolean {
     return team.memberships.some(
       (membership) =>
         this.toId(membership.user) === userId &&
-        (membership.status === 'ACTIVE' || membership.status === undefined),
+        this.isActiveMembershipStatus(membership.status),
     );
   }
 
@@ -143,7 +159,7 @@ export class TeamsService {
       (membership) =>
         this.toId(membership.user) === userId &&
         membership.role === 'OWNER' &&
-        (membership.status === 'ACTIVE' || membership.status === undefined),
+        this.isActiveMembershipStatus(membership.status),
     );
   }
 
@@ -196,7 +212,11 @@ export class TeamsService {
       memberships: {
         $elemMatch: {
           user: actorId,
-          $or: [{ status: 'ACTIVE' }, { status: { $exists: false } }],
+          $or: [
+            { status: 'ACTIVE' },
+            { status: { $regex: /^active$/i } },
+            { status: { $exists: false } },
+          ],
         },
       },
     });

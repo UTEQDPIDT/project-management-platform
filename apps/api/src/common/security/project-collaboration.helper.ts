@@ -32,9 +32,12 @@ export function hasProjectCollaborationAccess(
     return true;
   }
 
+  const isActiveStatus = (status: string | undefined) =>
+    status === undefined || status.trim().toUpperCase() === 'ACTIVE';
+
   return (project.team?.memberships ?? []).some(
     (membership) =>
-      (membership.status === 'ACTIVE' || membership.status === undefined) &&
+      isActiveStatus(membership.status) &&
       toId(membership.user) === actorId,
   );
 }

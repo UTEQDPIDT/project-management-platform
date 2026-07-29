@@ -101,7 +101,11 @@ export class ProjectsService {
     return {
       $elemMatch: {
         user: userId,
-        $or: [{ status: 'ACTIVE' }, { status: { $exists: false } }],
+        $or: [
+          { status: 'ACTIVE' },
+          { status: { $regex: /^active$/i } },
+          { status: { $exists: false } },
+        ],
       },
     };
   }

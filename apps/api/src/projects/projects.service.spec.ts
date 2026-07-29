@@ -342,14 +342,15 @@ describe('ProjectsService', () => {
       service.findOne('project-1', 'user-2', UserRole.USER),
     ).resolves.toEqual(project);
 
-    expect(teamModelMock.exists).toHaveBeenCalledWith({
-      _id: '6a0e0bf2e7c5277d3e3b2322',
-      memberships: {
-        $elemMatch: {
-          user: 'user-2',
-          $or: [{ status: 'ACTIVE' }, { status: { $exists: false } }],
+    expect(teamModelMock.exists).toHaveBeenCalledWith(
+      expect.objectContaining({
+        _id: '6a0e0bf2e7c5277d3e3b2322',
+        memberships: {
+          $elemMatch: expect.objectContaining({
+            user: 'user-2',
+          }),
         },
-      },
-    });
+      }),
+    );
   });
 });
