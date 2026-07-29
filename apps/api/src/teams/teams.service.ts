@@ -17,6 +17,32 @@ import { AccessDeniedReason } from '../common/security/access-denied-reason.enum
 export class TeamsService {
   constructor(@InjectModel(Team.name) private teamModel: Model<Team>) {}
 
+  private toId(value: unknown): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (
+      typeof value === 'object' &&
+      '_id' in (value as Record<string, unknown>)
+    ) {
+      return this.toId((value as { _id: unknown })._id);
+    }
+
+    if (typeof (value as { toString?: () => string }).toString === 'function') {
+      const normalized = (value as { toString: () => string }).toString();
+      if (normalized !== '[object Object]') {
+        return normalized;
+      }
+    }
+
+    return null;
+  }
+
   private async upsertMemberships(
     teamId: string,
     userIds: string[],
@@ -26,7 +52,10 @@ export class TeamsService {
     if (!team) throw new NotFoundException();
 
     const existingMemberships = new Map(
-      team.memberships.map((membership) => [membership.user.toString(), membership]),
+      team.memberships
+        .map((membership) => [this.toId(membership.user), membership] as const)
+        .filter(([id]) => Boolean(id))
+        .map(([id, membership]) => [id as string, membership]),
     );
 
     const membershipsToInsert: Array<{
@@ -87,7 +116,7 @@ export class TeamsService {
   private isActiveMember(team: Team, userId: string): boolean {
     return team.memberships.some(
       (membership) =>
-        membership.user.toString() === userId &&
+        this.toId(membership.user) === userId &&
         (membership.status === 'ACTIVE' || membership.status === undefined),
     );
   }
@@ -95,7 +124,7 @@ export class TeamsService {
   private isOwner(team: Team, userId: string): boolean {
     return team.memberships.some(
       (membership) =>
-        membership.user.toString() === userId &&
+        this.toId(membership.user) === userId &&
         membership.role === 'OWNER' &&
         (membership.status === 'ACTIVE' || membership.status === undefined),
     );
