@@ -65,35 +65,12 @@ export class ActivitiesService {
     }
 
     if (activity.entityType === EntityType.PROJECT) {
-      const project = await this.projectModel
-        .findById(activity.entityId)
-        .select('owner team')
-        .populate({ path: 'team', select: 'memberships' });
-
-      if (!project) {
-        throw new NotFoundException(
-          `Project with ID: ${activity.entityId.toString()} not found`,
-        );
-      }
-
-      const createdById = this.toId(activity.createdBy);
-      const isCreator = createdById === actorId;
-
-      if (
-        !isCreator &&
-        !hasProjectCollaborationAccess(project, actorId, actorRole, (value) =>
-          this.toId(value),
-        )
-      ) {
-        throw new AccessDeniedException({
-          reason: AccessDeniedReason.ACTIVITY_PROJECT_ACCESS_FORBIDDEN,
-          message: 'You are not allowed to delete activities from this project.',
-          resourceType: 'activity',
-          resourceId: activity._id.toString(),
-          actorId,
-          actorRole,
-        });
-      }
+      await this.ensureCanManageProjectActivities(
+        activity.entityId.toString(),
+        actorId,
+        actorRole,
+        activity._id.toString(),
+      );
 
       return;
     }
@@ -312,19 +289,12 @@ export class ActivitiesService {
     }
 
     if (activity.entityType === EntityType.PROJECT) {
-      const createdById = this.toId(activity.createdBy);
-      const isCreator = createdById === userId;
-
-      if (!isCreator) {
-        await this.ensureCanManageProjectActivities(
-          activity.entityId.toString(),
-          userId,
-          userRole,
-          id,
-        );
-      } else {
-        await this.ensureProjectIsWritable(activity.entityId.toString());
-      }
+      await this.ensureCanManageProjectActivities(
+        activity.entityId.toString(),
+        userId,
+        userRole,
+        id,
+      );
     }
 // Check if the status is being updated to COMPLETED and if it was not already COMPLETED
     const isTransitionToCompleted =

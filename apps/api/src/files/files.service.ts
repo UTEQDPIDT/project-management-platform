@@ -88,11 +88,26 @@ export class FilesService {
       .trim()
       .toLowerCase();
 
-    if (normalized === EntityType.PROJECT) return EntityType.PROJECT;
-    if (normalized === EntityType.ACTIVITY) return EntityType.ACTIVITY;
-    if (normalized === EntityType.PRODUCT) return EntityType.PRODUCT;
-    if (normalized === EntityType.EVENT) return EntityType.EVENT;
-    if (normalized === EntityType.STANDALONE_PRODUCT) return EntityType.STANDALONE_PRODUCT;
+    if (normalized === EntityType.PROJECT || normalized === 'projects') {
+      return EntityType.PROJECT;
+    }
+    if (normalized === EntityType.ACTIVITY || normalized === 'activities') {
+      return EntityType.ACTIVITY;
+    }
+    if (normalized === EntityType.PRODUCT || normalized === 'products') {
+      return EntityType.PRODUCT;
+    }
+    if (normalized === EntityType.EVENT || normalized === 'events') {
+      return EntityType.EVENT;
+    }
+    if (
+      normalized === EntityType.STANDALONE_PRODUCT ||
+      normalized === 'standalone-product' ||
+      normalized === 'standalone_products' ||
+      normalized === 'standaloneproducts'
+    ) {
+      return EntityType.STANDALONE_PRODUCT;
+    }
 
     return null;
   }

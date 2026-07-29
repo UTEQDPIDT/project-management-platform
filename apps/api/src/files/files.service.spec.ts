@@ -169,6 +169,47 @@ describe('FilesService', () => {
     expect(fileModelMock.findByIdAndDelete).toHaveBeenCalledWith('f1');
   });
 
+  it('should allow assigned user for legacy plural entity types', async () => {
+    fileModelMock.findById.mockResolvedValue({
+      _id: 'f1',
+      owner: { toString: () => 'u1' },
+      entityId: { toString: () => 'activity-legacy' },
+      entityType: 'activities',
+      gridFsId: new mongoose.Types.ObjectId('507f1f77bcf86cd799439011'),
+    });
+
+    activityModelMock.findById.mockReturnValue({
+      select: jest.fn().mockResolvedValue({
+        entityType: 'projects',
+        entityId: { toString: () => 'project-legacy' },
+      }),
+    });
+
+    projectModelMock.findById
+      .mockReturnValueOnce({
+        select: jest.fn().mockReturnValue({
+          populate: jest.fn().mockResolvedValue({
+            owner: { toString: () => 'owner-1' },
+            team: {
+              memberships: [{ user: { _id: 'team-user' }, status: 'ACTIVE' }],
+            },
+          }),
+        }),
+      })
+      .mockReturnValueOnce({
+        select: jest.fn().mockResolvedValue({
+          status: 'PENDING',
+          validationStatus: null,
+        }),
+      });
+
+    fileModelMock.findByIdAndDelete.mockResolvedValue({ _id: 'f1' });
+
+    await service.deleteFile('f1', 'team-user', UserRole.USER);
+
+    expect(fileModelMock.findByIdAndDelete).toHaveBeenCalledWith('f1');
+  });
+
   it('should reject file deletion when owner metadata is missing', async () => {
     fileModelMock.findById.mockResolvedValue({
       _id: 'f1',
