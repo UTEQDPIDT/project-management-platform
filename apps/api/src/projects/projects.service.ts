@@ -11,6 +11,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Project } from '../schemas/project.schema';
 import { User } from '../schemas/user.schema';
+import { Team } from '../schemas/team.schema';
 import { Connection, Model, Types } from 'mongoose';
 import { FilesService } from '../files/files.service';
 import { ProductsService } from '../products/products.service';
@@ -20,7 +21,10 @@ import {
   ProjectStatus,
   Status,
   ProjectValidation,
+  UserRole,
 } from '@repo/types';
+import { AccessDeniedException } from '../common/security/access-denied.exception';
+import { AccessDeniedReason } from '../common/security/access-denied-reason.enum';
 
 @Injectable()
 export class ProjectsService {
@@ -28,11 +32,28 @@ export class ProjectsService {
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(Project.name) private projectModel: Model<Project>,
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Team.name) private teamModel: Model<Team>,
     private readonly productService: ProductsService,
     @Inject(forwardRef(() => ActivitiesService))
     private readonly activitiesService: ActivitiesService,
     private readonly filesService: FilesService,
   ) {}
+
+  private toId(value: unknown): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (typeof (value as { toString?: () => string }).toString === 'function') {
+      return (value as { toString: () => string }).toString();
+    }
+
+    return null;
+  }
 
   private async getValidationPermissions(userId: string) {
     const user = await this.userModel
@@ -47,6 +68,74 @@ export class ProjectsService {
       canValidate: Boolean(user.get('canValidateProjets')),
       canClose: Boolean(user.get('canCloseProject')),
     };
+  }
+
+  private async getAccessibleTeamIds(userId: string): Promise<string[]> {
+    const teams = await this.teamModel
+      .find({
+        memberships: {
+          $elemMatch: {
+            user: userId,
+            status: 'ACTIVE',
+          },
+        },
+      })
+      .select('_id')
+      .exec();
+
+    return teams.map((team) => team._id.toString());
+  }
+
+  private async ensureCanReadProject(
+    project: Project,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    if (actorRole === UserRole.ADMIN) {
+      return;
+    }
+
+    const ownerId = this.toId(project.owner);
+
+    if (ownerId === actorId) {
+      return;
+    }
+
+    const projectTeamId = this.toId(project.team);
+
+    if (!projectTeamId) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.PROJECT_VIEW_FORBIDDEN,
+        message: 'You are not allowed to view this project.',
+        resourceType: 'project',
+        resourceId: project._id.toString(),
+        actorId,
+        actorRole,
+      });
+    }
+
+    const isActiveTeamMember = await this.teamModel.exists({
+      _id: projectTeamId,
+      memberships: {
+        $elemMatch: {
+          user: actorId,
+          status: 'ACTIVE',
+        },
+      },
+    });
+
+    if (isActiveTeamMember) {
+      return;
+    }
+
+    throw new AccessDeniedException({
+      reason: AccessDeniedReason.PROJECT_VIEW_FORBIDDEN,
+      message: 'You are not allowed to view this project.',
+      resourceType: 'project',
+      resourceId: project._id.toString(),
+      actorId,
+      actorRole,
+    });
   }
 
   /**
@@ -173,9 +262,18 @@ export class ProjectsService {
   /**
    * Retrieves all projects from the database with fully populated relationships.
    */
-  async findAll() {
+  async findAll(actorId: string, actorRole: UserRole) {
+    let queryFilter: Record<string, unknown> = {};
+
+    if (actorRole !== UserRole.ADMIN) {
+      const teamIds = await this.getAccessibleTeamIds(actorId);
+      queryFilter = {
+        $or: [{ owner: actorId }, { team: { $in: teamIds } }],
+      };
+    }
+
     return await this.projectModel
-      .find()
+      .find(queryFilter)
       .populate('impactAreas')
       .populate('knowledgeAreas')
       .populate('prioritiesPND')
@@ -198,7 +296,7 @@ export class ProjectsService {
    * Retrieves a single project by its ID with populated relationships.
    * @param id The unique identifier of the project.
    */
-  async findOne(id: string) {
+  async findOne(id: string, actorId: string, actorRole: UserRole) {
     const project = await this.projectModel
       .findById(id)
       .populate('impactAreas')
@@ -219,6 +317,8 @@ export class ProjectsService {
     if (!project) {
       throw new NotFoundException(`Project with ID ${id} not found.`);
     }
+
+    await this.ensureCanReadProject(project, actorId, actorRole);
 
     return project;
   }
@@ -251,7 +351,30 @@ export class ProjectsService {
    * Retrieves all projects associated with a specific team.
    * @param teamId The unique identifier of the team.
    */
-  async findByTeam(teamId: string) {
+  async findByTeam(teamId: string, actorId: string, actorRole: UserRole) {
+    if (actorRole !== UserRole.ADMIN) {
+      const canReadTeam = await this.teamModel.exists({
+        _id: teamId,
+        memberships: {
+          $elemMatch: {
+            user: actorId,
+            status: 'ACTIVE',
+          },
+        },
+      });
+
+      if (!canReadTeam) {
+        throw new AccessDeniedException({
+          reason: AccessDeniedReason.PROJECT_VIEW_FORBIDDEN,
+          message: 'You are not allowed to view projects from this team.',
+          resourceType: 'project-team',
+          resourceId: teamId,
+          actorId,
+          actorRole,
+        });
+      }
+    }
+
     return await this.projectModel.find({ team: teamId });
   }
 
@@ -262,7 +385,12 @@ export class ProjectsService {
    * @param updateProjectDto Data payload containing the updates.
    * @param userId The ID of the user performing the update.
    */
-  async update(id: string, updateProjectDto: UpdateProjectDto, userId: string) {
+  async update(
+    id: string,
+    updateProjectDto: UpdateProjectDto,
+    userId: string,
+    userRole: UserRole,
+  ) {
     const project = await this.projectModel.findById(id);
 
     if (!project) {
@@ -271,6 +399,30 @@ export class ProjectsService {
 
     if (project.get('validationStatus') === ProjectValidation.FINAL_VALIDATION) {
       throw new ForbiddenException('Cannot update a project that has been validated and closed.');
+    }
+
+    const ownerId = this.toId(project.owner);
+
+    if (!ownerId) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.PROJECT_OWNER_MISSING,
+        message: 'Project owner is not defined.',
+        resourceType: 'project',
+        resourceId: id,
+        actorId: userId,
+        actorRole: userRole,
+      });
+    }
+
+    if (userRole !== UserRole.ADMIN && ownerId !== userId) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.PROJECT_UPDATE_NOT_OWNER,
+        message: 'You are not allowed to update this project.',
+        resourceType: 'project',
+        resourceId: id,
+        actorId: userId,
+        actorRole: userRole,
+      });
     }
 
     await this.projectModel.findByIdAndUpdate(id, {
@@ -286,7 +438,7 @@ export class ProjectsService {
    * Blocks deletion if the project is locked under FINAL_VALIDATION.
    * @param projectId The unique identifier of the project to remove.
    */
-  async remove(projectId: string) {
+  async remove(projectId: string, actorId: string, actorRole: UserRole) {
     const project = await this.projectModel.findById(projectId);
 
     if (!project) {
@@ -295,6 +447,30 @@ export class ProjectsService {
 
     if (project.get('validationStatus') === ProjectValidation.FINAL_VALIDATION) {
       throw new ForbiddenException('Cannot delete a project that has been validated and closed.');
+    }
+
+    const ownerId = this.toId(project.owner);
+
+    if (!ownerId) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.PROJECT_OWNER_MISSING,
+        message: 'Project owner is not defined.',
+        resourceType: 'project',
+        resourceId: projectId,
+        actorId,
+        actorRole,
+      });
+    }
+
+    if (actorRole !== UserRole.ADMIN && ownerId !== actorId) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.PROJECT_DELETE_NOT_OWNER,
+        message: 'You are not allowed to delete this project.',
+        resourceType: 'project',
+        resourceId: projectId,
+        actorId,
+        actorRole,
+      });
     }
 
     const files = await this.filesService.findFilesForEntity(
@@ -306,7 +482,7 @@ export class ProjectsService {
 
     try {
       // Delete files
-      await this.filesService.deleteFiles(files);
+      await this.filesService.deleteFilesForResource(files);
 
       // Delete products
       await this.productService.deleteMany(projectId, session);

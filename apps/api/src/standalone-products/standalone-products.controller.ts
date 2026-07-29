@@ -28,10 +28,12 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { UserRole } from '@repo/types';
 
 type AuthenticatedRequest = {
     user: {
         id: string;
+        role: UserRole;
     };
 };
 
@@ -77,8 +79,12 @@ export class StandaloneProductsController {
     })
     @ApiNotFoundResponse({ description: 'No se encontro el producto independiente.' })
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.standaloneProductsService.findOne(id);
+    findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+        return this.standaloneProductsService.findOne(
+            id,
+            req.user.id,
+            req.user.role,
+        );
     }
 
     @ApiAcceptedResponse({
@@ -111,6 +117,7 @@ export class StandaloneProductsController {
             id,
             updateStandaloneProductDto,
             req.user.id,
+            req.user.role,
             file,
         );
     }
@@ -122,8 +129,8 @@ export class StandaloneProductsController {
     @ApiNotFoundResponse({ description: 'No se encontro el producto independiente.' })
     @ApiUnauthorizedResponse({ description: 'No autorizado' })
     @Delete(':id')
-    async remove(@Param('id') id: string) {
-        await this.standaloneProductsService.remove(id);
+    async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+        await this.standaloneProductsService.remove(id, req.user.id, req.user.role);
     }
 
 }

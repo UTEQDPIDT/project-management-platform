@@ -16,8 +16,12 @@ import {
   FilePurpose,
   ProjectStatus,
   ProjectValidation,
+  UserRole,
 } from '@repo/types';
 import { Project } from '../schemas/project.schema';
+import { AccessDeniedException } from '../common/security/access-denied.exception';
+import { AccessDeniedReason } from '../common/security/access-denied-reason.enum';
+import { hasProjectCollaborationAccess } from '../common/security/project-collaboration.helper';
 
 @Injectable()
 export class ProductsService {
@@ -26,6 +30,22 @@ export class ProductsService {
     @InjectModel(Project.name) private projectModel: Model<Project>,
     private readonly filesService: FilesService,
   ) {}
+
+  private toId(value: unknown): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (typeof (value as { toString?: () => string }).toString === 'function') {
+      return (value as { toString: () => string }).toString();
+    }
+
+    return null;
+  }
 
   private async ensureProjectIsWritable(projectId: string) {
     const project = await this.projectModel
@@ -44,13 +64,55 @@ export class ProductsService {
     }
   }
 
+  private async ensureCanManageProjectProducts(
+    projectId: string,
+    actorId: string,
+    actorRole: UserRole,
+    resourceId: string,
+  ) {
+    const project = await this.projectModel
+      .findById(projectId)
+      .select('owner team status validationStatus')
+      .populate({ path: 'team', select: 'memberships' });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${projectId} not found`);
+    }
+
+    if (
+      project.status === ProjectStatus.CLOSED ||
+      project.validationStatus === ProjectValidation.FINAL_VALIDATION
+    ) {
+      throw new ForbiddenException('Cannot create products for a closed project.');
+    }
+
+    if (hasProjectCollaborationAccess(project, actorId, actorRole, (value) => this.toId(value))) {
+      return;
+    }
+
+    throw new AccessDeniedException({
+      reason: AccessDeniedReason.PRODUCT_PROJECT_ACCESS_FORBIDDEN,
+      message: 'You are not allowed to manage products for this project.',
+      resourceType: 'product',
+      resourceId,
+      actorId,
+      actorRole,
+    });
+  }
+
   async create(
     createProductDto: CreateProductDto,
     file: Express.Multer.File,
     userId: string,
+    userRole: UserRole,
   ) {
     try {
-      await this.ensureProjectIsWritable(createProductDto.projectId.toString());
+      await this.ensureCanManageProjectProducts(
+        createProductDto.projectId.toString(),
+        userId,
+        userRole,
+        createProductDto.projectId.toString(),
+      );
 
       const product = new this.productModel({
         ...createProductDto,
@@ -67,6 +129,7 @@ export class ProductsService {
           EntityType.PRODUCT,
           FilePurpose.GENERIC,
           userId,
+          userRole,
         );
       }
 
@@ -123,21 +186,34 @@ export class ProductsService {
     id: string,
     updateProductDto: UpdateProductDto,
     userId: string,
+    userRole: UserRole,
     file?: Express.Multer.File,
   ) {
     try {
-      const product = await this.productModel.findById(id).select('projectId');
+      const product = await this.productModel.findById(id).select('projectId owner');
 
       if (!product) {
         throw new NotFoundException(`Product with ID: ${id} not found`);
       }
 
-      await this.ensureProjectIsWritable(product.projectId.toString());
+      const ownerId = this.toId(product.owner);
+      const isOwner = ownerId === userId;
+
+      if (!isOwner) {
+        await this.ensureCanManageProjectProducts(
+          product.projectId.toString(),
+          userId,
+          userRole,
+          id,
+        );
+      } else {
+        await this.ensureProjectIsWritable(product.projectId.toString());
+      }
 
       if (file) {
         // Delete previous files
         const previousFiles = await this.filesService.findFilesForEntity(id);
-        await this.filesService.deleteFiles(previousFiles);
+        await this.filesService.deleteFilesForResource(previousFiles);
 
         // Upload new file
         await this.filesService.uploadFile(
@@ -146,6 +222,7 @@ export class ProductsService {
           EntityType.PRODUCT,
           FilePurpose.GENERIC,
           userId,
+          userRole,
         );
       }
 
@@ -172,19 +249,33 @@ export class ProductsService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string, actorId: string, actorRole: UserRole) {
     try {
-      const product = await this.productModel.findById(id).select('projectId');
+      const product = await this.productModel
+        .findById(id)
+        .select('projectId owner');
 
       if (!product) {
         throw new NotFoundException(`Product with ID: ${id} not found`);
       }
 
-      await this.ensureProjectIsWritable(product.projectId.toString());
+      const ownerId = this.toId(product.owner);
+      const isOwner = ownerId === actorId;
+
+      if (!isOwner) {
+        await this.ensureCanManageProjectProducts(
+          product.projectId.toString(),
+          actorId,
+          actorRole,
+          id,
+        );
+      } else {
+        await this.ensureProjectIsWritable(product.projectId.toString());
+      }
 
       const files = await this.filesService.findFilesForEntity(id);
 
-      await this.filesService.deleteFiles(files);
+      await this.filesService.deleteFilesForResource(files);
 
       await this.productModel.findByIdAndDelete(id);
 
@@ -211,7 +302,7 @@ export class ProductsService {
 
     const files = filesPerProduct.flat();
 
-    await this.filesService.deleteFiles(files);
+    await this.filesService.deleteFilesForResource(files);
 
     await this.productModel.deleteMany({ projectId }, { session });
   }

@@ -1,6 +1,7 @@
 import { 
     Injectable,
     BadRequestException,
+    ForbiddenException,
     NotFoundException,
 } from '@nestjs/common';
 
@@ -10,7 +11,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { StandaloneProduct } from '../schemas/standalone-product.schema';
 import { Model } from 'mongoose';
 import { FilesService } from '../files/files.service';
-import { EntityType, FilePurpose } from '@repo/types';
+import { EntityType, FilePurpose, UserRole } from '@repo/types';
+import { AccessDeniedException } from '../common/security/access-denied.exception';
+import { AccessDeniedReason } from '../common/security/access-denied-reason.enum';
 
 @Injectable()
 export class StandaloneProductsService {
@@ -18,6 +21,56 @@ export class StandaloneProductsService {
         @InjectModel(StandaloneProduct.name) private standaloneProductModel: Model<StandaloneProduct>,
         private readonly filesService: FilesService,
     ) {}
+
+    private toId(value: unknown): string | null {
+        if (value === null || value === undefined) {
+            return null;
+        }
+
+        if (typeof value === 'string') {
+            return value;
+        }
+
+        if (typeof (value as { toString?: () => string }).toString === 'function') {
+            return (value as { toString: () => string }).toString();
+        }
+
+        return null;
+    }
+
+    private ensureCanAccessStandaloneProduct(
+        product: StandaloneProduct,
+        actorId: string,
+        actorRole: UserRole,
+        reason: AccessDeniedReason,
+        message: string,
+    ) {
+        const ownerId = this.toId(product.owner);
+
+        if (!ownerId) {
+            throw new AccessDeniedException({
+                reason: AccessDeniedReason.PRODUCT_OWNER_MISSING,
+                message: 'Standalone product owner is not defined.',
+                resourceType: 'standalone-product',
+                resourceId: product._id.toString(),
+                actorId,
+                actorRole,
+            });
+        }
+
+        if (actorRole === UserRole.ADMIN || ownerId === actorId) {
+            return;
+        }
+
+        throw new AccessDeniedException({
+            reason,
+            message,
+            resourceType: 'standalone-product',
+            resourceId: product._id.toString(),
+            actorId,
+            actorRole,
+        });
+    }
 
     async create(
         createStandaloneProductDto: CreateStandaloneProductDto,
@@ -79,7 +132,7 @@ export class StandaloneProductsService {
             .exec();
     }
 
-    async findOne(id: string){
+    async findOne(id: string, actorId: string, actorRole: UserRole){
         const standaloneProduct = await this.standaloneProductModel
             .findById(id)
             .populate('category')
@@ -90,6 +143,15 @@ export class StandaloneProductsService {
         if (!standaloneProduct) {
             throw new NotFoundException(`Producto independiente con ID ${id} no encontrado`);
         }
+
+        this.ensureCanAccessStandaloneProduct(
+            standaloneProduct,
+            actorId,
+            actorRole,
+            AccessDeniedReason.STANDALONE_PRODUCT_VIEW_FORBIDDEN,
+            'You are not allowed to view this standalone product.',
+        );
+
         return standaloneProduct;
     }
 
@@ -97,21 +159,37 @@ export class StandaloneProductsService {
         id: string,
         updateStandaloneProductDto: UpdateStandaloneProductDto,
         userId: string,
+        userRole: UserRole,
         file?: Express.Multer.File,
     ){
         try{
-            if (file) {
-            const previousFiles = await this.filesService.findFilesForEntity(id);
-            await this.filesService.deleteFiles(previousFiles);
+            const standaloneProduct = await this.standaloneProductModel.findById(id).exec();
 
-            await this.filesService.uploadFile(
-                file,
-                id,
-                EntityType.STANDALONE_PRODUCT,
-                FilePurpose.GENERIC,
+            if (!standaloneProduct) {
+                throw new NotFoundException(`Producto independiente con ID ${id} no encontrado`);
+            }
+
+            this.ensureCanAccessStandaloneProduct(
+                standaloneProduct,
                 userId,
+                userRole,
+                AccessDeniedReason.STANDALONE_PRODUCT_MANAGE_FORBIDDEN,
+                'You are not allowed to update this standalone product.',
             );
-        }
+
+            if (file) {
+                const previousFiles = await this.filesService.findFilesForEntity(id);
+                await this.filesService.deleteFilesForResource(previousFiles);
+
+                await this.filesService.uploadFile(
+                    file,
+                    id,
+                    EntityType.STANDALONE_PRODUCT,
+                    FilePurpose.GENERIC,
+                    userId,
+                    userRole,
+                );
+            }
 
             const updatedStandaloneProduct = await this.standaloneProductModel.findByIdAndUpdate(
                 id,
@@ -128,7 +206,7 @@ export class StandaloneProductsService {
 
             return {id, message: 'Producto independiente actualizado correctamente'};
         } catch (err: any) {
-            if (err instanceof NotFoundException) {
+            if (err instanceof NotFoundException || err instanceof ForbiddenException) {
                 throw err;
             }
             throw new BadRequestException(
@@ -137,7 +215,7 @@ export class StandaloneProductsService {
         }
     }
 
-    async remove(id: string){
+    async remove(id: string, actorId: string, actorRole: UserRole){
         try{
             const standaloneProduct = await this.standaloneProductModel.findById(id).exec();
 
@@ -145,14 +223,22 @@ export class StandaloneProductsService {
                 throw new NotFoundException(`Producto independiente con ID ${id} no encontrado`);
             }
 
+            this.ensureCanAccessStandaloneProduct(
+                standaloneProduct,
+                actorId,
+                actorRole,
+                AccessDeniedReason.STANDALONE_PRODUCT_MANAGE_FORBIDDEN,
+                'You are not allowed to delete this standalone product.',
+            );
+
             const files = await this.filesService.findFilesForEntity(id);
-            await this.filesService.deleteFiles(files);
+            await this.filesService.deleteFilesForResource(files);
 
             await this.standaloneProductModel.findByIdAndDelete(id);
 
             return {id, message: 'Producto independiente eliminado correctamente'};
         } catch (err: any) {
-            if (err instanceof NotFoundException) {
+            if (err instanceof NotFoundException || err instanceof ForbiddenException) {
                 throw err;
             }
             throw new BadRequestException(

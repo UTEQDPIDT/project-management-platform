@@ -19,10 +19,12 @@ import {
 import { ActivitiesService } from './activities.service';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
+import { UserRole } from '@repo/types';
 
 type AuthenticatedRequest = Request & {
   user: {
     id: string;
+    role: UserRole;
   };
 };
 
@@ -41,7 +43,11 @@ export class ActivitiesController {
     @Body() createActivityDto: CreateActivityDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.activitiesService.create(createActivityDto, req.user.id);
+    return this.activitiesService.create(
+      createActivityDto,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiAcceptedResponse({
@@ -85,7 +91,12 @@ export class ActivitiesController {
     @Body() updateActivityDto: UpdateActivityDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.activitiesService.update(id, updateActivityDto, req.user.id);
+    return this.activitiesService.update(
+      id,
+      updateActivityDto,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiAcceptedResponse({
@@ -99,7 +110,12 @@ export class ActivitiesController {
     @Body('userId') userId: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    await this.activitiesService.addAssignee(id, userId, req.user.id);
+    await this.activitiesService.addAssignee(
+      id,
+      userId,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiAcceptedResponse({
@@ -113,13 +129,18 @@ export class ActivitiesController {
     @Body('userId') userId: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    await this.activitiesService.removeAssignee(id, userId, req.user.id);
+    await this.activitiesService.removeAssignee(
+      id,
+      userId,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiAcceptedResponse({ description: 'Actividad eliminada correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontro la actividad.' })
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.activitiesService.remove(id);
+  remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.activitiesService.remove(id, req.user.id, req.user.role);
   }
 }

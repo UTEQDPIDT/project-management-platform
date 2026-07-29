@@ -19,19 +19,145 @@ import {
   ProjectStatus,
   ProjectValidation,
   Status,
+  UserRole,
 } from '@repo/types';
 import { ProjectsService } from '../projects/projects.service';
 import { Project } from '../schemas/project.schema';
+import { Event } from '../schemas/event.schema';
+import { AccessDeniedException } from '../common/security/access-denied.exception';
+import { AccessDeniedReason } from '../common/security/access-denied-reason.enum';
+import { hasProjectCollaborationAccess } from '../common/security/project-collaboration.helper';
 
 @Injectable()
 export class ActivitiesService {
   constructor(
     @InjectModel(Activity.name) private activityModel: Model<Activity>,
     @InjectModel(Project.name) private projectModel: Model<Project>,
+    @InjectModel(Event.name) private eventModel: Model<Event>,
     private readonly filesService: FilesService,
     @Inject(forwardRef(() => ProjectsService))
     private readonly projectsService: ProjectsService,
   ) {}
+
+  private toId(value: unknown): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (typeof (value as { toString?: () => string }).toString === 'function') {
+      return (value as { toString: () => string }).toString();
+    }
+
+    return null;
+  }
+
+  private async ensureCanDeleteActivity(
+    activity: Activity,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    if (actorRole === UserRole.ADMIN) {
+      return;
+    }
+
+    if (activity.entityType === EntityType.PROJECT) {
+      const project = await this.projectModel
+        .findById(activity.entityId)
+        .select('owner team')
+        .populate({ path: 'team', select: 'memberships' });
+
+      if (!project) {
+        throw new NotFoundException(
+          `Project with ID: ${activity.entityId.toString()} not found`,
+        );
+      }
+
+      const createdById = this.toId(activity.createdBy);
+      const isCreator = createdById === actorId;
+
+      if (
+        !isCreator &&
+        !hasProjectCollaborationAccess(project, actorId, actorRole, (value) =>
+          this.toId(value),
+        )
+      ) {
+        throw new AccessDeniedException({
+          reason: AccessDeniedReason.ACTIVITY_PROJECT_ACCESS_FORBIDDEN,
+          message: 'You are not allowed to delete activities from this project.',
+          resourceType: 'activity',
+          resourceId: activity._id.toString(),
+          actorId,
+          actorRole,
+        });
+      }
+
+      return;
+    }
+
+    if (activity.entityType === EntityType.EVENT) {
+      const event = await this.eventModel.findById(activity.entityId).select('createdBy');
+
+      if (!event) {
+        throw new NotFoundException(
+          `Event with ID: ${activity.entityId.toString()} not found`,
+        );
+      }
+
+      const eventOwnerId = this.toId(event.createdBy);
+
+      if (!eventOwnerId) {
+        throw new AccessDeniedException({
+          reason: AccessDeniedReason.EVENT_OWNER_MISSING,
+          message: 'Event owner is not defined.',
+          resourceType: 'event',
+          resourceId: activity.entityId.toString(),
+          actorId,
+          actorRole,
+        });
+      }
+
+      if (eventOwnerId !== actorId) {
+        throw new AccessDeniedException({
+          reason: AccessDeniedReason.ACTIVITY_DELETE_EVENT_NOT_OWNER,
+          message: 'You are not allowed to delete activities from this event.',
+          resourceType: 'activity',
+          resourceId: activity._id.toString(),
+          actorId,
+          actorRole,
+        });
+      }
+
+      return;
+    }
+
+    const createdById = this.toId(activity.createdBy);
+
+    if (!createdById) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.ACTIVITY_OWNER_MISSING,
+        message: 'Activity owner is not defined.',
+        resourceType: 'activity',
+        resourceId: activity._id.toString(),
+        actorId,
+        actorRole,
+      });
+    }
+
+    if (createdById !== actorId) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.ACTIVITY_DELETE_NOT_OWNER,
+        message: 'You are not allowed to delete this activity.',
+        resourceType: 'activity',
+        resourceId: activity._id.toString(),
+        actorId,
+        actorRole,
+      });
+    }
+  }
 
   private async ensureProjectIsWritable(projectId: string) {
     const project = await this.projectModel.findById(projectId).select('status validationStatus');
@@ -48,13 +174,55 @@ export class ActivitiesService {
     }
   }
 
+  private async ensureCanManageProjectActivities(
+    projectId: string,
+    actorId: string,
+    actorRole: UserRole,
+    resourceId: string,
+  ) {
+    const project = await this.projectModel
+      .findById(projectId)
+      .select('owner team status validationStatus')
+      .populate({ path: 'team', select: 'memberships' });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${projectId} not found`);
+    }
+
+    if (
+      project.status === ProjectStatus.CLOSED ||
+      project.validationStatus === ProjectValidation.FINAL_VALIDATION
+    ) {
+      throw new ForbiddenException('Cannot create activities for a closed project.');
+    }
+
+    if (hasProjectCollaborationAccess(project, actorId, actorRole, (value) => this.toId(value))) {
+      return;
+    }
+
+    throw new AccessDeniedException({
+      reason: AccessDeniedReason.ACTIVITY_PROJECT_ACCESS_FORBIDDEN,
+      message: 'You are not allowed to manage activities for this project.',
+      resourceType: 'activity',
+      resourceId,
+      actorId,
+      actorRole,
+    });
+  }
+
   async create(
     createActivityDto: CreateActivityDto,
     userId: string,
+    userRole: UserRole,
   ): Promise<Activity> {
     try {
       if (createActivityDto.entityType === EntityType.PROJECT) {
-        await this.ensureProjectIsWritable(createActivityDto.entityId.toString());
+        await this.ensureCanManageProjectActivities(
+          createActivityDto.entityId.toString(),
+          userId,
+          userRole,
+          createActivityDto.entityId.toString(),
+        );
       }
 
       const createdActivity = new this.activityModel({
@@ -135,6 +303,7 @@ export class ActivitiesService {
     id: string,
     updateActivityDto: UpdateActivityDto,
     userId: string,
+    userRole: UserRole,
   ) {
     const activity = await this.activityModel.findById(id);
 
@@ -143,7 +312,19 @@ export class ActivitiesService {
     }
 
     if (activity.entityType === EntityType.PROJECT) {
-      await this.ensureProjectIsWritable(activity.entityId.toString());
+      const createdById = this.toId(activity.createdBy);
+      const isCreator = createdById === userId;
+
+      if (!isCreator) {
+        await this.ensureCanManageProjectActivities(
+          activity.entityId.toString(),
+          userId,
+          userRole,
+          id,
+        );
+      } else {
+        await this.ensureProjectIsWritable(activity.entityId.toString());
+      }
     }
 // Check if the status is being updated to COMPLETED and if it was not already COMPLETED
     const isTransitionToCompleted =
@@ -172,7 +353,12 @@ export class ActivitiesService {
     return updatedActivity;
   }
 
-  async addAssignee(activityId: string, userId: string, updaterId: string) {
+  async addAssignee(
+    activityId: string,
+    userId: string,
+    updaterId: string,
+    updaterRole: UserRole,
+  ) {
     try {
       const activity = await this.activityModel.findById(activityId);
 
@@ -181,7 +367,12 @@ export class ActivitiesService {
       }
 
       if (activity.entityType === EntityType.PROJECT) {
-        await this.ensureProjectIsWritable(activity.entityId.toString());
+        await this.ensureCanManageProjectActivities(
+          activity.entityId.toString(),
+          updaterId,
+          updaterRole,
+          activityId,
+        );
       }
 
       await this.activityModel.findByIdAndUpdate(
@@ -196,7 +387,12 @@ export class ActivitiesService {
     }
   }
 
-  async removeAssignee(activityId: string, userId: string, updaterId: string) {
+  async removeAssignee(
+    activityId: string,
+    userId: string,
+    updaterId: string,
+    updaterRole: UserRole,
+  ) {
     try {
       const activity = await this.activityModel.findById(activityId);
 
@@ -205,7 +401,12 @@ export class ActivitiesService {
       }
 
       if (activity.entityType === EntityType.PROJECT) {
-        await this.ensureProjectIsWritable(activity.entityId.toString());
+        await this.ensureCanManageProjectActivities(
+          activity.entityId.toString(),
+          updaterId,
+          updaterRole,
+          activityId,
+        );
       }
 
       await this.activityModel.findByIdAndUpdate(
@@ -220,12 +421,18 @@ export class ActivitiesService {
     }
   }
 
-  async remove(id: string): Promise<{ id: string; message: string }> {
+  async remove(
+    id: string,
+    actorId: string,
+    actorRole: UserRole,
+  ): Promise<{ id: string; message: string }> {
     const activity = await this.activityModel.findById(id);
 
     if (!activity) {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
     }
+
+    await this.ensureCanDeleteActivity(activity, actorId, actorRole);
 
     if (activity.entityType === EntityType.PROJECT) {
       await this.ensureProjectIsWritable(activity.entityId.toString());
@@ -248,7 +455,7 @@ export class ActivitiesService {
       }
     }
 
-    await this.filesService.deleteFiles(files);
+    await this.filesService.deleteFilesForResource(files);
 
     await this.activityModel.findByIdAndDelete(id);
 
@@ -272,7 +479,7 @@ export class ActivitiesService {
 
     const files = filesPerActivity.flat();
 
-    await this.filesService.deleteFiles(files);
+    await this.filesService.deleteFilesForResource(files);
 
     await this.activityModel.deleteMany({ entityId }, { session });
   }

@@ -21,11 +21,12 @@ import {
   ApiBadRequestResponse,
   ApiForbiddenResponse,
 } from '@nestjs/swagger';
+import { UserRole } from '@repo/types';
 
 type AuthenticatedRequest = {
   user: {
     id: string;
-    role: string;
+    role: UserRole;
   };
 };
 
@@ -49,8 +50,8 @@ export class ProjectsController {
     type: [CreateProjectDto],
   })
   @Get()
-  findAll() {
-    return this.projectsService.findAll();
+  findAll(@Req() req: AuthenticatedRequest) {
+    return this.projectsService.findAll(req.user.id, req.user.role);
   }
 
   @ApiAcceptedResponse({ description: 'Proyectos encontrados por dueño.' })
@@ -65,8 +66,8 @@ export class ProjectsController {
     description: 'No hay proyectos con el ID del equipo proporcionado.',
   })
   @Get('/by-team/:teamId')
-  findByTeam(@Param('teamId') teamId: string) {
-    return this.projectsService.findByTeam(teamId);
+  findByTeam(@Param('teamId') teamId: string, @Req() req: AuthenticatedRequest) {
+    return this.projectsService.findByTeam(teamId, req.user.id, req.user.role);
   }
 
   @ApiAcceptedResponse({
@@ -75,8 +76,8 @@ export class ProjectsController {
   })
   @ApiNotFoundResponse({ description: 'No se encontro el proyecto.' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.projectsService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.projectsService.findOne(id, req.user.id, req.user.role);
   }
 
   @ApiAcceptedResponse({
@@ -91,14 +92,19 @@ export class ProjectsController {
     @Body() updateProjectDto: UpdateProjectDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.projectsService.update(id, updateProjectDto, req.user.id);
+    return this.projectsService.update(
+      id,
+      updateProjectDto,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiAcceptedResponse({ description: 'Proyecto eliminado correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontro el proyecto.' })
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.projectsService.remove(id);
+  remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.projectsService.remove(id, req.user.id, req.user.role);
   }
 
   // =========================================================================

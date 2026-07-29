@@ -21,11 +21,12 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { UserRole } from '@repo/types';
 
 type AuthenticatedRequest = {
   user: {
     id: string;
-    role: string;
+    role: UserRole;
   };
 };
 
@@ -47,8 +48,17 @@ export class TeamsController {
     description: 'No se encontró el usuario para agregar como colaborador.',
   })
   @Post(':id/collaborators')
-  addCollaborator(@Param('id') id: string, @Body('userIds') userIds: string[]) {
-    return this.teamsService.addCollaborators(id, userIds);
+  addCollaborator(
+    @Param('id') id: string,
+    @Body('userIds') userIds: string[],
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.teamsService.addCollaboratorsAsActor(
+      id,
+      userIds,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiCreatedResponse({
@@ -58,8 +68,17 @@ export class TeamsController {
     description: 'No se encontró el usuario para agregar como miembro.',
   })
   @Post(':id/members')
-  addMember(@Param('id') id: string, @Body('userIds') userIds: string[]) {
-    return this.teamsService.addMembers(id, userIds);
+  addMember(
+    @Param('id') id: string,
+    @Body('userIds') userIds: string[],
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.teamsService.addMembersAsActor(
+      id,
+      userIds,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiCreatedResponse({
@@ -78,8 +97,12 @@ export class TeamsController {
     description: 'No se encontró la solicitud.',
   })
   @Post(':id/requests/accept')
-  acceptRequest(@Param('id') id: string, @Body('userId') userId: string) {
-    return this.teamsService.acceptRequest(id, userId);
+  acceptRequest(
+    @Param('id') id: string,
+    @Body('userId') userId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.teamsService.acceptRequest(id, userId, req.user.id, req.user.role);
   }
 
   @ApiCreatedResponse({ description: 'Solicitud rechazada correctamente.' })
@@ -87,8 +110,12 @@ export class TeamsController {
     description: 'No se encontró la solicitud.',
   })
   @Delete(':id/requests/:userId')
-  rejectRequest(@Param('id') id: string, @Param('userId') userId: string) {
-    return this.teamsService.rejectRequest(id, userId);
+  rejectRequest(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.teamsService.rejectRequest(id, userId, req.user.id, req.user.role);
   }
 
   @ApiOkResponse({ description: 'Lista de equipos obtenida correctamente.' })
@@ -98,7 +125,11 @@ export class TeamsController {
     @Query('isPrivate', new ParseBoolPipe({ optional: true }))
     isPrivate?: boolean,
   ) {
-    return this.teamsService.findAll({ userId: req.user.id, isPrivate });
+    return this.teamsService.findAll({
+      userId: req.user.id,
+      userRole: req.user.role,
+      isPrivate,
+    });
   }
 
   @ApiOkResponse({ description: 'Lista de equipos obtenida correctamente.' })
@@ -111,8 +142,8 @@ export class TeamsController {
   @ApiOkResponse({ description: 'Equipo obtenido correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontró el equipo.' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.teamsService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.teamsService.findOne(id, req.user.id, req.user.role);
   }
 
   @ApiOkResponse({ description: 'Datos del equipo actualizado correctamente.' })
@@ -138,8 +169,17 @@ export class TeamsController {
     description: 'No se encontró el colaborador en el equipo.',
   })
   @Delete(':id/collaborators/:userId')
-  removeCollaborator(@Param('id') id: string, @Param('userId') userId: string) {
-    return this.teamsService.removeCollaborator(id, userId);
+  removeCollaborator(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.teamsService.removeCollaborator(
+      id,
+      userId,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiOkResponse({ description: 'Miembro eliminado correctamente del equipo.' })
@@ -147,14 +187,18 @@ export class TeamsController {
     description: 'No se encontró el miembro en el equipo.',
   })
   @Delete(':id/members/:userId')
-  removeMember(@Param('id') id: string, @Param('userId') userId: string) {
-    return this.teamsService.removeMember(id, userId);
+  removeMember(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.teamsService.removeMember(id, userId, req.user.id, req.user.role);
   }
 
   @ApiOkResponse({ description: 'Equipo eliminado correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontró el equipo.' })
   @Delete(':id')
-  deleteTeam(@Param('id') id: string) {
-    return this.teamsService.deleteTeam(id);
+  deleteTeam(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.teamsService.deleteTeam(id, req.user.id, req.user.role);
   }
 }
