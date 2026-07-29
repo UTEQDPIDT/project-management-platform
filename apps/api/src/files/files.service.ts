@@ -123,9 +123,14 @@ export class FilesService {
     }
 
     if (normalizedEntityType === EntityType.ACTIVITY) {
-      const activity = await this.activityModel
-        .findById(entityId)
-        .select('entityType entityId');
+      const activityLookup = this.activityModel.findById(entityId) as
+        | { select?: (projection: string) => Promise<{ entityType?: unknown; entityId?: unknown } | null> }
+        | null
+        | undefined;
+
+      const activity = activityLookup?.select
+        ? await activityLookup.select('entityType entityId')
+        : null;
 
       if (!activity) {
         throw new NotFoundException(`Activity with ID: ${entityId} not found`);
@@ -150,7 +155,14 @@ export class FilesService {
     }
 
     if (normalizedEntityType === EntityType.PRODUCT) {
-      const product = await this.productModel.findById(entityId).select('projectId');
+      const productLookup = this.productModel.findById(entityId) as
+        | { select?: (projection: string) => Promise<{ projectId?: unknown } | null> }
+        | null
+        | undefined;
+
+      const product = productLookup?.select
+        ? await productLookup.select('projectId')
+        : null;
 
       if (!product) {
         throw new NotFoundException(`Product with ID: ${entityId} not found`);
@@ -164,6 +176,35 @@ export class FilesService {
       }
 
       return projectId;
+    }
+
+    // Legacy fallback: some historical file records may contain a non-standard
+    // entityType while entityId still points to an activity tied to a project.
+    const activityLookup = this.activityModel.findById(entityId) as
+      | { select?: (projection: string) => Promise<{ entityType?: unknown; entityId?: unknown } | null> }
+      | null
+      | undefined;
+
+    const maybeActivity = activityLookup?.select
+      ? await activityLookup.select('entityType entityId')
+      : null;
+
+    if (maybeActivity) {
+      const activityEntityType = this.normalizeEntityType(
+        maybeActivity.entityType as EntityType | string,
+      );
+
+      if (activityEntityType === EntityType.PROJECT) {
+        const projectId = this.toId(maybeActivity.entityId);
+
+        if (!projectId) {
+          throw new BadRequestException(
+            `Activity with ID: ${entityId} has invalid project reference`,
+          );
+        }
+
+        return projectId;
+      }
     }
 
     return null;

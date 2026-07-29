@@ -418,6 +418,7 @@ export function ActivityCard({
                 onDelete={handleDelete}
                 onDownload={handleDownload}
                 allowDelete={!isReadOnly}
+                deleteMode="backend"
                 className="max-h-[45dvh] overflow-y-auto scroll-smooth pr-2 lg:max-h-[40dvh]"
               >
                 {files.length ? (

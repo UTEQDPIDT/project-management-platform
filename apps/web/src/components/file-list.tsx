@@ -39,6 +39,7 @@ type FileContextValue = {
   currentUser: IUser;
   isAdmin: boolean;
   allowDelete: boolean;
+  deleteMode: 'ownerOrAdmin' | 'backend';
 };
 
 const FileContext = createContext<FileContextValue | null>(null);
@@ -54,6 +55,7 @@ type FileListProps = PropsWithChildren & {
   onDownload?: (fileId: string) => void;
   isAdmin?: boolean;
   allowDelete?: boolean;
+  deleteMode?: 'ownerOrAdmin' | 'backend';
   className?: string;
   files?: IFile[];
 };
@@ -63,6 +65,7 @@ export default function FileList({
   className,
   isAdmin,
   allowDelete = true,
+  deleteMode = 'ownerOrAdmin',
   files,
   ...handlers
 }: FileListProps) {
@@ -75,6 +78,7 @@ export default function FileList({
         currentUser,
         isAdmin: currentUser?.role === UserRole.ADMIN,
         allowDelete,
+        deleteMode,
       }}
     >
       <ul className={cn('space-y-2', className)}>{children}</ul>
@@ -127,7 +131,7 @@ FileList.Item = function FileListItem({
 };
 
 FileList.Actions = function FileActions({ file }: { file: IFile }) {
-  const { onDelete, onDownload, currentUser, isAdmin, allowDelete } =
+  const { onDelete, onDownload, currentUser, isAdmin, allowDelete, deleteMode } =
     useFileContext();
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null);
@@ -136,7 +140,8 @@ FileList.Actions = function FileActions({ file }: { file: IFile }) {
 
   const canDelete: boolean =
     allowDelete &&
-    (isAdmin ||
+    (deleteMode === 'backend' ||
+      isAdmin ||
       (currentUser && file.owner && currentUser._id === file.owner._id));
   const isPdf = file.mimetype === 'application/pdf';
   const isImage = file.mimetype?.startsWith('image/');
