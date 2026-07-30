@@ -48,6 +48,24 @@ export class AuthController {
     private readonly recaptchaService: RecaptchaService,
   ) {}
 
+  private useSecureCookies(): boolean {
+    const configuredValue = this.configService.get<string>(
+      'COOKIE_SECURE',
+      'false',
+    );
+
+    return /^(true|1|yes)$/i.test(configuredValue);
+  }
+
+  private buildAuthCookieOptions(maxAge: number) {
+    return {
+      httpOnly: true,
+      secure: this.useSecureCookies(),
+      sameSite: 'lax' as const,
+      maxAge,
+    };
+  }
+
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   refreshToken(@Req() req: AuthenticatedRequest) {
@@ -76,19 +94,17 @@ export class AuthController {
         req.user.role,
       );
 
-      res.cookie('accessToken', response.accessToken, {
-        httpOnly: true,
-        secure: false, // Only send cookies over HTTPS in production
-        sameSite: 'lax',
-        maxAge: 8 * 60 * 60 * 1000, // 8h
-      });
+      res.cookie(
+        'accessToken',
+        response.accessToken,
+        this.buildAuthCookieOptions(8 * 60 * 60 * 1000),
+      );
 
-      res.cookie('refreshToken', response.refreshToken, {
-        httpOnly: true,
-        secure: false, // Only send cookies over HTTPS in production
-        sameSite: 'lax',
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
-      });
+      res.cookie(
+        'refreshToken',
+        response.refreshToken,
+        this.buildAuthCookieOptions(1000 * 60 * 60 * 24 * 7),
+      );
 
       if (req.user.role == 'ADMIN') {
         res.redirect(`${process.env.FRONTEND_URL}/admin/inicio`);
@@ -117,19 +133,17 @@ export class AuthController {
         user.role,
       );
 
-      res.cookie('accessToken', response.accessToken, {
-        httpOnly: true,
-        secure: false, // Only send cookies over HTTPS in production
-        sameSite: 'lax',
-        maxAge: 8 * 60 * 60 * 1000, // 8h
-      });
+      res.cookie(
+        'accessToken',
+        response.accessToken,
+        this.buildAuthCookieOptions(8 * 60 * 60 * 1000),
+      );
 
-      res.cookie('refreshToken', response.refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
-      });
+      res.cookie(
+        'refreshToken',
+        response.refreshToken,
+        this.buildAuthCookieOptions(1000 * 60 * 60 * 24 * 7),
+      );
 
       const redirectPath =
         user.role === UserRole.ADMIN ? '/admin/inicio' : '/user/inicio';
@@ -156,19 +170,17 @@ export class AuthController {
       user.role,
     );
 
-    res.cookie('accessToken', response.accessToken, {
-      httpOnly: true,
-      secure: false, // Only send cookies over HTTPS in production
-      sameSite: 'lax',
-      maxAge: 8 * 60 * 60 * 1000, // 8h
-    });
+    res.cookie(
+      'accessToken',
+      response.accessToken,
+      this.buildAuthCookieOptions(8 * 60 * 60 * 1000),
+    );
 
-    res.cookie('refreshToken', response.refreshToken, {
-      httpOnly: true,
-      secure: false, // Only send cookies over HTTPS in production
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
-    });
+    res.cookie(
+      'refreshToken',
+      response.refreshToken,
+      this.buildAuthCookieOptions(1000 * 60 * 60 * 24 * 7),
+    );
 
     const redirectPath =
       user.role === UserRole.ADMIN ? '/admin/inicio' : '/user/inicio';
@@ -241,8 +253,13 @@ export class AuthController {
     if (req.user?.id) {
       await this.authService.signOut(req.user.id);
     }
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    const clearOptions = {
+      httpOnly: true,
+      secure: this.useSecureCookies(),
+      sameSite: 'lax' as const,
+    };
+    res.clearCookie('accessToken', clearOptions);
+    res.clearCookie('refreshToken', clearOptions);
     return res.status(200).json({ message: 'Logged out successfully' });
   }
 }

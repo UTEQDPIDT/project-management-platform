@@ -187,6 +187,69 @@ export class ActivitiesService {
     });
   }
 
+  private async ensureCanViewActivity(
+    activity: Activity,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    if (actorRole === UserRole.ADMIN) {
+      return;
+    }
+
+    if (activity.entityType === EntityType.PROJECT) {
+      const project = await this.projectModel
+        .findById(activity.entityId)
+        .select('owner team')
+        .populate({ path: 'team', select: 'memberships' });
+
+      if (!project) {
+        throw new NotFoundException(
+          `Project with ID: ${activity.entityId.toString()} not found`,
+        );
+      }
+
+      if (hasProjectCollaborationAccess(project, actorId, actorRole, (value) => this.toId(value))) {
+        return;
+      }
+    }
+
+    if (activity.entityType === EntityType.EVENT) {
+      const event = await this.eventModel
+        .findById(activity.entityId)
+        .select('createdBy isPrivate participants');
+
+      if (!event) {
+        throw new NotFoundException(
+          `Event with ID: ${activity.entityId.toString()} not found`,
+        );
+      }
+
+      const eventOwnerId = this.toId(event.createdBy);
+      const isParticipant = Array.isArray(event.participants)
+        ? event.participants.some((participant) => this.toId(participant) === actorId)
+        : false;
+
+      if (!event.isPrivate || eventOwnerId === actorId || isParticipant) {
+        return;
+      }
+    }
+
+    const createdById = this.toId(activity.createdBy);
+
+    if (createdById === actorId) {
+      return;
+    }
+
+    throw new AccessDeniedException({
+      reason: AccessDeniedReason.ACTIVITY_VIEW_FORBIDDEN,
+      message: 'You are not allowed to view this activity.',
+      resourceType: 'activity',
+      resourceId: activity._id.toString(),
+      actorId,
+      actorRole,
+    });
+  }
+
   async create(
     createActivityDto: CreateActivityDto,
     userId: string,
@@ -247,6 +310,22 @@ export class ActivitiesService {
     return this.activityModel.find().exec();
   }
 
+  async findAllVisibleTo(actorId: string, actorRole: UserRole): Promise<Activity[]> {
+    const activities = await this.activityModel.find().exec();
+    const visibleActivities = await Promise.all(
+      activities.map(async (activity) => {
+        try {
+          await this.ensureCanViewActivity(activity, actorId, actorRole);
+          return activity;
+        } catch {
+          return null;
+        }
+      }),
+    );
+
+    return visibleActivities.filter(Boolean) as Activity[];
+  }
+
   async findByEntityId(entityId: string): Promise<Activity[]> {
     const activities = await this.activityModel
       .find({ entityId })
@@ -256,11 +335,43 @@ export class ActivitiesService {
     return activities;
   }
 
+  async findByEntityIdVisibleTo(
+    entityId: string,
+    actorId: string,
+    actorRole: UserRole,
+  ): Promise<Activity[]> {
+    const activities = await this.findByEntityId(entityId);
+    const visibleActivities = await Promise.all(
+      activities.map(async (activity) => {
+        try {
+          await this.ensureCanViewActivity(activity, actorId, actorRole);
+          return activity;
+        } catch {
+          return null;
+        }
+      }),
+    );
+
+    return visibleActivities.filter(Boolean) as Activity[];
+  }
+
   async findOne(id: string): Promise<Activity> {
     const activity = await this.activityModel.findById(id).exec();
     if (!activity) {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
     }
+    return activity;
+  }
+
+  async findOneVisibleTo(
+    id: string,
+    actorId: string,
+    actorRole: UserRole,
+  ): Promise<Activity> {
+    const activity = await this.findOne(id);
+
+    await this.ensureCanViewActivity(activity, actorId, actorRole);
+
     return activity;
   }
 // This method checks if an activity has at least one evidence file before allowing it to be marked as completed.

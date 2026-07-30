@@ -39,6 +39,15 @@ type AuthenticatedRequest = {
   };
 };
 
+function sanitizeDownloadFilename(filename: string): string {
+  const sanitized = filename
+    .replace(/[\r\n"]/g, '')
+    .replace(/[\\/]/g, '-')
+    .trim();
+
+  return sanitized || 'download';
+}
+
 @ApiTags('files')
 @Controller('files')
 export class FilesController {
@@ -113,8 +122,8 @@ export class FilesController {
   @ApiOkResponse({ description: 'Lista de archivos' })
   @ApiResponse({ status: 500, description: 'Error en el servidor' })
   @Get()
-  findAll() {
-    return this.filesService.findAll();
+  findAll(@Req() req: AuthenticatedRequest) {
+    return this.filesService.findAllVisibleTo(req.user.id, req.user.role);
   }
 
   @ApiOkResponse({
@@ -122,23 +131,42 @@ export class FilesController {
   })
   @ApiResponse({ status: 500, description: 'Error en el servidor' })
   @Get('/for-entity/:entityId')
-  findFilesForEntity(@Param('entityId') entityId: string) {
-    return this.filesService.findFilesForEntity(entityId);
+  findFilesForEntity(
+    @Param('entityId') entityId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.filesService.findFilesForEntityVisibleTo(
+      entityId,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiOkResponse({ description: 'Metadatos del archivo' })
   @ApiNotFoundResponse({ description: 'Metadatos no encontrados' })
   @Get('metadata/:id')
-  getFileMetadata(@Param('id') id: string) {
-    return this.filesService.getFileMetadata(id);
+  getFileMetadata(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.filesService.getFileMetadataForActor(
+      id,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @Throttle({ default: { limit: 5, ttl: 60 } })
   @ApiOkResponse({ description: 'Stream del archivo' })
   @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
   @Get('stream/:id')
-  async getFile(@Param('id') id: string, @Res() res: Response) {
-    const { stream } = await this.filesService.getStream(id);
+  async getFile(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
+  ) {
+    const { stream } = await this.filesService.getStreamForActor(
+      id,
+      req.user.id,
+      req.user.role,
+    );
 
     stream.on('error', () => res.status(404).send('File not found'));
 
@@ -148,13 +176,23 @@ export class FilesController {
   @ApiOkResponse({ description: 'Descarga del archivo' })
   @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
   @Get('download/:id')
-  async downloadFile(@Param('id') id: string, @Res() res: Response) {
+  async downloadFile(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
+  ) {
     try {
-      const { metadata, stream } = await this.filesService.getStream(id);
+      const { metadata, stream } = await this.filesService.getStreamForActor(
+        id,
+        req.user.id,
+        req.user.role,
+      );
+
+      const safeFilename = sanitizeDownloadFilename(metadata.originalName);
 
       res.set({
         'Content-Type': metadata.mimetype || 'application/octet-stream',
-        'Content-Disposition': `attachment; filename="${metadata.originalName}"`,
+        'Content-Disposition': `attachment; filename="${safeFilename}"`,
         'Content-Length': metadata.size.toString(),
       });
 

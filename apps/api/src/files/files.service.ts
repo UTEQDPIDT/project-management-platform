@@ -20,9 +20,11 @@ import {
 import { Project } from '../schemas/project.schema';
 import { Activity } from '../schemas/activities.schema';
 import { Product } from '../schemas/product.schema';
+import { Event } from '../schemas/event.schema';
 import { AccessDeniedException } from '../common/security/access-denied.exception';
 import { AccessDeniedReason } from '../common/security/access-denied-reason.enum';
 import { hasProjectCollaborationAccess } from '../common/security/project-collaboration.helper';
+import { StandaloneProduct } from '../schemas/standalone-product.schema';
 
 @Injectable()
 export class FilesService {
@@ -34,6 +36,9 @@ export class FilesService {
     @InjectModel(Project.name) private readonly projectModel: Model<Project>,
     @InjectModel(Activity.name) private readonly activityModel: Model<Activity>,
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
+    @InjectModel(Event.name) private readonly eventModel: Model<Event>,
+    @InjectModel(StandaloneProduct.name)
+    private readonly standaloneProductModel: Model<StandaloneProduct>,
   ) {
     this.bucket = new mongo.GridFSBucket(this.connection.db, {
       bucketName: 'uploads',
@@ -262,6 +267,131 @@ export class FilesService {
     );
   }
 
+  private async ensureCanReadEventFile(
+    eventId: string,
+    actorId: string,
+    actorRole: UserRole,
+    resourceId: string,
+  ) {
+    const event = await this.eventModel
+      .findById(eventId)
+      .select('createdBy isPrivate participants');
+
+    if (!event) {
+      throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
+
+    const ownerId = this.toId(event.createdBy);
+    const isParticipant = Array.isArray(event.participants)
+      ? event.participants.some((participant) => this.toId(participant) === actorId)
+      : false;
+
+    if (
+      actorRole === UserRole.ADMIN ||
+      !event.isPrivate ||
+      ownerId === actorId ||
+      isParticipant
+    ) {
+      return;
+    }
+
+    throw new AccessDeniedException({
+      reason: AccessDeniedReason.FILE_VIEW_FORBIDDEN,
+      message: 'You are not allowed to view this file.',
+      resourceType: 'file',
+      resourceId,
+      actorId,
+      actorRole,
+    });
+  }
+
+  private async ensureCanReadStandaloneProductFile(
+    productId: string,
+    actorId: string,
+    actorRole: UserRole,
+    resourceId: string,
+  ) {
+    const product = await this.standaloneProductModel.findById(productId).select('owner');
+
+    if (!product) {
+      throw new NotFoundException(
+        `Standalone product with ID: ${productId} not found`,
+      );
+    }
+
+    const ownerId = this.toId(product.owner);
+
+    if (actorRole === UserRole.ADMIN || ownerId === actorId) {
+      return;
+    }
+
+    throw new AccessDeniedException({
+      reason: AccessDeniedReason.STANDALONE_PRODUCT_VIEW_FORBIDDEN,
+      message: 'You are not allowed to view this file.',
+      resourceType: 'file',
+      resourceId,
+      actorId,
+      actorRole,
+    });
+  }
+
+  private async ensureCanReadFile(
+    file: File,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    if (actorRole === UserRole.ADMIN) {
+      return;
+    }
+
+    const ownerId = this.toId(file.owner);
+    if (ownerId === actorId) {
+      return;
+    }
+
+    if (
+      await this.hasParentProjectAccess(
+        file.entityId.toString(),
+        file.entityType,
+        actorId,
+        actorRole,
+      )
+    ) {
+      return;
+    }
+
+    const normalizedEntityType = this.normalizeEntityType(file.entityType);
+
+    if (normalizedEntityType === EntityType.EVENT) {
+      await this.ensureCanReadEventFile(
+        file.entityId.toString(),
+        actorId,
+        actorRole,
+        file._id.toString(),
+      );
+      return;
+    }
+
+    if (normalizedEntityType === EntityType.STANDALONE_PRODUCT) {
+      await this.ensureCanReadStandaloneProductFile(
+        file.entityId.toString(),
+        actorId,
+        actorRole,
+        file._id.toString(),
+      );
+      return;
+    }
+
+    throw new AccessDeniedException({
+      reason: AccessDeniedReason.FILE_VIEW_FORBIDDEN,
+      message: 'You are not allowed to view this file.',
+      resourceType: 'file',
+      resourceId: file._id.toString(),
+      actorId,
+      actorRole,
+    });
+  }
+
   async uploadFile(
     file: Express.Multer.File,
     entityId: string,
@@ -420,6 +550,22 @@ export class FilesService {
   async findAll(): Promise<File[]> {
     return this.fileModel.find().populate('owner').exec();
   }
+
+  async findAllVisibleTo(actorId: string, actorRole: UserRole): Promise<File[]> {
+    const files = await this.findAll();
+    const visibleFiles = await Promise.all(
+      files.map(async (file) => {
+        try {
+          await this.ensureCanReadFile(file, actorId, actorRole);
+          return file;
+        } catch {
+          return null;
+        }
+      }),
+    );
+
+    return visibleFiles.filter(Boolean) as File[];
+  }
   // This method checks if an activity has at least one evidence file before allowing it to be marked as completed.
   async activityHasEvidence(activityId: string): Promise<boolean> {
     const evidenceFiles = await this.fileModel.exists({
@@ -432,6 +578,26 @@ export class FilesService {
 
   async findFilesForEntity(entityId: string) {
     return this.fileModel.find({ entityId }).populate('owner').exec();
+  }
+
+  async findFilesForEntityVisibleTo(
+    entityId: string,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    const files = await this.findFilesForEntity(entityId);
+    const visibleFiles = await Promise.all(
+      files.map(async (file) => {
+        try {
+          await this.ensureCanReadFile(file, actorId, actorRole);
+          return file;
+        } catch {
+          return null;
+        }
+      }),
+    );
+
+    return visibleFiles.filter(Boolean) as File[];
   }
 
   async findFilesByOwner(userId: string) {
@@ -451,6 +617,19 @@ export class FilesService {
     };
   }
 
+  async getStreamForActor(id: string, actorId: string, actorRole: UserRole) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new NotFoundException('Invalid file ID');
+    }
+
+    const metadata = await this.getFileMetadataForActor(id, actorId, actorRole);
+
+    return {
+      metadata,
+      stream: await this.getFileStream(metadata.gridFsId.toHexString()),
+    };
+  }
+
   async getFileStream(
     id: string,
   ): Promise<mongoose.mongo.GridFSBucketReadStream> {
@@ -463,6 +642,18 @@ export class FilesService {
     if (!metadata) {
       throw new NotFoundException('File metadata not found');
     }
+
+    return metadata;
+  }
+
+  async getFileMetadataForActor(
+    id: string,
+    actorId: string,
+    actorRole: UserRole,
+  ): Promise<File> {
+    const metadata = await this.getFileMetadata(id);
+
+    await this.ensureCanReadFile(metadata, actorId, actorRole);
 
     return metadata;
   }

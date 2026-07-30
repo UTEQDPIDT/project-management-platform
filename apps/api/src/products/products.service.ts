@@ -100,6 +100,35 @@ export class ProductsService {
     });
   }
 
+  private async ensureCanViewProjectProduct(
+    projectId: string,
+    actorId: string,
+    actorRole: UserRole,
+    resourceId: string,
+  ) {
+    const project = await this.projectModel
+      .findById(projectId)
+      .select('owner team')
+      .populate({ path: 'team', select: 'memberships' });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${projectId} not found`);
+    }
+
+    if (hasProjectCollaborationAccess(project, actorId, actorRole, (value) => this.toId(value))) {
+      return;
+    }
+
+    throw new AccessDeniedException({
+      reason: AccessDeniedReason.PRODUCT_VIEW_FORBIDDEN,
+      message: 'You are not allowed to view this product.',
+      resourceType: 'product',
+      resourceId,
+      actorId,
+      actorRole,
+    });
+  }
+
   async create(
     createProductDto: CreateProductDto,
     file: Express.Multer.File,
@@ -154,6 +183,27 @@ export class ProductsService {
       .exec();
   }
 
+  async findAllVisibleTo(actorId: string, actorRole: UserRole) {
+    const products = await this.findAll();
+    const visibleProducts = await Promise.all(
+      products.map(async (product) => {
+        try {
+          await this.ensureCanViewProjectProduct(
+            product.projectId.toString(),
+            actorId,
+            actorRole,
+            product._id.toString(),
+          );
+          return product;
+        } catch {
+          return null;
+        }
+      }),
+    );
+
+    return visibleProducts.filter(Boolean) as Product[];
+  }
+
   async findByProject(projectId: string) {
     return await this.productModel
       .find({ projectId })
@@ -164,8 +214,18 @@ export class ProductsService {
       .exec();
   }
 
-  findOne(id: string) {
-    const product = this.productModel
+  async findByProjectVisibleTo(
+    projectId: string,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    await this.ensureCanViewProjectProduct(projectId, actorId, actorRole, projectId);
+
+    return this.findByProject(projectId);
+  }
+
+  async findOne(id: string) {
+    const product = await this.productModel
       .findById(id)
       .populate('category')
       .populate('subcategory')
@@ -178,8 +238,49 @@ export class ProductsService {
     return product;
   }
 
-  findByUser(userId: string) {
-    return this.productModel.find({ owner: userId });
+  async findOneVisibleTo(id: string, actorId: string, actorRole: UserRole) {
+    const product = await this.findOne(id);
+
+    await this.ensureCanViewProjectProduct(
+      product.projectId.toString(),
+      actorId,
+      actorRole,
+      id,
+    );
+
+    return product;
+  }
+
+  async findByUserVisibleTo(
+    userId: string,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    const products = await this.productModel
+      .find({ owner: userId })
+      .populate('category')
+      .populate('subcategory')
+      .populate('owner')
+      .populate('updatedBy')
+      .exec();
+
+    const visibleProducts = await Promise.all(
+      products.map(async (product) => {
+        try {
+          await this.ensureCanViewProjectProduct(
+            product.projectId.toString(),
+            actorId,
+            actorRole,
+            product._id.toString(),
+          );
+          return product;
+        } catch {
+          return null;
+        }
+      }),
+    );
+
+    return visibleProducts.filter(Boolean) as Product[];
   }
 
   async update(

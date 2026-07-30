@@ -71,16 +71,23 @@ export class ProductsController {
     type: [CreateProductDto],
   })
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Req() req: AuthenticatedRequest) {
+    return this.productsService.findAllVisibleTo(req.user.id, req.user.role);
   }
 
   @ApiAcceptedResponse({
     description: 'Lista de productos de un proyecto.',
   })
   @Get('/by-project/:projectId')
-  findByProject(@Param('projectId') projectId: string) {
-    return this.productsService.findByProject(projectId);
+  findByProject(
+    @Param('projectId') projectId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.productsService.findByProjectVisibleTo(
+      projectId,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiAcceptedResponse({
@@ -89,13 +96,17 @@ export class ProductsController {
   })
   @ApiNotFoundResponse({ description: 'No se encontro el producto.' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.productsService.findOneVisibleTo(id, req.user.id, req.user.role);
   }
 
   @Get('/by-user/:userId')
-  findByUser(@Param('userId') userId: string) {
-    return this.productsService.findByUser(userId);
+  findByUser(@Param('userId') userId: string, @Req() req: AuthenticatedRequest) {
+    return this.productsService.findByUserVisibleTo(
+      userId,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiConsumes('multipart/form-data')

@@ -69,8 +69,11 @@ export class StandaloneProductsController {
         type: [CreateStandaloneProductDto],
     })
     @Get()
-    findAll() {
-        return this.standaloneProductsService.findAll();
+    findAll(@Req() req: AuthenticatedRequest) {
+        return this.standaloneProductsService.findAllVisibleTo(
+            req.user.id,
+            req.user.role,
+        );
     }
 
     @ApiAcceptedResponse({
@@ -92,8 +95,12 @@ export class StandaloneProductsController {
         type: [CreateStandaloneProductDto],
     })
     @Get('/by-user/:userId')
-    findByUser(@Param('userId') userId: string) {
-        return this.standaloneProductsService.findByUser(userId);
+    findByUser(@Param('userId') userId: string, @Req() req: AuthenticatedRequest) {
+        return this.standaloneProductsService.findByUserVisibleTo(
+            userId,
+            req.user.id,
+            req.user.role,
+        );
     }
 
     @ApiConsumes('multipart/form-data')
