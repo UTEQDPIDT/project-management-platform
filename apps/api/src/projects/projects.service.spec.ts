@@ -1,19 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Project } from '../schemas/project.schema';
+import { User } from '../schemas/user.schema';
+import { Team } from '../schemas/team.schema';
 import { ProjectsService } from './projects.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { FilesService } from '../files/files.service';
 import { ProductsService } from '../products/products.service';
-import { ImpactLevel, ProjectStatus, Status } from '@repo/types';
+import { ImpactLevel, ProjectStatus, Status, UserRole } from '@repo/types';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
 
 describe('ProjectsService', () => {
   let service: ProjectsService;
 
   const projectModelMock = {
     create: jest.fn(),
+    find: jest.fn(),
     findById: jest.fn(),
     findByIdAndUpdate: jest.fn(),
   };
@@ -26,11 +34,20 @@ describe('ProjectsService', () => {
 
   const filesServiceMock = {
     findFilesForEntity: jest.fn(),
-    deleteFiles: jest.fn(),
+    deleteFilesForResource: jest.fn(),
   };
 
   const productsServiceMock = {
     deleteMany: jest.fn(),
+  };
+
+  const userModelMock = {
+    findById: jest.fn(),
+  };
+
+  const teamModelMock = {
+    find: jest.fn(),
+    exists: jest.fn(),
   };
 
   const sessionMock = {
@@ -52,6 +69,8 @@ describe('ProjectsService', () => {
         ProjectsService,
         { provide: getConnectionToken(), useValue: connectionMock },
         { provide: getModelToken(Project.name), useValue: projectModelMock },
+        { provide: getModelToken(User.name), useValue: userModelMock },
+        { provide: getModelToken(Team.name), useValue: teamModelMock },
         { provide: ActivitiesService, useValue: activitiesServiceMock },
         { provide: FilesService, useValue: filesServiceMock },
         { provide: ProductsService, useValue: productsServiceMock },
@@ -122,7 +141,10 @@ describe('ProjectsService', () => {
   });
 
   it('should set project status to PENDING when all activities are pending', async () => {
-    projectModelMock.findById.mockResolvedValue({ _id: 'project-1' });
+    projectModelMock.findById.mockResolvedValue({
+      _id: 'project-1',
+      get: jest.fn().mockReturnValue(null),
+    });
     activitiesServiceMock.findByEntityId.mockResolvedValue([
       { status: Status.PENDING },
       { status: Status.PENDING },
@@ -138,7 +160,10 @@ describe('ProjectsService', () => {
   });
 
   it('should set project status to COMPLETED when all activities are completed', async () => {
-    projectModelMock.findById.mockResolvedValue({ _id: 'project-1' });
+    projectModelMock.findById.mockResolvedValue({
+      _id: 'project-1',
+      get: jest.fn().mockReturnValue(null),
+    });
     activitiesServiceMock.findByEntityId.mockResolvedValue([
       { status: Status.COMPLETED },
       { status: Status.COMPLETED },
@@ -154,7 +179,10 @@ describe('ProjectsService', () => {
   });
 
   it('should set project status to IN_PROGRESS when activities are mixed', async () => {
-    projectModelMock.findById.mockResolvedValue({ _id: 'project-1' });
+    projectModelMock.findById.mockResolvedValue({
+      _id: 'project-1',
+      get: jest.fn().mockReturnValue(null),
+    });
     activitiesServiceMock.findByEntityId.mockResolvedValue([
       { status: Status.PENDING },
       { status: Status.COMPLETED },
@@ -170,7 +198,10 @@ describe('ProjectsService', () => {
   });
 
   it('should throw when recomputing status with fewer than 3 activities', async () => {
-    projectModelMock.findById.mockResolvedValue({ _id: 'project-1' });
+    projectModelMock.findById.mockResolvedValue({
+      _id: 'project-1',
+      get: jest.fn().mockReturnValue(null),
+    });
     activitiesServiceMock.findByEntityId.mockResolvedValue([
       { status: Status.PENDING },
       { status: Status.PENDING },
@@ -186,6 +217,140 @@ describe('ProjectsService', () => {
 
     await expect(service.recomputeProjectStatus('project-404')).rejects.toBeInstanceOf(
       NotFoundException,
+    );
+  });
+
+  it('should reject project update for non-owner non-admin user', async () => {
+    const updateDto = {} as UpdateProjectDto;
+
+    projectModelMock.findById.mockResolvedValue({
+      owner: { toString: () => 'owner-1' },
+      get: jest.fn().mockReturnValue(null),
+    });
+
+    await expect(
+      service.update('p1', updateDto, 'user-2', UserRole.USER),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('should allow admin project update even when not owner', async () => {
+    const updateDto = { name: 'Updated' } as UpdateProjectDto;
+
+    projectModelMock.findById.mockResolvedValue({
+      owner: { toString: () => 'owner-1' },
+      get: jest.fn().mockReturnValue(null),
+    });
+    projectModelMock.findByIdAndUpdate.mockResolvedValue({});
+
+    await service.update('p1', updateDto, 'admin-1', UserRole.ADMIN);
+
+    expect(projectModelMock.findByIdAndUpdate).toHaveBeenCalledWith(
+      'p1',
+      expect.objectContaining({ updatedBy: 'admin-1' }),
+    );
+  });
+
+  it('should reject project delete for non-owner non-admin user', async () => {
+    projectModelMock.findById.mockResolvedValue({
+      _id: { toString: () => 'p1' },
+      owner: { toString: () => 'owner-1' },
+      get: jest.fn().mockReturnValue(null),
+    });
+
+    await expect(
+      service.remove('p1', 'user-2', UserRole.USER),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('should return scoped projects for non-admin user in findAll', async () => {
+    const teamIds = [{ _id: { toString: () => 'team-1' } }];
+    teamModelMock.find.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(teamIds),
+      }),
+    });
+
+    const exec = jest.fn().mockResolvedValue([{ _id: 'project-1' }]);
+    const queryChain = {
+      populate: jest.fn().mockReturnThis(),
+      exec,
+    };
+    projectModelMock.find.mockReturnValue(queryChain);
+
+    const result = await service.findAll('user-1', UserRole.USER);
+
+    expect(projectModelMock.find).toHaveBeenCalledWith({
+      $or: [{ owner: 'user-1' }, { team: { $in: ['team-1'] } }],
+    });
+    expect(result).toEqual([{ _id: 'project-1' }]);
+  });
+
+  it('should throw forbidden when non-member reads project by id', async () => {
+    const project = {
+      _id: { toString: () => 'project-1' },
+      owner: { toString: () => 'owner-1' },
+      team: { toString: () => 'team-1' },
+    };
+    const populate = jest.fn((path: unknown) =>
+      path === 'closedBy' ? Promise.resolve(project) : query,
+    );
+    const query = {
+      populate,
+    };
+    projectModelMock.findById.mockReturnValue(query);
+
+    teamModelMock.exists.mockResolvedValue(false);
+
+    await expect(
+      service.findOne('project-1', 'user-2', UserRole.USER),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('should reject update when owner metadata is missing', async () => {
+    const updateDto = {} as UpdateProjectDto;
+
+    projectModelMock.findById.mockResolvedValue({
+      owner: null,
+      get: jest.fn().mockReturnValue(null),
+    });
+
+    await expect(
+      service.update('p1', updateDto, 'user-1', UserRole.USER),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('should normalize populated team document before membership exists lookup', async () => {
+    const populatedTeam = {
+      _id: { toString: () => '6a0e0bf2e7c5277d3e3b2322' },
+      toString: () =>
+        "{ _id: new ObjectId('6a0e0bf2e7c5277d3e3b2322'), teamName: 'Equipo Prueba' }",
+    };
+    const project = {
+      _id: { toString: () => 'project-1' },
+      owner: { toString: () => 'owner-1' },
+      team: populatedTeam,
+    };
+    const populate = jest.fn((path: unknown) =>
+      path === 'closedBy' ? Promise.resolve(project) : query,
+    );
+    const query = { populate };
+
+    projectModelMock.findById.mockReturnValue(query);
+    teamModelMock.exists.mockResolvedValue(true);
+
+    await expect(
+      service.findOne('project-1', 'user-2', UserRole.USER),
+    ).resolves.toEqual(project);
+
+    expect(teamModelMock.exists).toHaveBeenCalledWith(
+      expect.objectContaining({
+        _id: '6a0e0bf2e7c5277d3e3b2322',
+        memberships: {
+          $elemMatch: expect.objectContaining({
+            user: 'user-2',
+          }),
+        },
+      }),
     );
   });
 });

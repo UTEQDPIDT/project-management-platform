@@ -1,10 +1,12 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { EntityType, FilePurpose } from '@repo/types';
+import { EntityType, FilePurpose, UserRole } from '@repo/types';
 import { FilesService } from '../files/files.service';
 import { StandaloneProduct } from '../schemas/standalone-product.schema';
 import { StandaloneProductsService } from './standalone-products.service';
+import { CreateStandaloneProductDto } from './dto/create-standalone-product.dto';
+import { UpdateStandaloneProductDto } from './dto/update-standalone-product.dto';
 
 describe('StandaloneProductsService', () => {
 	let service: StandaloneProductsService;
@@ -33,7 +35,7 @@ describe('StandaloneProductsService', () => {
 	const filesServiceMock = {
 		uploadFile: jest.fn(),
 		findFilesForEntity: jest.fn(),
-		deleteFiles: jest.fn(),
+		deleteFilesForResource: jest.fn(),
 	};
 
 	beforeEach(async () => {
@@ -58,7 +60,7 @@ describe('StandaloneProductsService', () => {
 	});
 
 	it('should create standalone product and upload file', async () => {
-		const dto = { name: 'Standalone' } as any;
+		const dto = { name: 'Standalone' } as CreateStandaloneProductDto;
 		const file = { originalname: 'file.pdf' } as Express.Multer.File;
 
 		const result = await service.create(dto, file, 'user-1');
@@ -93,7 +95,11 @@ describe('StandaloneProductsService', () => {
 		}));
 
 		await expect(
-			service.create({ name: 'Standalone' } as any, {} as Express.Multer.File, 'user-1'),
+			service.create(
+				{ name: 'Standalone' } as CreateStandaloneProductDto,
+				{} as Express.Multer.File,
+				'user-1',
+			),
 		).rejects.toBeInstanceOf(BadRequestException);
 	});
 
@@ -114,40 +120,47 @@ describe('StandaloneProductsService', () => {
 	});
 
 	it('should return one standalone product by id', async () => {
-		const product = { _id: 'product-1' };
+		const product = { _id: 'product-1', owner: 'user-1' };
 		findByIdQueryMock.exec.mockResolvedValue(product);
 
-		await expect(service.findOne('product-1')).resolves.toEqual(product);
+		await expect(
+			service.findOne('product-1', 'user-1', UserRole.ADMIN),
+		).resolves.toEqual(product);
 		expect(standaloneProductModelMock.findById).toHaveBeenCalledWith('product-1');
 	});
 
 	it('should throw NotFoundException when product does not exist in findOne', async () => {
 		findByIdQueryMock.exec.mockResolvedValue(null);
 
-		await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(NotFoundException);
+		await expect(
+			service.findOne('missing-id', 'user-1', UserRole.ADMIN),
+		).rejects.toBeInstanceOf(NotFoundException);
 	});
 
 	it('should update standalone product with file', async () => {
+		findByIdQueryMock.exec.mockResolvedValue({ _id: 'product-1', owner: 'user-1' });
 		filesServiceMock.findFilesForEntity.mockResolvedValue([{ _id: 'file-1' }]);
-		filesServiceMock.deleteFiles.mockResolvedValue(undefined);
+		filesServiceMock.deleteFilesForResource.mockResolvedValue(undefined);
 		filesServiceMock.uploadFile.mockResolvedValue(undefined);
 		standaloneProductModelMock.findByIdAndUpdate.mockResolvedValue({ _id: 'product-1' });
 
 		const result = await service.update(
 			'product-1',
-			{ name: 'Updated' } as any,
+			{ name: 'Updated' } as UpdateStandaloneProductDto,
 			'user-1',
+			UserRole.ADMIN,
 			{ originalname: 'updated.pdf' } as Express.Multer.File,
 		);
 
 		expect(filesServiceMock.findFilesForEntity).toHaveBeenCalledWith('product-1');
-		expect(filesServiceMock.deleteFiles).toHaveBeenCalledWith([{ _id: 'file-1' }]);
+		expect(filesServiceMock.deleteFilesForResource).toHaveBeenCalledWith([{ _id: 'file-1' }]);
 		expect(filesServiceMock.uploadFile).toHaveBeenCalledWith(
 			expect.any(Object),
 			'product-1',
 			EntityType.STANDALONE_PRODUCT,
 			FilePurpose.GENERIC,
 			'user-1',
+			UserRole.ADMIN,
 		);
 		expect(standaloneProductModelMock.findByIdAndUpdate).toHaveBeenCalledWith(
 			'product-1',
@@ -161,24 +174,29 @@ describe('StandaloneProductsService', () => {
 	});
 
 	it('should throw NotFoundException when update target does not exist', async () => {
-		standaloneProductModelMock.findByIdAndUpdate.mockResolvedValue(null);
+		findByIdQueryMock.exec.mockResolvedValue(null);
 
 		await expect(
-			service.update('missing-id', { name: 'Updated' } as any, 'user-1'),
+			service.update(
+				'missing-id',
+				{ name: 'Updated' } as UpdateStandaloneProductDto,
+				'user-1',
+				UserRole.ADMIN,
+			),
 		).rejects.toBeInstanceOf(NotFoundException);
 	});
 
 	it('should remove standalone product and related files', async () => {
-		findByIdQueryMock.exec.mockResolvedValue({ _id: 'product-1' });
+		findByIdQueryMock.exec.mockResolvedValue({ _id: 'product-1', owner: 'user-1' });
 		filesServiceMock.findFilesForEntity.mockResolvedValue([{ _id: 'file-1' }]);
-		filesServiceMock.deleteFiles.mockResolvedValue(undefined);
+		filesServiceMock.deleteFilesForResource.mockResolvedValue(undefined);
 		standaloneProductModelMock.findByIdAndDelete.mockResolvedValue({ _id: 'product-1' });
 
-		const result = await service.remove('product-1');
+		const result = await service.remove('product-1', 'user-1', UserRole.ADMIN);
 
 		expect(standaloneProductModelMock.findById).toHaveBeenCalledWith('product-1');
 		expect(filesServiceMock.findFilesForEntity).toHaveBeenCalledWith('product-1');
-		expect(filesServiceMock.deleteFiles).toHaveBeenCalledWith([{ _id: 'file-1' }]);
+		expect(filesServiceMock.deleteFilesForResource).toHaveBeenCalledWith([{ _id: 'file-1' }]);
 		expect(standaloneProductModelMock.findByIdAndDelete).toHaveBeenCalledWith('product-1');
 		expect(result).toEqual({
 			id: 'product-1',
@@ -189,6 +207,8 @@ describe('StandaloneProductsService', () => {
 	it('should throw NotFoundException when remove target does not exist', async () => {
 		findByIdQueryMock.exec.mockResolvedValue(null);
 
-		await expect(service.remove('missing-id')).rejects.toBeInstanceOf(NotFoundException);
+		await expect(
+			service.remove('missing-id', 'user-1', UserRole.ADMIN),
+		).rejects.toBeInstanceOf(NotFoundException);
 	});
 });

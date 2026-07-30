@@ -30,10 +30,12 @@ import { UploadFileDto } from './dto/upload-file.dto';
 import { FileValidationPipe } from '../common/pipes';
 import { FILE_MIME_TYPES } from '../common/constants';
 import { Throttle } from '@nestjs/throttler';
+import { UserRole } from '@repo/types';
 
 type AuthenticatedRequest = {
   user: {
     id: string;
+    role: UserRole;
   };
 };
 
@@ -70,6 +72,7 @@ export class FilesController {
       body.entityType,
       body.purpose,
       req.user.id,
+      req.user.role,
     );
   }
 
@@ -103,6 +106,7 @@ export class FilesController {
       body.entityType,
       body.purpose,
       req.user.id,
+      req.user.role,
     );
   }
 
@@ -173,14 +177,21 @@ export class FilesController {
   @ApiOkResponse({ description: 'Archivo eliminado correctamente' })
   @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.filesService.deleteFile(id);
+  remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.filesService.deleteFile(id, req.user.id, req.user.role);
   }
 
   @ApiOkResponse({ description: 'Archivo eliminado correctamente' })
   @ApiNotFoundResponse({ description: 'Archivo no encontrado' })
   @Delete('/by-owner/:ownerId')
-  removeByOwner(@Param('ownerId') ownerId: string) {
-    return this.filesService.deleteFilesByOwner(ownerId);
+  removeByOwner(
+    @Param('ownerId') ownerId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.filesService.deleteFilesByOwner(
+      ownerId,
+      req.user.id,
+      req.user.role,
+    );
   }
 }

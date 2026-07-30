@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,6 +12,9 @@ import { Event } from '../schemas/event.schema';
 import { FilesService } from '../files/files.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { Product } from '../schemas/product.schema';
+import { UserRole } from '@repo/types';
+import { AccessDeniedException } from '../common/security/access-denied.exception';
+import { AccessDeniedReason } from '../common/security/access-denied-reason.enum';
 
 @Injectable()
 export class EventsService {
@@ -20,6 +24,82 @@ export class EventsService {
     private readonly filesService: FilesService,
     private readonly activitiesService: ActivitiesService,
   ) {}
+
+  private toId(value: unknown): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (typeof (value as { toString?: () => string }).toString === 'function') {
+      return (value as { toString: () => string }).toString();
+    }
+
+    return null;
+  }
+
+  private ensureCanManageEvent(
+    event: Event,
+    actorId: string,
+    actorRole: UserRole,
+    reason: AccessDeniedReason,
+    message: string,
+  ) {
+    const createdById = this.toId(event.createdBy);
+
+    if (!createdById) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.EVENT_OWNER_MISSING,
+        message: 'Event owner is not defined.',
+        resourceType: 'event',
+        resourceId: event._id?.toString(),
+        actorId,
+        actorRole,
+      });
+    }
+
+    if (actorRole === UserRole.ADMIN || createdById === actorId) {
+      return;
+    }
+
+    throw new AccessDeniedException({
+      reason,
+      message,
+      resourceType: 'event',
+      resourceId: event._id?.toString(),
+      actorId,
+      actorRole,
+    });
+  }
+
+  private ensureCanViewEvent(event: Event, actorId: string, actorRole: UserRole) {
+    const createdById = this.toId(event.createdBy);
+    const isParticipant = event.participants?.some((participant) => {
+      const participantId = this.toId((participant as { _id?: unknown })._id ?? participant);
+      return participantId === actorId;
+    });
+
+    if (
+      actorRole === UserRole.ADMIN ||
+      !event.isPrivate ||
+      createdById === actorId ||
+      isParticipant
+    ) {
+      return;
+    }
+
+    throw new AccessDeniedException({
+      reason: AccessDeniedReason.EVENT_VIEW_PRIVATE_FORBIDDEN,
+      message: 'You are not allowed to view this private event.',
+      resourceType: 'event',
+      resourceId: event._id?.toString(),
+      actorId,
+      actorRole,
+    });
+  }
 
   async create(
     createEventDto: CreateEventDto,
@@ -41,9 +121,20 @@ export class EventsService {
     }
   }
 
-  async findAll() {
+  async findAll(actorId: string, actorRole: UserRole) {
+    const filter =
+      actorRole === UserRole.ADMIN
+        ? {}
+        : {
+            $or: [
+              { isPrivate: false },
+              { createdBy: actorId },
+              { participants: actorId },
+            ],
+          };
+
     return this.eventModel
-      .find()
+      .find(filter)
       .populate('participants')
       .populate('createdBy')
       .populate('updatedBy')
@@ -58,7 +149,7 @@ export class EventsService {
       .exec();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, actorId: string, actorRole: UserRole) {
     const event = await this.eventModel
       .findById(id)
       .populate('participants')
@@ -78,6 +169,8 @@ export class EventsService {
       throw new NotFoundException(`Event with ID: ${id} not found`);
     }
 
+    this.ensureCanViewEvent(event, actorId, actorRole);
+
     return event;
   }
 
@@ -93,8 +186,27 @@ export class EventsService {
       .exec();
   }
 
-  async update(id: string, updateEventDto: UpdateEventDto, usedId: string) {
+  async update(
+    id: string,
+    updateEventDto: UpdateEventDto,
+    usedId: string,
+    actorRole: UserRole,
+  ) {
     try {
+      const existingEvent = await this.eventModel.findById(id).select('createdBy');
+
+      if (!existingEvent) {
+        throw new NotFoundException(`Event with ID: ${id} not found`);
+      }
+
+      this.ensureCanManageEvent(
+        existingEvent,
+        usedId,
+        actorRole,
+        AccessDeniedReason.EVENT_UPDATE_NOT_OWNER,
+        'You are not allowed to update this event.',
+      );
+
       const {
         name,
         summary,
@@ -140,11 +252,39 @@ export class EventsService {
     }
   }
 
-  async remove(eventId: string): Promise<{ id: string; message: string }> {
+  async remove(
+    eventId: string,
+    actorId: string,
+    actorRole: UserRole,
+  ): Promise<{ id: string; message: string }> {
     const event = await this.eventModel.findById(eventId);
 
     if (!event) {
       throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
+
+    const createdById = this.toId(event.createdBy);
+
+    if (!createdById) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.EVENT_OWNER_MISSING,
+        message: 'Event owner is not defined.',
+        resourceType: 'event',
+        resourceId: eventId,
+        actorId,
+        actorRole,
+      });
+    }
+
+    if (actorRole !== UserRole.ADMIN && createdById !== actorId) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.EVENT_DELETE_NOT_OWNER,
+        message: 'You are not allowed to delete this event.',
+        resourceType: 'event',
+        resourceId: eventId,
+        actorId,
+        actorRole,
+      });
     }
 
     const session = await this.connection.startSession();
@@ -157,7 +297,7 @@ export class EventsService {
 
       const files = await this.filesService.findFilesForEntity(eventId);
 
-      await this.filesService.deleteFiles(files);
+      await this.filesService.deleteFilesForResource(files);
 
       await session.commitTransaction();
 
@@ -177,6 +317,7 @@ export class EventsService {
     eventId: string,
     productIds: string[],
     userId: string,
+    actorRole: UserRole,
   ): Promise<{ productsAdded: string[]; message: string }> {
     const event = await this.eventModel.findById(eventId);
     if (!event) {
@@ -186,6 +327,14 @@ export class EventsService {
     if (!Array.isArray(productIds) || productIds.length === 0) {
       throw new BadRequestException('productIds must be a non-empty array');
     }
+
+    this.ensureCanManageEvent(
+      event,
+      userId,
+      actorRole,
+      AccessDeniedReason.EVENT_MANAGE_NOT_OWNER,
+      'You are not allowed to manage products for this event.',
+    );
 
     const registeredProducts = new Set(
       event.products.map((p: Product) => p._id.toString()),
@@ -212,7 +361,22 @@ export class EventsService {
     eventId: string,
     productId: string,
     userId: string,
+    actorRole: UserRole,
   ): Promise<{ removedProduct: string; message: string }> {
+    const event = await this.eventModel.findById(eventId).select('createdBy');
+
+    if (!event) {
+      throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
+
+    this.ensureCanManageEvent(
+      event,
+      userId,
+      actorRole,
+      AccessDeniedReason.EVENT_MANAGE_NOT_OWNER,
+      'You are not allowed to manage products for this event.',
+    );
+
     await this.eventModel.findByIdAndUpdate(eventId, {
       $pull: { products: productId },
       updatedBy: userId,
@@ -231,6 +395,7 @@ export class EventsService {
     eventId: string,
     userIds: string[],
     updater: string,
+    actorRole: UserRole,
   ): Promise<{ participantsAdded: string[]; message: string }> {
     const event = await this.eventModel.findById(eventId).exec();
     if (!event)
@@ -238,6 +403,14 @@ export class EventsService {
 
     if (!Array.isArray(userIds) || userIds.length === 0)
       throw new BadRequestException('userIds must be a non-empty array');
+
+    this.ensureCanManageEvent(
+      event,
+      updater,
+      actorRole,
+      AccessDeniedReason.EVENT_MANAGE_NOT_OWNER,
+      'You are not allowed to manage participants for this event.',
+    );
 
     const existingIds = event.participants.map((p: any) =>
       p._id ? p._id.toString() : p.toString(),
@@ -263,7 +436,22 @@ export class EventsService {
     eventId: string,
     userId: string,
     updater: string,
+    actorRole: UserRole,
   ): Promise<{ removedParticipant: string; message: string }> {
+    const event = await this.eventModel.findById(eventId).select('createdBy');
+
+    if (!event) {
+      throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
+
+    this.ensureCanManageEvent(
+      event,
+      updater,
+      actorRole,
+      AccessDeniedReason.EVENT_MANAGE_NOT_OWNER,
+      'You are not allowed to manage participants for this event.',
+    );
+
     await this.eventModel.findByIdAndUpdate(eventId, {
       $pull: { participants: userId },
       updatedBy: updater,

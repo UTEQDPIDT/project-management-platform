@@ -10,10 +10,230 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Team } from '../schemas/team.schema';
 import { Model } from 'mongoose';
 import { UserRole } from '@repo/types';
+import { AccessDeniedException } from '../common/security/access-denied.exception';
+import { AccessDeniedReason } from '../common/security/access-denied-reason.enum';
 
 @Injectable()
 export class TeamsService {
   constructor(@InjectModel(Team.name) private teamModel: Model<Team>) {}
+
+  private toId(value: unknown): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (
+      typeof value === 'object' &&
+      '_id' in (value as Record<string, unknown>)
+    ) {
+      const nestedId = (value as { _id: unknown })._id;
+      if (nestedId !== value) {
+        return this.toId(nestedId);
+      }
+    }
+
+    if (typeof value === 'object') {
+      const objectIdLike = value as {
+        toHexString?: () => string;
+        toString?: () => string;
+      };
+
+      if (typeof objectIdLike.toHexString === 'function') {
+        return objectIdLike.toHexString();
+      }
+
+      if (typeof objectIdLike.toString === 'function') {
+        const normalized = objectIdLike.toString().trim();
+        const looksLikeSerializedDoc =
+          normalized.startsWith('{') || normalized.includes('\n');
+
+        if (normalized && normalized !== '[object Object]' && !looksLikeSerializedDoc) {
+          return normalized;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private async upsertMemberships(
+    teamId: string,
+    userIds: string[],
+    role: 'MEMBER' | 'COLLABORATOR',
+  ) {
+    const team = await this.teamModel.findById(teamId);
+    if (!team) throw new NotFoundException();
+
+    const existingMemberships = new Map(
+      team.memberships
+        .map((membership) => [this.toId(membership.user), membership] as const)
+        .filter(([id]) => Boolean(id))
+        .map(([id, membership]) => [id as string, membership]),
+    );
+
+    const membershipsToInsert: Array<{
+      user: string;
+      role: 'MEMBER' | 'COLLABORATOR';
+      status: 'ACTIVE';
+    }> = [];
+
+    for (const userId of userIds) {
+      const existingMembership = existingMemberships.get(userId);
+
+      if (!existingMembership) {
+        membershipsToInsert.push({
+          user: userId,
+          role,
+          status: 'ACTIVE',
+        });
+        continue;
+      }
+
+      if (
+        existingMembership.status !== 'ACTIVE' ||
+        existingMembership.role !== role
+      ) {
+        await this.teamModel.updateOne(
+          {
+            _id: teamId,
+            'memberships.user': userId,
+          },
+          {
+            $set: {
+              'memberships.$.role': role,
+              'memberships.$.status': 'ACTIVE',
+            },
+          },
+        );
+      }
+    }
+
+    if (membershipsToInsert.length > 0) {
+      await this.teamModel.findByIdAndUpdate(teamId, {
+        $push: { memberships: { $each: membershipsToInsert } },
+      });
+    }
+  }
+
+  private activeMembershipFilter(userId: string) {
+    return {
+      memberships: {
+        $elemMatch: {
+          user: userId,
+          $or: [
+            { status: 'ACTIVE' },
+            { status: { $regex: /^active$/i } },
+            { status: { $exists: false } },
+          ],
+        },
+      },
+    };
+  }
+
+  private isActiveMembershipStatus(status: unknown): boolean {
+    if (status === undefined || status === null) {
+      return true;
+    }
+
+    if (typeof status !== 'string') {
+      return false;
+    }
+
+    return status.trim().toUpperCase() === 'ACTIVE';
+  }
+
+  private isActiveMember(team: Team, userId: string): boolean {
+    return team.memberships.some(
+      (membership) =>
+        this.toId(membership.user) === userId &&
+        this.isActiveMembershipStatus(membership.status),
+    );
+  }
+
+  private isOwner(team: Team, userId: string): boolean {
+    return team.memberships.some(
+      (membership) =>
+        this.toId(membership.user) === userId &&
+        membership.role === 'OWNER' &&
+        this.isActiveMembershipStatus(membership.status),
+    );
+  }
+
+  private async ensureCanManageTeam(
+    teamId: string,
+    actorId: string,
+    actorRole: UserRole,
+  ): Promise<Team> {
+    const team = await this.teamModel.findById(teamId).select('memberships isPrivate');
+
+    if (!team) {
+      throw new NotFoundException(`Team with ID: ${teamId} not found`);
+    }
+
+    if (actorRole === UserRole.ADMIN || this.isOwner(team, actorId)) {
+      return team;
+    }
+
+    throw new AccessDeniedException({
+      reason: AccessDeniedReason.TEAM_MANAGE_FORBIDDEN,
+      message: 'Only team owners or admin users can manage this team.',
+      resourceType: 'team',
+      resourceId: teamId,
+      actorId,
+      actorRole,
+    });
+  }
+
+  private async ensureCanViewTeam(
+    teamId: string,
+    actorId: string,
+    actorRole: UserRole,
+  ): Promise<Team> {
+    const team = await this.teamModel
+      .findById(teamId)
+      .populate('division')
+      .populate('memberships.user')
+      .exec();
+
+    if (!team) {
+      throw new NotFoundException(`Team with ID: ${teamId} not found`);
+    }
+
+    if (actorRole === UserRole.ADMIN || !team.isPrivate) {
+      return team;
+    }
+
+    const isAssignedMember = await this.teamModel.exists({
+      _id: teamId,
+      memberships: {
+        $elemMatch: {
+          user: actorId,
+          $or: [
+            { status: 'ACTIVE' },
+            { status: { $regex: /^active$/i } },
+            { status: { $exists: false } },
+          ],
+        },
+      },
+    });
+
+    if (isAssignedMember) {
+      return team;
+    }
+
+    throw new AccessDeniedException({
+      reason: AccessDeniedReason.TEAM_VIEW_FORBIDDEN,
+      message: 'You are not allowed to view this team.',
+      resourceType: 'team',
+      resourceId: teamId,
+      actorId,
+      actorRole,
+    });
+  }
 
   async create(createTeamDto: CreateTeamDto, userId: string) {
     try {
@@ -71,29 +291,38 @@ export class TeamsService {
 
   async findAll({
     userId,
+    userRole,
     isPrivate,
   }: {
     userId?: string;
+    userRole?: UserRole;
     isPrivate?: boolean;
   }) {
-    const orConditions: any[] = [];
-
-    if (userId) {
-      orConditions.push({
-        memberships: {
-          $elemMatch: {
-            user: userId,
-            status: 'ACTIVE',
-          },
-        },
-      });
+    if (!userId) {
+      return [];
     }
 
-    if (isPrivate !== undefined) {
-      orConditions.push({ isPrivate });
-    }
+    let filter: Record<string, unknown>;
 
-    const filter = orConditions.length > 0 ? { $or: orConditions } : {};
+    if (userRole === UserRole.ADMIN) {
+      filter = isPrivate === undefined ? {} : { isPrivate };
+    } else if (isPrivate === true) {
+      filter = {
+        $and: [{ isPrivate: true }, this.activeMembershipFilter(userId)],
+      };
+    } else if (isPrivate === false) {
+      // Keep visibility of assigned private teams while browsing public teams.
+      filter = {
+        $or: [{ isPrivate: false }, this.activeMembershipFilter(userId)],
+      };
+    } else {
+      filter = {
+        $or: [
+          { isPrivate: false },
+          this.activeMembershipFilter(userId),
+        ],
+      };
+    }
 
     return this.teamModel
       .find(filter)
@@ -104,29 +333,14 @@ export class TeamsService {
 
   async findByUser(userId: string) {
     return this.teamModel
-      .find({
-        memberships: {
-          $elemMatch: {
-            user: userId,
-            status: 'ACTIVE',
-          },
-        },
-      })
+      .find(this.activeMembershipFilter(userId))
       .populate('memberships.user')
       .populate('division')
       .exec();
   }
 
-  async findOne(id: string): Promise<Team> {
-    const team = await this.teamModel
-      .findById(id)
-      .populate('division')
-      .populate('memberships.user')
-      .exec();
-
-    if (!team) throw new NotFoundException(`Team with ID: ${id} not found`);
-
-    return team;
+  async findOne(id: string, actorId: string, actorRole: UserRole): Promise<Team> {
+    return this.ensureCanViewTeam(id, actorId, actorRole);
   }
 
   async findOwnedByUser(userId: string): Promise<Team[]> {
@@ -136,7 +350,7 @@ export class TeamsService {
           $elemMatch: {
             user: userId,
             role: 'OWNER',
-            status: 'ACTIVE',
+            $or: [{ status: 'ACTIVE' }, { status: { $exists: false } }],
           },
         },
       })
@@ -192,45 +406,37 @@ export class TeamsService {
   }
 
   async addCollaborators(teamId: string, userIds: string[]) {
-    const team = await this.teamModel.findById(teamId);
-    if (!team) throw new NotFoundException();
-
-    const existingUserIds = team.memberships.map((m) => m.user.toString());
-
-    const newMemberships = userIds
-      .filter((id) => !existingUserIds.includes(id))
-      .map((id) => ({
-        user: id,
-        role: 'COLLABORATOR',
-        status: 'ACTIVE',
-      }));
-
-    await this.teamModel.findByIdAndUpdate(teamId, {
-      $push: { memberships: { $each: newMemberships } },
-    });
+    await this.upsertMemberships(teamId, userIds, 'COLLABORATOR');
 
     return { id: teamId, message: 'Collaborators added successfully' };
   }
 
+  async addCollaboratorsAsActor(
+    teamId: string,
+    userIds: string[],
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    await this.ensureCanManageTeam(teamId, actorId, actorRole);
+
+    return this.addCollaborators(teamId, userIds);
+  }
+
   async addMembers(teamId: string, userIds: string[]) {
-    const team = await this.teamModel.findById(teamId);
-    if (!team) throw new NotFoundException();
-
-    const existingUserIds = team.memberships.map((m) => m.user.toString());
-
-    const newMemberships = userIds
-      .filter((id) => !existingUserIds.includes(id))
-      .map((id) => ({
-        user: id,
-        role: 'MEMBER',
-        status: 'ACTIVE',
-      }));
-
-    await this.teamModel.findByIdAndUpdate(teamId, {
-      $push: { memberships: { $each: newMemberships } },
-    });
+    await this.upsertMemberships(teamId, userIds, 'MEMBER');
 
     return { id: teamId, message: 'Members added successfully' };
+  }
+
+  async addMembersAsActor(
+    teamId: string,
+    userIds: string[],
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    await this.ensureCanManageTeam(teamId, actorId, actorRole);
+
+    return this.addMembers(teamId, userIds);
   }
 
   async sendTeamRequest(teamId: string, userId: string) {
@@ -258,7 +464,14 @@ export class TeamsService {
     return { id: teamId, message: 'Team request sent successfully' };
   }
 
-  async acceptRequest(teamId: string, userId: string) {
+  async acceptRequest(
+    teamId: string,
+    userId: string,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    await this.ensureCanManageTeam(teamId, actorId, actorRole);
+
     const result = await this.teamModel.findOneAndUpdate(
       {
         _id: teamId,
@@ -283,7 +496,14 @@ export class TeamsService {
     return { id: teamId, message: 'Team request accepted successfully' };
   }
 
-  async rejectRequest(teamId: string, userId: string) {
+  async rejectRequest(
+    teamId: string,
+    userId: string,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    await this.ensureCanManageTeam(teamId, actorId, actorRole);
+
     await this.teamModel.findByIdAndUpdate(teamId, {
       $pull: {
         memberships: {
@@ -296,7 +516,14 @@ export class TeamsService {
     return { id: teamId, message: 'Team request rejected successfully' };
   }
 
-  async removeMember(teamId: string, userId: string) {
+  async removeMember(
+    teamId: string,
+    userId: string,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    await this.ensureCanManageTeam(teamId, actorId, actorRole);
+
     await this.teamModel.findByIdAndUpdate(teamId, {
       $pull: {
         memberships: {
@@ -309,7 +536,14 @@ export class TeamsService {
     return { id: teamId, message: 'Member removed successfully' };
   }
 
-  async removeCollaborator(teamId: string, userId: string) {
+  async removeCollaborator(
+    teamId: string,
+    userId: string,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    await this.ensureCanManageTeam(teamId, actorId, actorRole);
+
     await this.teamModel.findByIdAndUpdate(teamId, {
       $pull: {
         memberships: {
@@ -322,7 +556,13 @@ export class TeamsService {
     return { id: teamId, message: 'Collaborator removed successfully' };
   }
 
-  async deleteTeam(id: string): Promise<{ id: string; message: string }> {
+  async deleteTeam(
+    id: string,
+    actorId: string,
+    actorRole: UserRole,
+  ): Promise<{ id: string; message: string }> {
+    await this.ensureCanManageTeam(id, actorId, actorRole);
+
     const deletedTeam = await this.teamModel.findByIdAndDelete(id).exec();
 
     if (!deletedTeam)

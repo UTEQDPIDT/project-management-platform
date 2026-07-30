@@ -26,10 +26,12 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from '../common/pipes';
 import { FILE_MIME_TYPES } from '../common/constants';
+import { UserRole } from '@repo/types';
 
 type AuthenticatedRequest = {
   user: {
     id: string;
+    role: UserRole;
   };
 };
 
@@ -56,7 +58,12 @@ export class ProductsController {
     file: Express.Multer.File,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.productsService.create(createProductDto, file, req.user.id);
+    return this.productsService.create(
+      createProductDto,
+      file,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiAcceptedResponse({
@@ -108,7 +115,13 @@ export class ProductsController {
     file: Express.Multer.File,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.productsService.update(id, updateProductDto, req.user.id, file);
+    return this.productsService.update(
+      id,
+      updateProductDto,
+      req.user.id,
+      req.user.role,
+      file,
+    );
   }
 
   @ApiAcceptedResponse({
@@ -118,7 +131,7 @@ export class ProductsController {
   @ApiNotFoundResponse({ description: 'No se encontro el producto.' })
   @ApiUnauthorizedResponse({ description: 'No autorizado' })
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    await this.productsService.remove(id);
+  async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    await this.productsService.remove(id, req.user.id, req.user.role);
   }
 }

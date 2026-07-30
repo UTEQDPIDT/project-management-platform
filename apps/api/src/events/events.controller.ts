@@ -21,10 +21,12 @@ import {
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventsService } from './events.service';
+import { UserRole } from '@repo/types';
 
 type AuthenticatedRequest = Request & {
   user: {
     id: string;
+    role: UserRole;
   };
 };
 
@@ -42,8 +44,8 @@ export class EventsController {
 
   @ApiOkResponse({ description: 'Lista de eventos obtenida correctamente.' })
   @Get()
-  findAll() {
-    return this.eventsService.findAll();
+  findAll(@Req() req: AuthenticatedRequest) {
+    return this.eventsService.findAll(req.user.id, req.user.role);
   }
 
   // Place this route BEFORE ':id' to avoid route collision
@@ -59,8 +61,8 @@ export class EventsController {
   @ApiOkResponse({ description: 'Evento obtenido correctamente.' })
   @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.eventsService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.eventsService.findOne(id, req.user.id, req.user.role);
   }
 
   @ApiOkResponse({
@@ -74,14 +76,19 @@ export class EventsController {
     @Body() updateEventDto: UpdateEventDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.eventsService.update(id, updateEventDto, req.user.id);
+    return this.eventsService.update(
+      id,
+      updateEventDto,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiOkResponse({ description: 'Evento eliminado correctamente.' })
   @ApiNotFoundResponse({ description: 'Evento no encontrado' })
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.eventsService.remove(id);
+  remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.eventsService.remove(id, req.user.id, req.user.role);
   }
 
   /**
@@ -105,7 +112,12 @@ export class EventsController {
     @Body('participants') participants: string[],
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.eventsService.addParticipants(id, participants, req.user.id);
+    return this.eventsService.addParticipants(
+      id,
+      participants,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiOkResponse({
@@ -121,7 +133,12 @@ export class EventsController {
     @Param('userId') userId: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.eventsService.removeParticipant(id, userId, req.user.id);
+    return this.eventsService.removeParticipant(
+      id,
+      userId,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   /**
@@ -140,7 +157,12 @@ export class EventsController {
     @Body('products') productIds: string[],
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.eventsService.addProducts(id, productIds, req.user.id);
+    return this.eventsService.addProducts(
+      id,
+      productIds,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiOkResponse({
@@ -156,6 +178,11 @@ export class EventsController {
     @Param('productId') productId: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.eventsService.removeProduct(id, productId, req.user.id);
+    return this.eventsService.removeProduct(
+      id,
+      productId,
+      req.user.id,
+      req.user.role,
+    );
   }
 }

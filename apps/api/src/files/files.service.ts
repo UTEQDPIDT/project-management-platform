@@ -15,10 +15,14 @@ import {
   FilePurpose,
   ProjectStatus,
   ProjectValidation,
+  UserRole,
 } from '@repo/types';
 import { Project } from '../schemas/project.schema';
 import { Activity } from '../schemas/activities.schema';
 import { Product } from '../schemas/product.schema';
+import { AccessDeniedException } from '../common/security/access-denied.exception';
+import { AccessDeniedReason } from '../common/security/access-denied-reason.enum';
+import { hasProjectCollaborationAccess } from '../common/security/project-collaboration.helper';
 
 @Injectable()
 export class FilesService {
@@ -36,16 +40,74 @@ export class FilesService {
     });
   }
 
+  private toId(value: unknown): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (
+      typeof value === 'object' &&
+      '_id' in (value as Record<string, unknown>)
+    ) {
+      const nestedId = (value as { _id: unknown })._id;
+      if (nestedId !== value) {
+        return this.toId(nestedId);
+      }
+    }
+
+    if (typeof value === 'object') {
+      const objectIdLike = value as {
+        toHexString?: () => string;
+        toString?: () => string;
+      };
+
+      if (typeof objectIdLike.toHexString === 'function') {
+        return objectIdLike.toHexString();
+      }
+
+      if (typeof objectIdLike.toString === 'function') {
+        const normalized = objectIdLike.toString().trim();
+        const looksLikeSerializedDoc =
+          normalized.startsWith('{') || normalized.includes('\n');
+
+        if (normalized && normalized !== '[object Object]' && !looksLikeSerializedDoc) {
+          return normalized;
+        }
+      }
+    }
+
+    return null;
+  }
+
   private normalizeEntityType(value: EntityType | string | null | undefined): EntityType | null {
     const normalized = String(value ?? '')
       .trim()
       .toLowerCase();
 
-    if (normalized === EntityType.PROJECT) return EntityType.PROJECT;
-    if (normalized === EntityType.ACTIVITY) return EntityType.ACTIVITY;
-    if (normalized === EntityType.PRODUCT) return EntityType.PRODUCT;
-    if (normalized === EntityType.EVENT) return EntityType.EVENT;
-    if (normalized === EntityType.STANDALONE_PRODUCT) return EntityType.STANDALONE_PRODUCT;
+    if (normalized === EntityType.PROJECT || normalized === 'projects') {
+      return EntityType.PROJECT;
+    }
+    if (normalized === EntityType.ACTIVITY || normalized === 'activities') {
+      return EntityType.ACTIVITY;
+    }
+    if (normalized === EntityType.PRODUCT || normalized === 'products') {
+      return EntityType.PRODUCT;
+    }
+    if (normalized === EntityType.EVENT || normalized === 'events') {
+      return EntityType.EVENT;
+    }
+    if (
+      normalized === EntityType.STANDALONE_PRODUCT ||
+      normalized === 'standalone-product' ||
+      normalized === 'standalone_products' ||
+      normalized === 'standaloneproducts'
+    ) {
+      return EntityType.STANDALONE_PRODUCT;
+    }
 
     return null;
   }
@@ -61,9 +123,14 @@ export class FilesService {
     }
 
     if (normalizedEntityType === EntityType.ACTIVITY) {
-      const activity = await this.activityModel
-        .findById(entityId)
-        .select('entityType entityId');
+      const activityLookup = this.activityModel.findById(entityId) as
+        | { select?: (projection: string) => Promise<{ entityType?: unknown; entityId?: unknown } | null> }
+        | null
+        | undefined;
+
+      const activity = activityLookup?.select
+        ? await activityLookup.select('entityType entityId')
+        : null;
 
       if (!activity) {
         throw new NotFoundException(`Activity with ID: ${entityId} not found`);
@@ -74,20 +141,70 @@ export class FilesService {
       );
 
       if (activityEntityType === EntityType.PROJECT) {
-        return activity.entityId.toString();
+        const projectId = this.toId(activity.entityId);
+        if (!projectId) {
+          throw new BadRequestException(
+            `Activity with ID: ${entityId} has invalid project reference`,
+          );
+        }
+
+        return projectId;
       }
 
       return null;
     }
 
     if (normalizedEntityType === EntityType.PRODUCT) {
-      const product = await this.productModel.findById(entityId).select('projectId');
+      const productLookup = this.productModel.findById(entityId) as
+        | { select?: (projection: string) => Promise<{ projectId?: unknown } | null> }
+        | null
+        | undefined;
+
+      const product = productLookup?.select
+        ? await productLookup.select('projectId')
+        : null;
 
       if (!product) {
         throw new NotFoundException(`Product with ID: ${entityId} not found`);
       }
 
-      return product.projectId.toString();
+      const projectId = this.toId(product.projectId);
+      if (!projectId) {
+        throw new BadRequestException(
+          `Product with ID: ${entityId} has invalid project reference`,
+        );
+      }
+
+      return projectId;
+    }
+
+    // Legacy fallback: some historical file records may contain a non-standard
+    // entityType while entityId still points to an activity tied to a project.
+    const activityLookup = this.activityModel.findById(entityId) as
+      | { select?: (projection: string) => Promise<{ entityType?: unknown; entityId?: unknown } | null> }
+      | null
+      | undefined;
+
+    const maybeActivity = activityLookup?.select
+      ? await activityLookup.select('entityType entityId')
+      : null;
+
+    if (maybeActivity) {
+      const activityEntityType = this.normalizeEntityType(
+        maybeActivity.entityType as EntityType | string,
+      );
+
+      if (activityEntityType === EntityType.PROJECT) {
+        const projectId = this.toId(maybeActivity.entityId);
+
+        if (!projectId) {
+          throw new BadRequestException(
+            `Activity with ID: ${entityId} has invalid project reference`,
+          );
+        }
+
+        return projectId;
+      }
     }
 
     return null;
@@ -119,18 +236,60 @@ export class FilesService {
     }
   }
 
+  private async hasParentProjectAccess(
+    entityId: string,
+    entityType: EntityType | string,
+    actorId: string,
+    actorRole: UserRole,
+  ): Promise<boolean> {
+    const parentProjectId = await this.resolveParentProjectId(entityId, entityType);
+
+    if (!parentProjectId) {
+      return false;
+    }
+
+    const project = await this.projectModel
+      .findById(parentProjectId)
+      .select('owner team')
+      .populate({ path: 'team', select: 'memberships' });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${parentProjectId} not found`);
+    }
+
+    return hasProjectCollaborationAccess(project, actorId, actorRole, (value) =>
+      this.toId(value),
+    );
+  }
+
   async uploadFile(
     file: Express.Multer.File,
     entityId: string,
     entityType: EntityType,
     purpose: FilePurpose,
     userId: string,
+    actorRole?: UserRole,
   ) {
     if (!file) {
       throw new BadRequestException('No file provided');
     }
 
     await this.ensureProjectAllowsFileWrites(entityId, entityType);
+
+    if (
+      actorRole &&
+      (await this.resolveParentProjectId(entityId, entityType)) &&
+      !(await this.hasParentProjectAccess(entityId, entityType, userId, actorRole))
+    ) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.FILE_PROJECT_ACCESS_FORBIDDEN,
+        message: 'You are not allowed to manage files for this project.',
+        resourceType: 'file',
+        resourceId: entityId,
+        actorId: userId,
+        actorRole,
+      });
+    }
 
     await this.validateUploadRules(file, entityId, entityType, purpose);
 
@@ -203,6 +362,7 @@ export class FilesService {
     entityType: EntityType,
     purpose: FilePurpose,
     userId: string,
+    actorRole?: UserRole,
   ) {
     if (!files || files.length === 0) {
       throw new BadRequestException('No files provided');
@@ -218,6 +378,7 @@ export class FilesService {
           entityType,
           purpose,
           userId,
+          actorRole,
         );
 
         uploadedFiles.push(savedFile);
@@ -230,7 +391,7 @@ export class FilesService {
         files: uploadedFiles,
       };
     } catch (error: any) {
-      await this.deleteFiles(uploadedFiles);
+      await this.deleteFilesForResource(uploadedFiles);
       throw new BadRequestException(error.message);
     }
   }
@@ -306,26 +467,16 @@ export class FilesService {
     return metadata;
   }
 
-  async deleteFile(id: string): Promise<File> {
-    // extract file metadata
-    const file = await this.fileModel.findById(id);
-
-    if (!file) {
-      throw new NotFoundException('File metadata not found');
-    }
-
-    await this.ensureProjectAllowsFileWrites(file.entityId.toString(), file.entityType);
-
+  private async removeFileMetadataAndBlob(file: File): Promise<File> {
     let deletedFile: File;
+
     try {
-      // Delete file metadata
-      deletedFile = await this.fileModel.findByIdAndDelete(id);
+      deletedFile = await this.fileModel.findByIdAndDelete(file._id.toString());
     } catch (error: any) {
       throw new BadRequestException(error.message);
     }
 
     try {
-      // Delete file from GridFS
       await this.bucket.delete(new mongoose.Types.ObjectId(file.gridFsId));
     } catch (error) {
       // IMPORTANT: do not fail the request
@@ -339,16 +490,100 @@ export class FilesService {
     return deletedFile;
   }
 
-  async deleteFiles(files: File[]) {
+  async deleteFile(
+    id: string,
+    actorId: string,
+    actorRole: UserRole,
+  ): Promise<File> {
+    // extract file metadata
+    const file = await this.fileModel.findById(id);
+
+    if (!file) {
+      throw new NotFoundException('File metadata not found');
+    }
+
+    const ownerId = this.toId(file.owner);
+    const hasProjectAccess = await this.hasParentProjectAccess(
+      file.entityId.toString(),
+      file.entityType,
+      actorId,
+      actorRole,
+    );
+
+    if (hasProjectAccess) {
+      await this.ensureProjectAllowsFileWrites(file.entityId.toString(), file.entityType);
+
+      return this.removeFileMetadataAndBlob(file);
+    }
+
+    if (!ownerId) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.FILE_OWNER_MISSING,
+        message: 'File owner is not defined.',
+        resourceType: 'file',
+        resourceId: id,
+        actorId,
+        actorRole,
+      });
+    }
+
+    if (actorRole !== UserRole.ADMIN && ownerId !== actorId) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.FILE_DELETE_NOT_OWNER,
+        message: 'You are not allowed to delete this file.',
+        resourceType: 'file',
+        resourceId: id,
+        actorId,
+        actorRole,
+      });
+    }
+
+    await this.ensureProjectAllowsFileWrites(file.entityId.toString(), file.entityType);
+
+    return this.removeFileMetadataAndBlob(file);
+  }
+
+  async deleteFiles(files: File[], actorId: string, actorRole: UserRole) {
     for (const file of files) {
-      await this.deleteFile(file._id.toString());
+      await this.deleteFile(file._id.toString(), actorId, actorRole);
     }
   }
 
-  async deleteFilesByOwner(ownerId: string) {
+  async deleteFilesForResource(files: File[]) {
+    for (const file of files) {
+      await this.ensureProjectAllowsFileWrites(
+        file.entityId.toString(),
+        file.entityType,
+      );
+      await this.removeFileMetadataAndBlob(file);
+    }
+  }
+
+  async deleteFilesByOwner(
+    ownerId: string,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    if (actorRole !== UserRole.ADMIN && actorId !== ownerId) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.FILE_BULK_DELETE_FORBIDDEN,
+        message: 'You are not allowed to delete files for this owner.',
+        resourceType: 'file-owner',
+        resourceId: ownerId,
+        actorId,
+        actorRole,
+      });
+    }
+
     try {
-      await this.fileModel.deleteMany({ owner: ownerId });
-      return { message: 'Files deleted successfully' };
+      const files = await this.fileModel.find({ owner: ownerId });
+
+      await this.deleteFiles(files, actorId, actorRole);
+
+      return {
+        message: 'Files deleted successfully',
+        deletedCount: files.length,
+      };
     } catch (error: any) {
       throw new BadRequestException(error.message);
     }

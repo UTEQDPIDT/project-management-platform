@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StandaloneProductsController } from './standalone-products.controller';
 import { StandaloneProductsService } from './standalone-products.service';
+import { CreateStandaloneProductDto } from './dto/create-standalone-product.dto';
+import { UpdateStandaloneProductDto } from './dto/update-standalone-product.dto';
+import { UserRole } from '@repo/types';
 
 describe('StandaloneProductsController', () => {
 	let controller: StandaloneProductsController;
@@ -37,9 +40,9 @@ describe('StandaloneProductsController', () => {
 	});
 
 	it('should create a standalone product', async () => {
-		const dto = { name: 'Standalone' } as any;
+		const dto = { name: 'Standalone' } as CreateStandaloneProductDto;
 		const file = { originalname: 'test.pdf' } as Express.Multer.File;
-		const req = { user: { id: 'user-1' } };
+		const req = { user: { id: 'user-1', role: UserRole.USER } };
 		const result = { id: 'product-1' };
 
 		standaloneProductsServiceMock.create.mockResolvedValue(result);
@@ -62,10 +65,15 @@ describe('StandaloneProductsController', () => {
 
 	it('should return one standalone product by id', async () => {
 		const result = { id: 'product-1' };
+		const req = { user: { id: 'user-1', role: UserRole.USER } };
 		standaloneProductsServiceMock.findOne.mockResolvedValue(result);
 
-		await expect(controller.findOne('product-1')).resolves.toEqual(result);
-		expect(standaloneProductsServiceMock.findOne).toHaveBeenCalledWith('product-1');
+		await expect(controller.findOne('product-1', req)).resolves.toEqual(result);
+		expect(standaloneProductsServiceMock.findOne).toHaveBeenCalledWith(
+			'product-1',
+			'user-1',
+			UserRole.USER,
+		);
 	});
 
 	it('should return standalone products by user', async () => {
@@ -77,9 +85,9 @@ describe('StandaloneProductsController', () => {
 	});
 
 	it('should update a standalone product', async () => {
-		const dto = { name: 'Updated standalone' } as any;
+		const dto = { name: 'Updated standalone' } as UpdateStandaloneProductDto;
 		const file = { originalname: 'updated.pdf' } as Express.Multer.File;
-		const req = { user: { id: 'user-1' } };
+		const req = { user: { id: 'user-1', role: UserRole.USER } };
 		const result = { id: 'product-1', message: 'updated' };
 
 		standaloneProductsServiceMock.update.mockResolvedValue(result);
@@ -91,14 +99,20 @@ describe('StandaloneProductsController', () => {
 			'product-1',
 			dto,
 			'user-1',
+			UserRole.USER,
 			file,
 		);
 	});
 
 	it('should remove a standalone product', async () => {
+		const req = { user: { id: 'user-1', role: UserRole.USER } };
 		standaloneProductsServiceMock.remove.mockResolvedValue(undefined);
 
-		await expect(controller.remove('product-1')).resolves.toBeUndefined();
-		expect(standaloneProductsServiceMock.remove).toHaveBeenCalledWith('product-1');
+		await expect(controller.remove('product-1', req)).resolves.toBeUndefined();
+		expect(standaloneProductsServiceMock.remove).toHaveBeenCalledWith(
+			'product-1',
+			'user-1',
+			UserRole.USER,
+		);
 	});
 });

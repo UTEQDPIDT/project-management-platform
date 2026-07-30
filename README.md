@@ -143,6 +143,16 @@ turbo dev --filter=web
 
 ---
 
+## Documentation de Traspaso
+
+Si estás tomando el proyecto o incorporándote al equipo, revisa estos documentos:
+
+- [Handoff ejecutivo](docs/handoff.md)
+- [Transferencia técnica](docs/transferencia-tecnica.md)
+- [Onboarding para nuevos desarrolladores](docs/onboarding/README.md)
+
+---
+
 ## Database
 
 This project uses **MongoDB** as the database, with **Mongoose** as the ODM (Object Document Mapper) for the NestJS backend.
