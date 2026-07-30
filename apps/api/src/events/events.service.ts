@@ -438,19 +438,36 @@ export class EventsService {
     updater: string,
     actorRole: UserRole,
   ): Promise<{ removedParticipant: string; message: string }> {
-    const event = await this.eventModel.findById(eventId).select('createdBy');
+    const event = await this.eventModel
+      .findById(eventId)
+      .select('createdBy participants');
 
     if (!event) {
       throw new NotFoundException(`Event with ID: ${eventId} not found`);
     }
 
-    this.ensureCanManageEvent(
-      event,
-      updater,
-      actorRole,
-      AccessDeniedReason.EVENT_MANAGE_NOT_OWNER,
-      'You are not allowed to manage participants for this event.',
-    );
+    const isParticipant = event.participants?.some((participant) => {
+      const participantId = this.toId(
+        (participant as { _id?: unknown })._id ?? participant,
+      );
+      return participantId === userId;
+    });
+
+    if (!isParticipant) {
+      throw new BadRequestException('The user is not a participant in this event.');
+    }
+
+    const isSelfRemoval = updater === userId;
+
+    if (!isSelfRemoval) {
+      this.ensureCanManageEvent(
+        event,
+        updater,
+        actorRole,
+        AccessDeniedReason.EVENT_MANAGE_NOT_OWNER,
+        'You are not allowed to manage participants for this event.',
+      );
+    }
 
     await this.eventModel.findByIdAndUpdate(eventId, {
       $pull: { participants: userId },
