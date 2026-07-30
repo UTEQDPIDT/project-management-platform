@@ -1,5 +1,6 @@
 'use client';
 
+import { Check, ChevronsUpDown } from 'lucide-react';
 import {
   useProductCategories,
   useProductSubcategories,
@@ -40,6 +41,15 @@ import { Input } from '../ui/input';
 import { useFilesForEntity } from '@/hooks/files';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from '../ui/command';
 
 interface Props {
   product?: IStandaloneProduct;
@@ -54,11 +64,17 @@ export function StandaloneProductForm({
   onSuccess,
   successRedirectTo,
 }: Props) {
+  const [openCategory, setOpenCategory] = useState(false);
+  const [openSubcategory, setOpenSubcategory] = useState(false);
+
   const router = useRouter();
   const { data: categories, isLoading: loadingCategories } =
     useProductCategories();
   const { data: subcategories, isLoading: loadingSubcategories } =
     useProductSubcategories();
+
+  const categoryList = categories ?? [];
+  const subcategoryList = subcategories ?? [];
 
   const { data: files } = useFilesForEntity(product?._id);
   const currentFile = Array.isArray(files) ? files[0] : files;
@@ -162,27 +178,60 @@ export function StandaloneProductForm({
               <FieldContent>
                 <FieldLabel htmlFor={field.name}>Categoría *</FieldLabel>
               </FieldContent>
-              <Select {...field} onValueChange={field.onChange}>
-                <SelectTrigger
-                  id={field.name}
-                  onBlur={field.onBlur}
-                  aria-invalid={fieldState.invalid}
-                  className="border border-neutral-400"
-                >
-                  <SelectValue placeholder="Selecciona una categoría" />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingCategories ? (
-                    <LoadingMessage message="Cargando categorías" />
-                  ) : (
-                    categories.map((category: SeedCategory) => (
-                      <SelectItem key={category._id} value={category._id}>
-                        {category.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+              <Popover open={openCategory} onOpenChange={setOpenCategory}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-invalid={fieldState.invalid}
+                    className="w-full justify-between font-normal border border-neutral-400"
+                  >
+                    {field.value
+                      ? categoryList.find((category: SeedCategory) => category._id === field.value)?.name
+                      : 'Selecciona una categoría'}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
+                  <Command
+                    filter={(value, search) =>
+                      value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0
+                    }
+                  >
+                    <CommandInput placeholder="Buscar categoría..." />
+                    <CommandEmpty>No se encontraron categorías.</CommandEmpty>
+                    <CommandGroup className="max-h-64 overflow-y-auto">
+                      {loadingCategories ? (
+                        <CommandItem disabled>
+                          <LoadingMessage message="Cargando categorías" />
+                        </CommandItem>
+                      ) : (
+                        categoryList.map((category: SeedCategory) => {
+                          const selected = field.value === category._id;
+
+                          return (
+                            <CommandItem
+                              key={category._id}
+                              value={category.name}
+                              onSelect={() => {
+                                field.onChange(category._id);
+                                field.onBlur();
+                                setOpenCategory(false);
+                              }}
+                              className="flex justify-between"
+                            >
+                              {category.name}
+                              <Check
+                                className={`h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
+                              />
+                            </CommandItem>
+                          );
+                        })
+                      )}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
@@ -194,27 +243,60 @@ export function StandaloneProductForm({
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>Subcategoría *</FieldLabel>
-              <Select {...field} onValueChange={field.onChange}>
-                <SelectTrigger
-                  id={field.name}
-                  onBlur={field.onBlur}
-                  aria-invalid={fieldState.invalid}
-                  className="border border-neutral-400"
-                >
-                  <SelectValue placeholder="Selecciona una subcategoría" />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingSubcategories ? (
-                    <LoadingMessage message="Cargando subcategorías" />
-                  ) : (
-                    subcategories.map((subcategory: SeedCategory) => (
-                      <SelectItem key={subcategory._id} value={subcategory._id}>
-                        {subcategory.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+              <Popover open={openSubcategory} onOpenChange={setOpenSubcategory}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-invalid={fieldState.invalid}
+                    className="w-full justify-between font-normal border border-neutral-400"
+                  >
+                    {field.value
+                      ? subcategoryList.find((subcategory: SeedCategory) => subcategory._id === field.value)?.name
+                      : 'Selecciona una subcategoría'}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
+                  <Command
+                    filter={(value, search) =>
+                      value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0
+                    }
+                  >
+                    <CommandInput placeholder="Buscar subcategoría..." />
+                    <CommandEmpty>No se encontraron subcategorías.</CommandEmpty>
+                    <CommandGroup className="max-h-64 overflow-y-auto">
+                      {loadingSubcategories ? (
+                        <CommandItem disabled>
+                          <LoadingMessage message="Cargando subcategorías" />
+                        </CommandItem>
+                      ) : (
+                        subcategoryList.map((subcategory: SeedCategory) => {
+                          const selected = field.value === subcategory._id;
+
+                          return (
+                            <CommandItem
+                              key={subcategory._id}
+                              value={subcategory.name}
+                              onSelect={() => {
+                                field.onChange(subcategory._id);
+                                field.onBlur();
+                                setOpenSubcategory(false);
+                              }}
+                              className="flex justify-between"
+                            >
+                              {subcategory.name}
+                              <Check
+                                className={`h-4 w-4 ${selected ? 'opacity-100' : 'opacity-0'}`}
+                              />
+                            </CommandItem>
+                          );
+                        })
+                      )}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
