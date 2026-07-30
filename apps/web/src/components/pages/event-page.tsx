@@ -191,7 +191,7 @@ const EventPage = () => {
               <div className="w-full lg:max-w-sm flex flex-col gap-4">
                 {(user.role === UserRole.ADMIN ||
                   user.type === UserType.MAESTRO ||
-                  user.type === UserType.ADMINISTRATIVO) && (
+                  user.type === UserType.ADMINISTRATIVO || user.type === UserType.ESTUDIANTE) && (
                   <div className="flex flex-col gap-2">
                   
                     {/* Apartado 1: Evidencias */}
