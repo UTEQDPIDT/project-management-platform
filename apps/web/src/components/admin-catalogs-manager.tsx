@@ -241,7 +241,7 @@ function CatalogCrudCard({ section }: { section: CatalogSection }) {
                               <div className="space-y-3">
                                 <p className="text-sm font-medium">Confirmar eliminación</p>
                                 <p className="text-xs text-muted-foreground wrap-break-word">
-                                  Esta acción eliminará "{itemLabel}" y no se puede deshacer.
+                                  Esta acción eliminará &quot;{itemLabel}&quot; y no se puede deshacer.
                                 </p>
                                 <div className="flex gap-2 justify-end">
                                   <Button
