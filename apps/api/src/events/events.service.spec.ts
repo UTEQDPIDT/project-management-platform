@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,6 +11,7 @@ describe('EventsService', () => {
 
   const eventModelMock = {
     findById: jest.fn(),
+    findByIdAndUpdate: jest.fn(),
     findByIdAndDelete: jest.fn(),
   };
 
@@ -88,5 +90,56 @@ describe('EventsService', () => {
     await expect(
       service.remove('event-404', 'user-1', UserRole.USER),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('should allow a normal user to leave their own event participation', async () => {
+    eventModelMock.findById.mockReturnValue({
+      select: jest.fn().mockResolvedValue({
+        createdBy: { toString: () => 'owner-1' },
+        participants: [{ toString: () => 'user-2' }],
+      }),
+    });
+
+    const result = await service.removeParticipant(
+      'event-1',
+      'user-2',
+      'user-2',
+      UserRole.USER,
+    );
+
+    expect(result).toEqual({
+      removedParticipant: 'user-2',
+      message: 'Participants removed successfully from event with id event-1',
+    });
+    expect(eventModelMock.findByIdAndUpdate).toHaveBeenCalledWith('event-1', {
+      $pull: { participants: 'user-2' },
+      updatedBy: 'user-2',
+    });
+  });
+
+  it('should reject participant removal by non-owner when removing another user', async () => {
+    eventModelMock.findById.mockReturnValue({
+      select: jest.fn().mockResolvedValue({
+        createdBy: { toString: () => 'owner-1' },
+        participants: [{ toString: () => 'user-2' }],
+      }),
+    });
+
+    await expect(
+      service.removeParticipant('event-1', 'user-2', 'user-3', UserRole.USER),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('should reject participant removal when target user is not in event', async () => {
+    eventModelMock.findById.mockReturnValue({
+      select: jest.fn().mockResolvedValue({
+        createdBy: { toString: () => 'owner-1' },
+        participants: [{ toString: () => 'user-2' }],
+      }),
+    });
+
+    await expect(
+      service.removeParticipant('event-1', 'user-999', 'owner-1', UserRole.USER),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });
