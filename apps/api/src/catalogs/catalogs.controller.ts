@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Param,
   Body,
@@ -170,6 +171,117 @@ export class CatalogsController {
     addProjectProgram(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
       this.ensureAdmin(req);
       return this.catalogsService.addProjectProgram(value);
+    }
+
+    // PATCH (Update)
+    @ApiOkResponse({ description: 'División actualizada correctamente.'})
+    @Patch('divisions/:id')
+    updateDivision(
+      @Param('id') id: string,
+      @Body('value') value: string,
+      @Req() req: AuthenticatedRequest,
+    ) {
+      this.ensureAdmin(req);
+      return this.catalogsService.updateDivision(id, value);
+    }
+
+    @ApiOkResponse({ description: 'Programa educativo actualizado correctamente.'})
+    @Patch('educational-programs/:id')
+    updateEducationalProgram(
+      @Param('id') id: string,
+      @Body('value') value: string,
+      @Req() req: AuthenticatedRequest,
+    ) {
+      this.ensureAdmin(req);
+      return this.catalogsService.updateEducationalProgram(id, value);
+    }
+
+    @ApiOkResponse({ description: 'Categoría de producto actualizada correctamente.'})
+    @Patch('product-categories/:id')
+    updateProductCategory(
+      @Param('id') id: string,
+      @Body('value') value: string,
+      @Req() req: AuthenticatedRequest,
+    ) {
+      this.ensureAdmin(req);
+      return this.catalogsService.updateProductCategory(id, value);
+    }
+
+    @ApiOkResponse({ description: 'Subcategoría de producto actualizada correctamente.'})
+    @Patch('product-subcategories/:id')
+    updateProductSubcategory(
+      @Param('id') id: string,
+      @Body('value') value: string,
+      @Req() req: AuthenticatedRequest,
+    ) {
+      this.ensureAdmin(req);
+      return this.catalogsService.updateProductSubcategory(id, value);
+    }
+
+    @ApiOkResponse({ description: 'Área de conocimiento actualizada correctamente.'})
+    @Patch('knowledge-areas/:id')
+    updateKnowledgeArea(
+      @Param('id') id: string,
+      @Body('value') value: string,
+      @Req() req: AuthenticatedRequest,
+    ) {
+      this.ensureAdmin(req);
+      return this.catalogsService.updateKnowledgeArea(id, value);
+    }
+
+    @ApiOkResponse({ description: 'Área de impacto temática actualizada correctamente.'})
+    @Patch('themed-impact-areas/:id')
+    updateThemedImpactArea(
+      @Param('id') id: string,
+      @Body('value') value: string,
+      @Req() req: AuthenticatedRequest,
+    ) {
+      this.ensureAdmin(req);
+      return this.catalogsService.updateThemedImpactArea(id, value);
+    }
+
+    @ApiOkResponse({ description: 'Prioridad del PND actualizada correctamente.'})
+    @Patch('pnd-priorities/:id')
+    updatePndPriority(
+      @Param('id') id: string,
+      @Body('value') value: string,
+      @Req() req: AuthenticatedRequest,
+    ) {
+      this.ensureAdmin(req);
+      return this.catalogsService.updatePndPriority(id, value);
+    }
+
+    @ApiOkResponse({ description: 'Línea de desarrollo actualizada correctamente.'})
+    @Patch('development-lines/:id')
+    updateDevelopmentLine(
+      @Param('id') id: string,
+      @Body('value') value: string,
+      @Req() req: AuthenticatedRequest,
+    ) {
+      this.ensureAdmin(req);
+      return this.catalogsService.updateDevelopmentLine(id, value);
+    }
+
+    @ApiOkResponse({ description: 'Objetivo de sostenibilidad actualizado correctamente.'})
+    @Patch('sustainability-goals/:id')
+    updateSustainabilityGoal(
+      @Param('id') id: string,
+      @Body('value') value: string,
+      @Req() req: AuthenticatedRequest,
+    ) {
+      this.ensureAdmin(req);
+      return this.catalogsService.updateSustainabilityGoal(id, value);
+    }
+
+    @ApiOkResponse({ description: 'Programa de proyecto actualizado correctamente.'})
+    @Patch('project-programs/:id')
+    updateProjectProgram(
+      @Param('id') id: string,
+      @Body('value') value: string,
+      @Req() req: AuthenticatedRequest,
+    ) {
+      this.ensureAdmin(req);
+      return this.catalogsService.updateProjectProgram(id, value);
     }
 
     // DELETE
