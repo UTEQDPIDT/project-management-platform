@@ -104,6 +104,58 @@ export class CatalogsService {
         }
     }
 
+    private async update(model: Model<any>, fieldName: string, id: string, value: string) {
+        try {
+            if (!isValidObjectId(id)) {
+                throw new BadRequestException(`Invalid ID format: "${id}"`);
+            }
+
+            if (!value || typeof value !== 'string') {
+                throw new BadRequestException('El valor enviado es inválido.');
+            }
+
+            const normalizedValue = value.trim();
+
+            if (!normalizedValue) {
+                throw new BadRequestException('El valor no puede estar vacío.');
+            }
+
+            const exists = await model.findById(id);
+
+            if (!exists) {
+                throw new NotFoundException(`Item with ID "${id}" not found.`);
+            }
+
+            const duplicatedValue = await model.findOne({
+                [fieldName]: normalizedValue,
+                _id: { $ne: id },
+            });
+
+            if (duplicatedValue) {
+                throw new ConflictException(`El valor "${normalizedValue}" ya existe en ${model.modelName}.`);
+            }
+
+            const updated = await model.findByIdAndUpdate(
+                id,
+                { [fieldName]: normalizedValue },
+                { new: true },
+            );
+
+            return updated;
+        } catch (error) {
+            if (
+                error instanceof BadRequestException ||
+                error instanceof ConflictException ||
+                error instanceof NotFoundException
+            ) {
+                throw error;
+            }
+
+            console.error('Error al actualizar registro:', error);
+            throw new InternalServerErrorException('Error interno al actualizar el registro.');
+        }
+    }
+
     //GET methods
     getDivisions() { 
         return this.getAll(this.divisionModel); 
@@ -153,7 +205,7 @@ export class CatalogsService {
         return this.create(this.knowledgeAreaModel, 'name', value); 
     }
     addThemedImpactArea(value: string) { 
-        return this.create(this.themedImpactAreaModel, 'themedImpactArea', value); 
+        return this.create(this.themedImpactAreaModel, 'name', value); 
     }
     addPndPriority(value: string) { 
         return this.create(this.pndPriorityModel, 'name', value); 
@@ -166,6 +218,38 @@ export class CatalogsService {
     }
     addProjectProgram(value: string) { 
         return this.create(this.projectProgramModel, 'name', value); 
+    }
+
+    //PATCH methods (actualizar por ID)
+    updateDivision(id: string, value: string) {
+        return this.update(this.divisionModel, 'name', id, value);
+    }
+    updateEducationalProgram(id: string, value: string) {
+        return this.update(this.educationalProgramModel, 'name', id, value);
+    }
+    updateProductCategory(id: string, value: string) {
+        return this.update(this.productCategoryModel, 'name', id, value);
+    }
+    updateProductSubcategory(id: string, value: string) {
+        return this.update(this.productSubcategoryModel, 'name', id, value);
+    }
+    updateKnowledgeArea(id: string, value: string) {
+        return this.update(this.knowledgeAreaModel, 'name', id, value);
+    }
+    updateThemedImpactArea(id: string, value: string) {
+        return this.update(this.themedImpactAreaModel, 'name', id, value);
+    }
+    updatePndPriority(id: string, value: string) {
+        return this.update(this.pndPriorityModel, 'name', id, value);
+    }
+    updateDevelopmentLine(id: string, value: string) {
+        return this.update(this.developmentLineModel, 'name', id, value);
+    }
+    updateSustainabilityGoal(id: string, value: string) {
+        return this.update(this.sustainabilityGoalModel, 'name', id, value);
+    }
+    updateProjectProgram(id: string, value: string) {
+        return this.update(this.projectProgramModel, 'name', id, value);
     }
 
     //DELETE methods (eliminar por ID)
