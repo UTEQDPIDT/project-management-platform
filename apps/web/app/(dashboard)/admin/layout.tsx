@@ -4,6 +4,7 @@ import { AdminSidebar } from '@/components/admin-sidebar';
 import { cookies } from 'next/headers';
 import { ProfileProvider } from 'context/profile-provider';
 import { redirect } from 'next/navigation';
+import { IUser, UserRole } from '@repo/types';
 
 export default async function AdminDashboardLayout({
   children,
@@ -18,7 +19,7 @@ export default async function AdminDashboardLayout({
     redirect('/');
   }
 
-  let user: any;
+  let user: IUser;
 
   try {
     const res = await fetch(`${apiBaseUrl}/users/profile`, {
@@ -33,6 +34,10 @@ export default async function AdminDashboardLayout({
     }
 
     user = await res.json();
+
+    if (user.role !== UserRole.ADMIN) {
+      redirect('/');
+    }
   } catch {
     redirect('/');
   }

@@ -10,6 +10,7 @@ import {
   BarChart4,
   BarChart2,
   Shapes,
+  List,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -41,6 +42,7 @@ const items = [
   { title: 'Archivos', url: '/admin/archivos', icon: File },
   { title: 'Eventos Métricas', url: '/admin/event-dashboard', icon: BarChart4 },
   { title: 'Proyectos Métricas', url: '/admin/projects-dashboard', icon: BarChart2 },
+  { title: 'Catálogos', url: '/admin/catalogos', icon: List },
 ];
 
 export function AdminSidebar() {
