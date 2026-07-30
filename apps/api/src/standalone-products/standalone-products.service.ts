@@ -122,6 +122,27 @@ export class StandaloneProductsService {
             .exec();
     }
 
+    async findAllVisibleTo(actorId: string, actorRole: UserRole){
+        const products = await this.findAll();
+
+        const visibleProducts = products.filter((product) => {
+            try {
+                this.ensureCanAccessStandaloneProduct(
+                    product,
+                    actorId,
+                    actorRole,
+                    AccessDeniedReason.STANDALONE_PRODUCT_VIEW_FORBIDDEN,
+                    'You are not allowed to view this standalone product.',
+                );
+                return true;
+            } catch {
+                return false;
+            }
+        });
+
+        return visibleProducts;
+    }
+
     async findByUser(userId: string){
         return this.standaloneProductModel
             .find({ owner: userId })
@@ -130,6 +151,27 @@ export class StandaloneProductsService {
             .populate('owner')
             .populate('updatedBy')
             .exec();
+    }
+
+    async findByUserVisibleTo(userId: string, actorId: string, actorRole: UserRole){
+        const products = await this.findByUser(userId);
+
+        const visibleProducts = products.filter((product) => {
+            try {
+                this.ensureCanAccessStandaloneProduct(
+                    product,
+                    actorId,
+                    actorRole,
+                    AccessDeniedReason.STANDALONE_PRODUCT_VIEW_FORBIDDEN,
+                    'You are not allowed to view this standalone product.',
+                );
+                return true;
+            } catch {
+                return false;
+            }
+        });
+
+        return visibleProducts;
     }
 
     async findOne(id: string, actorId: string, actorRole: UserRole){

@@ -120,7 +120,13 @@ export class UsersController {
   @ApiOkResponse({ description: 'Usario obtenido correctamente.' })
   @ApiNotFoundResponse({ description: 'No se encontro al usuario.' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    if (req.user.role !== UserRole.ADMIN && req.user.id !== id) {
+      throw new ForbiddenException(
+        'Solo puedes ver tu propio perfil o debes ser administrador.',
+      );
+    }
+
     return this.usersService.findOne(id);
   }
 

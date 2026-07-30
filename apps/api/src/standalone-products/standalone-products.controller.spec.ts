@@ -10,9 +10,9 @@ describe('StandaloneProductsController', () => {
 
 	const standaloneProductsServiceMock = {
 		create: jest.fn(),
-		findAll: jest.fn(),
+		findAllVisibleTo: jest.fn(),
 		findOne: jest.fn(),
-		findByUser: jest.fn(),
+		findByUserVisibleTo: jest.fn(),
 		update: jest.fn(),
 		remove: jest.fn(),
 	};
@@ -57,10 +57,14 @@ describe('StandaloneProductsController', () => {
 
 	it('should return all standalone products', async () => {
 		const result = [{ id: 'product-1' }];
-		standaloneProductsServiceMock.findAll.mockResolvedValue(result);
+		const req = { user: { id: 'user-1', role: UserRole.USER } };
+		standaloneProductsServiceMock.findAllVisibleTo.mockResolvedValue(result);
 
-		await expect(controller.findAll()).resolves.toEqual(result);
-		expect(standaloneProductsServiceMock.findAll).toHaveBeenCalledTimes(1);
+		await expect(controller.findAll(req)).resolves.toEqual(result);
+		expect(standaloneProductsServiceMock.findAllVisibleTo).toHaveBeenCalledWith(
+			'user-1',
+			UserRole.USER,
+		);
 	});
 
 	it('should return one standalone product by id', async () => {
@@ -78,10 +82,15 @@ describe('StandaloneProductsController', () => {
 
 	it('should return standalone products by user', async () => {
 		const result = [{ id: 'product-1', owner: 'user-1' }];
-		standaloneProductsServiceMock.findByUser.mockResolvedValue(result);
+		const req = { user: { id: 'user-1', role: UserRole.USER } };
+		standaloneProductsServiceMock.findByUserVisibleTo.mockResolvedValue(result);
 
-		await expect(controller.findByUser('user-1')).resolves.toEqual(result);
-		expect(standaloneProductsServiceMock.findByUser).toHaveBeenCalledWith('user-1');
+		await expect(controller.findByUser('user-1', req)).resolves.toEqual(result);
+		expect(standaloneProductsServiceMock.findByUserVisibleTo).toHaveBeenCalledWith(
+			'user-1',
+			'user-1',
+			UserRole.USER,
+		);
 	});
 
 	it('should update a standalone product', async () => {

@@ -1,10 +1,35 @@
-import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  Body,
+  ForbiddenException,
+  Req,
+} from '@nestjs/common';
 import { CatalogsService } from './catalogs.service';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
+import { UserRole } from '@repo/types';
+
+type AuthenticatedRequest = {
+  user: {
+    id: string;
+    role: UserRole;
+  };
+};
 
 @Controller('catalogs')
 export class CatalogsController {
     constructor(private readonly catalogsService: CatalogsService) {}
+
+    private ensureAdmin(req: AuthenticatedRequest) {
+      if (req.user.role !== UserRole.ADMIN) {
+        throw new ForbiddenException(
+          'Solo los administradores pueden modificar catálogos globales.',
+        );
+      }
+    }
 
     // GET
     @ApiOkResponse({ description: 'Lista de divisiones obtenida correctamente.'})
@@ -70,70 +95,80 @@ export class CatalogsController {
     @ApiCreatedResponse({ description: 'División agregada correctamente.'})
     @ApiBadRequestResponse({ description: 'La división ya existe.'})
     @Post('divisions')
-    addDivision(@Body('value') value: string) {
+    addDivision(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.addDivision(value);
     }
 
     @ApiCreatedResponse({ description: 'Programa educativo agregado correctamente.'})
     @ApiBadRequestResponse({ description: 'El programa educativo ya existe.'})
     @Post('educational-programs')
-    addEducationalProgram(@Body('value') value: string) {
+    addEducationalProgram(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.addEducationalProgram(value);
     }
 
     @ApiCreatedResponse({ description: 'Categoría de producto agregada correctamente.'})
     @ApiBadRequestResponse({ description: 'La categoría de producto ya existe.'})
     @Post('product-categories')
-    addProductCategory(@Body('value') value: string) {
+    addProductCategory(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.addProductCategory(value);
     }
 
     @ApiCreatedResponse({ description: 'Subcategoría de producto agregada correctamente.'})
     @ApiBadRequestResponse({ description: 'La subcategoría de producto ya existe.'})
     @Post('product-subcategories')
-    addProductSubcategory(@Body('value') value: string) {
+    addProductSubcategory(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.addProductSubcategory(value);
     }
 
     @ApiCreatedResponse({ description: 'Área de conocimiento agregada correctamente.'})
     @ApiBadRequestResponse({ description: 'El área de conocimiento ya existe.'})
     @Post('knowledge-areas')
-    addKnowledgeArea(@Body('value') value: string) {
+    addKnowledgeArea(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.addKnowledgeArea(value);
     }
 
     @ApiCreatedResponse({ description: 'Área de impacto temática agregada correctamente.'})
     @ApiBadRequestResponse({ description: 'El área de impacto temática ya existe.'})
     @Post('themed-impact-areas')
-    addThemedImpactArea(@Body('value') value: string) {
+    addThemedImpactArea(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.addThemedImpactArea(value);
     }
 
     @ApiCreatedResponse({ description: 'Prioridad del PND agregada correctamente.'})
     @ApiBadRequestResponse({ description: 'La prioridad del PND ya existe.'})
     @Post('pnd-priorities')
-    addPndPriority(@Body('value') value: string) {
+    addPndPriority(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.addPndPriority(value);
     }
 
     @ApiCreatedResponse({ description: 'Línea de desarrollo agregada correctamente.'})
     @ApiBadRequestResponse({ description: 'La línea de desarrollo ya existe.'})
     @Post('development-lines')
-    addDevelopmentLine(@Body('value') value: string) {
+    addDevelopmentLine(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.addDevelopmentLine(value);
     }
 
     @ApiCreatedResponse({ description: 'Objetivo de sostenibilidad agregado correctamente.'})
     @ApiBadRequestResponse({ description: 'El objetivo de sostenibilidad ya existe.'})
     @Post('sustainability-goals')
-    addSustainabilityGoal(@Body('value') value: string) {
+    addSustainabilityGoal(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.addSustainabilityGoal(value);
     }
 
     @ApiCreatedResponse({ description: 'Programa agregado correctamente.'})
     @ApiBadRequestResponse({ description: 'El programa ya existe.'})
     @Post('project-programs')
-    addProjectProgram(@Body('value') value: string) {
+    addProjectProgram(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.addProjectProgram(value);
     }
 
@@ -141,70 +176,80 @@ export class CatalogsController {
     @ApiOkResponse({ description: 'División eliminada correctamente.'})
     @ApiNotFoundResponse({ description: 'No se encontró la división.'})
     @Delete('divisions/:id')
-    deleteDivision(@Param('id') id: string) {
+    deleteDivision(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.deleteDivision(id);
     }
 
     @ApiOkResponse({ description: 'Programa educativo eliminado correctamente.'})
     @ApiNotFoundResponse({ description: 'No se encontró el programa educativo.'})
     @Delete('educational-programs/:id')
-    deleteEducationalProgram(@Param('id') id: string) {
+    deleteEducationalProgram(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.deleteEducationalProgram(id);
     }
 
     @ApiOkResponse({ description: 'Categoría de producto eliminada correctamente.'})
     @ApiNotFoundResponse({ description: 'No se encontró la categoría de producto.'})
     @Delete('product-categories/:id')
-    deleteProductCategory(@Param('id') id: string) {
+    deleteProductCategory(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.deleteProductCategory(id);
     }
 
     @ApiOkResponse({ description: 'Subcategoría de producto eliminada correctamente.'})
     @ApiNotFoundResponse({ description: 'No se encontró la subcategoría de producto.'})
     @Delete('product-subcategories/:id')
-    deleteProductSubcategory(@Param('id') id: string) {
+    deleteProductSubcategory(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.deleteProductSubcategory(id);
     }
 
     @ApiOkResponse({ description: 'Área de conocimiento eliminada correctamente.'})
     @ApiNotFoundResponse({ description: 'No se encontró el área de conocimiento.'})
     @Delete('knowledge-areas/:id')
-    deleteKnowledgeArea(@Param('id') id: string) {
+    deleteKnowledgeArea(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.deleteKnowledgeArea(id);
     }
 
     @ApiOkResponse({ description: 'Área de impacto temática eliminada correctamente.'})
     @ApiNotFoundResponse({ description: 'No se encontró el área de impacto temática.'})
     @Delete('themed-impact-areas/:id')
-    deleteThemedImpactArea(@Param('id') id: string) {
+    deleteThemedImpactArea(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.deleteThemedImpactArea(id);
     }
 
     @ApiOkResponse({ description: 'Prioridad del PND eliminada correctamente.'})
     @ApiNotFoundResponse({ description: 'No se encontró la prioridad del PND.'})
     @Delete('pnd-priorities/:id')
-    deletePndPriority(@Param('id') id: string) {
+    deletePndPriority(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.deletePndPriority(id);
     }
 
     @ApiOkResponse({ description: 'Línea de desarrollo eliminada correctamente.'})
     @ApiNotFoundResponse({ description: 'No se encontró la línea de desarrollo.'})
     @Delete('development-lines/:id')
-    deleteDevelopmentLine(@Param('id') id: string) {
+    deleteDevelopmentLine(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.deleteDevelopmentLine(id);
     }
 
     @ApiOkResponse({ description: 'Objetivo de sostenibilidad eliminado correctamente.'})
     @ApiNotFoundResponse({ description: 'No se encontró el objetivo de sostenibilidad.'})
     @Delete('sustainability-goals/:id')
-    deleteSustainabilityGoal(@Param('id') id: string) {
+    deleteSustainabilityGoal(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.deleteSustainabilityGoal(id);
     }
 
     @ApiOkResponse({ description: 'Programa eliminado correctamente.'})
     @ApiNotFoundResponse({ description: 'No se encontró el programa.'})
     @Delete('project-programs/:id')
-    deleteProjectProgram(@Param('id') id: string) {
+    deleteProjectProgram(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
       return this.catalogsService.deleteProjectProgram(id);
     }
 }

@@ -55,8 +55,8 @@ export class ActivitiesController {
     type: [CreateActivityDto],
   })
   @Get()
-  findAll() {
-    return this.activitiesService.findAll();
+  findAll(@Req() req: AuthenticatedRequest) {
+    return this.activitiesService.findAllVisibleTo(req.user.id, req.user.role);
   }
 
   @ApiAcceptedResponse({
@@ -65,8 +65,15 @@ export class ActivitiesController {
   })
   @ApiNotFoundResponse({ description: 'No se encontraron actividades.' })
   @Get('entity/:entityId')
-  findByEntityId(@Param('entityId') entityId: string) {
-    return this.activitiesService.findByEntityId(entityId);
+  findByEntityId(
+    @Param('entityId') entityId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.activitiesService.findByEntityIdVisibleTo(
+      entityId,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @ApiAcceptedResponse({
@@ -75,8 +82,8 @@ export class ActivitiesController {
   })
   @ApiNotFoundResponse({ description: 'No se encontro la actividad.' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.activitiesService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.activitiesService.findOneVisibleTo(id, req.user.id, req.user.role);
   }
 
   @ApiAcceptedResponse({

@@ -45,6 +45,7 @@ cp sample.env .env.development
 | `GOOGLE_CALLBACK_URL`    | OAuth callback URL                | Yes      |
 | `JWT_SECRET`             | Access token secret               | Yes      |
 | `JWT_EXPIRES_IN`         | Access token expiry (e.g., `8h`)  | Yes      |
+| `COOKIE_SECURE`          | Set `true` only when HTTPS is enabled end-to-end | Yes      |
 | `REFRESH_JWT_SECRET`     | Refresh token secret              | Yes      |
 | `REFRESH_JWT_EXPIRES_IN` | Refresh token expiry (e.g., `7d`) | Yes      |
 | `SEED_PASSWORD`          | Password for seeded users         | Yes      |
@@ -89,6 +90,11 @@ http://localhost:3001/api/docs
 This API may run in environments where TLS termination is not yet available at the application boundary. In those cases, authentication cookies remain configured with `secure: false` by design so browsers will continue sending them over HTTP during login and refresh flows.
 
 This should not be interpreted as the target end state for an internet-exposed deployment. Setting `secure: true` is still the recommended posture once HTTPS is available, but enabling it before TLS exists would break authentication.
+
+Current runtime behavior:
+
+- `COOKIE_SECURE=false` keeps login/refresh flows working over HTTP environments.
+- `COOKIE_SECURE=true` must be used in HTTPS environments so auth cookies are never sent over plaintext transport.
 
 ### Compensating Controls
 

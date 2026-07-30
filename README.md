@@ -229,6 +229,7 @@ The following secrets must be configured in GitHub repository settings:
 | `GOOGLE_CALLBACK_URL`     | OAuth callback URL              |
 | `JWT_SECRET`              | Access token secret             |
 | `JWT_EXPIRES_IN`          | Access token expiry             |
+| `COOKIE_SECURE`           | Set `true` only when HTTPS is enabled end-to-end |
 | `REFRESH_JWT_SECRET`      | Refresh token secret            |
 | `REFRESH_JWT_EXPIRES_IN`  | Refresh token expiry            |
 | `SEED_PASSWORD`           | Password for seeded users       |

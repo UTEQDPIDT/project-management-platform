@@ -8,6 +8,11 @@ import { File, FileSchema } from '../schemas/file.schema';
 import { Project, ProjectSchema } from '../schemas/project.schema';
 import { Activity, ActivitySchema } from '../schemas/activities.schema';
 import { Product, ProductSchema } from '../schemas/product.schema';
+import { Event, EventSchema } from '../schemas/event.schema';
+import {
+  StandaloneProduct,
+  StandaloneProductSchema,
+} from '../schemas/standalone-product.schema';
 
 @Module({
   imports: [
@@ -19,6 +24,8 @@ import { Product, ProductSchema } from '../schemas/product.schema';
       { name: Project.name, schema: ProjectSchema },
       { name: Activity.name, schema: ActivitySchema },
       { name: Product.name, schema: ProductSchema },
+      { name: Event.name, schema: EventSchema },
+      { name: StandaloneProduct.name, schema: StandaloneProductSchema },
     ]),
   ],
   controllers: [FilesController],
