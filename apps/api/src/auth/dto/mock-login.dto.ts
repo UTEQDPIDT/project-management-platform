@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class MockLoginDto {
     @ApiProperty({
@@ -15,9 +15,10 @@ export class MockLoginDto {
 	@MinLength(8)
 	password: string;
 
-    @ApiProperty({
+    @ApiPropertyOptional({
         description: 'Token de verificación de reCAPTCHA v2 invisible.',
     })
+    @IsOptional()
     @IsString()
     @MinLength(1)
     recaptchaToken: string;

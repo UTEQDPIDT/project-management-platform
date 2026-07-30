@@ -19,7 +19,20 @@ export class RecaptchaService {
 		);
 	}
 
+	private isRecaptchaEnabled(): boolean {
+		const configuredValue = this.configService.get<string>(
+			'RECAPTCHA_ENABLED',
+			'true',
+		);
+
+		return /^(true|1|yes)$/i.test(configuredValue);
+	}
+
 	async verifyTokenOrThrow(token: string, remoteIp?: string) {
+		if (!this.isRecaptchaEnabled()) {
+			return;
+		}
+
 		const secret = this.configService.get<string>('RECAPTCHA_SECRET_KEY', '');
 
 		if (!secret) {

@@ -49,6 +49,8 @@ cp sample.env .env.development
 | `REFRESH_JWT_SECRET`     | Refresh token secret              | Yes      |
 | `REFRESH_JWT_EXPIRES_IN` | Refresh token expiry (e.g., `7d`) | Yes      |
 | `SEED_PASSWORD`          | Password for seeded users         | Yes      |
+| `RECAPTCHA_ENABLED`      | Set `false` only for local/manual testing | Yes      |
+| `RECAPTCHA_SECRET_KEY`   | Google reCAPTCHA secret used when reCAPTCHA is enabled | Yes      |
 
 ### Google OAuth Setup
 
@@ -95,6 +97,12 @@ Current runtime behavior:
 
 - `COOKIE_SECURE=false` keeps login/refresh flows working over HTTP environments.
 - `COOKIE_SECURE=true` must be used in HTTPS environments so auth cookies are never sent over plaintext transport.
+
+### reCAPTCHA Behavior
+
+- `RECAPTCHA_ENABLED=false` is intended only for local development or manual Postman testing.
+- `RECAPTCHA_ENABLED=true` requires a valid `RECAPTCHA_SECRET_KEY` and valid `recaptchaToken` values from the client.
+- When reCAPTCHA is disabled locally, `mock-login`, `mock-register`, and `forgot-password` can be tested without sending `recaptchaToken`.
 
 ### Compensating Controls
 

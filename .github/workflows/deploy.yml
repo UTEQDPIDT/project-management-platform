@@ -37,6 +37,7 @@ jobs:
           echo "MAIL_FROM=${{ secrets.MAIL_FROM }}" >> ./apps/api/.env.production
           echo "INITIALIZE_PASSWORD_SECRET=${{ secrets.INITIALIZE_PASSWORD_SECRET }}" >> ./apps/api/.env.production
           echo "RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SECRET_KEY }}" >> ./apps/api/.env.production
+          echo "RECAPTCHA_ENABLED=${{ secrets.RECAPTCHA_ENABLED }}" >> ./apps/api/.env.production
 
           # WEB Env
           echo "NEXT_PRIVATE_JWT_SECRET=${{ secrets.NEXT_PRIVATE_JWT_SECRET }}" > ./apps/web/.env.production
