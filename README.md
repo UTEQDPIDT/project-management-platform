@@ -159,7 +159,9 @@ This project uses **MongoDB** as the database, with **Mongoose** as the ODM (Obj
 
 ### Development Setup
 
-The MongoDB instance runs as a Docker container defined in `docker-compose.dev.yml`. When you run the development containers, MongoDB will be automatically available at `mongodb://mongodb:27017`.
+The MongoDB instance runs as a Docker container defined in `docker-compose.dev.yml`. When you run the development containers, MongoDB will be automatically available at `mongodb://mongodb:27017` from other containers.
+
+If you connect from your host machine (for example with MongoDB Compass), use `mongodb://127.0.0.1:27018` in development.
 
 ### Configuration
 
