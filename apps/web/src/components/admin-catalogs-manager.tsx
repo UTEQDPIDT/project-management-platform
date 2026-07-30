@@ -21,6 +21,7 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 type CatalogRecord = {
   _id: string;
@@ -48,6 +49,7 @@ function CatalogCrudCard({ section }: { section: CatalogSection }) {
   const [search, setSearch] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const { createItem, updateItem, deleteItem } = useCatalogMutations({
     endpoint: section.endpoint,
@@ -165,6 +167,8 @@ function CatalogCrudCard({ section }: { section: CatalogSection }) {
             <ul className="divide-y divide-neutral-200">
               {filteredItems.map((item) => {
                 const isEditing = editingId === item._id;
+                const isDeletePopoverOpen = confirmDeleteId === item._id;
+                const itemLabel = getLabel(item, section.fieldName);
 
                 return (
                   <li key={item._id} className="p-2 sm:p-3">
@@ -203,7 +207,7 @@ function CatalogCrudCard({ section }: { section: CatalogSection }) {
                     ) : (
                       <div className="flex items-start sm:items-center justify-between gap-2">
                         <span className="text-sm leading-5 wrap-break-word">
-                          {getLabel(item, section.fieldName)}
+                          {itemLabel}
                         </span>
                         <div className="flex gap-1 shrink-0">
                           <Button
@@ -214,18 +218,64 @@ function CatalogCrudCard({ section }: { section: CatalogSection }) {
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => deleteItem.mutate({ id: item._id })}
-                            disabled={isBusy}
+                          <Popover
+                            open={isDeletePopoverOpen}
+                            onOpenChange={(open) =>
+                              setConfirmDeleteId(open ? item._id : null)
+                            }
                           >
-                            {deleteItem.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-4 w-4" />
-                            )}
-                          </Button>
+                            <PopoverTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                disabled={isBusy}
+                              >
+                                {deleteItem.isPending && isDeletePopoverOpen ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-72 p-3" align="end">
+                              <div className="space-y-3">
+                                <p className="text-sm font-medium">Confirmar eliminación</p>
+                                <p className="text-xs text-muted-foreground wrap-break-word">
+                                  Esta acción eliminará &quot;{itemLabel}&quot; y no se puede deshacer.
+                                </p>
+                                <div className="flex gap-2 justify-end">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setConfirmDeleteId(null)}
+                                  >
+                                    Cancelar
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    disabled={deleteItem.isPending}
+                                    onClick={() => {
+                                      deleteItem.mutate(
+                                        { id: item._id },
+                                        {
+                                          onSuccess: () => {
+                                            setConfirmDeleteId(null);
+                                          },
+                                        },
+                                      );
+                                    }}
+                                  >
+                                    {deleteItem.isPending ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      'Eliminar'
+                                    )}
+                                  </Button>
+                                </div>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
                         </div>
                       </div>
                     )}
