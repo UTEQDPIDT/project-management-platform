@@ -37,7 +37,7 @@ type AccessEditableUserFields = Pick<
 >;
 
 const AUTH_SENSITIVE_FIELDS_SELECT =
-  '+passwordHash +hashedRefreshToken +passwordResetTokenHash +passwordResetExpiresAt +passwordResetUsedAt';
+  '+passwordHash +hashedRefreshToken +passwordResetTokenHash +passwordResetExpiresAt +passwordResetUsedAt +passwordResetRequestedAt';
 
 @Injectable()
 export class UsersService {
@@ -330,6 +330,7 @@ export class UsersService {
     payload: {
       passwordResetTokenHash: string;
       passwordResetExpiresAt: Date;
+      passwordResetRequestedAt?: Date;
     },
   ) {
     return await this.userModel
@@ -339,6 +340,8 @@ export class UsersService {
           passwordResetTokenHash: payload.passwordResetTokenHash,
           passwordResetExpiresAt: payload.passwordResetExpiresAt,
           passwordResetUsedAt: null,
+          passwordResetRequestedAt:
+            payload.passwordResetRequestedAt ?? new Date(),
         },
         { runValidators: true },
       )

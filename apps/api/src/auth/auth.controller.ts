@@ -195,7 +195,7 @@ export class AuthController {
     try {
       await this.recaptchaService.verifyTokenOrThrow(body.recaptchaToken, req.ip);
 
-      const response = await this.authService.forgotPassword(body.email);
+      const response = await this.authService.forgotPassword(body.email, req.ip);
       return res.status(200).json(response);
     } catch (error) {
       return res.status(200).json({

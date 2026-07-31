@@ -38,6 +38,10 @@ jobs:
           echo "INITIALIZE_PASSWORD_SECRET=${{ secrets.INITIALIZE_PASSWORD_SECRET }}" >> ./apps/api/.env.production
           echo "RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SECRET_KEY }}" >> ./apps/api/.env.production
           echo "RECAPTCHA_ENABLED=${{ secrets.RECAPTCHA_ENABLED }}" >> ./apps/api/.env.production
+          echo "FORGOT_PASSWORD_COOLDOWN_SECONDS=${{ secrets.FORGOT_PASSWORD_COOLDOWN_SECONDS }}" >> ./apps/api/.env.production
+          echo "FORGOT_PASSWORD_EMAIL_RATE_LIMIT_MAX_ATTEMPTS=${{ secrets.FORGOT_PASSWORD_EMAIL_RATE_LIMIT_MAX_ATTEMPTS }}" >> ./apps/api/.env.production
+          echo "FORGOT_PASSWORD_EMAIL_RATE_LIMIT_WINDOW_SECONDS=${{ secrets.FORGOT_PASSWORD_EMAIL_RATE_LIMIT_WINDOW_SECONDS }}" >> ./apps/api/.env.production
+          echo "PASSWORD_RESET_TOKEN_TTL_MINUTES=${{ secrets.PASSWORD_RESET_TOKEN_TTL_MINUTES }}" >> ./apps/api/.env.production
 
           # WEB Env
           echo "NEXT_PRIVATE_JWT_SECRET=${{ secrets.NEXT_PRIVATE_JWT_SECRET }}" > ./apps/web/.env.production
