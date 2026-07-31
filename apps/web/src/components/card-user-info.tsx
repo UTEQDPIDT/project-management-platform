@@ -22,7 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './ui/dialog';
-import { MoreHorizontal, Pencil, Share } from 'lucide-react';
+import { MoreHorizontal, Pencil, Shield } from 'lucide-react';
 import UserForm from './forms/user-form';
 import {
   DropdownMenu,
@@ -34,6 +34,7 @@ import { Button } from './ui/button';
 import CopyButton from './ui/copy';
 import { useState } from 'react';
 import { getUserTypeBadge } from '@/lib/badge-mappings';
+import { useUpdateUserAccess } from '@/hooks/user';
 
 interface CardUserInfoProps {
   profile: IUser;
@@ -42,6 +43,8 @@ interface CardUserInfoProps {
 export default function CardUserInfo({ profile }: CardUserInfoProps) {
   const { user } = useUserProfile();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isAccessDialogOpen, setIsAccessDialogOpen] = useState(false);
+  const updateUserAccessMutation = useUpdateUserAccess();
   const {
     _id,
     role,
@@ -62,6 +65,24 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
   } = profile;
 
   const typeBadge = getUserTypeBadge(type);
+  const canToggleRole =
+    user.role === UserRole.ADMIN &&
+    user.canCloseProject &&
+    (role === UserRole.ADMIN || role === UserRole.USER);
+  const nextRole = role === UserRole.ADMIN ? UserRole.USER : UserRole.ADMIN;
+  const roleActionLabel =
+    nextRole === UserRole.ADMIN ? 'Cambiar a ADMIN' : 'Cambiar a USER';
+
+  const handleToggleRole = () => {
+    updateUserAccessMutation.mutate(
+      { userId: profile._id, role: nextRole },
+      {
+        onSuccess: () => {
+          setIsAccessDialogOpen(false);
+        },
+      },
+    );
+  };
 
   return (
     <Card className="lg:max-w-lg w-full">
@@ -110,6 +131,49 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                     </DialogContent>
                   </Dialog>
                 </DropdownMenuItem>
+                {canToggleRole && (
+                  <DropdownMenuItem asChild>
+                    <Dialog
+                      open={isAccessDialogOpen}
+                      onOpenChange={setIsAccessDialogOpen}
+                    >
+                      <DialogTrigger className="w-full justify-start font-normal">
+                        <Shield className="h-4 w-4" /> {roleActionLabel}
+                      </DialogTrigger>
+
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Cambiar rol</DialogTitle>
+                          <DialogDescription>
+                            Esta acción actualizará el rol del usuario.
+                            Solo continúa si estás seguro.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Separator />
+                        <div className="flex flex-col gap-3">
+                          <p className="text-sm text-muted-foreground">
+                            El usuario actual pasará de {role} a {nextRole}.
+                          </p>
+                          <div className="flex flex-col-reverse sm:flex-row gap-2 justify-end">
+                            <Button
+                              variant="outline"
+                              onClick={() => setIsAccessDialogOpen(false)}
+                            >
+                              Cancelar
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              disabled={updateUserAccessMutation.isPending}
+                              onClick={handleToggleRole}
+                            >
+                              {roleActionLabel}
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}

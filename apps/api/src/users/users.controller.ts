@@ -157,7 +157,7 @@ export class UsersController {
     description: 'Solo los administradores pueden cambiar roles o permisos.',
   })
   @Patch(':id/access')
-  updateAccess(
+  async updateAccess(
     @Param('id') id: string,
     @Body() updateUserAccessDto: UpdateUserAccessDto,
     @Req() req: AuthenticatedRequest,
@@ -165,6 +165,14 @@ export class UsersController {
     if (req.user.role !== UserRole.ADMIN) {
       throw new ForbiddenException(
         'Solo los administradores pueden cambiar roles o permisos.',
+      );
+    }
+
+    const requester = await this.usersService.findOne(req.user.id);
+
+    if (!requester.canCloseProject) {
+      throw new ForbiddenException(
+        'No tienes permiso para cambiar roles o permisos de acceso.',
       );
     }
 

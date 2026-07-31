@@ -9,7 +9,7 @@ import { UpdateUserAccessDto } from './dto/update-user-access.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../schemas/user.schema';
 import { Model } from 'mongoose';
-import { UserType } from '@repo/types';
+import { UserRole, UserType } from '@repo/types';
 
 type UserUpdateOperations = {
   $set: Record<string, unknown>;
@@ -279,6 +279,27 @@ export class UsersService {
 
     if (Object.keys(safeAccessPayload).length === 0) {
       throw new BadRequestException('No access fields provided for update.');
+    }
+
+    const currentUser = await this.userModel.findById(id).select('role').exec();
+
+    if (!currentUser) {
+      throw new NotFoundException(`User with ID: ${id} not found`);
+    }
+
+    if (
+      currentUser.role === UserRole.ADMIN &&
+      safeAccessPayload.role === UserRole.USER
+    ) {
+      const adminCount = await this.userModel.countDocuments({
+        role: UserRole.ADMIN,
+      });
+
+      if (adminCount <= 1) {
+        throw new BadRequestException(
+          'No puedes quitar el último administrador del sistema.',
+        );
+      }
     }
 
     const updatedUser = await this.userModel

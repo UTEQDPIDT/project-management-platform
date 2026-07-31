@@ -243,6 +243,14 @@ The following secrets must be configured in GitHub repository settings:
 | `MAIL_PASSWORD`           | App password or token used to authorize email sending.                        |
 | `MAIL_HOST`               | Hostname/address of the SMTP mail server.                                     |
 | `MAIL_FROM`               | Default email address and name displayed as the message sender.               |
+| `RECAPTCHA_ENABLED`      | Set `true` in real environments; `false` only for local/manual testing.      |
+| `RECAPTCHA_SECRET_KEY`   | Google reCAPTCHA secret key used by the API to verify submitted tokens.       |
+
+### reCAPTCHA Configuration
+
+- Local/Postman testing: use `RECAPTCHA_ENABLED=false` and you do not need to send `recaptchaToken`.
+- Production/real environments: use `RECAPTCHA_ENABLED=true` and set `RECAPTCHA_SECRET_KEY` to the real Google secret key.
+- `RECAPTCHA_SECRET_KEY` is not a boolean flag and must never be set to `true` or `false`.
 
 
 ---
