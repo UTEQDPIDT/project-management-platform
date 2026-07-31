@@ -68,6 +68,7 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
   const canToggleRole =
     user.role === UserRole.ADMIN &&
     user.canCloseProject &&
+    user._id !== profile._id &&
     (role === UserRole.ADMIN || role === UserRole.USER);
   const nextRole = role === UserRole.ADMIN ? UserRole.USER : UserRole.ADMIN;
   const roleActionLabel =

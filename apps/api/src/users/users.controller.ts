@@ -176,6 +176,12 @@ export class UsersController {
       );
     }
 
+    if (req.user.id === id && updateUserAccessDto.role !== undefined) {
+      throw new ForbiddenException(
+        'No puedes cambiar tu propio rol de acceso.',
+      );
+    }
+
     return this.usersService.updateAccess(id, updateUserAccessDto);
   }
 
