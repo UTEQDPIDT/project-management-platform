@@ -11,9 +11,18 @@ import { createHash, randomBytes } from 'crypto';
 import { UserRole } from '@repo/types';
 import { EmailService } from '../email/email.service';
 
+type ForgotPasswordRateLimitEntry = {
+  windowStartedAt: number;
+  count: number;
+};
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly forgotPasswordRateLimit = new Map<
+    string,
+    ForgotPasswordRateLimitEntry
+  >();
 
   constructor(
     private userService: UsersService,
@@ -35,6 +44,90 @@ export class AuthService {
 
   private hashResetToken(token: string): string {
     return createHash('sha256').update(token).digest('hex');
+  }
+
+  private getPositiveNumberConfig(key: string, fallback: number): number {
+    const rawValue = this.configService.get<string>(key, String(fallback));
+    const parsedValue = Number(rawValue);
+
+    if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
+      return fallback;
+    }
+
+    return parsedValue;
+  }
+
+  private getPasswordResetTokenTtlMs(): number {
+    const ttlMinutes = this.getPositiveNumberConfig(
+      'PASSWORD_RESET_TOKEN_TTL_MINUTES',
+      15,
+    );
+
+    return ttlMinutes * 60 * 1000;
+  }
+
+  private getForgotPasswordCooldownMs(): number {
+    const cooldownSeconds = this.getPositiveNumberConfig(
+      'FORGOT_PASSWORD_COOLDOWN_SECONDS',
+      60,
+    );
+
+    return cooldownSeconds * 1000;
+  }
+
+  private getForgotPasswordRateLimitConfig() {
+    const windowSeconds = this.getPositiveNumberConfig(
+      'FORGOT_PASSWORD_EMAIL_RATE_LIMIT_WINDOW_SECONDS',
+      300,
+    );
+    const maxAttempts = this.getPositiveNumberConfig(
+      'FORGOT_PASSWORD_EMAIL_RATE_LIMIT_MAX_ATTEMPTS',
+      5,
+    );
+
+    return {
+      windowMs: windowSeconds * 1000,
+      maxAttempts,
+    };
+  }
+
+  private getForgotPasswordGenericResponse() {
+    return {
+      message:
+        'Si el correo existe, enviaremos instrucciones para restablecer la contraseña',
+    };
+  }
+
+  private isForgotPasswordRateLimited(email: string): boolean {
+    const now = Date.now();
+    const { windowMs, maxAttempts } = this.getForgotPasswordRateLimitConfig();
+    const entry = this.forgotPasswordRateLimit.get(email);
+
+    if (!entry || now - entry.windowStartedAt > windowMs) {
+      this.forgotPasswordRateLimit.set(email, {
+        windowStartedAt: now,
+        count: 1,
+      });
+      return false;
+    }
+
+    if (entry.count >= maxAttempts) {
+      return true;
+    }
+
+    entry.count += 1;
+    this.forgotPasswordRateLimit.set(email, entry);
+
+    return false;
+  }
+
+  private hasForgotPasswordCooldown(user: { passwordResetRequestedAt?: Date | null }): boolean {
+    if (!user.passwordResetRequestedAt) {
+      return false;
+    }
+
+    const elapsedMs = Date.now() - user.passwordResetRequestedAt.getTime();
+    return elapsedMs < this.getForgotPasswordCooldownMs();
   }
 
   async hashPassword(password: string): Promise<string> {
@@ -155,24 +248,39 @@ export class AuthService {
   });
 }
 
-  async forgotPassword(email: string) {
+  async forgotPassword(email: string, requesterIp?: string) {
     const normalizedEmail = this.normalizeEmail(email);
+
+    if (this.isForgotPasswordRateLimited(normalizedEmail)) {
+      this.logger.warn(
+        `Forgot-password rate limit reached for email ${normalizedEmail} from IP ${requesterIp ?? 'unknown'}`,
+      );
+      return this.getForgotPasswordGenericResponse();
+    }
+
     const user = await this.userService.findByEmailWithSensitive(normalizedEmail);
 
     if (!user) {
-      return {
-        message:
-          'Si el correo existe, enviaremos instrucciones para restablecer la contraseña',
-      };
+      return this.getForgotPasswordGenericResponse();
+    }
+
+    if (this.hasForgotPasswordCooldown(user)) {
+      this.logger.warn(
+        `Forgot-password cooldown active for email ${normalizedEmail} from IP ${requesterIp ?? 'unknown'}`,
+      );
+      return this.getForgotPasswordGenericResponse();
     }
 
     const rawToken = randomBytes(32).toString('hex');
     const passwordResetTokenHash = this.hashResetToken(rawToken);
-    const passwordResetExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    const passwordResetExpiresAt = new Date(
+      Date.now() + this.getPasswordResetTokenTtlMs(),
+    );
 
     await this.userService.setPasswordResetToken(user._id.toString(), {
       passwordResetTokenHash,
       passwordResetExpiresAt,
+      passwordResetRequestedAt: new Date(),
     });
 
     const frontendUrl = this.configService.get<string>('FRONTEND_URL', '');
@@ -187,10 +295,7 @@ export class AuthService {
       );
     }
 
-    return {
-      message:
-        'Si el correo existe, enviaremos instrucciones para restablecer la contraseña',
-    };
+    return this.getForgotPasswordGenericResponse();
   }
 
   async resetPassword(payload: {

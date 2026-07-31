@@ -51,6 +51,10 @@ cp sample.env .env.development
 | `SEED_PASSWORD`          | Password for seeded users         | Yes      |
 | `RECAPTCHA_ENABLED`      | Set `false` only for local/manual testing | Yes      |
 | `RECAPTCHA_SECRET_KEY`   | Google reCAPTCHA secret used when reCAPTCHA is enabled | Yes      |
+| `FORGOT_PASSWORD_COOLDOWN_SECONDS` | Cooldown per account between forgot-password emails | Yes |
+| `FORGOT_PASSWORD_EMAIL_RATE_LIMIT_MAX_ATTEMPTS` | Max forgot-password attempts per email in the rate-limit window | Yes |
+| `FORGOT_PASSWORD_EMAIL_RATE_LIMIT_WINDOW_SECONDS` | Window size for per-email forgot-password rate limiting | Yes |
+| `PASSWORD_RESET_TOKEN_TTL_MINUTES` | Lifetime of reset-password token | Yes |
 
 ### Google OAuth Setup
 
@@ -103,6 +107,13 @@ Current runtime behavior:
 - `RECAPTCHA_ENABLED=false` is intended only for local development or manual Postman testing.
 - `RECAPTCHA_ENABLED=true` requires a valid `RECAPTCHA_SECRET_KEY` and valid `recaptchaToken` values from the client.
 - When reCAPTCHA is disabled locally, `mock-login`, `mock-register`, and `forgot-password` can be tested without sending `recaptchaToken`.
+
+### Forgot-Password Abuse Controls
+
+- Forgot-password requests are rate-limited per email based on `FORGOT_PASSWORD_EMAIL_RATE_LIMIT_MAX_ATTEMPTS` and `FORGOT_PASSWORD_EMAIL_RATE_LIMIT_WINDOW_SECONDS`.
+- Forgot-password requests apply a per-account cooldown using `FORGOT_PASSWORD_COOLDOWN_SECONDS`.
+- Responses remain generic to avoid account enumeration, even when limits are reached.
+- Reset tokens expire according to `PASSWORD_RESET_TOKEN_TTL_MINUTES` and are invalidated after successful use.
 
 ### Compensating Controls
 

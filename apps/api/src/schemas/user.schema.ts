@@ -171,5 +171,11 @@ export class User extends Document {
   })
   @Prop({ select: false })
   passwordResetUsedAt?: Date | null;
+
+  @ApiPropertyOptional({
+    description: 'Fecha de la última solicitud de recuperación de contraseña.',
+  })
+  @Prop({ select: false })
+  passwordResetRequestedAt?: Date | null;
 }
 export const UserSchema = SchemaFactory.createForClass(User);

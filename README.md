@@ -245,6 +245,10 @@ The following secrets must be configured in GitHub repository settings:
 | `MAIL_FROM`               | Default email address and name displayed as the message sender.               |
 | `RECAPTCHA_ENABLED`      | Set `true` in real environments; `false` only for local/manual testing.      |
 | `RECAPTCHA_SECRET_KEY`   | Google reCAPTCHA secret key used by the API to verify submitted tokens.       |
+| `FORGOT_PASSWORD_COOLDOWN_SECONDS` | Cooldown in seconds before the same account can receive another reset email. |
+| `FORGOT_PASSWORD_EMAIL_RATE_LIMIT_MAX_ATTEMPTS` | Max forgot-password attempts per email within the configured window. |
+| `FORGOT_PASSWORD_EMAIL_RATE_LIMIT_WINDOW_SECONDS` | Window in seconds used for per-email forgot-password rate limiting. |
+| `PASSWORD_RESET_TOKEN_TTL_MINUTES` | Reset-token expiration time in minutes. |
 
 ### reCAPTCHA Configuration
 
