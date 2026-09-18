@@ -26,4 +26,6 @@ export interface IEvent {
   updatedBy: IUser;
   createdAt: Date;
   updatedAt: Date;
+  isHidden?: boolean;
+  hiddenBy?: IUser;
 }

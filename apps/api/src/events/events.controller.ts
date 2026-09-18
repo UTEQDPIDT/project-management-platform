@@ -92,6 +92,23 @@ export class EventsController {
   }
 
   /**
+   * VISIBILITY
+   */
+  @ApiOkResponse({ description: 'Evento ocultado correctamente.' })
+  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
+  @Post(':id/hide')
+  hideEvent(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.eventsService.hideEvent(id, req.user.id);
+  }
+
+  @ApiOkResponse({ description: 'Evento mostrado nuevamente.' })
+  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
+  @Post(':id/unhide')
+  unhideEvent(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.eventsService.unhideEvent(id, req.user.id);
+  }
+
+  /**
    * PARTICIPANTS
    */
   @Patch(':id/register')

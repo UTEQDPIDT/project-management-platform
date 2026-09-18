@@ -138,6 +138,24 @@ const getEventsDashboard = async (
   return data;
 };
 
+/**
+ * Sends a request to hide an event from other users' views.
+ * @param eventId The unique identifier of the event.
+ */
+const hideEvent = async (eventId: string) => {
+  const { data } = await api.post(`/events/${eventId}/hide`);
+  return data;
+};
+
+/**
+ * Sends a request to reveal a previously hidden event.
+ * @param eventId The unique identifier of the event.
+ */
+const unhideEvent = async (eventId: string) => {
+  const { data } = await api.post(`/events/${eventId}/unhide`);
+  return data;
+};
+
 export {
   createEvent,
   getAllEvents,
@@ -151,4 +169,6 @@ export {
   removeProduct,
   getEventsByUser,
   getEventsDashboard,
+  hideEvent,
+  unhideEvent,
 };

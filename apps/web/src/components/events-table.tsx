@@ -1,6 +1,6 @@
 'use client';
 
-import { useDeleteEvent, useGetAllEvents } from '@/hooks/events';
+import { useDeleteEvent, useGetAllEvents, useHideEvent, useUnhideEvent } from '@/hooks/events';
 import { FilePurpose, IEvent, IFile } from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
 import {
@@ -26,6 +26,8 @@ import {
   MoreHorizontal,
   Pencil,
   Trash,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import {
   Dialog,
@@ -45,6 +47,8 @@ import FileButton from './file-button';
 import { copyValue } from '@/lib/utils';
 import React from 'react';
 import { getVisibilityBadge } from '@/lib/badge-mappings';
+import { useUserProfile } from 'context/profile-provider';
+import { UserRole } from '@repo/types';
 
 const EventFileButton = ({
   eventId,
@@ -72,6 +76,12 @@ const EventFileButton = ({
 
 const EventActions = (event: IEvent) => {
   const deleteEvent = useDeleteEvent();
+  const hideEvent = useHideEvent();
+  const unhideEvent = useUnhideEvent();
+  const { user } = useUserProfile();
+  const canToggleVisibility = Boolean(
+    user?.canCloseProject && user?.role === UserRole.ADMIN,
+  );
 
   return (
     <DropdownMenu>
@@ -97,6 +107,25 @@ const EventActions = (event: IEvent) => {
             <Copy className="size-4" /> Copiar ID
           </div>
         </DropdownMenuItem>
+
+        {canToggleVisibility && (
+          event.isHidden ? (
+            <DropdownMenuItem
+              disabled={unhideEvent.isPending}
+              onClick={() => unhideEvent.mutate(event._id)}
+            >
+              <Eye /> Mostrar evento
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem
+              disabled={hideEvent.isPending}
+              onClick={() => hideEvent.mutate(event._id)}
+            >
+              <EyeOff /> Ocultar evento
+            </DropdownMenuItem>
+          )
+        )}
+
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="hover:text-destructive-foreground">
           <Dialog>
@@ -384,9 +413,16 @@ const facetedFiltersConfig: FacetedFilterConfig[] = [
   },
 ];
 
-export function EventsTable() {
+export function EventsTable({
+  showHidden = false,
+}: {
+  showHidden?: boolean;
+}) {
   const { data: events, isLoading: loadingEvents } = useGetAllEvents();
-  const typedEvents = React.useMemo(() => (events ?? []) as IEvent[], [events]);
+  const typedEvents = React.useMemo(
+    () => ((events ?? []) as IEvent[]).filter((event) => Boolean(event.isHidden) === showHidden),
+    [events, showHidden],
+  );
 
   const yearFilterOptions = React.useMemo<FacetedFilterConfig['options']>(() => {
     if (!typedEvents.length) return [];
@@ -455,7 +491,7 @@ export function EventsTable() {
           columns={columns}
           data={typedEvents}
           facetedFilters={eventFacetedFilters}
-          persistStateKey="events-table"
+          persistStateKey={showHidden ? 'hidden-events-table' : 'events-table'}
         />
       )}
     </div>

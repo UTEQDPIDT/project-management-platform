@@ -73,6 +73,14 @@ export class Event extends Document {
     men: number;
     women: number;
   };
+
+  @ApiProperty({ description: 'Indica si el evento está oculto para los demás usuarios' })
+  @Prop({ type: Boolean, default: false })
+  isHidden?: boolean;
+
+  @ApiProperty({ description: 'Usuario con permiso de cierre de proyectos que ocultó el evento' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null })
+  hiddenBy?: User | mongoose.Types.ObjectId | null;
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);

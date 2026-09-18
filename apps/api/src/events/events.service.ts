@@ -7,8 +7,9 @@ import {
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { Event } from '../schemas/event.schema';
+import { User } from '../schemas/user.schema';
 import { FilesService } from '../files/files.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { Product } from '../schemas/product.schema';
@@ -20,6 +21,7 @@ import { AccessDeniedReason } from '../common/security/access-denied-reason.enum
 export class EventsService {
   constructor(
     @InjectModel(Event.name) private eventModel: Model<Event>,
+    @InjectModel(User.name) private userModel: Model<User>,
     @InjectConnection() private readonly connection: Connection,
     private readonly filesService: FilesService,
     private readonly activitiesService: ActivitiesService,
@@ -121,8 +123,18 @@ export class EventsService {
     }
   }
 
+  private async canCloseProjectPermission(userId: string): Promise<boolean> {
+    const user = await this.userModel.findById(userId).select('canCloseProject');
+
+    if (!user) {
+      throw new NotFoundException(`User with ID: ${userId} not found`);
+    }
+
+    return Boolean(user.get('canCloseProject'));
+  }
+
   async findAll(actorId: string, actorRole: UserRole) {
-    const filter =
+    let filter: Record<string, unknown> =
       actorRole === UserRole.ADMIN
         ? {}
         : {
@@ -132,6 +144,14 @@ export class EventsService {
               { participants: actorId },
             ],
           };
+
+    if (actorRole === UserRole.ADMIN) {
+      // El ocultamiento de eventos solo aplica a la vista de administradores.
+      const canClose = await this.canCloseProjectPermission(actorId);
+      if (!canClose) {
+        filter = { ...filter, isHidden: { $ne: true } };
+      }
+    }
 
     return this.eventModel
       .find(filter)
@@ -167,6 +187,13 @@ export class EventsService {
 
     if (!event) {
       throw new NotFoundException(`Event with ID: ${id} not found`);
+    }
+
+    if (actorRole === UserRole.ADMIN && (event as unknown as { isHidden?: boolean }).isHidden) {
+      const canClose = await this.canCloseProjectPermission(actorId);
+      if (!canClose) {
+        throw new NotFoundException(`Event with ID: ${id} not found`);
+      }
     }
 
     this.ensureCanViewEvent(event, actorId, actorRole);
@@ -308,6 +335,66 @@ export class EventsService {
     } finally {
       await session.endSession();
     }
+  }
+
+  /**
+   * Hides an event from the admin view for users without the close-project permission.
+   * @param eventId The unique identifier of the event.
+   * @param userId The ID of the user hiding the event.
+   */
+  async hideEvent(eventId: string, userId: string) {
+    const canClose = await this.canCloseProjectPermission(userId);
+
+    if (!canClose) {
+      throw new ForbiddenException('This user is not authorized to hide events.');
+    }
+
+    const event = await this.eventModel.findById(eventId);
+    if (!event) {
+      throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
+
+    if (event.get('isHidden')) {
+      throw new BadRequestException('The event is already hidden.');
+    }
+
+    await this.eventModel.findByIdAndUpdate(eventId, {
+      isHidden: true,
+      hiddenBy: new Types.ObjectId(userId),
+      updatedBy: userId,
+    });
+
+    return { id: eventId, message: 'Event hidden successfully' };
+  }
+
+  /**
+   * Reveals a previously hidden event.
+   * @param eventId The unique identifier of the event.
+   * @param userId The ID of the user unhiding the event.
+   */
+  async unhideEvent(eventId: string, userId: string) {
+    const canClose = await this.canCloseProjectPermission(userId);
+
+    if (!canClose) {
+      throw new ForbiddenException('This user is not authorized to unhide events.');
+    }
+
+    const event = await this.eventModel.findById(eventId);
+    if (!event) {
+      throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
+
+    if (!event.get('isHidden')) {
+      throw new BadRequestException('The event is not hidden.');
+    }
+
+    await this.eventModel.findByIdAndUpdate(eventId, {
+      isHidden: false,
+      hiddenBy: null,
+      updatedBy: userId,
+    });
+
+    return { id: eventId, message: 'Event unhidden successfully' };
   }
 
   /**
