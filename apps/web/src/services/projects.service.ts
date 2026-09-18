@@ -107,6 +107,24 @@ const reopenProject = async (id: string) => {
   return data;
 };
 
+/**
+ * Sends a request to hide a project from other users' views.
+ * @param id The unique identifier of the project.
+ */
+const hideProject = async (id: string) => {
+  const { data } = await api.post(`/projects/${id}/hide`);
+  return data;
+};
+
+/**
+ * Sends a request to reveal a previously hidden project.
+ * @param id The unique identifier of the project.
+ */
+const unhideProject = async (id: string) => {
+  const { data } = await api.post(`/projects/${id}/unhide`);
+  return data;
+};
+
 export {
   createProject,
   getAllProjects,
@@ -120,4 +138,6 @@ export {
   cancelFirstValidation,
   closeProject,
   reopenProject,
+  hideProject,
+  unhideProject,
 };

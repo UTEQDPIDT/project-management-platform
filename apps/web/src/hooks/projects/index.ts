@@ -8,5 +8,7 @@ export * from './use-projects-by-team';
 export * from './use-project-card-data';
 export * from './use-close-project';
 export * from './use-reopen-project';
+export * from './use-hide-project';
+export * from './use-unhide-project';
 export * from './use-first-validation-project';
 export * from './use-cancel-first-validation-project';

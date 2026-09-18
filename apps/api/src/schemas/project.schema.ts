@@ -177,6 +177,19 @@ export class Project extends Document {
   })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null })
   closedBy?: User | mongoose.Types.ObjectId | null;
+
+  @ApiPropertyOptional({
+    description: 'Indica si el proyecto está oculto para los demás usuarios.',
+    default: false,
+  })
+  @Prop({ type: Boolean, default: false })
+  isHidden?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Usuario con permiso de cierre de proyectos que ocultó el proyecto.',
+  })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null })
+  hiddenBy?: User | mongoose.Types.ObjectId | null;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

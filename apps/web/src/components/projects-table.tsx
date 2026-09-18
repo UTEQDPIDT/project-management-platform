@@ -6,7 +6,9 @@ import {
   useCloseProject,
   useDeleteProject,
   useFirstValidationProject,
+  useHideProject,
   useReopenProject,
+  useUnhideProject,
 } from '@/hooks/projects';
 import React from 'react';
 import LoadingMessage from './loading-message';
@@ -46,6 +48,8 @@ import {
   Lock,
   Pin,
   XCircle,
+  EyeOff,
+  Eye,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
@@ -123,6 +127,8 @@ const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
   const cancelFirstValidationProject = useCancelFirstValidationProject();
   const closeProject = useCloseProject();
   const reopenProject = useReopenProject();
+  const hideProject = useHideProject();
+  const unhideProject = useUnhideProject();
   const effectiveStatus = project.__derivedStatus;
   const isClosed = effectiveStatus === ProjectStatus.CLOSED;
   const closedById =
@@ -153,6 +159,7 @@ const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
       user?.canValidateProjets &&
       hasFirstValidation,
   );
+  const canToggleVisibility = Boolean(user?.canCloseProject);
 
   return (
     <DropdownMenu>
@@ -217,6 +224,24 @@ const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
           >
             <DoorOpen /> Reabrir proyecto
           </DropdownMenuItem>
+        )}
+
+        {canToggleVisibility && (
+          project.isHidden ? (
+            <DropdownMenuItem
+              onClick={() => unhideProject.mutate(project._id)}
+              disabled={unhideProject.isPending}
+            >
+              <Eye /> Mostrar proyecto
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem
+              onClick={() => hideProject.mutate(project._id)}
+              disabled={hideProject.isPending}
+            >
+              <EyeOff /> Ocultar proyecto
+            </DropdownMenuItem>
+          )
         )}
 
         {!isClosed && (
@@ -441,9 +466,16 @@ const facetedFilters: FacetedFilterConfig[] = [
   },
 ];
 
-export default function ProjectsTable() {
+export default function ProjectsTable({
+  showHidden = false,
+}: {
+  showHidden?: boolean;
+}) {
   const { data: projects, isLoading: loadingProjects } = useAllProjects();
-  const typedProjects = React.useMemo(() => (projects ?? []) as IProject[], [projects]);
+  const typedProjects = React.useMemo(
+    () => ((projects ?? []) as IProject[]).filter((project) => Boolean(project.isHidden) === showHidden),
+    [projects, showHidden],
+  );
 
   const projectActivitiesQueries = useQueries({
     queries: typedProjects.map((project) => ({
@@ -567,7 +599,7 @@ export default function ProjectsTable() {
           columns={columns}
           data={sortedProjects}
           facetedFilters={projectFacetedFilters}
-          persistStateKey="projects-table"
+          persistStateKey={showHidden ? 'hidden-projects-table' : 'projects-table'}
         />
       )}
     </div>

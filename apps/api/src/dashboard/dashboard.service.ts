@@ -81,7 +81,10 @@ export class DashboardService {
         }
 
         const { startDate, endDate } = this.getPeriodRange(period, year);
-        const dateFilter = { startDate: { $gte: startDate, $lte: endDate } };
+        const dateFilter = {
+            startDate: { $gte: startDate, $lte: endDate },
+            isHidden: { $ne: true },
+        };
 
         const [events, participantsByType] = await Promise.all([
             this.eventModel
@@ -164,7 +167,10 @@ export class DashboardService {
         }
 
         const { startDate, endDate } = this.getPeriodRange(period, year);
-        const dateFilter = { startDate: { $gte: startDate, $lte: endDate } };
+        const dateFilter = {
+            startDate: { $gte: startDate, $lte: endDate },
+            isHidden: { $ne: true },
+        };
 
         const [projectsCount, participantsByType] = await Promise.all([
             this.projectModel.countDocuments(dateFilter),

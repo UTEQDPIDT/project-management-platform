@@ -11,6 +11,8 @@ import {
 	Trash,
 	Lock,
  	XCircle,
+	EyeOff,
+	Eye,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -43,7 +45,9 @@ import {
 	useCloseProject,
 	useDeleteProject,
 	useFirstValidationProject,
+	useHideProject,
 	useReopenProject,
+	useUnhideProject,
  	useCancelFirstValidationProject,
 } from '@/hooks/projects';
 import {
@@ -100,6 +104,8 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 	const cancelFirstValidationProject = useCancelFirstValidationProject();
 	const closeProject = useCloseProject();
 	const reopenProject = useReopenProject();
+	const hideProject = useHideProject();
+	const unhideProject = useUnhideProject();
 	const isClosed = project.status === ProjectStatus.CLOSED;
 	const closedById =
 		typeof project.closedBy === 'string' ? project.closedBy : project.closedBy?._id;
@@ -129,6 +135,7 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 			user?.canValidateProjets &&
 			hasFirstValidation,
 	);
+	const canToggleVisibility = Boolean(user?.canCloseProject);
 
 	return (
 		<DropdownMenu>
@@ -189,6 +196,24 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 					>
 						<DoorOpen /> Reabrir proyecto
 					</DropdownMenuItem>
+				)}
+
+				{canToggleVisibility && (
+					project.isHidden ? (
+						<DropdownMenuItem
+							onClick={() => unhideProject.mutate(project._id)}
+							disabled={unhideProject.isPending}
+						>
+							<Eye /> Mostrar proyecto
+						</DropdownMenuItem>
+					) : (
+						<DropdownMenuItem
+							onClick={() => hideProject.mutate(project._id)}
+							disabled={hideProject.isPending}
+						>
+							<EyeOff /> Ocultar proyecto
+						</DropdownMenuItem>
+					)
 				)}
 
 				{!isClosed && (

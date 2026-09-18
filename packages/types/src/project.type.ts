@@ -31,4 +31,6 @@ export interface IProject {
   firstValidatedBy?: IUser;
   ValidationBy?: IUser;
   closedBy?: IUser;
+  isHidden?: boolean;
+  hiddenBy?: IUser;
 }
