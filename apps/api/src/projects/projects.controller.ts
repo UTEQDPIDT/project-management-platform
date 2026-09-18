@@ -171,4 +171,36 @@ export class ProjectsController {
   ) {
     return this.projectsService.reopenProject(id, req.user.id);
   }
+
+  /**
+   * Endpoint for users with close-project permission to hide a project from other views.
+   */
+  @ApiAcceptedResponse({ description: 'Project hidden successfully.' })
+  @ApiBadRequestResponse({ description: 'Project is already hidden.' })
+  @ApiForbiddenResponse({ description: 'User is not authorized to hide projects.' })
+  @ApiNotFoundResponse({ description: 'Project not found.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized or expired cookie.' })
+  @Post(':id/hide')
+  hideProject(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.projectsService.hideProject(id, req.user.id);
+  }
+
+  /**
+   * Endpoint for users with close-project permission to reveal a previously hidden project.
+   */
+  @ApiAcceptedResponse({ description: 'Project unhidden successfully.' })
+  @ApiBadRequestResponse({ description: 'Project is not hidden.' })
+  @ApiForbiddenResponse({ description: 'User is not authorized to unhide projects.' })
+  @ApiNotFoundResponse({ description: 'Project not found.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized or expired cookie.' })
+  @Post(':id/unhide')
+  unhideProject(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.projectsService.unhideProject(id, req.user.id);
+  }
 }

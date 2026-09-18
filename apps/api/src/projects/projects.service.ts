@@ -300,6 +300,12 @@ export class ProjectsService {
       queryFilter = {
         $or: [{ owner: actorId }, { team: { $in: teamIds } }],
       };
+    } else {
+      // El ocultamiento de proyectos solo aplica a la vista de administradores.
+      const permissions = await this.getValidationPermissions(actorId);
+      if (!permissions.canClose) {
+        queryFilter = { ...queryFilter, isHidden: { $ne: true } };
+      }
     }
 
     return await this.projectModel
@@ -348,6 +354,13 @@ export class ProjectsService {
       throw new NotFoundException(`Project with ID ${id} not found.`);
     }
 
+    if (actorRole === UserRole.ADMIN && (project as unknown as { isHidden?: boolean }).isHidden) {
+      const permissions = await this.getValidationPermissions(actorId);
+      if (!permissions.canClose) {
+        throw new NotFoundException(`Project with ID ${id} not found.`);
+      }
+    }
+
     await this.ensureCanReadProject(project, actorId, actorRole);
 
     return project;
@@ -355,6 +368,7 @@ export class ProjectsService {
 
   /**
    * Retrieves all projects belonging to a specific owner.
+   * El ocultamiento de proyectos no aplica aquí: el dueño siempre ve sus propios proyectos.
    * @param ownerId The unique identifier of the owner user.
    */
   async findByOwner(ownerId: string) {
@@ -400,7 +414,16 @@ export class ProjectsService {
       }
     }
 
-    return await this.projectModel.find({ team: teamId });
+    const queryFilter: Record<string, unknown> = { team: teamId };
+    if (actorRole === UserRole.ADMIN) {
+      // El ocultamiento de proyectos solo aplica a la vista de administradores.
+      const permissions = await this.getValidationPermissions(actorId);
+      if (!permissions.canClose) {
+        queryFilter.isHidden = { $ne: true };
+      }
+    }
+
+    return await this.projectModel.find(queryFilter);
   }
 
   /**
@@ -692,5 +715,67 @@ export class ProjectsService {
     });
 
     return { id: projectId, message: 'Project reopened successfully. Validation workflow restarted.' };
+  }
+
+  /**
+   * Hides a project from users who lack the close-project permission.
+   * Restricted to users authorized to close projects.
+   * @param projectId The unique identifier of the project.
+   * @param userId The ID of the user hiding the project.
+   */
+  async hideProject(projectId: string, userId: string) {
+    const permissions = await this.getValidationPermissions(userId);
+
+    if (!permissions.canClose) {
+      throw new ForbiddenException('This user is not authorized to hide projects.');
+    }
+
+    const project = await this.projectModel.findById(projectId);
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${projectId} not found`);
+    }
+
+    if (project.get('isHidden')) {
+      throw new BadRequestException('The project is already hidden.');
+    }
+
+    await this.projectModel.findByIdAndUpdate(projectId, {
+      isHidden: true,
+      hiddenBy: new Types.ObjectId(userId),
+      updatedBy: userId,
+    });
+
+    return { id: projectId, message: 'Project hidden successfully' };
+  }
+
+  /**
+   * Reveals a previously hidden project.
+   * Restricted to users authorized to close projects.
+   * @param projectId The unique identifier of the project.
+   * @param userId The ID of the user unhiding the project.
+   */
+  async unhideProject(projectId: string, userId: string) {
+    const permissions = await this.getValidationPermissions(userId);
+
+    if (!permissions.canClose) {
+      throw new ForbiddenException('This user is not authorized to unhide projects.');
+    }
+
+    const project = await this.projectModel.findById(projectId);
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${projectId} not found`);
+    }
+
+    if (!project.get('isHidden')) {
+      throw new BadRequestException('The project is not hidden.');
+    }
+
+    await this.projectModel.findByIdAndUpdate(projectId, {
+      isHidden: false,
+      hiddenBy: null,
+      updatedBy: userId,
+    });
+
+    return { id: projectId, message: 'Project unhidden successfully' };
   }
 }

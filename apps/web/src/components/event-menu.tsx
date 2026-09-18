@@ -8,7 +8,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { DoorOpen, Ellipsis, Pencil, Trash } from 'lucide-react';
+import { DoorOpen, Ellipsis, Eye, EyeOff, Pencil, Trash } from 'lucide-react';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import {
@@ -21,7 +21,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from './ui/dialog';
-import { useDeleteEvent, useExitEvent } from '@/hooks/events';
+import { useDeleteEvent, useExitEvent, useHideEvent, useUnhideEvent } from '@/hooks/events';
 import { Badge } from './ui/badge';
 import { useUserProfile } from 'context/profile-provider';
 import { UserRole } from '@repo/types';
@@ -29,13 +29,20 @@ import { UserRole } from '@repo/types';
 export function EventMenu({
   eventId,
   name,
+  isHidden,
 }: {
   eventId: string;
   name: string;
+  isHidden?: boolean;
 }) {
   const { user } = useUserProfile();
   const deleteEvent = useDeleteEvent();
   const exitEvent = useExitEvent();
+  const hideEvent = useHideEvent();
+  const unhideEvent = useUnhideEvent();
+  const canToggleVisibility = Boolean(
+    user?.canCloseProject && user?.role === UserRole.ADMIN,
+  );
 
   const handleExitEvent = () => {
     exitEvent.mutate({ eventId, userId: user._id });
@@ -92,6 +99,24 @@ export function EventMenu({
             <DropdownMenuItem onClick={handleExitEvent}>
               <DoorOpen /> Salir del evento
             </DropdownMenuItem>
+          )}
+
+          {canToggleVisibility && (
+            isHidden ? (
+              <DropdownMenuItem
+                disabled={unhideEvent.isPending}
+                onClick={() => unhideEvent.mutate(eventId)}
+              >
+                <Eye /> Mostrar evento
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem
+                disabled={hideEvent.isPending}
+                onClick={() => hideEvent.mutate(eventId)}
+              >
+                <EyeOff /> Ocultar evento
+              </DropdownMenuItem>
+            )
           )}
         </DropdownMenuGroup>
       </DropdownMenuContent>

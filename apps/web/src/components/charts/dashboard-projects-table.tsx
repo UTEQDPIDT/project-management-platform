@@ -86,7 +86,10 @@ export function DashboardProjectsTable({
 		isError: isProjectsError,
 	} = useAllProjects();
 
-	const typedProjects = React.useMemo(() => (allProjects ?? []) as IProject[], [allProjects]);
+	const typedProjects = React.useMemo(
+		() => ((allProjects ?? []) as IProject[]).filter((project) => !project.isHidden),
+		[allProjects],
+	);
 
 	const projectActivitiesQueries = useQueries({
 		queries: typedProjects.map((project) => ({

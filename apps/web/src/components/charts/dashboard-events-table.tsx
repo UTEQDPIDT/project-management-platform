@@ -19,7 +19,10 @@ export function DashboardEventsTable({ dateRange }: DashboardEventsTableProps) {
 		isError: isEventsError,
 	} = useGetAllEvents();
 
-	const typedEvents = React.useMemo(() => (allEvents ?? []) as IEvent[], [allEvents]);
+	const typedEvents = React.useMemo(
+		() => ((allEvents ?? []) as IEvent[]).filter((event) => !event.isHidden),
+		[allEvents],
+	);
 
 	const eventsInPeriod = React.useMemo(() => {
 		if (!typedEvents.length) return [];

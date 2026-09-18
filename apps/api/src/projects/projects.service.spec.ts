@@ -282,6 +282,7 @@ describe('ProjectsService', () => {
     expect(projectModelMock.find).toHaveBeenCalledWith({
       $or: [{ owner: 'user-1' }, { team: { $in: ['team-1'] } }],
     });
+    expect(userModelMock.findById).not.toHaveBeenCalled();
     expect(result).toEqual([{ _id: 'project-1' }]);
   });
 

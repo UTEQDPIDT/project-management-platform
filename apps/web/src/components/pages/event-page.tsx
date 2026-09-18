@@ -181,7 +181,7 @@ const EventPage = () => {
               </Breadcrumb>
             </HeaderHeading>
             <HeaderAction>
-              <EventMenu eventId={eventId} name={event.name} />
+              <EventMenu eventId={eventId} name={event.name} isHidden={event.isHidden} />
             </HeaderAction>
           </Header>
 

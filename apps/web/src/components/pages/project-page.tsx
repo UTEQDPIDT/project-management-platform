@@ -124,6 +124,7 @@ const ProjectPage = () => {
                   status={statusForActions}
                   firstValidatedBy={project.firstValidatedBy}
                   closedBy={project.closedBy}
+                  isHidden={project.isHidden}
                 />
               </HeaderAction>
             )}

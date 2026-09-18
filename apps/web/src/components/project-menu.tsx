@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { DoorOpen, Ellipsis, ExternalLink, Pencil, Trash, Lock, Pin } from 'lucide-react';
+import { DoorOpen, Ellipsis, ExternalLink, Pencil, Trash, Lock, Pin, EyeOff, Eye } from 'lucide-react';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import {
@@ -28,7 +28,9 @@ import {
   useCloseProject,
   useDeleteProject,
   useFirstValidationProject,
+  useHideProject,
   useReopenProject,
+  useUnhideProject,
 } from '@/hooks/projects';
 import { useUserProfile } from 'context/profile-provider';
 import { IProject, ProjectStatus, UserRole } from '@repo/types';
@@ -40,18 +42,22 @@ export function ProjectMenu({
   status,
   firstValidatedBy,
   closedBy,
+  isHidden,
 }: {
   projectId: string;
   name: string;
   status?: ProjectStatus;
   firstValidatedBy?: IProject['firstValidatedBy'];
   closedBy?: IProject['closedBy'];
+  isHidden?: boolean;
 }) {
   const deleteProject = useDeleteProject();
   const firstValidationProject = useFirstValidationProject();
   const cancelFirstValidationProject = useCancelFirstValidationProject();
   const closeProject = useCloseProject();
   const reopenProject = useReopenProject();
+  const hideProject = useHideProject();
+  const unhideProject = useUnhideProject();
   const router = useRouter();
   const { user } = useUserProfile();
   const rootUrl = user.role === UserRole.ADMIN ? '/admin' : '/user';
@@ -84,6 +90,9 @@ export function ProjectMenu({
       status === ProjectStatus.FIRST_VALIDATION &&
       hasFirstValidation &&
       user?.canValidateProjets,
+  );
+  const canToggleVisibility = Boolean(
+    user?.canCloseProject && user?.role === UserRole.ADMIN,
   );
 
   return (
@@ -186,6 +195,29 @@ export function ProjectMenu({
                 <DoorOpen />
                 Reabrir proyecto
               </DropdownMenuItem>
+            </>
+          )}
+
+          {canToggleVisibility && (
+            <>
+              <DropdownMenuSeparator />
+              {isHidden ? (
+                <DropdownMenuItem
+                  disabled={unhideProject.isPending}
+                  onClick={() => unhideProject.mutate(projectId)}
+                >
+                  <Eye />
+                  Mostrar proyecto
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  disabled={hideProject.isPending}
+                  onClick={() => hideProject.mutate(projectId)}
+                >
+                  <EyeOff />
+                  Ocultar proyecto
+                </DropdownMenuItem>
+              )}
             </>
           )}
         </DropdownMenuGroup>

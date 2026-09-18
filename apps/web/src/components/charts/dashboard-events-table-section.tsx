@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Copy, ExternalLink, MoreHorizontal, Pencil, Trash } from 'lucide-react';
+import { Copy, ExternalLink, MoreHorizontal, Pencil, Trash, Eye, EyeOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,9 +29,10 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { copyValue, formatDatePeriod } from '@/lib/utils';
-import { useDeleteEvent } from '@/hooks/events';
-import { IEvent } from '@repo/types';
+import { useDeleteEvent, useHideEvent, useUnhideEvent } from '@/hooks/events';
+import { IEvent, UserRole } from '@repo/types';
 import { getEventTypeBadge } from '@/lib/badge-mappings';
+import { useUserProfile } from 'context/profile-provider';
 
 const MAX_EVENT_NAME_LENGTH = 50;
 
@@ -63,6 +64,12 @@ const getParticipantsCount = (event: IEvent) => {
 
 const EventActions = ({ event }: { event: IEvent }) => {
 	const deleteEvent = useDeleteEvent();
+	const hideEvent = useHideEvent();
+	const unhideEvent = useUnhideEvent();
+	const { user } = useUserProfile();
+	const canToggleVisibility = Boolean(
+		user?.canCloseProject && user?.role === UserRole.ADMIN,
+	);
 
 	return (
 		<DropdownMenu>
@@ -86,6 +93,25 @@ const EventActions = ({ event }: { event: IEvent }) => {
 				<DropdownMenuItem onClick={() => copyValue(event._id)}>
 					<Copy /> Copiar ID
 				</DropdownMenuItem>
+
+				{canToggleVisibility && (
+					event.isHidden ? (
+						<DropdownMenuItem
+							onClick={() => unhideEvent.mutate(event._id)}
+							disabled={unhideEvent.isPending}
+						>
+							<Eye /> Mostrar evento
+						</DropdownMenuItem>
+					) : (
+						<DropdownMenuItem
+							onClick={() => hideEvent.mutate(event._id)}
+							disabled={hideEvent.isPending}
+						>
+							<EyeOff /> Ocultar evento
+						</DropdownMenuItem>
+					)
+				)}
+
 				<DropdownMenuSeparator />
 				<DropdownMenuItem asChild className="hover:text-destructive-foreground">
 					<Dialog>
