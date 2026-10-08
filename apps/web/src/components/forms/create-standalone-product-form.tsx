@@ -304,34 +304,6 @@ export function StandaloneProductForm({
 
         <Controller
           control={form.control}
-          name="coAuthor"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Tipo de Co Author</FieldLabel>
-              <Select {...field} onValueChange={field.onChange}>
-                <SelectTrigger
-                  id={field.name}
-                  onBlur={field.onBlur}
-                  aria-invalid={fieldState.invalid}
-                  className="border border-neutral-400"
-                >
-                  <SelectValue placeholder="Selecciona un co autor" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(CoAuthor).map((author) => (
-                    <SelectItem key={author} value={author}>
-                      {author}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
-
-        <Controller
-          control={form.control}
           name="file"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
