@@ -199,11 +199,6 @@ const columns: ColumnDef<IStandaloneProduct>[] = [
     meta: { className: 'hidden lg:table-cell' },
   },
   {
-    accessorKey: 'coAuthor',
-    header: 'Co Autor',
-    meta: { className: 'hidden xl:table-cell' },
-  },
-  {
     id: 'owner',
     accessorFn: (row) => row.owner?._id ?? 'Sin propietario',
     header: 'Propietario',
@@ -307,14 +302,6 @@ export function StandaloneProductsTable({
         columnId: 'subcategory',
         title: 'Subcategoría',
         options: subcategoriesOptions,
-      },
-      {
-        columnId: 'coAuthor',
-        title: 'Co Autor',
-        options: Object.values(CoAuthor).map((coAuthor) => ({
-          label: coAuthor,
-          value: coAuthor,
-        })),
       },
       {
         columnId: 'owner',
