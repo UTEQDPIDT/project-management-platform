@@ -8,9 +8,9 @@ export class UpdateUserAccessDto {
 
   @IsOptional()
   @IsBoolean()
-  canValidateProjets?: boolean;
+  canValidateElements?: boolean;
 
   @IsOptional()
   @IsBoolean()
-  canCloseProject?: boolean;
+  canCloseElements?: boolean;
 }

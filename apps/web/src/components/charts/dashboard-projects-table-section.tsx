@@ -11,8 +11,6 @@ import {
 	Trash,
 	Lock,
  	XCircle,
-	EyeOff,
-	Eye,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -42,21 +40,22 @@ import {
 } from '@/components/ui/table';
 import { copyValue, formatDatePeriod } from '@/lib/utils';
 import {
-	useCloseProject,
-	useDeleteProject,
-	useFirstValidationProject,
-	useHideProject,
-	useReopenProject,
-	useUnhideProject,
- 	useCancelFirstValidationProject,
+  useCloseProject,
+  useDeleteProject,
+  useFirstValidationProject,
+  useReopenProject,
+  useCancelFirstValidationProject,
 } from '@/hooks/projects';
 import {
 	IProject,
 	ProjectStatus,
+	ProjectValidation,
 	TeamMembershipStatus,
 } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
-import { getProjectStatusBadge } from '@/lib/badge-mappings';
+import {
+	getProjectStatusBadge,
+} from '@/lib/badge-mappings';
 
 const MAX_PROJECT_NAME_LENGTH = 50;
 
@@ -104,38 +103,36 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 	const cancelFirstValidationProject = useCancelFirstValidationProject();
 	const closeProject = useCloseProject();
 	const reopenProject = useReopenProject();
-	const hideProject = useHideProject();
-	const unhideProject = useUnhideProject();
 	const isClosed = project.status === ProjectStatus.CLOSED;
 	const closedById =
 		typeof project.closedBy === 'string' ? project.closedBy : project.closedBy?._id;
-	const hasFirstValidation = Boolean(project.firstValidatedBy);
+	const hasFirstValidation =
+		project.validationStatus === ProjectValidation.FIRST_VALIDATION ||
+		project.validationStatus === ProjectValidation.FINAL_VALIDATION;
 	const canFirstValidate = Boolean(
 		!isClosed &&
-			project.status === ProjectStatus.COMPLETED &&
-			user?.canValidateProjets &&
+			user?.canValidateElements &&
 			!hasFirstValidation,
 	);
 	const canReopen = Boolean(
 		isClosed &&
-			user?.canCloseProject &&
+			user?.canCloseElements &&
 			closedById &&
 			closedById === user?._id,
 	);
 	const canClose = Boolean(
 		!isClosed &&
-			(project.status === ProjectStatus.COMPLETED ||
-				project.status === ProjectStatus.FIRST_VALIDATION) &&
-			user?.canCloseProject &&
+			project.status === ProjectStatus.COMPLETED &&
+			project.validationStatus === ProjectValidation.FIRST_VALIDATION &&
+			user?.canCloseElements &&
 			hasFirstValidation,
 	);
 	const canCancelFirstValidation = Boolean(
 		!isClosed &&
-			project.status === ProjectStatus.FIRST_VALIDATION &&
-			user?.canValidateProjets &&
+			project.validationStatus === ProjectValidation.FIRST_VALIDATION &&
+			user?.canValidateElements &&
 			hasFirstValidation,
 	);
-	const canToggleVisibility = Boolean(user?.canCloseProject);
 
 	return (
 		<DropdownMenu>
@@ -167,7 +164,7 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 						onClick={() => firstValidationProject.mutate(project._id)}
 						disabled={firstValidationProject.isPending}
 					>
-						<Pin /> Primera validación
+						<Pin /> Aprobar
 					</DropdownMenuItem>
 				)}
 
@@ -176,7 +173,7 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 						onClick={() => cancelFirstValidationProject.mutate(project._id)}
 						disabled={cancelFirstValidationProject.isPending}
 					>
-						<XCircle /> Cancelar primera validación
+						<XCircle /> Cancelar aprobación
 					</DropdownMenuItem>
 				)}
 
@@ -196,24 +193,6 @@ const ProjectActions = ({ project }: { project: IProject }) => {
 					>
 						<DoorOpen /> Reabrir proyecto
 					</DropdownMenuItem>
-				)}
-
-				{canToggleVisibility && (
-					project.isHidden ? (
-						<DropdownMenuItem
-							onClick={() => unhideProject.mutate(project._id)}
-							disabled={unhideProject.isPending}
-						>
-							<Eye /> Mostrar proyecto
-						</DropdownMenuItem>
-					) : (
-						<DropdownMenuItem
-							onClick={() => hideProject.mutate(project._id)}
-							disabled={hideProject.isPending}
-						>
-							<EyeOff /> Ocultar proyecto
-						</DropdownMenuItem>
-					)
 				)}
 
 				{!isClosed && (

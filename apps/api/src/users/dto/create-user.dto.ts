@@ -58,7 +58,7 @@ export class CreateUserDto {
   })
   @IsOptional()
   @IsBoolean()
-  canValidateProjets?: boolean;
+  canValidateElements?: boolean;
 
   @ApiProperty({
     description: 'Permiso para cerrar proyectos (validación final).',
@@ -66,7 +66,7 @@ export class CreateUserDto {
   })
   @IsOptional()
   @IsBoolean()
-  canCloseProject?: boolean;
+  canCloseElements?: boolean;
 
   @ApiProperty({
     description: 'El tipo de usuario.',

@@ -1,7 +1,7 @@
 'use client';
 
-import { useDeleteEvent, useGetAllEvents, useHideEvent, useUnhideEvent } from '@/hooks/events';
-import { FilePurpose, IEvent, IFile } from '@repo/types';
+import { useDeleteEvent, useGetAllEvents, useFirstValidationEvent, useCancelFirstValidationEvent, useCloseEvent, useReopenEvent } from '@/hooks/events';
+import { FilePurpose, IEvent, IFile, ProjectValidation } from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   DataTable,
@@ -22,12 +22,14 @@ import {
 import { Button } from './ui/button';
 import {
   Copy,
+  DoorOpen,
   ExternalLink,
+  Lock,
   MoreHorizontal,
   Pencil,
   Trash,
-  Eye,
-  EyeOff,
+  Pin,
+  XCircle,
 } from 'lucide-react';
 import {
   Dialog,
@@ -46,9 +48,8 @@ import { useFilesForEntity } from '@/hooks/files';
 import FileButton from './file-button';
 import { copyValue } from '@/lib/utils';
 import React from 'react';
-import { getVisibilityBadge } from '@/lib/badge-mappings';
+import { getProjectValidationBadge, getVisibilityBadge } from '@/lib/badge-mappings';
 import { useUserProfile } from 'context/profile-provider';
-import { UserRole } from '@repo/types';
 
 const EventFileButton = ({
   eventId,
@@ -76,11 +77,38 @@ const EventFileButton = ({
 
 const EventActions = (event: IEvent) => {
   const deleteEvent = useDeleteEvent();
-  const hideEvent = useHideEvent();
-  const unhideEvent = useUnhideEvent();
+  const firstValidation = useFirstValidationEvent();
+  const cancelFirstValidation = useCancelFirstValidationEvent();
+  const closeEvent = useCloseEvent();
+  const reopenEvent = useReopenEvent();
   const { user } = useUserProfile();
-  const canToggleVisibility = Boolean(
-    user?.canCloseProject && user?.role === UserRole.ADMIN,
+  const isClosed = event.validationStatus === ProjectValidation.FINAL_VALIDATION;
+  const closedById =
+    typeof event.closedBy === 'string' ? event.closedBy : event.closedBy?._id;
+  const hasFirstValidation =
+    event.validationStatus === ProjectValidation.FIRST_VALIDATION ||
+    event.validationStatus === ProjectValidation.FINAL_VALIDATION ||
+    Boolean(event.firstValidatedBy);
+  const canFirstValidate = Boolean(
+    !isClosed && !hasFirstValidation && user?.canValidateElements,
+  );
+  const canCancelFirstValidation = Boolean(
+    !isClosed &&
+      event.validationStatus === ProjectValidation.FIRST_VALIDATION &&
+      hasFirstValidation &&
+      user?.canValidateElements,
+  );
+  const canClose = Boolean(
+    !isClosed &&
+      event.validationStatus === ProjectValidation.FIRST_VALIDATION &&
+      hasFirstValidation &&
+      user?.canCloseElements,
+  );
+  const canReopen = Boolean(
+    isClosed &&
+      user?.canCloseElements &&
+      closedById &&
+      closedById === user?._id,
   );
 
   return (
@@ -93,41 +121,46 @@ const EventActions = (event: IEvent) => {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuItem asChild>
-          <Link href={`/admin/eventos/${event._id}/editar`}>
-            <Pencil /> Editar evento
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
           <Link href={`/admin/eventos/${event._id}`}>
             <ExternalLink /> Visitar evento
           </Link>
         </DropdownMenuItem>
+        {!isClosed && (
+          <DropdownMenuItem asChild>
+            <Link href={`/admin/eventos/${event._id}/editar`}>
+              <Pencil /> Editar evento
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={() => copyValue(event._id)}>
           <div className="flex items-center gap-2 w-full cursor-pointer">
             <Copy className="size-4" /> Copiar ID
           </div>
         </DropdownMenuItem>
 
-        {canToggleVisibility && (
-          event.isHidden ? (
-            <DropdownMenuItem
-              disabled={unhideEvent.isPending}
-              onClick={() => unhideEvent.mutate(event._id)}
-            >
-              <Eye /> Mostrar evento
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem
-              disabled={hideEvent.isPending}
-              onClick={() => hideEvent.mutate(event._id)}
-            >
-              <EyeOff /> Ocultar evento
-            </DropdownMenuItem>
-          )
+        {canFirstValidate && (
+          <DropdownMenuItem onClick={() => firstValidation.mutate(event._id)}>
+            <><Pin /> Aprobar</>
+          </DropdownMenuItem>
+        )}
+        {canCancelFirstValidation && (
+          <DropdownMenuItem onClick={() => cancelFirstValidation.mutate(event._id)}>
+            <><XCircle /> Cancelar aprobación</>
+          </DropdownMenuItem>
+        )}
+        {canClose && (
+          <DropdownMenuItem onClick={() => closeEvent.mutate(event._id)}>
+            <><Lock /> Validación final</>
+          </DropdownMenuItem>
+        )}
+        {canReopen && (
+          <DropdownMenuItem onClick={() => reopenEvent.mutate(event._id)}>
+            <><DoorOpen /> Reabrir evento</>
+          </DropdownMenuItem>
         )}
 
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild className="hover:text-destructive-foreground">
+        {!isClosed && <DropdownMenuSeparator />}
+        {!isClosed && <DropdownMenuItem asChild className="hover:text-destructive-foreground">
           <Dialog>
             <DialogTrigger className="has-[>svg]:px-2 [&_svg]:text-muted-foreground hover:[&_svg]:text-destructive-foreground px-0 border-transparent w-full h-8 justify-start hover:text-destructive-foreground font-normal">
               <Trash />
@@ -154,7 +187,7 @@ const EventActions = (event: IEvent) => {
               </div>
             </DialogContent>
           </Dialog>
-        </DropdownMenuItem>
+        </DropdownMenuItem>}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -207,6 +240,14 @@ const columns: ColumnDef<IEvent>[] = [
     accessorKey: 'type',
     header: 'Tipo',
     meta: { className: 'hidden md:table-cell' }, // Visible desde tablets pequeñas (md)
+  },
+  {
+    accessorKey: 'validationStatus',
+    header: 'Validación',
+    cell: ({ row }) => {
+      const badge = getProjectValidationBadge(row.original.validationStatus);
+      return <Badge variant={badge.variant}>{badge.label}</Badge>;
+    },
   },
   {
     accessorKey: 'organization',
@@ -414,13 +455,20 @@ const facetedFiltersConfig: FacetedFilterConfig[] = [
 ];
 
 export function EventsTable({
-  showHidden = false,
+  showHidden = true,
 }: {
   showHidden?: boolean;
 }) {
   const { data: events, isLoading: loadingEvents } = useGetAllEvents();
   const typedEvents = React.useMemo(
-    () => ((events ?? []) as IEvent[]).filter((event) => Boolean(event.isHidden) === showHidden),
+    () =>
+      ((events ?? []) as IEvent[]).filter((event) =>
+        showHidden
+          ? event.validationStatus === ProjectValidation.UNDER_REVIEW ||
+            !event.validationStatus
+          : event.validationStatus === ProjectValidation.FIRST_VALIDATION ||
+            event.validationStatus === ProjectValidation.FINAL_VALIDATION,
+      ),
     [events, showHidden],
   );
 
@@ -491,7 +539,7 @@ export function EventsTable({
           columns={columns}
           data={typedEvents}
           facetedFilters={eventFacetedFilters}
-          persistStateKey={showHidden ? 'hidden-events-table' : 'events-table'}
+          persistStateKey={showHidden ? 'events-under-review-table' : 'events-table'}
         />
       )}
     </div>

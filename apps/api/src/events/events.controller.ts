@@ -91,6 +91,26 @@ export class EventsController {
     return this.eventsService.remove(id, req.user.id, req.user.role);
   }
 
+  @Post(':id/first-validation')
+  applyFirstValidation(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.eventsService.applyFirstValidation(id, req.user.id);
+  }
+
+  @Post(':id/cancel-first-validation')
+  cancelFirstValidation(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.eventsService.cancelFirstValidation(id, req.user.id);
+  }
+
+  @Post(':id/close')
+  closeEvent(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.eventsService.closeEvent(id, req.user.id);
+  }
+
+  @Post(':id/reopen')
+  reopenEvent(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.eventsService.reopenEvent(id, req.user.id);
+  }
+
   /**
    * VISIBILITY
    */

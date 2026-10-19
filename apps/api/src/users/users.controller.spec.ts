@@ -36,7 +36,7 @@ describe('UsersController', () => {
     usersServiceMock.findOne.mockResolvedValue({
       _id: 'admin-1',
       role: UserRole.ADMIN,
-      canCloseProject: true,
+      canCloseElements: true,
     });
 
     await expect(
@@ -48,11 +48,11 @@ describe('UsersController', () => {
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
-  it('should reject access changes when admin lacks canCloseProject', async () => {
+  it('should reject access changes when admin lacks canCloseElements', async () => {
     usersServiceMock.findOne.mockResolvedValue({
       _id: 'admin-1',
       role: UserRole.ADMIN,
-      canCloseProject: false,
+      canCloseElements: false,
     });
 
     await expect(

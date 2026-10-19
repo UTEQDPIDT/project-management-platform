@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Copy, ExternalLink, MoreHorizontal, Pencil, Trash, Eye, EyeOff } from 'lucide-react';
+import { Copy, DoorOpen, ExternalLink, Lock, MoreHorizontal, Pencil, Pin, Trash, XCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,8 +29,8 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { copyValue, formatDatePeriod } from '@/lib/utils';
-import { useDeleteEvent, useHideEvent, useUnhideEvent } from '@/hooks/events';
-import { IEvent, UserRole } from '@repo/types';
+import { useDeleteEvent, useFirstValidationEvent, useCancelFirstValidationEvent, useCloseEvent, useReopenEvent } from '@/hooks/events';
+import { IEvent, ProjectValidation, UserRole } from '@repo/types';
 import { getEventTypeBadge } from '@/lib/badge-mappings';
 import { useUserProfile } from 'context/profile-provider';
 
@@ -64,12 +64,11 @@ const getParticipantsCount = (event: IEvent) => {
 
 const EventActions = ({ event }: { event: IEvent }) => {
 	const deleteEvent = useDeleteEvent();
-	const hideEvent = useHideEvent();
-	const unhideEvent = useUnhideEvent();
+	const firstValidation = useFirstValidationEvent();
+	const cancelFirstValidation = useCancelFirstValidationEvent();
+	const closeEvent = useCloseEvent();
+	const reopenEvent = useReopenEvent();
 	const { user } = useUserProfile();
-	const canToggleVisibility = Boolean(
-		user?.canCloseProject && user?.role === UserRole.ADMIN,
-	);
 
 	return (
 		<DropdownMenu>
@@ -94,22 +93,25 @@ const EventActions = ({ event }: { event: IEvent }) => {
 					<Copy /> Copiar ID
 				</DropdownMenuItem>
 
-				{canToggleVisibility && (
-					event.isHidden ? (
-						<DropdownMenuItem
-							onClick={() => unhideEvent.mutate(event._id)}
-							disabled={unhideEvent.isPending}
-						>
-							<Eye /> Mostrar evento
-						</DropdownMenuItem>
-					) : (
-						<DropdownMenuItem
-							onClick={() => hideEvent.mutate(event._id)}
-							disabled={hideEvent.isPending}
-						>
-							<EyeOff /> Ocultar evento
-						</DropdownMenuItem>
-					)
+				{event.validationStatus === ProjectValidation.UNDER_REVIEW && user?.canValidateElements && (
+					<DropdownMenuItem onClick={() => firstValidation.mutate(event._id)}>
+						<><Pin /> Aprobar</>
+					</DropdownMenuItem>
+				)}
+				{event.validationStatus === ProjectValidation.FIRST_VALIDATION && user?.canValidateElements && (
+					<DropdownMenuItem onClick={() => cancelFirstValidation.mutate(event._id)}>
+						<><XCircle /> Cancelar aprobación</>
+					</DropdownMenuItem>
+				)}
+				{event.validationStatus === ProjectValidation.FIRST_VALIDATION && user?.canCloseElements && (
+					<DropdownMenuItem onClick={() => closeEvent.mutate(event._id)}>
+						<><Lock /> Validación final</>
+					</DropdownMenuItem>
+				)}
+				{event.validationStatus === ProjectValidation.FINAL_VALIDATION && user?.canCloseElements && (
+					<DropdownMenuItem onClick={() => reopenEvent.mutate(event._id)}>
+						<><DoorOpen /> Reabrir evento</>
+					</DropdownMenuItem>
 				)}
 
 				<DropdownMenuSeparator />

@@ -28,11 +28,13 @@ import { cn } from '@/lib/utils';
 interface ParticipantsCardProps {
   event: IEvent;
   className?: string;
+  isClosed?: boolean;
 }
 
 export default function ParticipantsCard({
   event,
   className,
+  isClosed = false,
 }: ParticipantsCardProps) {
   const { user } = useUserProfile();
   const removeParticipant = useRemoveParticipant();
@@ -49,7 +51,7 @@ export default function ParticipantsCard({
             <CardTitle>Participantes</CardTitle>
           </div>
 
-          {user.role === UserRole.ADMIN && (
+          {user.role === UserRole.ADMIN && !isClosed && (
             <Dialog>
               <DialogTrigger className="h-8 px-3 hover:bg-secondary/90 border">
                 <Settings /> Gestionar
@@ -79,7 +81,7 @@ export default function ParticipantsCard({
                   email={p.email}
                 />
 
-                {user.role === UserRole.ADMIN && (
+                {user.role === UserRole.ADMIN && !isClosed && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button

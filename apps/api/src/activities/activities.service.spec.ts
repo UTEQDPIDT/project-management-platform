@@ -40,6 +40,7 @@ describe('ActivitiesService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    eventModelMock.findById.mockResolvedValue({ validationStatus: undefined });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

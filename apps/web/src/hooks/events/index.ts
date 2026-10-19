@@ -12,3 +12,4 @@ export * from './use-remove-product';
 export * from './use-events-by-user';
 export * from './use-hide-event';
 export * from './use-unhide-event';
+export * from './use-event-validation';

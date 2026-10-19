@@ -85,15 +85,15 @@ export class ProjectsService {
   private async getValidationPermissions(userId: string) {
     const user = await this.userModel
       .findById(userId)
-      .select('canValidateProjets canCloseProject');
+      .select('canValidateElements canCloseElements');
 
     if (!user) {
       throw new NotFoundException(`User with ID: ${userId} not found`);
     }
 
     return {
-      canValidate: Boolean(user.get('canValidateProjets')),
-      canClose: Boolean(user.get('canCloseProject')),
+      canValidate: Boolean(user.get('canValidateElements')),
+      canClose: Boolean(user.get('canCloseElements')),
     };
   }
 
@@ -192,6 +192,14 @@ export class ProjectsService {
   }
 
   /**
+   * Returns the initial validation status for a new project.
+   * @private
+   */
+  private getInitialProjectValidation(): ProjectValidation {
+    return ProjectValidation.UNDER_REVIEW;
+  }
+
+  /**
    * Determines the overall project status based on the individual status of its activities.
    * @param activities Array of project activities.
    * @private
@@ -262,7 +270,7 @@ export class ProjectsService {
             owner: userId,
             updatedBy: userId,
             status: this.getInitialProjectStatus(),
-            validationStatus: null,
+            validationStatus: this.getInitialProjectValidation(),
           },
         ],
         { session },
@@ -558,7 +566,7 @@ export class ProjectsService {
 
   /**
    * Applies the first administrative validation level.
-   * Demands the project to be explicitly marked as COMPLETED.
+   * Projects can be validated as soon as they are uploaded.
    * @param projectId The unique identifier of the project.
    * @param userId The ID of the administrative user applying the validation.
    */
@@ -569,28 +577,24 @@ export class ProjectsService {
       throw new ForbiddenException('This user is not authorized to apply the first validation.');
     }
 
-    const currentStatus = await this.recomputeProjectStatus(projectId);
-
     const project = await this.projectModel.findById(projectId);
 
     if (!project) {
       throw new NotFoundException(`Project with ID: ${projectId} not found`);
     }
 
-    if (currentStatus !== ProjectStatus.COMPLETED) {
-      throw new BadRequestException(
-        'The project must be in COMPLETED status (all activities finished) to initiate validations.',
-      );
-    }
-
     const currentValidationStatus = project.get('validationStatus');
 
-    if (currentValidationStatus !== null && currentValidationStatus !== undefined) {
+    const isUnvalidated =
+      currentValidationStatus === ProjectValidation.UNDER_REVIEW ||
+      currentValidationStatus === null ||
+      currentValidationStatus === undefined;
+
+    if (!isUnvalidated) {
       throw new BadRequestException('The project has already passed the first validation level or is closed.');
     }
 
     await this.projectModel.findByIdAndUpdate(projectId, {
-      status: ProjectStatus.FIRST_VALIDATION,
       validationStatus: ProjectValidation.FIRST_VALIDATION,
       firstValidatedBy: new Types.ObjectId(userId),
       updatedBy: userId,
@@ -600,7 +604,7 @@ export class ProjectsService {
   }
 
   /**
-   * Cancels the first validation stage and returns the project to COMPLETED status.
+   * Cancels the first validation stage and restores the activity-derived status.
    * @param projectId The unique identifier of the project.
    * @param userId The ID of the administrative user cancelling the first validation.
    */
@@ -623,10 +627,12 @@ export class ProjectsService {
       throw new BadRequestException('The project is not in FIRST_VALIDATION status.');
     }
 
+    await this.recomputeProjectStatus(projectId);
+
     await this.projectModel.findByIdAndUpdate(projectId, {
-      status: ProjectStatus.COMPLETED,
-      validationStatus: null,
+      validationStatus: ProjectValidation.UNDER_REVIEW,
       firstValidatedBy: null,
+      closedBy: null,
       updatedBy: userId,
     });
 
@@ -706,11 +712,15 @@ export class ProjectsService {
       throw new ForbiddenException('Only the exact user account that closed this project is authorized to reopen it.');
     }
 
+    const firstValidatedByRaw = project.get('firstValidatedBy');
+    const firstValidatedBy =
+      firstValidatedByRaw?._id ?? firstValidatedByRaw ?? null;
+
     await this.projectModel.findByIdAndUpdate(projectId, {
-      status: ProjectStatus.COMPLETED, 
-      validationStatus: null,
+      status: ProjectStatus.COMPLETED,
+      validationStatus: ProjectValidation.FIRST_VALIDATION, //RESET ONLY TO FIRST_VALIDATION INSTEAD OF ALL THE WAY BACK TO UNDER_REVIEW
+      firstValidatedBy,
       closedBy: null,
-      firstValidatedBy: null,
       updatedBy: userId,
     });
 

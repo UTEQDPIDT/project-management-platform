@@ -33,7 +33,7 @@ type ProfileEditableUserFields = Pick<
 
 type AccessEditableUserFields = Pick<
   UpdateUserAccessDto,
-  'role' | 'canValidateProjets' | 'canCloseProject'
+  'role' | 'canValidateElements' | 'canCloseElements'
 >;
 
 const AUTH_SENSITIVE_FIELDS_SELECT =
@@ -73,11 +73,11 @@ export class UsersService {
     const safeData: Partial<AccessEditableUserFields> = {};
 
     if (data.role !== undefined) safeData.role = data.role;
-    if (data.canValidateProjets !== undefined) {
-      safeData.canValidateProjets = data.canValidateProjets;
+    if (data.canValidateElements !== undefined) {
+      safeData.canValidateElements = data.canValidateElements;
     }
-    if (data.canCloseProject !== undefined) {
-      safeData.canCloseProject = data.canCloseProject;
+    if (data.canCloseElements !== undefined) {
+      safeData.canCloseElements = data.canCloseElements;
     }
 
     return safeData;

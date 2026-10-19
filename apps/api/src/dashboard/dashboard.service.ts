@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Event } from '../schemas/event.schema';
 import { User } from '../schemas/user.schema';
-import { DashboardPeriod, UserType } from '@repo/types';
+import { DashboardPeriod, ProjectValidation, UserType } from '@repo/types';
 import { Project } from '../schemas/project.schema';
 import { Team } from '../schemas/team.schema';
 import {
@@ -83,7 +83,12 @@ export class DashboardService {
         const { startDate, endDate } = this.getPeriodRange(period, year);
         const dateFilter = {
             startDate: { $gte: startDate, $lte: endDate },
-            isHidden: { $ne: true },
+            validationStatus: {
+                $in: [
+                    ProjectValidation.FIRST_VALIDATION,
+                    ProjectValidation.FINAL_VALIDATION,
+                ],
+            },
         };
 
         const [events, participantsByType] = await Promise.all([
@@ -170,6 +175,12 @@ export class DashboardService {
         const dateFilter = {
             startDate: { $gte: startDate, $lte: endDate },
             isHidden: { $ne: true },
+            validationStatus: {
+                $in: [
+                    ProjectValidation.FIRST_VALIDATION,
+                    ProjectValidation.FINAL_VALIDATION,
+                ],
+            },
         };
 
         const [projectsCount, participantsByType] = await Promise.all([

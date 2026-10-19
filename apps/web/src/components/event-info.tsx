@@ -1,7 +1,7 @@
 'use client';
 
 import { useFilesForEntity, useUploadMultipleFiles } from '@/hooks/files';
-import { EntityType, FilePurpose, IEvent, IFile, UserRole } from '@repo/types';
+import { EntityType, FilePurpose, IEvent, IFile, ProjectValidation, UserRole } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -11,7 +11,9 @@ import {
   Clock,
   FileText,
   Info,
+  Lock,
   MapPin,
+  ShieldCheck,
   Upload,
   UserCircle,
   X,
@@ -42,9 +44,10 @@ import CopyButton from './ui/copy';
 
 type EventInfoProps = {
   event: IEvent;
+  isClosed?: boolean;
 };
 
-export function EventInfo({ event }: EventInfoProps) {
+export function EventInfo({ event, isClosed = event.validationStatus === ProjectValidation.FINAL_VALIDATION }: EventInfoProps) {
   const { user } = useUserProfile();
 
   const { data: files = [], isLoading, isError } = useFilesForEntity(event._id);
@@ -135,6 +138,45 @@ export function EventInfo({ event }: EventInfoProps) {
       <div className="pb-2">
         <h1 className="text-xl font-semibold">{event.name}</h1>
       </div>
+
+      <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+        <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
+          <ShieldCheck size={14} /> Validación
+        </span>
+        <div className="p-2 w-full hover:bg-secondary rounded-md">
+          {event.validationStatus === ProjectValidation.FINAL_VALIDATION
+            ? 'Validación final'
+            : event.validationStatus === ProjectValidation.FIRST_VALIDATION
+              ? 'Aprobado'
+              : 'En revisión'}
+        </div>
+      </div>
+
+        <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+          <span className="p-2 flex gap-2 font-normal w-full sm:w-40 sm:shrink-0 items-center rounded-md text-muted-foreground">
+            <ShieldCheck size={14} /> Validado por
+          </span>
+          <div className="p-2 w-full hover:bg-secondary rounded-md">
+            {event.firstValidatedBy ? (
+              <ProfileInfo size="sm" givenName={event.firstValidatedBy.givenName} familyName={event.firstValidatedBy.familyName} avatarUrl={event.firstValidatedBy.avatarUrl} />
+            ) : (
+              '-'
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
+          <span className="p-2 flex gap-2 text-red-600 font-medium w-full sm:w-40 sm:shrink-0 items-center rounded-md">
+            <Lock size={14} /> Cerrado por
+          </span>
+          <div className="p-2 w-full hover:bg-secondary rounded-md">
+            {event.closedBy ? (
+              <ProfileInfo size="sm" givenName={event.closedBy.givenName} familyName={event.closedBy.familyName} avatarUrl={event.closedBy.avatarUrl} />
+            ) : (
+              '-'
+            )}
+          </div>
+        </div>
 
       <div className="flex flex-col items-start gap-1 sm:flex-row sm:gap-2">
         <span className="p-2 flex gap-2 text-muted-foreground w-full sm:w-40 sm:shrink-0 items-center rounded-md">
@@ -242,12 +284,12 @@ export function EventInfo({ event }: EventInfoProps) {
             <div className="p-2 w-full hover:bg-secondary rounded-md">
               {technicalReport ? (
                 <FileButton
-                  canDelete
+                  canDelete={!isClosed}
                   file={technicalReport}
                   className="max-w-52"
                 />
               ) : (
-                <Dialog>
+                isClosed ? null : <Dialog>
                   <DialogTrigger className="border h-7 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
                     <Upload />
                     Subir Informe
@@ -327,12 +369,12 @@ export function EventInfo({ event }: EventInfoProps) {
             <div className="p-2 w-full hover:bg-secondary rounded-md">
               {financialReport ? (
                 <FileButton
-                  canDelete
+                  canDelete={!isClosed}
                   file={financialReport}
                   className="max-w-52"
                 />
               ) : (
-                <Dialog>
+                isClosed ? null : <Dialog>
                   <DialogTrigger className="border h-7 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
                     <Upload />
                     Subir Informe

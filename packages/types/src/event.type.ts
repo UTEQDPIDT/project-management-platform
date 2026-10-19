@@ -1,6 +1,7 @@
 import { EventType } from './enums/event-type.enum';
 import { IProduct } from './product.type';
 import { IUser } from './user.type';
+import { ProjectValidation } from './enums/project-validation.enum';
 
 export interface IEventAttendance {
   totalParticipants: number;
@@ -21,6 +22,9 @@ export interface IEvent {
   products?: IProduct[];
   isPrivate: boolean;
   acceptsProducts: boolean;
+  validationStatus?: ProjectValidation;
+  firstValidatedBy?: IUser | null;
+  closedBy?: IUser | null;
   attendance?: IEventAttendance;
   createdBy: IUser;
   updatedBy: IUser;

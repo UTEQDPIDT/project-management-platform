@@ -52,6 +52,7 @@ import {
   IProduct,
   UserRole,
   UserType,
+  ProjectValidation,
 } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
 import { ListTodo, Shapes } from 'lucide-react';
@@ -86,6 +87,8 @@ const EventPage = () => {
     isError: errorFetchingFiles,
   } = useFilesForEntity(eventId);
   const uploadFiles = useUploadMultipleFiles();
+  const isEventClosed =
+    event?.validationStatus === ProjectValidation.FINAL_VALIDATION;
 
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [otherFiles, setOtherFiles] = useState<File[]>([]);
@@ -181,12 +184,19 @@ const EventPage = () => {
               </Breadcrumb>
             </HeaderHeading>
             <HeaderAction>
-              <EventMenu eventId={eventId} name={event.name} isHidden={event.isHidden} />
+              <EventMenu
+                eventId={eventId}
+                name={event.name}
+                validationStatus={event.validationStatus}
+                isClosed={isEventClosed}
+                firstValidatedBy={event.firstValidatedBy}
+                closedBy={event.closedBy}
+              />
             </HeaderAction>
           </Header>
 
           <PageContent>
-            <EventInfo event={event} />
+            <EventInfo event={event} isClosed={isEventClosed} />
             <div className="w-full flex flex-col gap-2 p-2 bg-neutral-200 rounded-2xl md:flex-row md:gap-4 md:p-4">
               <div className="w-full lg:max-w-sm flex flex-col gap-4">
                 {(user.role === UserRole.ADMIN ||
@@ -208,6 +218,7 @@ const EventPage = () => {
                       onFileValidate={onFileValidate}
                       onFileReject={onFileReject}
                       isUploading={uploadFiles.isPending}
+                      isProjectClosed={isEventClosed}
                       accept=".pdf,.png,.jpg,.jpeg"
                     />
 
@@ -225,10 +236,11 @@ const EventPage = () => {
                       onFileValidate={onFileValidate}
                       onFileReject={onFileReject}
                       isUploading={uploadFiles.isPending}
+                      isProjectClosed={isEventClosed}
                       accept=".pdf,.png,.jpg,.jpeg"
                     />
 
-                    <ParticipantsCard className='border border-neutral-400' event={event} />
+                    <ParticipantsCard className='border border-neutral-400' event={event} isClosed={isEventClosed} />
 
                   </div>
                 )}
@@ -245,7 +257,7 @@ const EventPage = () => {
 
                         <CardTitle>Actividades</CardTitle>
                       </div>
-                      {user.role === UserRole.ADMIN && (
+                      {user.role === UserRole.ADMIN && !isEventClosed && (
                         <Dialog>
                           <DialogTrigger className="h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
                             Crear
@@ -272,8 +284,8 @@ const EventPage = () => {
                               className="border border-neutral-400"
                               key={a._id}
                               activity={a}
-                              enableOptions
-                              options={<EventActivityMenu activity={a} />}
+                              enableOptions={!isEventClosed}
+                              options={!isEventClosed ? <EventActivityMenu activity={a} /> : undefined}
                             />
                           ))}
                         </div>
@@ -306,7 +318,7 @@ const EventPage = () => {
 
                           <CardTitle>Productos</CardTitle>
                         </div>
-                        <Dialog>
+                        {!isEventClosed && <Dialog>
                           <DialogTrigger className="h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-transparent">
                             Agregar Productos
                           </DialogTrigger>
@@ -317,7 +329,7 @@ const EventPage = () => {
                               products={event.products}
                             />
                           </DialogContent>
-                        </Dialog>
+                        </Dialog>}
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -327,12 +339,14 @@ const EventPage = () => {
                             <ProductCard
                               key={p._id}
                               product={p}
-                              enableOptions
+                              enableOptions={!isEventClosed}
                               options={
-                                <EventProductMenu
-                                  eventId={eventId}
-                                  product={p}
-                                />
+                                !isEventClosed ? (
+                                  <EventProductMenu
+                                    eventId={eventId}
+                                    product={p}
+                                  />
+                                ) : undefined
                               }
                             />
                           ))}

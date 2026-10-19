@@ -122,9 +122,9 @@ const ProjectPage = () => {
                   projectId={projectId}
                   name={project.name}
                   status={statusForActions}
+                  validationStatus={project.validationStatus}
                   firstValidatedBy={project.firstValidatedBy}
                   closedBy={project.closedBy}
-                  isHidden={project.isHidden}
                 />
               </HeaderAction>
             )}

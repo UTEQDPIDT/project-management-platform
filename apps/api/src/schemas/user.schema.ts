@@ -20,14 +20,14 @@ export class User extends Document {
     default: false,
   })
   @Prop({ type: Boolean, default: false })
-  canValidateProjets: boolean;
+  canValidateElements: boolean;
 
   @ApiPropertyOptional({
     description: 'Permite que el usuario cierre proyectos con validación final.',
     default: false,
   })
   @Prop({ type: Boolean, default: false })
-  canCloseProject: boolean;
+  canCloseElements: boolean;
 
   @ApiPropertyOptional({
     description: 'El tipo de usuario.',

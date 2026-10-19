@@ -1,6 +1,7 @@
 import { IActivity } from './activity.type';
 import { ImpactLevel } from './enums/impact-level.enum';
 import { ProjectStatus } from './enums/project-status.enum';
+import { ProjectValidation } from './enums/project-validation.enum';
 import { SeedCategory } from './seed-category.type';
 import { ITeam } from './team.type';
 import { IUser } from './user.type';
@@ -28,7 +29,8 @@ export interface IProject {
   createdAt: Date;
   updatedAt: Date;
   status: ProjectStatus;
-  firstValidatedBy?: IUser;
+  validationStatus?: ProjectValidation;
+  firstValidatedBy?: IUser; //redundant, correct if applicable
   ValidationBy?: IUser;
   closedBy?: IUser;
   isHidden?: boolean;

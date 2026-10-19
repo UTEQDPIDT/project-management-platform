@@ -170,7 +170,7 @@ export class UsersController {
 
     const requester = await this.usersService.findOne(req.user.id);
 
-    if (!requester.canCloseProject) {
+    if (!requester.canCloseElements) {
       throw new ForbiddenException(
         'No tienes permiso para cambiar roles o permisos de acceso.',
       );

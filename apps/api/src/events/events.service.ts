@@ -13,12 +13,25 @@ import { User } from '../schemas/user.schema';
 import { FilesService } from '../files/files.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { Product } from '../schemas/product.schema';
-import { UserRole } from '@repo/types';
+import { ProjectValidation, UserRole } from '@repo/types';
 import { AccessDeniedException } from '../common/security/access-denied.exception';
 import { AccessDeniedReason } from '../common/security/access-denied-reason.enum';
 
 @Injectable()
 export class EventsService {
+  private async ensureEventIsOpen(eventId: string) {
+    const event = await this.eventModel.findById(eventId).select('validationStatus');
+    if (!event) {
+      throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
+    if (
+      (event.get?.('validationStatus') ?? event.validationStatus) ===
+      ProjectValidation.FINAL_VALIDATION
+    ) {
+      throw new ForbiddenException('The event is closed. Reopen it before modifying it.');
+    }
+    return event;
+  }
   constructor(
     @InjectModel(Event.name) private eventModel: Model<Event>,
     @InjectModel(User.name) private userModel: Model<User>,
@@ -31,11 +44,9 @@ export class EventsService {
     if (value === null || value === undefined) {
       return null;
     }
-
     if (typeof value === 'string') {
       return value;
     }
-
     if (typeof (value as { toString?: () => string }).toString === 'function') {
       return (value as { toString: () => string }).toString();
     }
@@ -112,6 +123,7 @@ export class EventsService {
         ...createEventDto,
         createdBy: userId,
         updatedBy: userId,
+        validationStatus: ProjectValidation.UNDER_REVIEW,
       });
 
       return {
@@ -123,15 +135,131 @@ export class EventsService {
     }
   }
 
-  private async canCloseProjectPermission(userId: string): Promise<boolean> {
-    const user = await this.userModel.findById(userId).select('canCloseProject');
+  private async canCloseElementsPermission(userId: string): Promise<boolean> {
+    const user = await this.userModel.findById(userId).select('canCloseElements');
 
     if (!user) {
       throw new NotFoundException(`User with ID: ${userId} not found`);
     }
-
-    return Boolean(user.get('canCloseProject'));
+    return Boolean(user.get('canCloseElements'));
   }
+
+  private async canValidateProjectPermission(userId: string): Promise<boolean> {
+      const user = await this.userModel.findById(userId).select('canValidateElements');
+      if (!user) {
+        throw new NotFoundException(`User with ID: ${userId} not found`);
+      }
+      return Boolean(user.get('canValidateElements'));
+    }
+
+    async applyFirstValidation(eventId: string, userId: string) {
+      if (!(await this.canValidateProjectPermission(userId))) {
+        throw new ForbiddenException('This user is not authorized to approve events.');
+      }
+
+      const event = await this.eventModel.findById(eventId);
+      if (!event) throw new NotFoundException(`Event with ID: ${eventId} not found`);
+
+      if (
+        event.get('validationStatus') !== ProjectValidation.UNDER_REVIEW &&
+        event.get('validationStatus') !== null &&
+        event.get('validationStatus') !== undefined
+      ) {
+        throw new BadRequestException('The event has already been approved or closed.');
+      }
+
+      await this.eventModel.findByIdAndUpdate(eventId, {
+        validationStatus: ProjectValidation.FIRST_VALIDATION,
+        firstValidatedBy: new Types.ObjectId(userId),
+        closedBy: null,
+        updatedBy: userId,
+      });
+
+      return { id: eventId, message: 'Event approved successfully' };
+    }
+
+    async cancelFirstValidation(eventId: string, userId: string) {
+      if (!(await this.canValidateProjectPermission(userId))) {
+        throw new ForbiddenException('This user is not authorized to cancel event approval.');
+      }
+
+      const event = await this.eventModel.findById(eventId);
+      if (!event) throw new NotFoundException(`Event with ID: ${eventId} not found`);
+      if (event.get('validationStatus') !== ProjectValidation.FIRST_VALIDATION) {
+        throw new BadRequestException('The event is not approved.');
+      }
+
+      await this.eventModel.findByIdAndUpdate(eventId, {
+        validationStatus: ProjectValidation.UNDER_REVIEW,
+        firstValidatedBy: null,
+        closedBy: null,
+        updatedBy: userId,
+      });
+
+      return { id: eventId, message: 'Event approval cancelled successfully' };
+    }
+
+    async closeEvent(eventId: string, userId: string) {
+      if (!(await this.canCloseElementsPermission(userId))) {
+        throw new ForbiddenException('This user is not authorized to close events.');
+      }
+
+      const event = await this.eventModel.findById(eventId);
+      if (!event) throw new NotFoundException(`Event with ID: ${eventId} not found`);
+      if (
+        (event.get?.('validationStatus') ?? event.validationStatus) ===
+        ProjectValidation.FINAL_VALIDATION
+      ) {
+        throw new BadRequestException('The event is already closed.');
+      }
+      if (event.get('validationStatus') !== ProjectValidation.FIRST_VALIDATION) {
+        throw new BadRequestException('The event must be approved before it can be closed.');
+      }
+
+      await this.eventModel.findByIdAndUpdate(eventId, {
+        validationStatus: ProjectValidation.FINAL_VALIDATION,
+        closedBy: new Types.ObjectId(userId),
+        updatedBy: userId,
+      });
+
+      return { id: eventId, message: 'Event closed successfully' };
+    }
+
+    async reopenEvent(eventId: string, userId: string) {
+      if (!(await this.canCloseElementsPermission(userId))) {
+        throw new ForbiddenException('This user is not authorized to reopen events.');
+      }
+
+      const event = await this.eventModel.findById(eventId);
+      if (!event) throw new NotFoundException(`Event with ID: ${eventId} not found`);
+      if (event.get('validationStatus') !== ProjectValidation.FINAL_VALIDATION) {
+        throw new BadRequestException('The event is not closed.');
+      }
+      const closedByRaw = event.get('closedBy');
+      const closedById =
+        closedByRaw instanceof Types.ObjectId
+          ? closedByRaw.toString()
+          : closedByRaw?._id?.toString() || closedByRaw?.toString();
+      // Legacy closed events predate closedBy and cannot be attributed retroactively.
+      if (closedById && closedById !== userId) {
+        throw new ForbiddenException(
+          'Only the exact user account that closed this event is authorized to reopen it.',
+        );
+      }
+
+      const firstValidatedByRaw = event.get('firstValidatedBy');
+      const firstValidatedBy =
+        firstValidatedByRaw?._id ?? firstValidatedByRaw ?? null;
+
+      await this.eventModel.findByIdAndUpdate(eventId, {
+        validationStatus: ProjectValidation.FIRST_VALIDATION,
+        firstValidatedBy,
+        closedBy: null,
+        updatedBy: userId,
+      });
+
+      return { id: eventId, message: 'Event reopened successfully' };
+    }
 
   async findAll(actorId: string, actorRole: UserRole) {
     let filter: Record<string, unknown> =
@@ -147,7 +275,7 @@ export class EventsService {
 
     if (actorRole === UserRole.ADMIN) {
       // El ocultamiento de eventos solo aplica a la vista de administradores.
-      const canClose = await this.canCloseProjectPermission(actorId);
+      const canClose = await this.canCloseElementsPermission(actorId);
       if (!canClose) {
         filter = { ...filter, isHidden: { $ne: true } };
       }
@@ -158,6 +286,8 @@ export class EventsService {
       .populate('participants')
       .populate('createdBy')
       .populate('updatedBy')
+      .populate('firstValidatedBy')
+      .populate('closedBy')
       .populate({
         path: 'products',
         populate: [
@@ -175,6 +305,8 @@ export class EventsService {
       .populate('participants')
       .populate('createdBy')
       .populate('updatedBy')
+      .populate('firstValidatedBy')
+      .populate('closedBy')
       .populate('products')
       .populate({
         path: 'products',
@@ -190,7 +322,7 @@ export class EventsService {
     }
 
     if (actorRole === UserRole.ADMIN && (event as unknown as { isHidden?: boolean }).isHidden) {
-      const canClose = await this.canCloseProjectPermission(actorId);
+      const canClose = await this.canCloseElementsPermission(actorId);
       if (!canClose) {
         throw new NotFoundException(`Event with ID: ${id} not found`);
       }
@@ -220,10 +352,13 @@ export class EventsService {
     actorRole: UserRole,
   ) {
     try {
-      const existingEvent = await this.eventModel.findById(id).select('createdBy');
+      const existingEvent = await this.eventModel.findById(id).select('createdBy validationStatus');
 
       if (!existingEvent) {
         throw new NotFoundException(`Event with ID: ${id} not found`);
+      }
+      if (existingEvent.get('validationStatus') === ProjectValidation.FINAL_VALIDATION) {
+        throw new ForbiddenException('The event is closed. Reopen it before modifying it.');
       }
 
       this.ensureCanManageEvent(
@@ -275,6 +410,9 @@ export class EventsService {
       }
       return updatedEvent;
     } catch (err: any) {
+      if (err instanceof ForbiddenException || err instanceof NotFoundException) {
+        throw err;
+      }
       throw new BadRequestException('Error updating event' + err.message);
     }
   }
@@ -288,6 +426,12 @@ export class EventsService {
 
     if (!event) {
       throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
+    if (
+      (event.get?.('validationStatus') ?? event.validationStatus) ===
+      ProjectValidation.FINAL_VALIDATION
+    ) {
+      throw new ForbiddenException('The event is closed. Reopen it before modifying it.');
     }
 
     const createdById = this.toId(event.createdBy);
@@ -343,7 +487,7 @@ export class EventsService {
    * @param userId The ID of the user hiding the event.
    */
   async hideEvent(eventId: string, userId: string) {
-    const canClose = await this.canCloseProjectPermission(userId);
+    const canClose = await this.canCloseElementsPermission(userId);
 
     if (!canClose) {
       throw new ForbiddenException('This user is not authorized to hide events.');
@@ -352,6 +496,12 @@ export class EventsService {
     const event = await this.eventModel.findById(eventId);
     if (!event) {
       throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
+    if (
+      (event.get?.('validationStatus') ?? event.validationStatus) ===
+      ProjectValidation.FINAL_VALIDATION
+    ) {
+      throw new ForbiddenException('The event is closed. Reopen it before modifying it.');
     }
 
     if (event.get('isHidden')) {
@@ -373,7 +523,7 @@ export class EventsService {
    * @param userId The ID of the user unhiding the event.
    */
   async unhideEvent(eventId: string, userId: string) {
-    const canClose = await this.canCloseProjectPermission(userId);
+    const canClose = await this.canCloseElementsPermission(userId);
 
     if (!canClose) {
       throw new ForbiddenException('This user is not authorized to unhide events.');
@@ -382,6 +532,12 @@ export class EventsService {
     const event = await this.eventModel.findById(eventId);
     if (!event) {
       throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
+    if (
+      (event.get?.('validationStatus') ?? event.validationStatus) ===
+      ProjectValidation.FINAL_VALIDATION
+    ) {
+      throw new ForbiddenException('The event is closed. Reopen it before modifying it.');
     }
 
     if (!event.get('isHidden')) {
@@ -487,6 +643,12 @@ export class EventsService {
     const event = await this.eventModel.findById(eventId).exec();
     if (!event)
       throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    if (
+      (event.get?.('validationStatus') ?? event.validationStatus) ===
+      ProjectValidation.FINAL_VALIDATION
+    ) {
+      throw new ForbiddenException('The event is closed. Reopen it before modifying it.');
+    }
 
     if (!Array.isArray(userIds) || userIds.length === 0)
       throw new BadRequestException('userIds must be a non-empty array');
@@ -532,6 +694,12 @@ export class EventsService {
     if (!event) {
       throw new NotFoundException(`Event with ID: ${eventId} not found`);
     }
+    if (
+      (event.get?.('validationStatus') ?? event.validationStatus) ===
+      ProjectValidation.FINAL_VALIDATION
+    ) {
+      throw new ForbiddenException('The event is closed. Reopen it before modifying it.');
+    }
 
     const isParticipant = event.participants?.some((participant) => {
       const participantId = this.toId(
@@ -569,6 +737,7 @@ export class EventsService {
 
   async addParticipant(eventId: string, userId: string) {
     try {
+      await this.ensureEventIsOpen(eventId);
       await this.eventModel.findByIdAndUpdate(eventId, {
         $push: { participants: userId },
       });
