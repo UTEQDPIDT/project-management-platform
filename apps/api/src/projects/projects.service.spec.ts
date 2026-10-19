@@ -12,7 +12,13 @@ import { ProjectsService } from './projects.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { FilesService } from '../files/files.service';
 import { ProductsService } from '../products/products.service';
-import { ImpactLevel, ProjectStatus, Status, UserRole } from '@repo/types';
+import {
+  ImpactLevel,
+  ProjectStatus,
+  ProjectValidation,
+  Status,
+  UserRole,
+} from '@repo/types';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
@@ -84,7 +90,7 @@ describe('ProjectsService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should create a project with PENDING status and activities', async () => {
+  it('should create a project with PENDING status, UNDER_REVIEW validation, and activities', async () => {
     projectModelMock.create.mockResolvedValue([{ _id: 'project-1' }]);
     activitiesServiceMock.createOnBulk.mockResolvedValue([]);
 
@@ -101,6 +107,7 @@ describe('ProjectsService', () => {
     expect(projectModelMock.create).toHaveBeenCalledTimes(1);
     const createPayload = projectModelMock.create.mock.calls[0][0][0];
     expect(createPayload.status).toBe(ProjectStatus.PENDING);
+    expect(createPayload.validationStatus).toBe(ProjectValidation.UNDER_REVIEW);
     expect(activitiesServiceMock.createOnBulk).toHaveBeenCalledWith(
       dto.activities,
       'user-1',

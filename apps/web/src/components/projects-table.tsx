@@ -6,16 +6,14 @@ import {
   useCloseProject,
   useDeleteProject,
   useFirstValidationProject,
-  useHideProject,
   useReopenProject,
-  useUnhideProject,
 } from '@/hooks/projects';
 import React from 'react';
 import LoadingMessage from './loading-message';
 import { DataTable, FacetedFilterConfig, facetedFilter } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useQueries } from '@tanstack/react-query';
-import { IActivity, IProject, ProjectStatus } from '@repo/types';
+import { IActivity, IProject, ProjectStatus, ProjectValidation } from '@repo/types';
 import { ProfileInfo } from './profile-info';
 import { calculateProgress, copyValue, formatDatePeriod } from '@/lib/utils';
 import { Progress } from './ui/progress';
@@ -48,8 +46,6 @@ import {
   Lock,
   Pin,
   XCircle,
-  EyeOff,
-  Eye,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
@@ -57,6 +53,7 @@ import { useProjectProducts } from '@/hooks/products';
 import { getActivitiesByEntityId } from '@/services/activities.service';
 import { useUserProfile } from 'context/profile-provider';
 import {
+  getProjectValidationBadge,
   getProjectStatusBadge,
   normalizeProjectStatus,
 } from '@/lib/badge-mappings';
@@ -108,11 +105,7 @@ const ProjectStatusBadge = ({
   status: ProjectStatus;
 }) => {
   const statusBadge = getProjectStatusBadge(status);
-  return (
-    <Badge variant={statusBadge.variant}>
-      {statusBadge.label}
-    </Badge>
-  );
+  return <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>;
 };
 
 const ProductCount = ({ projectId }: { projectId: string }) => {
@@ -127,39 +120,38 @@ const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
   const cancelFirstValidationProject = useCancelFirstValidationProject();
   const closeProject = useCloseProject();
   const reopenProject = useReopenProject();
-  const hideProject = useHideProject();
-  const unhideProject = useUnhideProject();
   const effectiveStatus = project.__derivedStatus;
   const isClosed = effectiveStatus === ProjectStatus.CLOSED;
   const closedById =
     typeof project.closedBy === 'string' ? project.closedBy : project.closedBy?._id;
-  const hasFirstValidation = Boolean(project.firstValidatedBy);
+  const hasFirstValidation =
+    project.validationStatus === ProjectValidation.FIRST_VALIDATION ||
+    project.validationStatus === ProjectValidation.FINAL_VALIDATION ||
+    Boolean(project.firstValidatedBy);
   const canFirstValidate = Boolean(
     !isClosed &&
-      effectiveStatus === ProjectStatus.COMPLETED &&
-      user?.canValidateProjets &&
+      user?.canValidateElements &&
       !hasFirstValidation,
   );
   const canReopen = Boolean(
     isClosed &&
-      user?.canCloseProject &&
+      user?.canCloseElements &&
       closedById &&
       closedById === user?._id,
   );
   const canClose = Boolean(
     !isClosed &&
-      (effectiveStatus === ProjectStatus.COMPLETED ||
-        effectiveStatus === ProjectStatus.FIRST_VALIDATION) &&
-      user?.canCloseProject &&
+      effectiveStatus === ProjectStatus.COMPLETED &&
+      project.validationStatus === ProjectValidation.FIRST_VALIDATION &&
+      user?.canCloseElements &&
       hasFirstValidation,
   );
   const canCancelFirstValidation = Boolean(
     !isClosed &&
-      effectiveStatus === ProjectStatus.FIRST_VALIDATION &&
-      user?.canValidateProjets &&
+      project.validationStatus === ProjectValidation.FIRST_VALIDATION &&
+      user?.canValidateElements &&
       hasFirstValidation,
   );
-  const canToggleVisibility = Boolean(user?.canCloseProject);
 
   return (
     <DropdownMenu>
@@ -194,7 +186,7 @@ const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
             disabled={firstValidationProject.isPending}
           >
             <Pin />
-            Primera validación
+            Aprobar
           </DropdownMenuItem>
         )}
 
@@ -204,7 +196,7 @@ const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
             disabled={cancelFirstValidationProject.isPending}
           >
             <XCircle />
-            Cancelar primera validación
+            Cancelar aprobación
           </DropdownMenuItem>
         )}
 
@@ -224,24 +216,6 @@ const ProjectsActions = ({ project }: { project: ProjectTableRow }) => {
           >
             <DoorOpen /> Reabrir proyecto
           </DropdownMenuItem>
-        )}
-
-        {canToggleVisibility && (
-          project.isHidden ? (
-            <DropdownMenuItem
-              onClick={() => unhideProject.mutate(project._id)}
-              disabled={unhideProject.isPending}
-            >
-              <Eye /> Mostrar proyecto
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem
-              onClick={() => hideProject.mutate(project._id)}
-              disabled={hideProject.isPending}
-            >
-              <EyeOff /> Ocultar proyecto
-            </DropdownMenuItem>
-          )
         )}
 
         {!isClosed && (
@@ -331,6 +305,23 @@ const columns: ColumnDef<ProjectTableRow>[] = [
     cell: ({ row }) => {
       const project = row.original;
       return <ProjectStatusBadge status={project.__derivedStatus} />;
+    },
+  },
+  {
+    id: 'validationStatus',
+    accessorFn: (project) => project.validationStatus ?? 'UNDER_REVIEW',
+    header: 'Validación',
+    filterFn: facetedFilter,
+    meta: { className: 'hidden lg:table-cell' },
+    cell: ({ row }) => {
+      const validationBadge = getProjectValidationBadge(
+        row.original.validationStatus,
+      );
+      return (
+        <Badge variant={validationBadge.variant}>
+          {validationBadge.label}
+        </Badge>
+      );
     },
   },
   {
@@ -445,7 +436,6 @@ const facetedFilters: FacetedFilterConfig[] = [
       { label: 'Pendiente', value: ProjectStatus.PENDING },
       { label: 'En progreso', value: ProjectStatus.IN_PROGRESS },
       { label: 'Completado', value: ProjectStatus.COMPLETED },
-      { label: 'Primera validacion', value: ProjectStatus.FIRST_VALIDATION },
       { label: 'Cerrado', value: ProjectStatus.CLOSED },
     ],
   },
@@ -473,7 +463,16 @@ export default function ProjectsTable({
 }) {
   const { data: projects, isLoading: loadingProjects } = useAllProjects();
   const typedProjects = React.useMemo(
-    () => ((projects ?? []) as IProject[]).filter((project) => Boolean(project.isHidden) === showHidden),
+    () =>
+      ((projects ?? []) as IProject[]).filter((project) =>
+        showHidden
+          ? project.validationStatus === ProjectValidation.UNDER_REVIEW ||
+            project.validationStatus === undefined ||
+            project.validationStatus === null
+          : project.validationStatus !== ProjectValidation.UNDER_REVIEW &&
+            project.validationStatus !== undefined &&
+            project.validationStatus !== null,
+      ),
     [projects, showHidden],
   );
 
@@ -599,7 +598,7 @@ export default function ProjectsTable({
           columns={columns}
           data={sortedProjects}
           facetedFilters={projectFacetedFilters}
-          persistStateKey={showHidden ? 'hidden-projects-table' : 'projects-table'}
+          persistStateKey={showHidden ? 'projects-under-review-table' : 'projects-table'}
         />
       )}
     </div>

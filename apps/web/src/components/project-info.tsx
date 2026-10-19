@@ -1,4 +1,13 @@
-import { IProject, ProjectStatus, SeedCategory,EntityType,FilePurpose,IFile,UserRole } from '@repo/types';
+import {
+  IProject,
+  ProjectStatus,
+  ProjectValidation,
+  SeedCategory,
+  EntityType,
+  FilePurpose,
+  IFile,
+  UserRole,
+} from '@repo/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -141,7 +150,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
       normalizedValue === 'PRIMERA VALIDACION' ||
       normalizedValue === 'PRIMERA VALIDACIÓN'
     ) {
-      return ProjectStatus.FIRST_VALIDATION;
+      return ProjectStatus.COMPLETED;
     }
 
     if (normalizedValue === 'CLOSED' || normalizedValue === 'CERRADO') {
@@ -161,7 +170,6 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
 
     if (normalizedStatus === ProjectStatus.IN_PROGRESS) return 'En progreso';
     if (normalizedStatus === ProjectStatus.COMPLETED) return 'Completado';
-    if (normalizedStatus === ProjectStatus.FIRST_VALIDATION) return 'Primera validacion';
     if (normalizedStatus === ProjectStatus.CLOSED) return 'Cerrado';
     return 'Pendiente';
   };
@@ -187,6 +195,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
     innovationLines,
     relatedProjects,
     status,
+    validationStatus,
     isFunded,
     firstValidatedBy,
     ValidationBy,
@@ -244,37 +253,56 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         </div>
       </div>
 
-{firstValidatedBy && (
+      <div className={rowClass}>
+        <span className={labelClass}>
+          <ShieldCheck size={14} /> Validación
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md w-full">
+          <span>
+            {validationStatus === ProjectValidation.FINAL_VALIDATION
+              ? 'Validación final'
+              : validationStatus === ProjectValidation.FIRST_VALIDATION
+                ? 'Aprobado'
+                : 'En revisión'}
+          </span>
+        </div>
+      </div>
+
         <div className={rowClass}>
-          <span className={`${labelClass} text-blue-600 font-medium`}>
+          <span className={`${labelClass}`}>
             <ShieldCheck size={14} /> Validado por
           </span>
           <div className="p-2 hover:bg-secondary rounded-md w-full">
-            <ProfileInfo
-              size="sm"
-              givenName={firstValidatedBy.givenName}
-              familyName={firstValidatedBy.familyName}
-              avatarUrl={firstValidatedBy.avatarUrl}
-            />
+            {firstValidatedBy ? (
+              <ProfileInfo
+                size="sm"
+                givenName={firstValidatedBy.givenName}
+                familyName={firstValidatedBy.familyName}
+                avatarUrl={firstValidatedBy.avatarUrl}
+              />
+            ) : (
+              '-'
+            )}
           </div>
         </div>
-      )}
 
-      {closedBy && (
         <div className={rowClass}>
           <span className={`${labelClass} text-red-600 font-medium`}>
             <Lock size={14} /> Cerrado por
           </span>
           <div className="p-2 hover:bg-secondary rounded-md w-full">
-            <ProfileInfo
-              size="sm"
-              givenName={closedBy.givenName}
-              familyName={closedBy.familyName}
-              avatarUrl={closedBy.avatarUrl}
-            />
+            {closedBy ? (
+              <ProfileInfo
+                size="sm"
+                givenName={closedBy.givenName}
+                familyName={closedBy.familyName}
+                avatarUrl={closedBy.avatarUrl}
+              />
+            ) : (
+              '-'
+            )}
           </div>
         </div>
-      )}
 
       <div className={rowClass}>
         <span className={labelClass}>

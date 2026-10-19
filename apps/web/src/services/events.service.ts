@@ -156,6 +156,26 @@ const unhideEvent = async (eventId: string) => {
   return data;
 };
 
+const applyFirstValidation = async (eventId: string) => {
+  const { data } = await api.post(`/events/${eventId}/first-validation`);
+  return data;
+};
+
+const cancelFirstValidation = async (eventId: string) => {
+  const { data } = await api.post(`/events/${eventId}/cancel-first-validation`);
+  return data;
+};
+
+const closeEvent = async (eventId: string) => {
+  const { data } = await api.post(`/events/${eventId}/close`);
+  return data;
+};
+
+const reopenEvent = async (eventId: string) => {
+  const { data } = await api.post(`/events/${eventId}/reopen`);
+  return data;
+};
+
 export {
   createEvent,
   getAllEvents,
@@ -171,4 +191,8 @@ export {
   getEventsDashboard,
   hideEvent,
   unhideEvent,
+  applyFirstValidation,
+  cancelFirstValidation,
+  closeEvent,
+  reopenEvent,
 };

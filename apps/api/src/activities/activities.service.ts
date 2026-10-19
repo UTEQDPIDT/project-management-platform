@@ -55,6 +55,16 @@ export class ActivitiesService {
     return null;
   }
 
+  private async ensureEventIsOpen(eventId: string) {
+    const event = await this.eventModel.findById(eventId);
+    if (!event) {
+      throw new NotFoundException(`Event with ID: ${eventId} not found`);
+    }
+    if (event.validationStatus === ProjectValidation.FINAL_VALIDATION) {
+      throw new ForbiddenException('Activities cannot be modified on closed events.');
+    }
+  }
+
   private async ensureCanDeleteActivity(
     activity: Activity,
     actorId: string,
@@ -264,6 +274,9 @@ export class ActivitiesService {
           createActivityDto.entityId.toString(),
         );
       }
+      if (createActivityDto.entityType === EntityType.EVENT) {
+        await this.ensureEventIsOpen(createActivityDto.entityId.toString());
+      }
 
       const createdActivity = new this.activityModel({
         ...createActivityDto,
@@ -289,6 +302,9 @@ export class ActivitiesService {
     session?: ClientSession,
   ) {
     try {
+      if (entityType === EntityType.EVENT) {
+        await this.ensureEventIsOpen(entityId);
+      }
       const activities = await this.activityModel.insertMany(
         createActivityDto.map((activity) => ({
           name: activity.name,
@@ -407,6 +423,12 @@ export class ActivitiesService {
         id,
       );
     }
+    if (activity.entityType === EntityType.EVENT) {
+      await this.ensureEventIsOpen(activity.entityId.toString());
+    }
+    if (activity.entityType === EntityType.EVENT) {
+      await this.ensureEventIsOpen(activity.entityId.toString());
+    }
 // Check if the status is being updated to COMPLETED and if it was not already COMPLETED
     const isTransitionToCompleted =
       updateActivityDto.status === Status.COMPLETED &&
@@ -429,6 +451,9 @@ export class ActivitiesService {
       await this.projectsService.recomputeProjectStatus(
         activity.entityId.toString(),
       );
+    }
+    if (activity.entityType === EntityType.EVENT) {
+      await this.ensureEventIsOpen(activity.entityId.toString());
     }
 
     return updatedActivity;
@@ -511,6 +536,9 @@ export class ActivitiesService {
 
     if (!activity) {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
+    }
+    if (activity.entityType === EntityType.EVENT) {
+      await this.ensureEventIsOpen(activity.entityId.toString());
     }
 
     await this.ensureCanDeleteActivity(activity, actorId, actorRole);

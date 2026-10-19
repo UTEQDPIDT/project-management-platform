@@ -219,6 +219,16 @@ export class FilesService {
     entityId: string,
     entityType: EntityType | string,
   ) {
+    if (this.normalizeEntityType(entityType) === EntityType.EVENT) {
+      const event = await this.eventModel.findById(entityId);
+      if (!event) {
+        throw new NotFoundException(`Event with ID: ${entityId} not found`);
+      }
+      if (event.validationStatus === ProjectValidation.FINAL_VALIDATION) {
+        throw new ForbiddenException('Files cannot be modified on closed events.');
+      }
+    }
+
     const parentProjectId = await this.resolveParentProjectId(entityId, entityType);
 
     if (!parentProjectId) {

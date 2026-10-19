@@ -4,7 +4,7 @@ import React from 'react';
 import { useAllProjects } from '@/hooks/projects';
 import { calculateProgress, formatDatePeriod } from '@/lib/utils';
 import { useQueries } from '@tanstack/react-query';
-import { IActivity, IProject, ProjectStatus } from '@repo/types';
+import { IActivity, IProject, ProjectStatus, ProjectValidation } from '@repo/types';
 import { addMonths } from 'date-fns';
 import { getActivitiesByEntityId } from '@/services/activities.service';
 import {
@@ -35,7 +35,7 @@ const normalizeProjectStatus = (status?: string): ProjectStatus => {
 		value === 'PRIMERA VALIDACION' ||
 		value === 'PRIMERA VALIDACIÓN'
 	) {
-		return ProjectStatus.FIRST_VALIDATION;
+		return ProjectStatus.COMPLETED;
 	}
 
 	if (value === 'CLOSED' || value === 'CERRADO') {
@@ -87,7 +87,13 @@ export function DashboardProjectsTable({
 	} = useAllProjects();
 
 	const typedProjects = React.useMemo(
-		() => ((allProjects ?? []) as IProject[]).filter((project) => !project.isHidden),
+		() =>
+			((allProjects ?? []) as IProject[]).filter(
+				(project) =>
+					!project.isHidden &&
+					(project.validationStatus === ProjectValidation.FIRST_VALIDATION ||
+						project.validationStatus === ProjectValidation.FINAL_VALIDATION),
+			),
 		[allProjects],
 	);
 

@@ -16,6 +16,10 @@ describe('FilesService', () => {
     findById: jest.fn(),
   };
 
+  const eventModelMock = {
+    findById: jest.fn().mockResolvedValue({ validationStatus: undefined }),
+  };
+
   const activityModelMock = {
     findById: jest.fn(),
   };
@@ -30,10 +34,12 @@ describe('FilesService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    eventModelMock.findById.mockResolvedValue({ validationStatus: undefined });
 
     service = Object.create(FilesService.prototype) as FilesService;
     (service as unknown as { fileModel: typeof fileModelMock }).fileModel = fileModelMock;
     (service as unknown as { projectModel: typeof projectModelMock }).projectModel = projectModelMock;
+    (service as unknown as { eventModel: typeof eventModelMock }).eventModel = eventModelMock;
     (service as unknown as { activityModel: typeof activityModelMock }).activityModel = activityModelMock;
     (service as unknown as { productModel: typeof productModelMock }).productModel = productModelMock;
     (service as unknown as { bucket: typeof bucketMock }).bucket = bucketMock;

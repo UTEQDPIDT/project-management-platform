@@ -3,7 +3,7 @@ import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { ApiProperty } from '@nestjs/swagger';
 import { Product } from './product.schema';
-import { EventType } from '@repo/types';
+import { EventType, ProjectValidation } from '@repo/types';
 
 @Schema({ timestamps: true })
 export class Event extends Document {
@@ -58,6 +58,25 @@ export class Event extends Document {
   @ApiProperty({ description: 'Indica si el evento acepta productos' })
   @Prop({ default: false })
   acceptsProducts: boolean;
+
+  @ApiProperty({
+    description: 'Estado de validación del evento.',
+    enum: Object.values(ProjectValidation),
+  })
+  @Prop({
+    type: String,
+    enum: Object.values(ProjectValidation),
+    default: ProjectValidation.UNDER_REVIEW,
+  })
+  validationStatus: ProjectValidation;
+
+  @ApiProperty({ description: 'Usuario que realizó la primera validación.' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null })
+  firstValidatedBy?: User | mongoose.Types.ObjectId | null;
+
+  @ApiProperty({ description: 'Usuario que realizó la validación final.' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null })
+  closedBy?: User | mongoose.Types.ObjectId | null;
 
   @ApiProperty({ description: 'Asistencia del evento' })
   @Prop({

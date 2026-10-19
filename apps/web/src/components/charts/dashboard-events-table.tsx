@@ -3,6 +3,7 @@
 import React from 'react';
 import { useGetAllEvents } from '@/hooks/events';
 import { IEvent } from '@repo/types';
+import { ProjectValidation } from '@repo/types';
 import { DashboardEventsTableSection } from './dashboard-events-table-section';
 
 type DashboardEventsTableProps = {
@@ -20,7 +21,12 @@ export function DashboardEventsTable({ dateRange }: DashboardEventsTableProps) {
 	} = useGetAllEvents();
 
 	const typedEvents = React.useMemo(
-		() => ((allEvents ?? []) as IEvent[]).filter((event) => !event.isHidden),
+		() =>
+			((allEvents ?? []) as IEvent[]).filter(
+				(event) =>
+					(event.validationStatus === ProjectValidation.FIRST_VALIDATION ||
+						event.validationStatus === ProjectValidation.FINAL_VALIDATION),
+			),
 		[allEvents],
 	);
 

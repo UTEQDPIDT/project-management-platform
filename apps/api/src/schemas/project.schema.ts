@@ -162,7 +162,7 @@ export class Project extends Document {
   @Prop({
     type: String,
     enum: Object.values(ProjectValidation),
-    default: null,
+    default: ProjectValidation.UNDER_REVIEW,
   })
   validationStatus?: ProjectValidation | null;
 

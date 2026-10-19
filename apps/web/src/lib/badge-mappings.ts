@@ -1,4 +1,10 @@
-import { EventType, ProjectStatus, TeamsGrade, UserType } from '@repo/types';
+import {
+  EventType,
+  ProjectStatus,
+  ProjectValidation,
+  TeamsGrade,
+  UserType,
+} from '@repo/types';
 
 export type AppBadgeVariant =
   | 'default'
@@ -34,11 +40,22 @@ const PROJECT_STATUS_BADGE_MAP: Record<ProjectStatus, BadgePresentation> = {
   [ProjectStatus.PENDING]: { label: 'Pendiente', variant: 'gray' },
   [ProjectStatus.IN_PROGRESS]: { label: 'En progreso', variant: 'blue' },
   [ProjectStatus.COMPLETED]: { label: 'Completado', variant: 'green' },
-  [ProjectStatus.FIRST_VALIDATION]: {
-    label: 'Primera validación',
-    variant: 'orange',
-  },
   [ProjectStatus.CLOSED]: { label: 'Cerrado', variant: 'purple' },
+};
+
+const PROJECT_VALIDATION_BADGE_MAP: Record<ProjectValidation, BadgePresentation> = {
+  [ProjectValidation.UNDER_REVIEW]: {
+    label: 'En revisión',
+    variant: 'gray',
+  },
+  [ProjectValidation.FIRST_VALIDATION]: {
+    label: 'Aprobado',
+    variant: 'green',
+  },
+  [ProjectValidation.FINAL_VALIDATION]: {
+    label: 'Validación final',
+    variant: 'purple',
+  },
 };
 
 const EVENT_TYPE_BADGE_MAP: Partial<Record<EventType, AppBadgeVariant>> = {
@@ -74,12 +91,8 @@ export const normalizeProjectStatus = (status?: string): ProjectStatus => {
     return ProjectStatus.COMPLETED;
   }
 
-  if (
-    value === 'FIRST_VALIDATION' ||
-    value === 'PRIMERA VALIDACION' ||
-    value === 'PRIMERA VALIDACIÓN'
-  ) {
-    return ProjectStatus.FIRST_VALIDATION;
+  if (value === 'FIRST_VALIDATION' || value === 'PRIMERA VALIDACION' || value === 'PRIMERA VALIDACIÓN') {
+    return ProjectStatus.COMPLETED;
   }
 
   if (value === 'CLOSED' || value === 'CERRADO') {
@@ -92,6 +105,28 @@ export const normalizeProjectStatus = (status?: string): ProjectStatus => {
 export const getProjectStatusBadge = (status?: string): BadgePresentation => {
   const normalizedStatus = normalizeProjectStatus(status);
   return PROJECT_STATUS_BADGE_MAP[normalizedStatus];
+};
+
+export const normalizeProjectValidation = (
+  validationStatus?: string,
+): ProjectValidation => {
+  const value = (validationStatus ?? '').trim().toUpperCase();
+
+  if (value === 'FINAL_VALIDATION' || value === 'VALIDACIÓN FINAL' || value === 'VALIDACION FINAL') {
+    return ProjectValidation.FINAL_VALIDATION;
+  }
+
+  if (value === 'FIRST_VALIDATION' || value === 'PRIMERA VALIDACIÓN' || value === 'PRIMERA VALIDACION') {
+    return ProjectValidation.FIRST_VALIDATION;
+  }
+
+  return ProjectValidation.UNDER_REVIEW;
+};
+
+export const getProjectValidationBadge = (
+  validationStatus?: string,
+): BadgePresentation => {
+  return PROJECT_VALIDATION_BADGE_MAP[normalizeProjectValidation(validationStatus)];
 };
 
 export const getEventTypeBadge = (type: EventType): BadgePresentation => ({
