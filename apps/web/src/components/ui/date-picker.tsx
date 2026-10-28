@@ -13,9 +13,13 @@ import { useState } from 'react';
 export function DatePicker({
   date,
   onChange,
+  startMonth,
+  endMonth,
 }: {
   date?: Date;
   onChange: (date?: Date) => void;
+  startMonth?: Date;
+  endMonth?: Date;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -37,6 +41,8 @@ export function DatePicker({
             mode="single"
             selected={date}
             captionLayout="dropdown"
+            startMonth={startMonth}
+            endMonth={endMonth}
             onSelect={(date) => {
               onChange(date);
               setOpen(false);
