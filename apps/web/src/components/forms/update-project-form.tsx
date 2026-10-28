@@ -539,6 +539,8 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                       <DatePicker
                         date={field.value}
                         onChange={field.onChange}
+                        startMonth={new Date(new Date().getFullYear() - 100, 0)}
+                        endMonth={new Date(new Date().getFullYear() + 20, 11)}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
