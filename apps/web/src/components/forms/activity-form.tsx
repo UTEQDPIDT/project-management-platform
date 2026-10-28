@@ -302,7 +302,12 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>Vencimiento</FieldLabel>
-              <DatePicker date={field.value} onChange={field.onChange} />
+              <DatePicker
+                date={field.value}
+                onChange={field.onChange}
+                startMonth={new Date(new Date().getFullYear() - 100, 0)}
+                endMonth={new Date(new Date().getFullYear() + 20, 11)}
+              />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
