@@ -11,7 +11,8 @@ import {
 } from '@/hooks/standalone-products';
 import { getProductSchema } from '@/schemas/product.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CoAuthor, IStandaloneProduct, SeedCategory } from '@repo/types';
+import { CoAuthor, IStandaloneProduct, ITeam, SeedCategory } from '@repo/types';
+import { useTeamsByUser } from '@/hooks/team';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import LoadingMessage from '../loading-message';
@@ -51,6 +52,8 @@ import {
   CommandItem,
 } from '../ui/command';
 
+const NO_TEAM = 'none';
+
 interface Props {
   product?: IStandaloneProduct;
   useDialogClose?: boolean;
@@ -76,6 +79,9 @@ export function StandaloneProductForm({
   const categoryList = categories ?? [];
   const subcategoryList = subcategories ?? [];
 
+  const { data: teams, isLoading: loadingTeams } = useTeamsByUser();
+  const teamList: ITeam[] = teams ?? [];
+
   const { data: files } = useFilesForEntity(product?._id);
   const currentFile = Array.isArray(files) ? files[0] : files;
 
@@ -93,6 +99,7 @@ export function StandaloneProductForm({
       category: product?.category._id || '',
       subcategory: product?.subcategory._id || '',
       coAuthor: product?.coAuthor || CoAuthor.A,
+      team: product?.team?._id || NO_TEAM,
     },
   });
 
@@ -105,6 +112,12 @@ export function StandaloneProductForm({
       formData.append('category', data.category);
       formData.append('subcategory', data.subcategory);
       formData.append('coAuthor', data.coAuthor);
+
+      const teamId = data.team && data.team !== NO_TEAM ? data.team : '';
+      // On update an empty value unlinks the team; on create it is simply omitted.
+      if (teamId || product) {
+        formData.append('team', teamId);
+      }
 
       if (data.file) {
         formData.append('file', data.file);
@@ -297,6 +310,50 @@ export function StandaloneProductForm({
                   </Command>
                 </PopoverContent>
               </Popover>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+
+        <Controller
+          control={form.control}
+          name="team"
+          render={({ field: { onChange, onBlur, ...field }, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldContent>
+                <FieldLabel htmlFor={field.name}>Equipo</FieldLabel>
+                <FieldDescription>
+                  Opcional. El producto se mostrará en el tablero del equipo.
+                </FieldDescription>
+              </FieldContent>
+              <Select {...field} onValueChange={onChange}>
+                <SelectTrigger
+                  id={field.name}
+                  onBlur={onBlur}
+                  aria-invalid={fieldState.invalid}
+                  className="border border-neutral-400"
+                >
+                  <SelectValue placeholder="Sin equipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_TEAM} className="cursor-pointer">
+                    Sin equipo
+                  </SelectItem>
+                  {loadingTeams ? (
+                    <LoadingMessage message="Cargando equipos" />
+                  ) : (
+                    teamList.map((team) => (
+                      <SelectItem
+                        key={team._id}
+                        value={team._id}
+                        className="cursor-pointer"
+                      >
+                        {team.teamName}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

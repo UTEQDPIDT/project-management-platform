@@ -24,6 +24,11 @@ const getStandaloneProductsByUser = async (userId: string) => {
   return data;
 };
 
+const getStandaloneProductsByTeam = async (teamId: string) => {
+  const { data } = await api.get(`/standalone-products/by-team/${teamId}`);
+  return data;
+};
+
 const updateStandaloneProduct = async ({
   productId,
   productData,
@@ -45,6 +50,7 @@ export {
   getStandaloneProducts,
   getStandaloneProductById,
   getStandaloneProductsByUser,
+  getStandaloneProductsByTeam,
   updateStandaloneProduct,
   deleteStandaloneProduct,
 };

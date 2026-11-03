@@ -52,6 +52,7 @@ describe('StandaloneProductsController', () => {
 			dto,
 			file,
 			'user-1',
+			UserRole.USER,
 		);
 	});
 

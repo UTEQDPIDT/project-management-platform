@@ -8,6 +8,7 @@ export const getProductSchema = (isUpdate: boolean) =>
     category: mongoId,
     subcategory: mongoId,
     coAuthor: z.enum(CoAuthor),
+    team: z.string().optional(),
     file: isUpdate
       ? z
           .instanceof(File)

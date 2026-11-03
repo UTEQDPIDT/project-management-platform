@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CoAuthor } from '@repo/types';
-import { Allow, IsString, IsMongoId, IsEnum, IsOptional } from 'class-validator';
+import { Allow, IsString, IsMongoId, IsEnum, IsOptional, ValidateIf } from 'class-validator';
 import { ObjectId } from 'mongoose';
 
 export class CreateStandaloneProductDto {
@@ -21,6 +21,14 @@ export class CreateStandaloneProductDto {
     })
     @IsEnum(CoAuthor)
     coAuthor: CoAuthor;
+
+    @ApiPropertyOptional({
+        description: 'Equipo al que se vincula el producto. Cadena vacía para desvincular.',
+    })
+    @IsOptional()
+    @ValidateIf((_, value) => value !== '')
+    @IsMongoId()
+    team?: string;
 
     @ApiProperty({
     type: 'string',

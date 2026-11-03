@@ -5,12 +5,16 @@ import {
   StandaloneProduct,
   StandaloneProductSchema,
 } from '../schemas/standalone-product.schema';
+import { Team, TeamSchema } from '../schemas/team.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FilesModule } from '../files/files.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: StandaloneProduct.name, schema: StandaloneProductSchema }]),
+    MongooseModule.forFeature([
+      { name: StandaloneProduct.name, schema: StandaloneProductSchema },
+      { name: Team.name, schema: TeamSchema },
+    ]),
     FilesModule,
   ],
   providers: [StandaloneProductsService],

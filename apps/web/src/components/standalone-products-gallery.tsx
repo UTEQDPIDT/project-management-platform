@@ -10,7 +10,9 @@ import IconSquare from './icon-square';
 import LoadingMessage from './loading-message';
 import { StandaloneProductActionsCell } from './standalone-products-table';
 import { Badge } from './ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
+import AvatarRow from './avatar-row';
+import { getStandaloneProductProfiles } from '@/lib/standalone-product-profiles';
 import {
   Empty,
   EmptyDescription,
@@ -20,6 +22,8 @@ import {
 } from './ui/empty';
 
 function StandaloneProductCard({ product }: { product: IStandaloneProduct }) {
+  const profiles = getStandaloneProductProfiles(product);
+
   return (
     <Card className="w-full min-w-60 overflow-hidden hover:shadow-xl transition-shadow duration-200">
       <CardHeader className="min-w-0">
@@ -47,6 +51,11 @@ function StandaloneProductCard({ product }: { product: IStandaloneProduct }) {
           {format(product.createdAt, "d 'de' MMM 'de' yyyy", { locale: es })}
         </span>
       </CardContent>
+      {profiles.length > 0 && (
+        <CardFooter className="flex gap-3 justify-start items-center flex-wrap">
+          <AvatarRow profiles={profiles} />
+        </CardFooter>
+      )}
     </Card>
   );
 }
