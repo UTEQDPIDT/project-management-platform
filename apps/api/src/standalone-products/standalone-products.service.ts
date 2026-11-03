@@ -31,6 +31,12 @@ export class StandaloneProductsService {
             return value;
         }
 
+        // Populated documents expose their id through _id; toString() would return the whole document.
+        const populatedId = (value as { _id?: unknown })._id;
+        if (populatedId !== null && populatedId !== undefined) {
+            return populatedId.toString();
+        }
+
         if (typeof (value as { toString?: () => string }).toString === 'function') {
             return (value as { toString: () => string }).toString();
         }
