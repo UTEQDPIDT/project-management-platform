@@ -12,6 +12,8 @@ import { ProjectsBoard } from '@/components/projects-board';
 import TeamsBoard from '@/components/teams-board';
 import { useEventsByUser } from '@/hooks/events';
 import { useProjectsByOwner } from '@/hooks/projects';
+import { useStandaloneProductsByUser } from '@/hooks/standalone-products';
+import { StandaloneProductsBoard } from '@/components/standalone-products-board';
 import { useTeamsByUser } from '@/hooks/team';
 import { useUserProfile } from 'context/profile-provider';
 import React from 'react';
@@ -23,6 +25,11 @@ const Page = () => {
     isLoading: loadingProjects,
     isError: errorFetchingProjects,
   } = useProjectsByOwner();
+  const {
+    data: standaloneProducts,
+    isLoading: loadingStandaloneProducts,
+    isError: errorFetchingStandaloneProducts,
+  } = useStandaloneProductsByUser(user._id);
   const {
     data: teams,
     isLoading: loadingTeams,
@@ -54,6 +61,15 @@ const Page = () => {
             projects={projects}
             loading={loadingProjects}
             error={errorFetchingProjects}
+          />
+        </div>
+
+        <div className="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <StandaloneProductsBoard
+            products={standaloneProducts}
+            loading={loadingStandaloneProducts}
+            error={errorFetchingStandaloneProducts}
+            emptyDescription="Inicia creando un nuevo producto independiente"
           />
         </div>
 

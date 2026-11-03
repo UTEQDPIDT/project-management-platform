@@ -24,12 +24,14 @@ interface StandaloneProductsBoardProps {
   products: IStandaloneProduct[];
   loading?: boolean;
   error?: boolean;
+  emptyDescription?: string;
 }
 
 export function StandaloneProductsBoard({
   products,
   loading,
   error,
+  emptyDescription = 'Aún no hay productos vinculados a este equipo',
 }: StandaloneProductsBoardProps) {
   const { user } = useUserProfile();
   const baseUrl = getBaseUrlBasedOnRole(user.role);
@@ -90,9 +92,7 @@ export function StandaloneProductsBoard({
                 <Shapes />
               </EmptyMedia>
               <EmptyTitle>Sin Productos Independientes</EmptyTitle>
-              <EmptyDescription>
-                Aún no hay productos vinculados a este equipo
-              </EmptyDescription>
+              <EmptyDescription>{emptyDescription}</EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
               <Button
