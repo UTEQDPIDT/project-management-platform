@@ -21,18 +21,20 @@ import {
 
 function StandaloneProductCard({ product }: { product: IStandaloneProduct }) {
   return (
-    <Card className="w-full hover:shadow-xl transition-shadow duration-200">
-      <CardHeader>
-        <div className="flex justify-between items-center gap-2">
-          <div className="flex gap-2 items-center min-w-0">
+    <Card className="w-full min-w-60 overflow-hidden hover:shadow-xl transition-shadow duration-200">
+      <CardHeader className="min-w-0">
+        <div className="flex w-full min-w-0 justify-between items-center gap-2">
+          <div className="flex flex-1 gap-2 items-center min-w-0">
             <IconSquare color="purple">
               <Shapes />
             </IconSquare>
-            <CardTitle className="line-clamp-1 leading-5">
+            <CardTitle className="min-w-0 flex-1 truncate leading-5">
               {product.name}
             </CardTitle>
           </div>
-          <StandaloneProductActionsCell product={product} />
+          <div className="shrink-0">
+            <StandaloneProductActionsCell product={product} />
+          </div>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
