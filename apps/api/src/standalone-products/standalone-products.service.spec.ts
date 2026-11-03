@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EntityType, FilePurpose, UserRole } from '@repo/types';
 import { FilesService } from '../files/files.service';
 import { StandaloneProduct } from '../schemas/standalone-product.schema';
+import { Team } from '../schemas/team.schema';
 import { StandaloneProductsService } from './standalone-products.service';
 import { CreateStandaloneProductDto } from './dto/create-standalone-product.dto';
 import { UpdateStandaloneProductDto } from './dto/update-standalone-product.dto';
@@ -49,6 +50,10 @@ describe('StandaloneProductsService', () => {
 					useValue: standaloneProductModelMock,
 				},
 				{ provide: FilesService, useValue: filesServiceMock },
+				{
+					provide: getModelToken(Team.name),
+					useValue: { exists: jest.fn().mockResolvedValue(null) },
+				},
 			],
 		}).compile();
 

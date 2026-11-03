@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
+import { Team } from './team.schema';
 import { CoAuthor } from '@repo/types';
 import { ProductCategory } from './product-category.schema.seed';
 import { ProductSubcategory } from './product-subcategory.schema.seed';
@@ -42,6 +43,9 @@ export class StandaloneProduct extends Document {
 
     @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
     updatedBy: User;
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Team', index: true })
+    team?: Team;
 
     createdAt: Date;
     updatedAt: Date;

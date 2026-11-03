@@ -8,7 +8,7 @@ import {
   HeaderTitle,
 } from '@/components/header';
 import { PageContent } from '@/components/page-content';
-import { StandaloneProductsTable } from '@/components/standalone-products-table';
+import { StandaloneProductsGallery } from '@/components/standalone-products-gallery';
 import { useUserProfile } from 'context/profile-provider';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -40,7 +40,7 @@ const Page = () => {
       </Header>
 
       <PageContent className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
-        <StandaloneProductsTable userId={user._id} />
+        <StandaloneProductsGallery userId={user._id} />
       </PageContent>
     </div>
   );

@@ -36,7 +36,7 @@ import FilePreviewDialog from './file-preview-dialog';
 
 
 
-function StandaloneProductActionsCell({
+export function StandaloneProductActionsCell({
   product,
 }: {
   product: IStandaloneProduct;

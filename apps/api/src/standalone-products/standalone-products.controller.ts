@@ -61,7 +61,12 @@ export class StandaloneProductsController {
         file: Express.Multer.File,
         @Req() req: AuthenticatedRequest,
     ) {
-        return this.standaloneProductsService.create(createStandaloneProductDto, file, req.user.id);
+        return this.standaloneProductsService.create(
+            createStandaloneProductDto,
+            file,
+            req.user.id,
+            req.user.role,
+        );
     }
 
     @ApiAcceptedResponse({
@@ -98,6 +103,19 @@ export class StandaloneProductsController {
     findByUser(@Param('userId') userId: string, @Req() req: AuthenticatedRequest) {
         return this.standaloneProductsService.findByUserVisibleTo(
             userId,
+            req.user.id,
+            req.user.role,
+        );
+    }
+
+    @ApiAcceptedResponse({
+        description: 'Lista de productos independientes por equipo obtenida correctamente.',
+        type: [CreateStandaloneProductDto],
+    })
+    @Get('/by-team/:teamId')
+    findByTeam(@Param('teamId') teamId: string, @Req() req: AuthenticatedRequest) {
+        return this.standaloneProductsService.findByTeam(
+            teamId,
             req.user.id,
             req.user.role,
         );

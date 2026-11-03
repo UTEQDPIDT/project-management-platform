@@ -17,6 +17,8 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { useProjectsByTeam } from '@/hooks/projects';
+import { useStandaloneProductsByTeam } from '@/hooks/standalone-products';
+import { StandaloneProductsBoard } from '@/components/standalone-products-board';
 import { useTeam } from '@/hooks/team';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { ITeamMembership, TeamMembershipRole, UserRole } from '@repo/types';
@@ -32,6 +34,11 @@ const TeamPage = () => {
   const { data: team, isLoading: loadingTeam, isError } = useTeam(teamId);
   const { data: projects, isLoading: loadingProjects } =
     useProjectsByTeam(teamId);
+  const {
+    data: standaloneProducts,
+    isLoading: loadingStandaloneProducts,
+    isError: standaloneProductsError,
+  } = useStandaloneProductsByTeam(teamId);
 
   const ownerId = team?.memberships.filter(
     (m: ITeamMembership) => m.role === TeamMembershipRole.OWNER,
@@ -82,6 +89,11 @@ const TeamPage = () => {
               </div>
               <div className="w-full flex flex-col gap-2">
                 <ProjectsBoard loading={loadingProjects} projects={projects} />
+                <StandaloneProductsBoard
+                  loading={loadingStandaloneProducts}
+                  error={standaloneProductsError}
+                  products={standaloneProducts}
+                />
               </div>
             </div>
           </PageContent>
