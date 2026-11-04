@@ -11,7 +11,7 @@ export class Team extends Document {
   @Prop({
     required: true,
     unique: true,
-    maxLength: 50,
+    maxLength: 100,
   })
   @ApiProperty({
     description: 'El nombre del equipo.',

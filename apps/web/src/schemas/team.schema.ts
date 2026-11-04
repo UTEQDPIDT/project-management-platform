@@ -7,7 +7,7 @@ export const teamSchema = (ownerEmail: string) =>
     teamName: z
       .string()
       .min(1, 'El equipo debe tener un nombre')
-      .max(50, 'Excede el máximo de 50 carecteres'),
+      .max(100, 'Excede el máximo de 100 carecteres'),
     division: mongoId.or(z.literal('')),
     summary: z
       .string()
