@@ -97,7 +97,7 @@ export function CardMembers({
                     <Button
                       size="icon-sm"
                       variant="ghost"
-                      className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                      className="opacity-100"
                     >
                       <Ellipsis />
                     </Button>
