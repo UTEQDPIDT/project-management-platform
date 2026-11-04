@@ -29,9 +29,6 @@ const USER_TYPE_BADGE_MAP: Record<UserType, AppBadgeVariant> = {
 };
 
 const TEAM_GRADE_BADGE_MAP: Record<TeamsGrade, AppBadgeVariant> = {
-  [TeamsGrade.CA_EN_FORMACION]: 'orange',
-  [TeamsGrade.CA_CONSOLIDADO]: 'orange',
-  [TeamsGrade.CA_EN_CONSOLIDACION]: 'orange',
   [TeamsGrade.GRUPO_DE_INVESTIGACION]: 'purple',
   [TeamsGrade.SIN_GRADO]: 'gray',
 };

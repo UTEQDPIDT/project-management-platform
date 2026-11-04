@@ -114,7 +114,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
       teamName: team.teamName || '',
       summary: team.summary || '',
       division: team.division?._id || '',
-      grade: team.grade || TeamsGrade.CA_EN_FORMACION,
+      grade: team.grade || TeamsGrade.SIN_GRADO,
       members: memberIds,
       collaborators: collaboratorIds,
       isPrivate: team.isPrivate ?? true,
