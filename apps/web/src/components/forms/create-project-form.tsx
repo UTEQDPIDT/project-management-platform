@@ -236,7 +236,7 @@ export function CreateProjectForm() {
                         {...field}
                         id={field.name}
                         aria-invalid={fieldState.invalid}
-                        placeholder="Ingresa el nombre del proyecto"
+                        placeholder="Ingresa el nombre del proyecto (Evita el uso de MAYÚSCULAS)"
                       />
                       <InputGroupAddon align="inline-end">
                         {field.value?.length}/250
