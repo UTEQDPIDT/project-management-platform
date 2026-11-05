@@ -87,7 +87,7 @@ export default function ParticipantsCard({
                       <Button
                         size="icon-sm"
                         variant="ghost"
-                        className="opacity-0 group-hover:opacity-100"
+                        className="opacity-100"
                       >
                         <MoreHorizontal />
                       </Button>

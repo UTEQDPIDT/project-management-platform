@@ -140,7 +140,7 @@ export function CreateTeamForm() {
                         placeholder="e.g. Nuevos Talentos"
                       />
                       <InputGroupAddon align="inline-end">
-                        {field.value?.length}/50
+                        {field.value?.length}/100
                       </InputGroupAddon>
                     </InputGroup>
                     {fieldState.invalid && (

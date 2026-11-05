@@ -21,7 +21,7 @@ import { usePathname } from 'next/navigation';
 // Menu items
 const items = [
   { title: 'Inicio', url: '/user/inicio', icon: House },
-  { title: 'Equipos', url: '/user/equipos', icon: Users },
+  { title: 'Equipos o Grupos', url: '/user/equipos', icon: Users },
   { title: 'Proyectos', url: '/user/proyectos', icon: Folder },
   {
     title: 'Productos Independientes',

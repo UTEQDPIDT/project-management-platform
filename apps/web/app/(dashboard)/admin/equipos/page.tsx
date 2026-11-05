@@ -17,7 +17,7 @@ const Page = () => {
     <div className="w-full min-h-screen">
       <Header>
         <HeaderHeading>
-          <HeaderTitle>Equipos</HeaderTitle>
+          <HeaderTitle>Equipos o Grupos</HeaderTitle>
           <HeaderDescription>
             Gestiona los equipos existentes.
           </HeaderDescription>
