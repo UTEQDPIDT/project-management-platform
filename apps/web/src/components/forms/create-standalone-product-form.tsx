@@ -341,7 +341,7 @@ export function StandaloneProductForm({
                   </SelectItem>
                   {loadingTeams ? (
                     <LoadingMessage message="Cargando equipos" />
-                  ) : (
+                  ) : teamList.length > 0 ? (
                     teamList.map((team) => (
                       <SelectItem
                         key={team._id}
@@ -351,6 +351,12 @@ export function StandaloneProductForm({
                         {team.teamName}
                       </SelectItem>
                     ))
+                  ) : (
+                    <div className="w-full select-none p-2 flex items-center justify-center">
+                      <span className="text-muted-foreground text-sm">
+                        No estás en ningún equipo
+                      </span>
+                    </div>
                   )}
                 </SelectContent>
               </Select>
