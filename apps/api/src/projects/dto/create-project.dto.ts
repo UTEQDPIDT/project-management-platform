@@ -15,6 +15,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsNotBefore } from '../../common/validators/is-not-before.validator';
 
 export class CreateProjectDto {
   @ApiProperty({
@@ -126,6 +127,9 @@ export class CreateProjectDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
+  @IsNotBefore('startDate', {
+    message: 'La fecha de término no puede ser anterior a la fecha de inicio',
+  })
   endDate: Date;
 
   @ApiProperty({

@@ -481,6 +481,16 @@ export class ProjectsService {
       });
     }
 
+    // Validate the resulting date range (merging the payload with stored values)
+    const start = updateProjectDto.startDate ?? project.startDate;
+    const end = updateProjectDto.endDate ?? project.endDate;
+
+    if (start && end && new Date(end).getTime() < new Date(start).getTime()) {
+      throw new BadRequestException(
+        'La fecha de término no puede ser anterior a la fecha de inicio',
+      );
+    }
+
     await this.projectModel.findByIdAndUpdate(id, {
       ...updateProjectDto,
       updatedBy: userId,
