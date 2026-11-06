@@ -7,7 +7,7 @@ import {
 } from '@/hooks/catalogs';
 import { getProductSchema } from '@/schemas/product.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CoAuthor, IProduct, SeedCategory } from '@repo/types';
+import { IProduct, SeedCategory } from '@repo/types';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import LoadingMessage from '../loading-message';
@@ -78,8 +78,7 @@ export function ProductForm({ projectId, product }: Props) {
     defaultValues: {
       name: product?.name || '',
       category: product?.category._id || '',
-      subcategory: product?.subcategory._id || '',
-      coAuthor: product?.coAuthor || CoAuthor.A,
+      subcategory: product?.subcategory._id || ''
     },
   });
 
@@ -94,7 +93,6 @@ export function ProductForm({ projectId, product }: Props) {
       formData.append('name', data.name);
       formData.append('category', data.category);
       formData.append('subcategory', data.subcategory);
-      formData.append('coAuthor', data.coAuthor);
       formData.append('projectId', projectId);
 
       if (data.file) {
@@ -107,8 +105,10 @@ export function ProductForm({ projectId, product }: Props) {
           productData: formData,
         });
       } else {
-        createProduct.mutate({ productData: formData });
-        form.reset();
+        createProduct.mutate(
+          { productData: formData },
+          { onSuccess: () => form.reset() },
+        );
       }
     } catch (err) {
       console.error('Error on submit', err);
@@ -274,33 +274,6 @@ export function ProductForm({ projectId, product }: Props) {
                   </Command>
                 </PopoverContent>
               </Popover>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
-
-        <Controller
-          control={form.control}
-          name="coAuthor"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Tipo de Co Author</FieldLabel>
-              <Select {...field} onValueChange={field.onChange}>
-                <SelectTrigger
-                  id={field.name}
-                  onBlur={field.onBlur}
-                  aria-invalid={fieldState.invalid}
-                >
-                  <SelectValue placeholder="Selecciona un programa" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(CoAuthor).map((author) => (
-                    <SelectItem key={author} value={author}>
-                      {author}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

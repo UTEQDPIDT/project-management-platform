@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { Team } from './team.schema';
-import { CoAuthor } from '@repo/types';
 import { ProductCategory } from './product-category.schema.seed';
 import { ProductSubcategory } from './product-subcategory.schema.seed';
 
@@ -24,14 +23,6 @@ export class StandaloneProduct extends Document {
         required: true,
     })
     subcategory: ProductSubcategory;
-
-    @Prop({
-        required: false,
-        type: String,
-        enum: Object.values(CoAuthor),
-        default: CoAuthor.A,
-    })
-    coAuthor: CoAuthor;
 
     @Prop({
         required: true,

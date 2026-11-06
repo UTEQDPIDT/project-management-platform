@@ -11,7 +11,7 @@ import {
 } from '@/hooks/standalone-products';
 import { getProductSchema } from '@/schemas/product.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CoAuthor, IStandaloneProduct, ITeam, SeedCategory } from '@repo/types';
+import { IStandaloneProduct, ITeam, SeedCategory } from '@repo/types';
 import { useTeamsByUser } from '@/hooks/team';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -98,7 +98,6 @@ export function StandaloneProductForm({
       name: product?.name || '',
       category: product?.category._id || '',
       subcategory: product?.subcategory._id || '',
-      coAuthor: product?.coAuthor || CoAuthor.A,
       team: product?.team?._id || NO_TEAM,
     },
   });
@@ -111,7 +110,6 @@ export function StandaloneProductForm({
       formData.append('name', data.name);
       formData.append('category', data.category);
       formData.append('subcategory', data.subcategory);
-      formData.append('coAuthor', data.coAuthor);
 
       const teamId = data.team && data.team !== NO_TEAM ? data.team : '';
       // On update an empty value unlinks the team; on create it is simply omitted.

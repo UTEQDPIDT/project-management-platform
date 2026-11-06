@@ -8,7 +8,7 @@ import {
   useStandaloneProductsByUser,
 } from '@/hooks/standalone-products';
 import { ColumnDef } from '@tanstack/react-table';
-import { CoAuthor, IFile, IStandaloneProduct, SeedCategory } from '@repo/types';
+import { IFile, IStandaloneProduct, SeedCategory } from '@repo/types';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,9 +32,6 @@ import {
 } from '@/hooks/catalogs';
 import StandaloneProductMenu from './standalone-product-menu';
 import FilePreviewDialog from './file-preview-dialog';
-
-
-
 
 export function StandaloneProductActionsCell({
   product,
