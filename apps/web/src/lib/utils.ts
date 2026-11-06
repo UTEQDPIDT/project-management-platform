@@ -54,7 +54,7 @@ export const TRL_QUESTIONS = {
     {
       id: 'trl7_system_prototype',
       label:
-        'Demostración de prototipo a nivel sistema en un ambiente operativo real',
+        'Demostración de prototipo en un ambiente operativo real',
     },
   ],
   8: [

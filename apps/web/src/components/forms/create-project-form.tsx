@@ -131,7 +131,7 @@ export function CreateProjectForm() {
     defaultValues: {
       name: '',
       objective: '',
-      trlRating: 3,
+      trlRating: 1,
       program: '',
       isFunded: false,
       knowledgeAreas: [],
