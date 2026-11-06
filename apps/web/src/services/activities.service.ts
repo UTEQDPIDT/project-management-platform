@@ -20,7 +20,7 @@ const updateActivity = async ({
   activityData,
 }: {
   activityId: string;
-  activityData: ActivityPayload;
+  activityData: Partial<ActivityPayload>;
 }) => {
   const { data } = await api.patch(`/activities/${activityId}`, activityData);
   return data;

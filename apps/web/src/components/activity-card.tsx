@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
   Calendar,
+  CheckCircle2,
   Ellipsis,
   MoveRight,
   Paperclip,
@@ -101,6 +102,8 @@ export function ActivityCard({
   useEffect(() => {
     const shouldAutoRevert =
       !isLoadingFiles &&
+      !isErrorFetchingFiles &&
+      !isReadOnly &&
       activity.status === Status.COMPLETED &&
       files.length === 0;
 
@@ -127,7 +130,9 @@ export function ActivityCard({
     activity.name,
     activity.status,
     files.length,
+    isErrorFetchingFiles,
     isLoadingFiles,
+    isReadOnly,
     updateActivityMutation,
   ]);
 
@@ -216,28 +221,50 @@ export function ActivityCard({
       </DialogTrigger>
 
       <DialogContent className="flex w-[calc(100vw-3rem)] sm:w-[calc(100vw-1rem)] max-w-3xl max-h-[92dvh] flex-col overflow-hidden p-0 lg:max-w-2xl">
-        <DialogHeader className="px-4 pt-4 pb-2 pr-16 sm:px-6 sm:pt-6">
+        <DialogHeader className="flex-row items-center justify-between gap-2 px-4 pt-4 pb-2 pr-12 sm:pl-6 sm:pt-6">
           <DialogTitle>Detalles</DialogTitle>
-        </DialogHeader>
-        {enableOptions && (
-          <div className="absolute top-4 right-12">
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                asChild
-                className="text-muted-foreground hover:text-neutral-800 [svg]:size-4"
-              >
-                <Ellipsis />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="flex flex-col items-start gap-1"
-              >
-                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                {options}
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="flex items-center justify-end gap-2">
+            {activity.entityType === EntityType.PROJECT &&
+              activity.status !== Status.COMPLETED &&
+              !isReadOnly && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Marcar como completada"
+                  disabled={updateActivityMutation.isPending}
+                  onClick={() =>
+                    updateActivityMutation.mutate({
+                      activityId: activity._id,
+                      activityData: { status: Status.COMPLETED },
+                    })
+                  }
+                >
+                  <CheckCircle2 />
+                  <span className="sr-only sm:not-sr-only">
+                    Marcar como completada
+                  </span>
+                </Button>
+              )}
+            {enableOptions && (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  asChild
+                  className="text-muted-foreground hover:text-neutral-800 [svg]:size-4"
+                >
+                  <Ellipsis />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="flex flex-col items-start gap-1"
+                >
+                  <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                  {options}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
-        )}
+        </DialogHeader>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           <div className="flex flex-col gap-6 px-4 pb-4 sm:px-6 sm:pb-6">

@@ -60,34 +60,79 @@ describe('ActivitiesService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should recompute project status after updating a project activity', async () => {
-    projectModelMock.findById.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        populate: jest.fn().mockResolvedValue({
-          owner: { toString: () => 'user-1' },
-          team: { memberships: [] },
-          status: Status.PENDING,
-          validationStatus: null,
+  it.each([Status.PENDING, Status.PROGRESS])(
+    'completes a project activity from %s with evidence and recomputes project status',
+    async (status) => {
+      projectModelMock.findById.mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          populate: jest.fn().mockResolvedValue({
+            owner: { toString: () => 'user-1' },
+            team: { memberships: [] },
+            status: Status.PENDING,
+            validationStatus: null,
+          }),
         }),
-      }),
-    });
+      });
 
-    activityModelMock.findById.mockResolvedValue({
-      _id: 'a1',
-      status: Status.PENDING,
-      entityType: EntityType.PROJECT,
-      entityId: 'p1',
-      createdBy: { toString: () => 'owner-1' },
-    });
-    filesServiceMock.activityHasEvidence.mockResolvedValue(true);
-    activityModelMock.findByIdAndUpdate.mockResolvedValue({ _id: 'a1' });
+      activityModelMock.findById.mockResolvedValue({
+        _id: 'a1',
+        status,
+        entityType: EntityType.PROJECT,
+        entityId: 'p1',
+        createdBy: { toString: () => 'owner-1' },
+      });
+      filesServiceMock.activityHasEvidence.mockResolvedValue(true);
+      activityModelMock.findByIdAndUpdate.mockResolvedValue({ _id: 'a1' });
 
-    const updateDto: UpdateActivityDto = { status: Status.COMPLETED };
+      const updateDto: UpdateActivityDto = { status: Status.COMPLETED };
 
-    await service.update('a1', updateDto, 'user-1', UserRole.USER);
+      await service.update('a1', updateDto, 'user-1', UserRole.USER);
 
-    expect(projectsServiceMock.recomputeProjectStatus).toHaveBeenCalledWith('p1');
-  });
+      expect(filesServiceMock.activityHasEvidence).toHaveBeenCalledWith('a1');
+      expect(activityModelMock.findByIdAndUpdate).toHaveBeenCalledWith(
+        'a1',
+        { status: Status.COMPLETED, updatedBy: 'user-1' },
+        { new: true },
+      );
+      expect(projectsServiceMock.recomputeProjectStatus).toHaveBeenCalledWith('p1');
+    },
+  );
+
+  it.each([Status.PENDING, Status.PROGRESS])(
+    'rejects completion from %s without evidence',
+    async (status) => {
+      projectModelMock.findById.mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          populate: jest.fn().mockResolvedValue({
+            owner: 'user-1',
+            team: { memberships: [] },
+            status: Status.PENDING,
+            validationStatus: null,
+          }),
+        }),
+      });
+      activityModelMock.findById.mockResolvedValue({
+        _id: 'a1',
+        status,
+        entityType: EntityType.PROJECT,
+        entityId: 'p1',
+      });
+      filesServiceMock.activityHasEvidence.mockResolvedValue(false);
+
+      await expect(
+        service.update(
+          'a1',
+          { status: Status.COMPLETED },
+          'user-1',
+          UserRole.USER,
+        ),
+      ).rejects.toMatchObject({
+        response: { code: 'ACTIVITY_EVIDENCE_REQUIRED' },
+      });
+      expect(activityModelMock.findByIdAndUpdate).not.toHaveBeenCalled();
+      expect(projectsServiceMock.recomputeProjectStatus).not.toHaveBeenCalled();
+    },
+  );
 
   it('should not recompute project status for non-project activity update', async () => {
     activityModelMock.findById.mockResolvedValue({

@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateActivity } from '@/services/activities.service';
+import { EntityType, IActivity } from '@repo/types';
+import axios from 'axios';
 import { toast } from 'sonner';
 
 export const useUpdateActivity = () => {
@@ -7,7 +9,7 @@ export const useUpdateActivity = () => {
 
   return useMutation({
     mutationFn: updateActivity,
-    onSuccess: (activity: any) => {
+    onSuccess: (activity: IActivity) => {
       toast.success('Actividad actualizada correctamente');
 
       // Invalidate activities queries with the entity ID
@@ -19,9 +21,17 @@ export const useUpdateActivity = () => {
       queryClient.invalidateQueries({
         queryKey: ['activities'],
       });
+      if (activity.entityType === EntityType.PROJECT) {
+        queryClient.invalidateQueries({
+          queryKey: ['project', activity.entityId],
+        });
+        queryClient.invalidateQueries({ queryKey: ['projects'] });
+      }
     },
-    onError: (error: any) => {
-      const code = error?.response?.data?.code;
+    onError: (error) => {
+      const code = axios.isAxiosError<{ code?: string }>(error)
+        ? error.response?.data?.code
+        : undefined;
 
       if (code === 'ACTIVITY_EVIDENCE_REQUIRED') {
         toast.error(
