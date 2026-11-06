@@ -373,7 +373,10 @@ export function CreateProjectForm() {
                       </FieldLabel>
                       <DatePicker
                         date={field.value}
-                        onChange={field.onChange}
+                        onChange={(date) => {
+                          field.onChange(date);
+                          if (form.getValues('endDate')) form.trigger('endDate');
+                        }}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
