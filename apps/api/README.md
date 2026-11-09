@@ -87,6 +87,31 @@ Swagger documentation is available at:
 http://localhost:3001/api/docs
 ```
 
+### Project participants and metrics
+
+The project owner or an administrator can use `PATCH /projects/:id/members`
+with `{ "membershipId": "...", "selected": true }` to select or exclude an
+active team membership. Existing and newly added memberships are selected by
+default. Excluded members cannot access the project or its activities, products,
+and project-backed files through the project resource endpoints; the project
+owner and administrators retain access. Products separately registered with an
+event remain subject to that event's visibility rules.
+The selection cannot be changed after final validation or closure. Changing the
+project's team clears the old team's exclusions.
+When changing selections, at least one active team membership must remain
+selected. Projects with no active team members, or older projects with no
+selected members, can be repaired by selecting a member once one is available.
+If the project owner is an active team member, their membership is always
+selected and cannot be unchecked, including on older projects where it was
+previously excluded. This also applies to the dashboard's participant counts.
+
+The project dashboard counts selected active members by user type once per
+qualifying project. For a project without a team, it counts the owner instead.
+Projects must be visible, first- or finally validated, and have a start date in
+the selected period. These are current membership counts, not historical
+snapshots. Legacy memberships with a missing status or a case-insensitive
+`ACTIVE` status are treated as active, matching project access rules.
+
 ---
 
 ## Security Notes

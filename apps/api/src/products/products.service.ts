@@ -47,23 +47,6 @@ export class ProductsService {
     return null;
   }
 
-  private async ensureProjectIsWritable(projectId: string) {
-    const project = await this.projectModel
-      .findById(projectId)
-      .select('status validationStatus');
-
-    if (!project) {
-      throw new NotFoundException(`Project with ID: ${projectId} not found`);
-    }
-
-    if (
-      project.status === ProjectStatus.CLOSED ||
-      project.validationStatus === ProjectValidation.FINAL_VALIDATION
-    ) {
-      throw new ForbiddenException('Cannot create products for a closed project.');
-    }
-  }
-
   private async ensureCanManageProjectProducts(
     projectId: string,
     actorId: string,
@@ -72,7 +55,7 @@ export class ProductsService {
   ) {
     const project = await this.projectModel
       .findById(projectId)
-      .select('owner team status validationStatus')
+      .select('owner team excludedTeamMemberships status validationStatus')
       .populate({ path: 'team', select: 'memberships' });
 
     if (!project) {
@@ -108,7 +91,7 @@ export class ProductsService {
   ) {
     const project = await this.projectModel
       .findById(projectId)
-      .select('owner team')
+      .select('owner team excludedTeamMemberships')
       .populate({ path: 'team', select: 'memberships' });
 
     if (!project) {
@@ -297,19 +280,12 @@ export class ProductsService {
         throw new NotFoundException(`Product with ID: ${id} not found`);
       }
 
-      const ownerId = this.toId(product.owner);
-      const isOwner = ownerId === userId;
-
-      if (!isOwner) {
-        await this.ensureCanManageProjectProducts(
-          product.projectId.toString(),
-          userId,
-          userRole,
-          id,
-        );
-      } else {
-        await this.ensureProjectIsWritable(product.projectId.toString());
-      }
+      await this.ensureCanManageProjectProducts(
+        product.projectId.toString(),
+        userId,
+        userRole,
+        id,
+      );
 
       if (file) {
         // Delete previous files
@@ -360,19 +336,12 @@ export class ProductsService {
         throw new NotFoundException(`Product with ID: ${id} not found`);
       }
 
-      const ownerId = this.toId(product.owner);
-      const isOwner = ownerId === actorId;
-
-      if (!isOwner) {
-        await this.ensureCanManageProjectProducts(
-          product.projectId.toString(),
-          actorId,
-          actorRole,
-          id,
-        );
-      } else {
-        await this.ensureProjectIsWritable(product.projectId.toString());
-      }
+      await this.ensureCanManageProjectProducts(
+        product.projectId.toString(),
+        actorId,
+        actorRole,
+        id,
+      );
 
       const files = await this.filesService.findFilesForEntity(id);
 

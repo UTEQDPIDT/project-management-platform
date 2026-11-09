@@ -5,6 +5,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Schema()
 export class TeamMembership {
+    _id: mongoose.Types.ObjectId;
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
     @ApiProperty({
         description: 'El usuario que es miembro del equipo.',

@@ -57,6 +57,25 @@ describe('ProductsService', () => {
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
+  it('rejects an excluded product owner from deleting a project product', async () => {
+    productModelMock.findById.mockReturnValue({
+      select: jest.fn().mockResolvedValue({ projectId: 'p1', owner: 'member' }),
+    });
+    projectModelMock.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        populate: jest.fn().mockResolvedValue({
+          owner: 'project-owner',
+          team: { memberships: [{ _id: 'm1', user: 'member', status: 'ACTIVE' }] },
+          excludedTeamMemberships: ['m1'],
+          status: 'PENDING',
+        }),
+      }),
+    });
+    await expect(service.remove('product-1', 'member', UserRole.USER))
+      .rejects.toBeInstanceOf(ForbiddenException);
+    expect(productModelMock.findByIdAndDelete).not.toHaveBeenCalled();
+  });
+
   it('should allow admin remove and cleanup files', async () => {
     productModelMock.findById.mockReturnValue({
       select: jest.fn().mockResolvedValue({

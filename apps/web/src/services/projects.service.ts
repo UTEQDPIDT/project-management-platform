@@ -45,6 +45,14 @@ const updateProject = async (id: string, projectData: IProject) => {
   return data;
 };
 
+const updateProjectMember = async (
+  projectId: string,
+  membershipId: string,
+  selected: boolean,
+) => {
+  await api.patch(`/projects/${projectId}/members`, { membershipId, selected });
+};
+
 const deleteProject = async (id: string) => {
   const { data } = await api.delete(`/projects/${id}`);
   return data;
@@ -132,6 +140,7 @@ export {
   getByOwner,
   getProjectByTeam,
   updateProject,
+  updateProjectMember,
   deleteProject,
   getProjectsDashboard,
   applyFirstValidation,

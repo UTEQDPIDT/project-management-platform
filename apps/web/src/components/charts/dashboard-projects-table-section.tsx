@@ -89,10 +89,14 @@ const formatProjectPeriod = (project: IProject) => {
 const getParticipantsCount = (project: IProject) => {
 	const activeMemberships =
 		project.team?.memberships?.filter(
-			(membership) => membership.status === TeamMembershipStatus.ACTIVE,
+			(membership) =>
+				(membership.status === undefined ||
+					membership.status?.trim().toUpperCase() === TeamMembershipStatus.ACTIVE) &&
+				(membership.user?._id === project.owner?._id ||
+					!project.excludedTeamMemberships?.includes(membership._id)),
 		) ?? [];
 
-	if (activeMemberships.length > 0) return activeMemberships.length;
+	if (project.team) return new Set(activeMemberships.map((membership) => membership.user?._id).filter(Boolean)).size;
 	return project.owner ? 1 : 0;
 };
 

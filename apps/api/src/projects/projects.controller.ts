@@ -12,6 +12,7 @@ import {
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { UpdateProjectMemberDto } from './dto/update-project-member.dto';
 import {
   ApiAcceptedResponse,
   ApiCreatedResponse,
@@ -58,7 +59,7 @@ export class ProjectsController {
   @ApiUnauthorizedResponse({ description: 'No autorizado o Cookie expirada.' })
   @Get('/by-owner')
   findByOwner(@Req() req: AuthenticatedRequest) {
-    return this.projectsService.findByOwner(req.user.id);
+    return this.projectsService.findByOwner(req.user.id, req.user.role);
   }
 
   @ApiAcceptedResponse({ description: 'Proyectos encontrados por equipo.' })
@@ -98,6 +99,15 @@ export class ProjectsController {
       req.user.id,
       req.user.role,
     );
+  }
+
+  @Patch(':id/members')
+  updateMember(
+    @Param('id') id: string,
+    @Body() dto: UpdateProjectMemberDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.projectsService.updateMember(id, dto, req.user.id, req.user.role);
   }
 
   @ApiAcceptedResponse({ description: 'Proyecto eliminado correctamente.' })

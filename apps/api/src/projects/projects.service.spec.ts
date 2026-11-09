@@ -21,6 +21,7 @@ import {
 } from '@repo/types';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { Types } from 'mongoose';
 
 describe('ProjectsService', () => {
   let service: ProjectsService;
@@ -30,6 +31,7 @@ describe('ProjectsService', () => {
     find: jest.fn(),
     findById: jest.fn(),
     findByIdAndUpdate: jest.fn(),
+    findOneAndUpdate: jest.fn(),
   };
 
   const activitiesServiceMock = {
@@ -54,6 +56,7 @@ describe('ProjectsService', () => {
   const teamModelMock = {
     find: jest.fn(),
     exists: jest.fn(),
+    findById: jest.fn(),
   };
 
   const sessionMock = {
@@ -69,6 +72,11 @@ describe('ProjectsService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    teamModelMock.find.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue([]),
+      }),
+    });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -88,6 +96,185 @@ describe('ProjectsService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it.each([true, false])(
+    'updates a team member selection atomically to %s',
+    async (selected) => {
+      const membershipId = '507f1f77bcf86cd799439011';
+      projectModelMock.findById.mockResolvedValue({
+        owner: 'owner-1',
+        team: '507f1f77bcf86cd799439012',
+        status: ProjectStatus.PENDING,
+        validationStatus: ProjectValidation.UNDER_REVIEW,
+      });
+      const anotherMembershipId = new Types.ObjectId('507f1f77bcf86cd799439013');
+      teamModelMock.findById.mockReturnValue({
+        select: jest.fn().mockResolvedValue({
+          memberships: [
+            { _id: new Types.ObjectId(membershipId), status: 'ACTIVE' },
+            { _id: anotherMembershipId, status: 'ACTIVE' },
+          ],
+        }),
+      });
+      projectModelMock.findOneAndUpdate.mockResolvedValue({ excludedTeamMemberships: [] });
+
+      await service.updateMember('project-1', { membershipId, selected }, 'owner-1', UserRole.USER);
+
+      expect(projectModelMock.findOneAndUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          owner: 'owner-1',
+          team: '507f1f77bcf86cd799439012',
+          ...(selected ? {} : {
+            $or: [
+              { excludedTeamMemberships: new Types.ObjectId(membershipId) },
+              {
+                $expr: {
+                  $gt: [
+                    { $size: { $setDifference: [[anotherMembershipId], { $setDifference: [{ $ifNull: ['$excludedTeamMemberships', []] }, []] }] } },
+                    0,
+                  ],
+                },
+              },
+            ],
+          }),
+        }),
+        selected
+          ? { $pull: { excludedTeamMemberships: new Types.ObjectId(membershipId) } }
+          : { $addToSet: { excludedTeamMemberships: new Types.ObjectId(membershipId) } },
+        { new: true },
+      );
+    },
+  );
+
+  it('rejects unauthorized and finalized project member changes', async () => {
+    const membershipId = '507f1f77bcf86cd799439011';
+    projectModelMock.findById.mockResolvedValue({
+      owner: 'owner-1',
+      team: '507f1f77bcf86cd799439012',
+      status: ProjectStatus.PENDING,
+      validationStatus: ProjectValidation.FINAL_VALIDATION,
+    });
+    await expect(
+      service.updateMember('project-1', { membershipId, selected: false }, 'member', UserRole.USER),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    await expect(
+      service.updateMember('project-1', { membershipId, selected: false }, 'owner-1', UserRole.USER),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(projectModelMock.findOneAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it.each([UserRole.USER, UserRole.ADMIN])(
+    'rejects creator deselection by %s',
+    async (role) => {
+      const membershipId = new Types.ObjectId('507f1f77bcf86cd799439011');
+      projectModelMock.findById.mockResolvedValue({
+        owner: 'owner-1',
+        team: '507f1f77bcf86cd799439012',
+        status: ProjectStatus.PENDING,
+      });
+      teamModelMock.findById.mockReturnValue({
+        select: jest.fn().mockResolvedValue({
+          memberships: [{ _id: membershipId, user: 'owner-1', status: 'ACTIVE' }],
+        }),
+      });
+      await expect(
+        service.updateMember(
+          'project-1',
+          { membershipId: membershipId.toString(), selected: false },
+          role === UserRole.ADMIN ? 'admin' : 'owner-1',
+          role,
+        ),
+      ).rejects.toThrow('El creador del proyecto debe permanecer seleccionado.');
+      expect(projectModelMock.findOneAndUpdate).not.toHaveBeenCalled();
+    },
+  );
+
+  it('counts an already excluded creator when deselecting another member', async () => {
+    const membershipId = new Types.ObjectId('507f1f77bcf86cd799439011');
+    const creatorId = new Types.ObjectId('507f1f77bcf86cd799439013');
+    projectModelMock.findById.mockResolvedValue({
+      owner: 'owner-1',
+      team: '507f1f77bcf86cd799439012',
+      status: ProjectStatus.PENDING,
+      excludedTeamMemberships: [creatorId],
+    });
+    teamModelMock.findById.mockReturnValue({
+      select: jest.fn().mockResolvedValue({
+        memberships: [
+          { _id: creatorId, user: 'owner-1', status: 'ACTIVE' },
+          { _id: membershipId, user: 'other', status: 'ACTIVE' },
+        ],
+      }),
+    });
+    projectModelMock.findOneAndUpdate.mockResolvedValue({ excludedTeamMemberships: [creatorId, membershipId] });
+
+    await service.updateMember(
+      'project-1',
+      { membershipId: membershipId.toString(), selected: false },
+      'owner-1',
+      UserRole.USER,
+    );
+    expect(projectModelMock.findOneAndUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        $or: expect.arrayContaining([
+          { $expr: { $gt: [
+            { $size: { $setDifference: [
+              [creatorId],
+              { $setDifference: [{ $ifNull: ['$excludedTeamMemberships', []] }, [creatorId]] },
+            ] } },
+            0,
+          ] } },
+        ]),
+      }),
+      expect.any(Object),
+      { new: true },
+    );
+  });
+
+  it('rejects selection of a membership outside the project team', async () => {
+    projectModelMock.findById.mockResolvedValue({
+      owner: 'owner-1',
+      team: '507f1f77bcf86cd799439012',
+      status: ProjectStatus.PENDING,
+    });
+    teamModelMock.findById.mockReturnValue({
+      select: jest.fn().mockResolvedValue({ memberships: [] }),
+    });
+    await expect(
+      service.updateMember(
+        'project-1',
+        { membershipId: '507f1f77bcf86cd799439011', selected: false },
+        'owner-1',
+        UserRole.USER,
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(projectModelMock.findOneAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it('rejects deselecting the last selected member', async () => {
+    const membershipId = new Types.ObjectId('507f1f77bcf86cd799439011');
+    const project = {
+      owner: 'owner-1',
+      team: '507f1f77bcf86cd799439012',
+      status: ProjectStatus.PENDING,
+    };
+    projectModelMock.findById.mockResolvedValue(project);
+    teamModelMock.findById.mockReturnValue({
+      select: jest.fn().mockResolvedValue({
+        memberships: [{ _id: membershipId, status: 'ACTIVE' }],
+      }),
+    });
+    projectModelMock.findOneAndUpdate.mockResolvedValue(null);
+
+    await expect(
+      service.updateMember(
+        'project-1',
+        { membershipId: membershipId.toString(), selected: false },
+        'owner-1',
+        UserRole.USER,
+      ),
+    ).rejects.toThrow('Debe haber al menos un integrante seleccionado en el proyecto.');
   });
 
   it('should create a project with PENDING status, UNDER_REVIEW validation, and activities', async () => {
@@ -270,7 +457,10 @@ describe('ProjectsService', () => {
   });
 
   it('should return scoped projects for non-admin user in findAll', async () => {
-    const teamIds = [{ _id: { toString: () => 'team-1' } }];
+    const teamIds = [{
+      _id: 'team-1',
+      memberships: [{ _id: 'membership-1', user: 'user-1', status: 'ACTIVE' }],
+    }];
     teamModelMock.find.mockReturnValue({
       select: jest.fn().mockReturnValue({
         exec: jest.fn().mockResolvedValue(teamIds),
@@ -287,10 +477,35 @@ describe('ProjectsService', () => {
     const result = await service.findAll('user-1', UserRole.USER);
 
     expect(projectModelMock.find).toHaveBeenCalledWith({
-      $or: [{ owner: 'user-1' }, { team: { $in: ['team-1'] } }],
+      $or: [
+        { owner: 'user-1' },
+        { team: 'team-1', excludedTeamMemberships: { $ne: 'membership-1' } },
+      ],
     });
     expect(userModelMock.findById).not.toHaveBeenCalled();
     expect(result).toEqual([{ _id: 'project-1' }]);
+  });
+
+  it('scopes team project listings to selected memberships and ownership', async () => {
+    teamModelMock.exists.mockResolvedValue(true);
+    teamModelMock.find.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue([{
+          _id: 'team-1',
+          memberships: [{ _id: 'membership-1', user: 'user-1', status: 'ACTIVE' }],
+        }]),
+      }),
+    });
+    projectModelMock.find.mockResolvedValue([]);
+
+    await service.findByTeam('team-1', 'user-1', UserRole.USER);
+    expect(projectModelMock.find).toHaveBeenCalledWith({
+      team: 'team-1',
+      $or: [
+        { owner: 'user-1' },
+        { team: 'team-1', excludedTeamMemberships: { $ne: 'membership-1' } },
+      ],
+    });
   });
 
   it('should throw forbidden when non-member reads project by id', async () => {
@@ -358,6 +573,32 @@ describe('ProjectsService', () => {
             user: 'user-2',
           }),
         },
+      }),
+    );
+  });
+
+  it('checks excluded membership IDs when reading a project', async () => {
+    const membershipId = new Types.ObjectId();
+    const project = {
+      _id: 'project-1',
+      owner: 'owner-1',
+      team: 'team-1',
+      excludedTeamMemberships: [membershipId],
+    };
+    const populate = jest.fn((path: unknown) =>
+      path === 'closedBy' ? Promise.resolve(project) : query,
+    );
+    const query = { populate };
+    projectModelMock.findById.mockReturnValue(query);
+    teamModelMock.exists.mockResolvedValue(false);
+
+    await expect(service.findOne('project-1', 'user-2', UserRole.USER))
+      .rejects.toBeInstanceOf(ForbiddenException);
+    expect(teamModelMock.exists).toHaveBeenCalledWith(
+      expect.objectContaining({
+        memberships: expect.objectContaining({
+          $elemMatch: expect.objectContaining({ _id: { $nin: [membershipId] } }),
+        }),
       }),
     );
   });

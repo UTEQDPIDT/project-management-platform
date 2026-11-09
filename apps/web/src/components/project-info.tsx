@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { ProfileInfo } from './profile-info';
+import { ProjectMembers } from './project-members';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
 import { concatWithCommaAndDot, getBaseUrlBasedOnRole } from '@/lib/utils';
@@ -555,6 +556,17 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
           )}
         </div>
       </div>
+
+      {team && (isOwner || user.role === UserRole.ADMIN) && (
+        <div className={rowClass}>
+          <span className={labelClass}>
+            <Users size={14} /> Participantes
+          </span>
+          <div className="p-2 w-full">
+            <ProjectMembers project={project} />
+          </div>
+        </div>
+      )}
 
       <div className={rowClass}>
         <span className={labelClass}>

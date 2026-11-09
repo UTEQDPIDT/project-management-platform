@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { UpdateProjectMemberDto } from './dto/update-project-member.dto';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Project } from '../schemas/project.schema';
 import { User } from '../schemas/user.schema';
@@ -103,22 +104,45 @@ export class ProjectsService {
         user: userId,
         $or: [
           { status: 'ACTIVE' },
-          { status: { $regex: /^active$/i } },
+          { status: { $regex: /^\s*active\s*$/i } },
           { status: { $exists: false } },
         ],
       },
     };
   }
 
-  private async getAccessibleTeamIds(userId: string): Promise<string[]> {
+  private async getAccessibleTeamMemberships(userId: string) {
     const teams = await this.teamModel
       .find({
         memberships: this.activeMembershipMatch(userId),
       })
-      .select('_id')
+      .select('_id memberships')
       .exec();
 
-    return teams.map((team) => team._id.toString());
+    return teams.flatMap((team) =>
+      team.memberships
+        .filter((membership) =>
+          this.toId(membership.user) === userId &&
+          (membership.status === undefined ||
+            (typeof membership.status === 'string' &&
+              membership.status.trim().toUpperCase() === 'ACTIVE')),
+        )
+        .map((membership) => ({
+          team: team._id,
+          excludedTeamMemberships: { $ne: membership._id },
+        })),
+    );
+  }
+
+  private async getProjectVisibilityFilter(actorId: string, actorRole: UserRole) {
+    if (actorRole === UserRole.ADMIN) {
+      const permissions = await this.getValidationPermissions(actorId);
+      return permissions.canClose ? {} : { isHidden: { $ne: true } };
+    }
+
+    return {
+      $or: [{ owner: actorId }, ...await this.getAccessibleTeamMemberships(actorId)],
+    };
   }
 
   private async ensureCanReadProject(
@@ -151,7 +175,12 @@ export class ProjectsService {
 
     const isActiveTeamMember = await this.teamModel.exists({
       _id: projectTeamId,
-      memberships: this.activeMembershipMatch(actorId),
+      memberships: {
+        $elemMatch: {
+          ...this.activeMembershipMatch(actorId).$elemMatch,
+          _id: { $nin: project.excludedTeamMemberships ?? [] },
+        },
+      },
     });
 
     if (isActiveTeamMember) {
@@ -301,20 +330,7 @@ export class ProjectsService {
    * Retrieves all projects from the database with fully populated relationships.
    */
   async findAll(actorId: string, actorRole: UserRole) {
-    let queryFilter: Record<string, unknown> = {};
-
-    if (actorRole !== UserRole.ADMIN) {
-      const teamIds = await this.getAccessibleTeamIds(actorId);
-      queryFilter = {
-        $or: [{ owner: actorId }, { team: { $in: teamIds } }],
-      };
-    } else {
-      // El ocultamiento de proyectos solo aplica a la vista de administradores.
-      const permissions = await this.getValidationPermissions(actorId);
-      if (!permissions.canClose) {
-        queryFilter = { ...queryFilter, isHidden: { $ne: true } };
-      }
-    }
+    const queryFilter = await this.getProjectVisibilityFilter(actorId, actorRole);
 
     return await this.projectModel
       .find(queryFilter)
@@ -328,7 +344,7 @@ export class ProjectsService {
         path: 'team',
         populate: [{ path: 'memberships.user' }],
       })
-      .populate({ path: 'relatedProjects' })
+      .populate({ path: 'relatedProjects', match: queryFilter })
       .populate('owner')
       .populate('updatedBy')
       .populate('firstValidatedBy')
@@ -341,6 +357,7 @@ export class ProjectsService {
    * @param id The unique identifier of the project.
    */
   async findOne(id: string, actorId: string, actorRole: UserRole) {
+    const relatedFilter = await this.getProjectVisibilityFilter(actorId, actorRole);
     const project = await this.projectModel
       .findById(id)
       .populate('impactAreas')
@@ -353,7 +370,7 @@ export class ProjectsService {
         path: 'team',
         populate: [{ path: 'memberships.user' }],
       })
-      .populate({ path: 'relatedProjects' })
+      .populate({ path: 'relatedProjects', match: relatedFilter })
       .populate('owner')
       .populate('updatedBy')
       .populate('firstValidatedBy')
@@ -379,7 +396,8 @@ export class ProjectsService {
    * El ocultamiento de proyectos no aplica aquí: el dueño siempre ve sus propios proyectos.
    * @param ownerId The unique identifier of the owner user.
    */
-  async findByOwner(ownerId: string) {
+  async findByOwner(ownerId: string, actorRole: UserRole) {
+    const relatedFilter = await this.getProjectVisibilityFilter(ownerId, actorRole);
     return await this.projectModel
       .find({ owner: ownerId })
       .populate('impactAreas')
@@ -392,7 +410,7 @@ export class ProjectsService {
         path: 'team',
         populate: [{ path: 'memberships.user' }],
       })
-      .populate({ path: 'relatedProjects' })
+      .populate({ path: 'relatedProjects', match: relatedFilter })
       .populate('owner')
       .populate('updatedBy')
       .populate('firstValidatedBy')
@@ -429,6 +447,12 @@ export class ProjectsService {
       if (!permissions.canClose) {
         queryFilter.isHidden = { $ne: true };
       }
+    } else {
+      const memberships = await this.getAccessibleTeamMemberships(actorId);
+      queryFilter.$or = [
+        { owner: actorId },
+        ...memberships.filter((membership) => this.toId(membership.team) === teamId),
+      ];
     }
 
     return await this.projectModel.find(queryFilter);
@@ -493,10 +517,119 @@ export class ProjectsService {
 
     await this.projectModel.findByIdAndUpdate(id, {
       ...updateProjectDto,
+      ...(updateProjectDto.team !== undefined &&
+      this.toId(updateProjectDto.team) !== this.toId(project.team)
+        ? { excludedTeamMemberships: [] }
+        : {}),
       updatedBy: userId,
     });
 
     return { id, message: 'Project updated successfully' };
+  }
+
+  async updateMember(
+    id: string,
+    dto: UpdateProjectMemberDto,
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    const project = await this.projectModel.findById(id);
+    if (!project) {
+      throw new NotFoundException(`Project with ID: ${id} not found`);
+    }
+    if (actorRole !== UserRole.ADMIN && this.toId(project.owner) !== actorId) {
+      throw new ForbiddenException('No tienes permiso para modificar los participantes.');
+    }
+    if (project.validationStatus === ProjectValidation.FINAL_VALIDATION ||
+        project.status === ProjectStatus.CLOSED) {
+      throw new ForbiddenException('No se pueden modificar los participantes de un proyecto cerrado.');
+    }
+    const teamId = this.toId(project.team);
+    const team = teamId
+      ? await this.teamModel.findById(teamId).select('memberships')
+      : null;
+    const activeMemberships = (team?.memberships ?? []).filter(
+      (membership) =>
+        membership.status === undefined ||
+        (typeof membership.status === 'string' &&
+          membership.status.trim().toUpperCase() === 'ACTIVE'),
+    );
+    const membershipId = new Types.ObjectId(dto.membershipId);
+    const membership = activeMemberships.find((item) => item._id.equals(membershipId));
+    if (!membership) {
+      throw new BadRequestException('El participante no pertenece al equipo activo del proyecto.');
+    }
+    const ownerId = this.toId(project.owner);
+    if (!dto.selected && ownerId && this.toId(membership.user) === ownerId) {
+      throw new BadRequestException(
+        'El creador del proyecto debe permanecer seleccionado.',
+      );
+    }
+    const otherActiveMembershipIds = activeMemberships
+      .filter((membership) => !membership._id.equals(membershipId))
+      .map((membership) => membership._id);
+    const ownerMembershipIds = activeMemberships
+      .filter((item) => ownerId && this.toId(item.user) === ownerId)
+      .map((item) => item._id);
+    const updated = await this.projectModel.findOneAndUpdate(
+      {
+        _id: id,
+        team: teamId,
+        validationStatus: { $ne: ProjectValidation.FINAL_VALIDATION },
+        status: { $ne: ProjectStatus.CLOSED },
+        owner: project.owner,
+        ...(!dto.selected
+          ? {
+              $or: [
+                { excludedTeamMemberships: membershipId },
+                {
+                  $expr: {
+                    $gt: [
+                      {
+                        $size: {
+                          $setDifference: [
+                            otherActiveMembershipIds,
+                            {
+                              $setDifference: [
+                                { $ifNull: ['$excludedTeamMemberships', []] },
+                                ownerMembershipIds,
+                              ],
+                            },
+                          ],
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
+      dto.selected
+        ? { $pull: { excludedTeamMemberships: membershipId } }
+        : { $addToSet: { excludedTeamMemberships: membershipId } },
+      { new: true },
+    );
+    if (!updated) {
+      if (!dto.selected) {
+        const currentProject = await this.projectModel.findById(id);
+        if (
+          currentProject &&
+          this.toId(currentProject.team) === teamId &&
+          this.toId(currentProject.owner) === ownerId &&
+          currentProject.validationStatus !== ProjectValidation.FINAL_VALIDATION &&
+          currentProject.status !== ProjectStatus.CLOSED &&
+          (actorRole === UserRole.ADMIN || this.toId(currentProject.owner) === actorId)
+        ) {
+          throw new BadRequestException(
+            'Debe haber al menos un integrante seleccionado en el proyecto.',
+          );
+        }
+      }
+      throw new ForbiddenException('El proyecto cambió; vuelve a cargarlo e inténtalo de nuevo.');
+    }
+    return { id, excludedTeamMemberships: updated.excludedTeamMemberships };
   }
 
   /**

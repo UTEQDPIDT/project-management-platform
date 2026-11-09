@@ -107,6 +107,9 @@ export class Project extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Team', index: true })
   team?: Team;
 
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], default: [] })
+  excludedTeamMemberships: mongoose.Types.ObjectId[];
+
   @ApiPropertyOptional({
     description: 'Otros proyectos relacionados o previos al proyecto.',
   })

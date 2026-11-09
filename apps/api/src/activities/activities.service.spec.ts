@@ -60,6 +60,29 @@ describe('ActivitiesService', () => {
     expect(service).toBeDefined();
   });
 
+  it('denies an excluded member access even when they created the activity', async () => {
+    activityModelMock.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue({
+        _id: 'a1',
+        entityType: EntityType.PROJECT,
+        entityId: 'p1',
+        createdBy: 'member',
+      }),
+    });
+    projectModelMock.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        populate: jest.fn().mockResolvedValue({
+          owner: 'owner',
+          team: { memberships: [{ _id: 'm1', user: 'member', status: 'ACTIVE' }] },
+          excludedTeamMemberships: ['m1'],
+        }),
+      }),
+    });
+
+    await expect(service.findOneVisibleTo('a1', 'member', UserRole.USER))
+      .rejects.toBeInstanceOf(ForbiddenException);
+  });
+
   it.each([Status.PENDING, Status.PROGRESS])(
     'completes a project activity from %s with evidence and recomputes project status',
     async (status) => {

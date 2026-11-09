@@ -62,6 +62,30 @@ describe('FilesService', () => {
     expect(bucketMock.delete).toHaveBeenCalledTimes(1);
   });
 
+  it('denies an excluded file owner access to a project file', async () => {
+    fileModelMock.findById.mockResolvedValue({
+      _id: 'f1',
+      owner: 'member',
+      entityId: 'project-1',
+      entityType: EntityType.PROJECT,
+    });
+    projectModelMock.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        populate: jest.fn().mockResolvedValue({
+          owner: 'project-owner',
+          team: { memberships: [{ _id: 'm1', user: 'member', status: 'ACTIVE' }] },
+          excludedTeamMemberships: ['m1'],
+        }),
+      }),
+    });
+
+    await expect(service.getFileMetadataForActor('f1', 'member', UserRole.USER))
+      .rejects.toBeInstanceOf(ForbiddenException);
+    await expect(service.deleteFile('f1', 'member', UserRole.USER))
+      .rejects.toBeInstanceOf(ForbiddenException);
+    expect(fileModelMock.findByIdAndDelete).not.toHaveBeenCalled();
+  });
+
   it('should allow admin to delete any file', async () => {
     fileModelMock.findById.mockResolvedValue({
       _id: 'f1',

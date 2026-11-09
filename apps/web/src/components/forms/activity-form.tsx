@@ -7,6 +7,7 @@ import {
   Status,
   EntityType,
   ITeamMembership,
+  TeamMembershipStatus,
 } from '@repo/types';
 import { useCreateActivity, useUpdateActivity } from '@/hooks/activities';
 import { useFilesForEntity } from '@/hooks/files';
@@ -95,7 +96,13 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
     if (project.owner) list.push(project.owner);
     if (project.team?.memberships && project.team.memberships.length > 0) {
       list.push(
-        ...project.team.memberships.map((m: ITeamMembership) => m.user),
+        ...project.team.memberships
+          .filter((m: ITeamMembership) =>
+            (m.status === undefined ||
+              m.status?.trim().toUpperCase() === TeamMembershipStatus.ACTIVE) &&
+            !project.excludedTeamMemberships?.includes(m._id),
+          )
+          .map((m: ITeamMembership) => m.user),
       );
     }
 
