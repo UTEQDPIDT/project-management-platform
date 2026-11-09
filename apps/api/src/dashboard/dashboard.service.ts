@@ -210,7 +210,22 @@ export class DashboardService {
                             $filter: {
                                 input: { $ifNull: ['$teamDoc.memberships', []] },
                                 as: 'membership',
-                                cond: { $eq: ['$$membership.status', 'ACTIVE'] },
+                                cond: {
+                                    $and: [
+                                        {
+                                            $or: [
+                                                { $eq: [{ $type: '$$membership.status' }, 'missing'] },
+                                                { $eq: [{ $toUpper: { $trim: { input: { $ifNull: ['$$membership.status', ''] } } } }, 'ACTIVE'] },
+                                            ],
+                                        },
+                                        {
+                                            $or: [
+                                                { $eq: ['$$membership.user', '$owner'] },
+                                                { $not: [{ $in: ['$$membership._id', { $ifNull: ['$excludedTeamMemberships', []] }] }] },
+                                            ],
+                                        },
+                                    ],
+                                },
                             },
                         },
                     },

@@ -1,6 +1,7 @@
 import { UserRole } from '@repo/types';
 
 type TeamMembershipLike = {
+  _id?: unknown;
   user?: unknown;
   status?: string;
 };
@@ -12,6 +13,7 @@ type TeamLike = {
 type ProjectCollaborationLike = {
   owner?: unknown;
   team?: TeamLike | null;
+  excludedTeamMemberships?: unknown[];
 };
 
 type ToId = (value: unknown) => string | null;
@@ -33,11 +35,15 @@ export function hasProjectCollaborationAccess(
   }
 
   const isActiveStatus = (status: string | undefined) =>
-    status === undefined || status.trim().toUpperCase() === 'ACTIVE';
+    status === undefined ||
+    (typeof status === 'string' && status.trim().toUpperCase() === 'ACTIVE');
 
   return (project.team?.memberships ?? []).some(
     (membership) =>
       isActiveStatus(membership.status) &&
-      toId(membership.user) === actorId,
+      toId(membership.user) === actorId &&
+      !(project.excludedTeamMemberships ?? []).some(
+        (id) => toId(id) === toId(membership._id),
+      ),
   );
 }

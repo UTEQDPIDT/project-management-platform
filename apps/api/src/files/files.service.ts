@@ -265,7 +265,7 @@ export class FilesService {
 
     const project = await this.projectModel
       .findById(parentProjectId)
-      .select('owner team')
+      .select('owner team excludedTeamMemberships')
       .populate({ path: 'team', select: 'memberships' });
 
     if (!project) {
@@ -354,19 +354,31 @@ export class FilesService {
       return;
     }
 
-    const ownerId = this.toId(file.owner);
-    if (ownerId === actorId) {
-      return;
-    }
-
-    if (
-      await this.hasParentProjectAccess(
+    const parentProjectId = await this.resolveParentProjectId(
+      file.entityId.toString(),
+      file.entityType,
+    );
+    if (parentProjectId) {
+      if (await this.hasParentProjectAccess(
         file.entityId.toString(),
         file.entityType,
         actorId,
         actorRole,
-      )
-    ) {
+      )) {
+        return;
+      }
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.FILE_VIEW_FORBIDDEN,
+        message: 'You are not allowed to view this file.',
+        resourceType: 'file',
+        resourceId: file._id.toString(),
+        actorId,
+        actorRole,
+      });
+    }
+
+    const ownerId = this.toId(file.owner);
+    if (ownerId === actorId) {
       return;
     }
 
@@ -715,6 +727,17 @@ export class FilesService {
       await this.ensureProjectAllowsFileWrites(file.entityId.toString(), file.entityType);
 
       return this.removeFileMetadataAndBlob(file);
+    }
+
+    if (await this.resolveParentProjectId(file.entityId.toString(), file.entityType)) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.FILE_DELETE_NOT_OWNER,
+        message: 'You are not allowed to delete this file.',
+        resourceType: 'file',
+        resourceId: id,
+        actorId,
+        actorRole,
+      });
     }
 
     if (!ownerId) {

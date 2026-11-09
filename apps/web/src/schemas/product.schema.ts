@@ -1,13 +1,11 @@
 import { z } from 'zod';
 import { mongoId } from '@/lib/utils';
-import { CoAuthor } from '@repo/types';
 
 export const getProductSchema = (isUpdate: boolean) =>
   z.object({
     name: z.string().min(1, 'El producto necesita un nombre.'),
     category: mongoId,
     subcategory: mongoId,
-    coAuthor: z.enum(CoAuthor),
     team: z.string().optional(),
     file: isUpdate
       ? z

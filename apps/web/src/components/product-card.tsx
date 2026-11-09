@@ -66,12 +66,6 @@ export default function ProductCard({
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="text-xs text-muted-foreground">Co Autor</span>
-
-          <Badge variant="outline">Tipo {product.coAuthor}</Badge>
-        </div>
-
-        <div className="flex flex-col gap-2">
           <span className="text-xs text-muted-foreground">Proprietario</span>
 
           {product.owner ? (

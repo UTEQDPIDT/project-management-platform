@@ -1,5 +1,4 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { CoAuthor } from '@repo/types';
 import { Allow, IsString, IsMongoId, IsEnum, IsOptional, ValidateIf } from 'class-validator';
 import { ObjectId } from 'mongoose';
 
@@ -15,12 +14,6 @@ export class CreateStandaloneProductDto {
     @ApiProperty({ description: 'Subcategoría a la que pertenece el producto' })
     @IsMongoId()
     subcategory: ObjectId;
-
-    @ApiProperty({
-        description: 'Tipo de Co-Autor',
-    })
-    @IsEnum(CoAuthor)
-    coAuthor: CoAuthor;
 
     @ApiPropertyOptional({
         description: 'Equipo al que se vincula el producto. Cadena vacía para desvincular.',

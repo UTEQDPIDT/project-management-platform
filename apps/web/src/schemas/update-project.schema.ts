@@ -25,4 +25,13 @@ export const updateProjectSchema = z.object({
   relatedProjects: z.array(mongoId),
   startDate: z.date('La fecha de inicio es requerida').optional(),
   endDate: z.date('La fecha de fin es requerida').optional(),
-});
+})
+  .refine(
+    (data) =>
+      !(data.startDate instanceof Date && data.endDate instanceof Date) ||
+      data.endDate >= data.startDate,
+    {
+      message: 'La fecha de término no puede ser anterior a la fecha de inicio',
+      path: ['endDate'],
+    },
+  );

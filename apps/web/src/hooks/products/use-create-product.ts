@@ -1,6 +1,7 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { createProduct } from '@/services/products.service';
 import { toast } from 'sonner';
+import axios from 'axios';
 
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
@@ -20,6 +21,13 @@ export const useCreateProduct = () => {
       });
       toast.success('El producto ha sido creado');
     },
-    onError: () => toast.error('El producto no ha sido creado'),
+    onError: (error) => {
+      const message = axios.isAxiosError<{ message?: string | string[] }>(error)
+        ? error.response?.data?.message
+        : undefined;
+      const description = Array.isArray(message) ? message.join(', ') : message;
+
+      toast.error('El producto no ha sido creado', { description });
+    },
   });
 };

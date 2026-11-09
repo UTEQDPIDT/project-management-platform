@@ -94,6 +94,8 @@ import { TRLForm } from './trl-assesment-form';
 import { toast } from 'sonner';
 import { useUserProfile } from 'context/profile-provider';
 
+const NO_TEAM = 'none';
+
 export function CreateProjectForm() {
   const router = useRouter();
   const { user } = useUserProfile();
@@ -129,7 +131,7 @@ export function CreateProjectForm() {
     defaultValues: {
       name: '',
       objective: '',
-      trlRating: 3,
+      trlRating: 1,
       program: '',
       isFunded: false,
       knowledgeAreas: [],
@@ -234,7 +236,7 @@ export function CreateProjectForm() {
                         {...field}
                         id={field.name}
                         aria-invalid={fieldState.invalid}
-                        placeholder="Ingresa el nombre del proyecto"
+                        placeholder="Ingresa el nombre del proyecto (Evita el uso de MAYÚSCULAS)"
                       />
                       <InputGroupAddon align="inline-end">
                         {field.value?.length}/250
@@ -371,7 +373,10 @@ export function CreateProjectForm() {
                       </FieldLabel>
                       <DatePicker
                         date={field.value}
-                        onChange={field.onChange}
+                        onChange={(date) => {
+                          field.onChange(date);
+                          if (form.getValues('endDate')) form.trigger('endDate');
+                        }}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -1092,16 +1097,25 @@ export function CreateProjectForm() {
                         El equipo que trabajará en el proyecto.
                       </FieldDescription>
                     </FieldContent>
-                    <Select {...field} onValueChange={onChange}>
+                    <Select
+                      {...field}
+                      value={field.value || NO_TEAM}
+                      onValueChange={(value) =>
+                        onChange(value === NO_TEAM ? '' : value)
+                      }
+                    >
                       <SelectTrigger
                         id={field.name}
                         onBlur={onBlur}
                         aria-invalid={fieldState.invalid}
                         className='border border-gray-300'
                       >
-                        <SelectValue placeholder="Sin selección" />
+                        <SelectValue placeholder="Sin Equipo" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value={NO_TEAM} className="cursor-pointer">
+                          Sin equipo
+                        </SelectItem>
                         {loadingTeams ? (
                           <LoadingMessage message="Cargando equipos" />
                         ) : teams.length > 0 ? (

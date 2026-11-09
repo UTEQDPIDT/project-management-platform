@@ -5,7 +5,7 @@ import LoadingMessage from './loading-message';
 import { DataTable, FacetedFilterConfig, facetedFilter, fuzzyFilter } from './ui/data-table';
 import { useProducts } from '@/hooks/products';
 import { ColumnDef } from '@tanstack/react-table';
-import { CoAuthor, IFile, IProduct, SeedCategory } from '@repo/types';
+import { IFile, IProduct, SeedCategory } from '@repo/types';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -197,11 +197,6 @@ const columns: ColumnDef<IProduct>[] = [
     /* Se oculta en móviles y tablets, visible desde pantallas grandes (lg) */
     meta: { className: 'hidden lg:table-cell' },
   },
-  { 
-    accessorKey: 'coAuthor', 
-    header: 'Co Autor',
-    meta: { className: 'hidden xl:table-cell' },
-  },
   {
     id: 'owner',
     accessorFn: (row) => row.owner?._id ?? 'Sin propietario',
@@ -287,14 +282,6 @@ export function ProductsTable() {
         columnId: 'subcategory',
         title: 'Subcategoría',
         options: subcategoriesOptions,
-      },
-      {
-        columnId: 'coAuthor',
-        title: 'Co Autor',
-        options: Object.values(CoAuthor).map((coAuthor) => ({
-          label: coAuthor,
-          value: coAuthor,
-        })),
       },
       {
         columnId: 'owner',

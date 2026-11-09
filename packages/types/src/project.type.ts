@@ -20,6 +20,7 @@ export interface IProject {
   impactLevel: ImpactLevel;
   owner: IUser;
   team?: ITeam;
+  excludedTeamMemberships?: string[];
   program?: SeedCategory;
   isFunded?: boolean;
   relatedProjects?: IProject[];

@@ -169,7 +169,7 @@ export class ActivitiesService {
   ) {
     const project = await this.projectModel
       .findById(projectId)
-      .select('owner team status validationStatus')
+      .select('owner team excludedTeamMemberships status validationStatus')
       .populate({ path: 'team', select: 'memberships' });
 
     if (!project) {
@@ -186,7 +186,6 @@ export class ActivitiesService {
     if (hasProjectCollaborationAccess(project, actorId, actorRole, (value) => this.toId(value))) {
       return;
     }
-
     throw new AccessDeniedException({
       reason: AccessDeniedReason.ACTIVITY_PROJECT_ACCESS_FORBIDDEN,
       message: 'You are not allowed to manage activities for this project.',
@@ -209,7 +208,7 @@ export class ActivitiesService {
     if (activity.entityType === EntityType.PROJECT) {
       const project = await this.projectModel
         .findById(activity.entityId)
-        .select('owner team')
+        .select('owner team excludedTeamMemberships')
         .populate({ path: 'team', select: 'memberships' });
 
       if (!project) {
@@ -221,6 +220,14 @@ export class ActivitiesService {
       if (hasProjectCollaborationAccess(project, actorId, actorRole, (value) => this.toId(value))) {
         return;
       }
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.ACTIVITY_VIEW_FORBIDDEN,
+        message: 'You are not allowed to view this activity.',
+        resourceType: 'activity',
+        resourceId: activity._id.toString(),
+        actorId,
+        actorRole,
+      });
     }
 
     if (activity.entityType === EntityType.EVENT) {
