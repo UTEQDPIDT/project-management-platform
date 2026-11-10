@@ -3,9 +3,9 @@
 import { useGetAllUsers } from '@/hooks/user';
 import React, { useMemo } from 'react';
 import LoadingMessage from './loading-message';
-import { DataTable, FacetedFilterConfig, fuzzyFilter } from './ui/data-table';
+import { DataTable, DATE_SORT_FIELDS, FacetedFilterConfig, fuzzyFilter } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
-import { IUser, SeedCategory, Sex, State, UserType } from '@repo/types';
+import { IUser, SeedCategory, Sex, UserType } from '@repo/types';
 import { Badge } from './ui/badge';
 import CopyButton from './ui/copy';
 import { format } from 'date-fns';
@@ -271,14 +271,6 @@ export default function UsersTable() {
         })),
       },
       {
-        columnId: 'state',
-        title: 'Estado de residencia',
-        options: Object.values(State).map((state) => ({
-          label: state,
-          value: state,
-        })),
-      },
-      {
         columnId: 'division',
         title: 'División',
         options: divisionsOptions,
@@ -301,6 +293,7 @@ export default function UsersTable() {
           columns={columns}
           facetedFilters={facetedFilters}
           searchColumnId="givenName"
+          dateSortFields={DATE_SORT_FIELDS}
           persistStateKey="users-table"
         />
       )}

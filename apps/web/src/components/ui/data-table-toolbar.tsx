@@ -5,6 +5,13 @@ import { type Table } from '@tanstack/react-table';
 import { Search, X } from 'lucide-react';
 
 import { Button } from './button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './select';
 import { InputGroup, InputGroupAddon, InputGroupInput } from './input-group';
 import {
   DataTableFacetedFilter,
@@ -18,16 +25,31 @@ export interface FacetedFilterConfig {
   searchColumnId?: string; // Nueva propiedad opcional para especificar la columna de búsqueda
 }
 
+export type DateSortOrder = 'default' | 'newest' | 'oldest';
+export type DateSortField = 'createdAt' | 'updatedAt';
+export type DateSortState = { field: DateSortField; order: DateSortOrder };
+
+const DATE_SORT_LABELS: Record<DateSortField, string> = {
+  createdAt: 'Fecha de creación',
+  updatedAt: 'Última actualización',
+};
+
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   facetedFilters?: FacetedFilterConfig[];
   searchColumnId?: string; // Nueva propiedad opcional para especificar la columna de búsqueda
+  dateSortFields?: DateSortField[];
+  dateSort?: DateSortState;
+  onDateSortChange?: (field: DateSortField, order: DateSortOrder) => void;
 }
 
 export function DataTableToolbar<TData>({
   table,
   facetedFilters = [],
   searchColumnId = 'name', // Valor por defecto para la columna de búsqueda
+  dateSortFields = [],
+  dateSort,
+  onDateSortChange,
 }: DataTableToolbarProps<TData>) {
   // 1. Obtenemos la referencia a la columna del nombre
   const nameColumn = table.getColumn(searchColumnId);
@@ -38,7 +60,7 @@ export function DataTableToolbar<TData>({
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 flex-wrap items-center gap-2">
-        <InputGroup className="w-full sm:w-auto sm:min-w-64 sm:max-w-xs">
+        <InputGroup className="w-50">
           <InputGroupInput
             placeholder="Buscar por nombre..."
             // 3. Leemos el valor actual del filtro de la columna 'name'
@@ -64,6 +86,26 @@ export function DataTableToolbar<TData>({
           );
         })}
         
+        {onDateSortChange &&
+          dateSortFields.map((field) => (
+            <Select
+              key={field}
+              value={dateSort?.field === field ? dateSort.order : 'default'}
+              onValueChange={(value) =>
+                onDateSortChange(field, value as DateSortOrder)
+              }
+            >
+              <SelectTrigger className="w-full sm:w-52" aria-label={DATE_SORT_LABELS[field]}>
+                <SelectValue placeholder={DATE_SORT_LABELS[field]} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">{DATE_SORT_LABELS[field]}</SelectItem>
+                <SelectItem value="newest">Más recientes primero</SelectItem>
+                <SelectItem value="oldest">Más antiguos primero</SelectItem>
+              </SelectContent>
+            </Select>
+          ))}
+
         {isFiltered && (
           <Button
             variant="ghost"
