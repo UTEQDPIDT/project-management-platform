@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   ForbiddenException,
   Req,
 } from '@nestjs/common';
@@ -347,6 +348,42 @@ export class CatalogsController {
     deleteDevelopmentLine(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
       this.ensureAdmin(req);
       return this.catalogsService.deleteDevelopmentLine(id);
+    }
+
+    @ApiOkResponse({ description: 'Lista de subcategorías de líneas de desarrollo obtenida correctamente.'})
+    @Get('development-line-subcategories')
+    getDevelopmentLineSubcategories(@Query('developmentLine') developmentLine?: string) {
+      return this.catalogsService.getDevelopmentLineSubcategories(developmentLine);
+    }
+
+    @ApiCreatedResponse({ description: 'Subcategoría de línea de desarrollo agregada correctamente.'})
+    @Post('development-line-subcategories')
+    addDevelopmentLineSubcategory(
+      @Body('value') value: string,
+      @Body('developmentLine') developmentLine: string,
+      @Req() req: AuthenticatedRequest,
+    ) {
+      this.ensureAdmin(req);
+      return this.catalogsService.addDevelopmentLineSubcategory(value, developmentLine);
+    }
+
+    @ApiOkResponse({ description: 'Subcategoría de línea de desarrollo actualizada correctamente.'})
+    @Patch('development-line-subcategories/:id')
+    updateDevelopmentLineSubcategory(
+      @Param('id') id: string,
+      @Body('value') value: string,
+      @Req() req: AuthenticatedRequest,
+    ) {
+      this.ensureAdmin(req);
+      return this.catalogsService.updateDevelopmentLineSubcategory(id, value);
+    }
+
+    @ApiOkResponse({ description: 'Subcategoría de línea de desarrollo eliminada correctamente.'})
+    @ApiNotFoundResponse({ description: 'No se encontró la subcategoría.'})
+    @Delete('development-line-subcategories/:id')
+    deleteDevelopmentLineSubcategory(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+      this.ensureAdmin(req);
+      return this.catalogsService.deleteDevelopmentLineSubcategory(id);
     }
 
     @ApiOkResponse({ description: 'Objetivo de sostenibilidad eliminado correctamente.'})

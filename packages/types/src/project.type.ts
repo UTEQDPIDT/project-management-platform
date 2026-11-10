@@ -3,6 +3,7 @@ import { ImpactLevel } from './enums/impact-level.enum';
 import { ProjectStatus } from './enums/project-status.enum';
 import { ProjectValidation } from './enums/project-validation.enum';
 import { SeedCategory } from './seed-category.type';
+import { DevelopmentLineSubcategory } from './seed-category.type';
 import { ITeam } from './team.type';
 import { IUser } from './user.type';
 
@@ -16,6 +17,7 @@ export interface IProject {
   prioritiesPND?: SeedCategory[];
   sustainableObjectives?: SeedCategory[];
   innovationLines?: SeedCategory[];
+  innovationLinesSubcategories?: DevelopmentLineSubcategory[];
   organization?: string;
   impactLevel: ImpactLevel;
   owner: IUser;

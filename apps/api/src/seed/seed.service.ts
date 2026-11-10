@@ -13,6 +13,7 @@ import { KnowledgeArea } from '../schemas/knowledge-area.schema.seed';
 import { ThemedImpactArea } from '../schemas/themed-impact-area.schema';
 import { PNDpriority } from '../schemas/pnd-priority.schema.seed';
 import { DevelopmentLine } from '../schemas/development-line.schema.seed';
+import { DevelopmentLineSubcategory } from '../schemas/development-line-subcategory.schema.seed';
 import { SustainabilityGoal } from '../schemas/sustainability-goal.schema.seed';
 import { Programa } from '../schemas/project-programs.seed';
 
@@ -26,6 +27,7 @@ import {
   themedImpactAreaList,
   PNDprioritiesList,
   developmentLinesList,
+  developmentLineSubcategoriesList,
   sustainabilityGoalsList,
   initialUsers,
   ProgramaList,
@@ -58,6 +60,9 @@ export class SeedService {
     @InjectModel(DevelopmentLine.name)
     private readonly developmentLineModel: Model<DevelopmentLine>,
 
+    @InjectModel(DevelopmentLineSubcategory.name)
+    private readonly developmentLineSubcategoryModel: Model<DevelopmentLineSubcategory>,
+
     @InjectModel(SustainabilityGoal.name)
     private readonly sustainabilityGoalModel: Model<SustainabilityGoal>,
 
@@ -85,6 +90,39 @@ export class SeedService {
           if (err.code !== 11000) throw err;
         }
       }),
+    );
+  }
+
+  private async seedDevelopmentLineSubcategories() {
+    const lines = await this.developmentLineModel.find({
+      name: {
+        $in: [
+          ...new Set(
+            developmentLineSubcategoriesList.map((s) => s.developmentLineName),
+          ),
+        ],
+      },
+    });
+    const lineIdByName = new Map(lines.map((l) => [l.name, l._id]));
+
+    await Promise.all(
+      developmentLineSubcategoriesList.map(
+        async ({ name, developmentLineName }) => {
+          const developmentLine = lineIdByName.get(developmentLineName);
+
+          if (!developmentLine) {
+            throw new Error(
+              `Línea de desarrollo no encontrada para la subcategoría "${name}": "${developmentLineName}"`,
+            );
+          }
+
+          await this.developmentLineSubcategoryModel.updateOne(
+            { name, developmentLine },
+            { $setOnInsert: { name, developmentLine } },
+            { upsert: true },
+          );
+        },
+      ),
     );
   }
 
@@ -143,6 +181,8 @@ export class SeedService {
       developmentLinesList,
       'name',
     );
+
+    await this.seedDevelopmentLineSubcategories();
 
     await this.seedCollection(
       this.sustainabilityGoalModel,

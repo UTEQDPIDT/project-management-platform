@@ -1,5 +1,6 @@
 import { UserRole } from '@repo/types';
 import { DevelopmentLine } from '../../schemas/development-line.schema.seed';
+import { DevelopmentLineSubcategory } from '../../schemas/development-line-subcategory.schema.seed';
 import { Division } from '../../schemas/division.schema.seed';
 import { EducationalProgram } from '../../schemas/educational-program.schema.seed';
 import { KnowledgeArea } from '../../schemas/knowledge-area.schema.seed';
@@ -152,111 +153,30 @@ export const PNDprioritiesList: Partial<PNDpriority>[] = [
 
 //Projects
 export const developmentLinesList: Partial<DevelopmentLine>[] = [
-  { name: 'Desarrollo de equipamiento didáctico industrial.' },
-  { name: 'Prototipos en eficiencia energética.' },
-  {
-    name: 'Habilitación de maquinaria industrial para realización de prácticas a pie de máquina.',
-  },
-  { name: 'Generación de nuevos materiales poliméricos.' },
-  {
-    name: 'Desarrollo de equipamiento didáctico industrial para la formación profesional en inyección de plásticos y hule.',
-  },
-  {
-    name: 'Desarrollo de las habilidades y competencias profesionales requeridas por el sector de inyección de plásticos y hule en la zona de influencia de la UTEQ, en los estudiantes, egresados y trabajadores de estas empresas.',
-  },
-  {
-    name: 'Diseño y desarrollo de nuevos productos hechos con plástico.',
-  },
-  { name: 'Desarrollo de competencias profesionales.' },
-  { name: 'Desarrollo estratégico académico-empresarial.' },
-  { name: 'Innovación e investigación académica-empresarial.' },
-  {
-    name: 'Investigación aplicada de energías alternativas promoviendo la sostenibilidad y economía circular.',
-  },
-  { name: 'Seguridad e higiene.' },
-  {
-    name: 'Desarrollo de materiales nanoestructurados aplicados a la sustentabilidad.',
-  },
-  {
-    name: 'Caracterización de materiales mediante técnicas ópticas, metalúrgicas y fototérmicas aplicables en materiales avanzados, nanoestructurados, metálicos y semiconductores.',
-  },
-  { name: 'Innovación educativa.' },
-  {
-    name: 'Desarrollo de aplicaciones de TIC mediante esquemas de la triple hélice.',
-  },
-  {
-    name: 'Fortalecer el proceso de formación y la innovación de los procesos de la gestión de recursos en las organizaciones.',
-  },
-  {
-    name: 'Estudios en educación aplicada a las Licenciaturas en Gestión del Capital Humano e Innovación y Desarrollo de Negocios y la Ingeniería en Logística, de la División Económica Administrativa de la UTEQ.',
-  },
-  {
-    name: 'Innovación Tecnológica en las organizaciones y en las licenciaturas e ingeniería de la División Económica Administrativa de la UTEQ.',
-  },
-  {
-    name: 'Estudio de competencias para identificar, evaluar y desarrollar competencias.',
-  },
-  { name: 'Manufactura inteligente e industria 4.0.' },
-  { name: 'Adquisición, procesamiento y análisis de datos.' },
-  {
-    name: 'Desarrollo de herramientas tecnológicas para la eficiencia energética y sustentabilidad.',
-  },
-  { name: 'Desarrollo y aplicación de sistemas embebidos.' },
-  { name: 'Desarrollo y aplicación de sistemas mecatrónicos.' },
-  { name: 'Estrategias para la sustentabilidad y el bien común.' },
-  {
-    name: 'Investigación de mercados e instrumentos comerciales para el fomento del desarrollo comercial y social de empresas e instituciones de la región.',
-  },
-  { name: 'Monitoreo, control y visualización.' },
-  {
-    name: 'Diseño y desarrollo de materiales inteligentes sustentables.',
-  },
-  { name: 'Diseño mecánico, experimental y aplicaciones de FEM.' },
-  { name: 'Procesos inteligentes & KPI’s.' },
-  { name: 'Higiene y seguridad industrial.' },
-  {
-    name: 'Economía circular aplicada en instituciones educativas, micro y pequeñas empresas.',
-  },
-  {
-    name: 'Economía circular y competencias clave para el aprendizaje permanente.',
-  },
-  { name: 'Administración, negocios y emprendimiento.' },
-  {
-    name: 'Gestión de la innovación, la tecnología y el conocimiento en temáticas de innovación multidisciplinares que favorecen las competencias de la comunidad universitaria y la competitividad de la región.',
-  },
-  {
-    name: 'Gestión de la vinculación para la colaboración de la universidad con actores estratégicos de los ecosistemas de innovación.',
-  },
-  {
-    name: 'Aplicaciones biotecnológicas para la síntesis de biomateriales y nanomateriales.',
-  },
-  { name: 'Inteligencia artificial aplicada en la educación.' },
-  { name: 'Producción de metabolitos bacterianos de interés.' },
-  { name: 'Biofísica molecular.' },
-  { name: 'Biología molecular.' },
-  { name: 'Bioinformática.' },
-  {
-    name: 'Gestión del conocimiento e innovación en las organizaciones/industria de la región orientados a la mejora continua de los procesos.',
-  },
-  { name: 'Innovación educativa de calidad.' },
-  {
-    name: 'Transformación digital y tecnológica en las organizaciones.',
-  },
-  { name: 'Sostenibilidad e innovación empresarial.' },
-  { name: 'Teoría Administrativa, Organizacional y Económica.' },
-  { name: 'Teoría Educativa y Tecnológica.' },
-  { name: 'Logística.' },
-  { name: 'Responsabilidad Social.' },
-  {
-    name: 'Fortalecimiento de las competencias profesionales en educación.',
-  },
-  {
-    name: 'Investigación y desarrollo académico en el proceso de enseñanza-aprendizaje.',
-  },
-  { name: 'Desarrollo humano en el proceso de aprendizaje.' },
-  {
-    name: 'Metodología y materiales tecnológicos innovadores para el proceso enseñanza-aprendizaje.',
-  },
+  { name: 'Ingeniería y Tecnología (Manufactura Avanzada e Industria 4.0)' },
+  { name: 'Ciencias Naturales y Exactas (Sustentabilidad y Biotecnología)' },
+  { name: 'Ciencias Sociales y Administrativas (Gestión y Negocios)' },
+  { name: 'Ciencias de la Salud (Área Especializada)' },
+];
+
+// developmentLineName debe coincidir con el nombre de una línea en developmentLinesList.
+export type DevelopmentLineSubcategorySeed = Pick<DevelopmentLineSubcategory, 'name'> & {
+  developmentLineName: string;
+};
+
+export const developmentLineSubcategoriesList: DevelopmentLineSubcategorySeed[] = [
+  { name: 'Automatización y Control: Procesos industriales, robótica, instrumentación y sistemas ciberfísicos', developmentLineName: developmentLinesList[0].name },
+  { name: 'Mecatrónica y Manufactura: Diseño mecánico, moldes y troqueles, CNC, y optimización de líneas de producción', developmentLineName: developmentLinesList[0].name },
+  { name: 'Tecnologías de la Información: Desarrollo de software seguro, analítica de datos, ciberseguridad, redes, e Inteligencia Artificial', developmentLineName: developmentLinesList[0].name },
+  { name: 'Mantenimiento y Electromovilidad: Sistemas automotrices, energías renovables, y eficiencia energética', developmentLineName: developmentLinesList[0].name },
+  { name: 'Tecnología Ambiental: Tratamiento de aguas, gestión de residuos, e impacto ambiental del sector productivo', developmentLineName: developmentLinesList[1].name },
+  { name: 'Biotecnología y Alimentos: Procesos agroalimentarios, control de calidad biológica, y conservación de recursos naturales', developmentLineName: developmentLinesList[1].name },
+  { name: 'Química y Materiales: Nanotecnología aplicada, polímeros, y nuevos materiales sustentables', developmentLineName: developmentLinesList[1].name },
+  { name: 'Desarrollo Organizacional: Gestión del factor humano, clima laboral, y responsabilidad social empresarial', developmentLineName: developmentLinesList[2].name },
+  { name: 'Logística y Cadena de Suministro: Optimización de inventarios, distribución transfronteriza, y comercio exterior', developmentLineName: developmentLinesList[2].name },
+  { name: 'Mercadotecnia y Negocios: Innovación comercial, modelos de negocio digitales, y competitividad de PyMEs', developmentLineName: developmentLinesList[2].name },
+  { name: 'Turismo y Gastronomía: Gestión del patrimonio, turismo sustentable, y administración hotelera', developmentLineName: developmentLinesList[2].name },
+  { name: 'Terapia Física y Salud Integral: Técnicas de rehabilitación y salud ocupacional en entornos industriales', developmentLineName: developmentLinesList[3].name },
 ];
 
 //Projects

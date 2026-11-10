@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ImpactLevel } from '@repo/types';
 import {
+  ArrayMaxSize,
   ArrayMinSize,
   IsArray,
   IsBoolean,
@@ -75,9 +76,20 @@ export class CreateProjectDto {
     description: 'Lineas de innovación a las que se alinea el proyecto.',
   })
   @IsMongoId({ each: true })
+  @ArrayMaxSize(1)
   @IsArray()
   @IsOptional()
   innovationLines: string[];
+
+  @ApiPropertyOptional({
+    description:
+      'Subcategorías de la línea de innovación del proyecto (máximo 2).',
+  })
+  @IsMongoId({ each: true })
+  @ArrayMaxSize(2)
+  @IsArray()
+  @IsOptional()
+  innovationLinesSubcategories: string[];
 
   @ApiPropertyOptional({
     description: 'Organización a la que le pertenece el proyecto.',

@@ -90,6 +90,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Separator } from '../ui/separator';
+import { InnovationLinesFields } from './innovation-lines-fields';
 import { TRLForm } from './trl-assesment-form';
 import { toast } from 'sonner';
 import { useUserProfile } from 'context/profile-provider';
@@ -139,6 +140,7 @@ export function CreateProjectForm() {
       prioritiesPND: [],
       sustainableObjectives: [],
       innovationLines: [],
+      innovationLinesSubcategories: [],
       impactLevel: ImpactLevel.LOCAL,
       organization: '',
       activities: [],
@@ -914,98 +916,7 @@ export function CreateProjectForm() {
                 }}
               />
 
-              <Controller
-                control={form.control}
-                name="innovationLines"
-                render={({ field }) => {
-                  const value = field.value ?? [];
-
-                  return (
-                    <FieldGroup>
-                      <FieldContent>
-                        <FieldLabel>
-                          Líneas Innovadoras de Investigación Aplicada y
-                          Desarrollo Tecnológico (LIIADT&apos;s){' '}
-                        </FieldLabel>
-                        <FieldDescription>
-                          Selecciona las LIIADT&apos;s estratégicas de la UTEQ
-                          con nichos tecnológicos prioritarios de desarrollo en
-                          temas de Industria 4.0 con las que se relaciona el
-                          proyecto.
-                        </FieldDescription>
-                      </FieldContent>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className="w-full justify-between font-normal"
-                          >
-                            {value.length ? (
-                              `${value.length} seleccionados`
-                            ) : (
-                              <span className="text-muted-foreground">
-                                Sin selección
-                              </span>
-                            )}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-
-                        <PopoverContent className="w-[calc(100vw-2rem)] sm:w-full lg:max-w-2xl max-h-96 overflow-y-auto p-0 border border-gray-400">
-                          <Command
-                            filter={(value, search) =>
-                              value
-                                .toLowerCase()
-                                .includes(search.toLowerCase())
-                                ? 1
-                                : 0
-                            }
-                          >
-                            <CommandInput placeholder="Buscar línea de investigación..." />
-                            <CommandEmpty>
-                              No se encontraron líneas de investigación.
-                            </CommandEmpty>
-                            <CommandGroup>
-                              {loadingDevelopmentLines ? (
-                                <CommandItem disabled>Cargando</CommandItem>
-                              ) : (
-                                developmentLines.map((line: SeedCategory) => {
-                                  const selected = value.includes(line._id);
-
-                                  return (
-                                    <CommandItem 
-                                      key={line._id}
-                                      value={line.name}
-                                      onSelect={() => {
-                                        field.onChange(
-                                          selected
-                                            ? value.filter(
-                                                (v) => v !== line._id,
-                                              )
-                                            : [...value, line._id],
-                                        );
-                                      }}
-                                      className="flex justify-between cursor-pointer"
-                                    >
-                                      {line.name}
-                                      <Check
-                                        className={`mr-2 h-4 w-4 ${
-                                          selected ? 'opacity-100' : 'opacity-0'
-                                        }`}
-                                      />
-                                    </CommandItem>
-                                  );
-                                })
-                              )}
-                            </CommandGroup>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </FieldGroup>
-                  );
-                }}
-              />
+              <InnovationLinesFields form={form} />
             </FieldGroup>
           </CardContent>
         </Card>

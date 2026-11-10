@@ -12,6 +12,7 @@ import { KnowledgeArea, KnowledgeAreaSchema } from '../schemas/knowledge-area.sc
 import { ThemedImpactArea, ThemedImpactAreaSchema } from '../schemas/themed-impact-area.schema';
 import { PNDpriority, PNDprioritySchema } from '../schemas/pnd-priority.schema.seed';
 import { DevelopmentLine, DevelopmentLineSchema } from '../schemas/development-line.schema.seed';
+import { DevelopmentLineSubcategory, DevelopmentLineSubcategorySchema } from '../schemas/development-line-subcategory.schema.seed';
 import { SustainabilityGoal, SustainabilityGoalSchema } from '../schemas/sustainability-goal.schema.seed';
 import { Programa, ProgramaSchema } from '../schemas/project-programs.seed';
 
@@ -26,6 +27,7 @@ import { Programa, ProgramaSchema } from '../schemas/project-programs.seed';
       { name: ThemedImpactArea.name, schema: ThemedImpactAreaSchema },
       { name: PNDpriority.name, schema: PNDprioritySchema },
       { name: DevelopmentLine.name, schema: DevelopmentLineSchema },
+      { name: DevelopmentLineSubcategory.name, schema: DevelopmentLineSubcategorySchema },
       { name: SustainabilityGoal.name, schema: SustainabilityGoalSchema },
       { name: Programa.name, schema: ProgramaSchema },
     ]),

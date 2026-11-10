@@ -83,6 +83,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Separator } from '../ui/separator';
+import { InnovationLinesFields } from './innovation-lines-fields';
 import { TRLForm } from './trl-assesment-form';
 import { useUserProfile } from 'context/profile-provider';
 import { toast } from 'sonner';
@@ -149,7 +150,16 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
         ? project.sustainableObjectives.map((o) => o?._id).filter(Boolean)
         : [],
       innovationLines: project?.innovationLines
-        ? project.innovationLines.map((l) => l?._id).filter(Boolean)
+        ? project.innovationLines
+            .map((l) => l?._id)
+            .filter(Boolean)
+            .slice(0, 1)
+        : [],
+      innovationLinesSubcategories: project?.innovationLinesSubcategories
+        ? project.innovationLinesSubcategories
+            .map((s) => s?._id)
+            .filter(Boolean)
+            .slice(0, 2)
         : [],
       impactLevel: project?.impactLevel
         ? project.impactLevel
@@ -965,89 +975,7 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                 }}
               />
 
-              <Controller
-                control={form.control}
-                name="innovationLines"
-                render={({ field }) => {
-                  const value = field.value ?? [];
-
-                  return (
-                    <FieldGroup>
-                      <FieldContent>
-                        <FieldLabel>
-                          Líneas Innovadoras de Investigación Aplicada y
-                          Desarrollo Tecnológico (LIIADT&apos;s){' '}
-                        </FieldLabel>
-                        <FieldDescription>
-                          Selecciona las LIIADT&apos;s estratégicas de la UTEQ
-                          con nichos tecnológicos prioritarios de desarrollo en
-                          temas de Industria 4.0 con las que se relaciona el
-                          proyecto.
-                        </FieldDescription>
-                      </FieldContent>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className="w-full justify-between font-normal"
-                          >
-                            {value.length ? (
-                              `${value.length} seleccionados`
-                            ) : (
-                              <span className="text-muted-foreground">
-                                Sin selección
-                              </span>
-                            )}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-
-                        <PopoverContent className="w-[calc(100vw-2rem)] sm:w-full lg:max-w-2xl max-h-96 overflow-y-auto p-0">
-                          <Command>
-                            <CommandGroup>
-                              {loadingDevelopmentLines ? (
-                                <CommandItem disabled>Cargando</CommandItem>
-                              ) : (
-                                developmentLinesSeeds.map(
-                                  (line: SeedCategory) => {
-                                    const selected = value.includes(line._id);
-
-                                    return (
-                                      <CommandItem
-                                        key={line._id}
-                                        onSelect={() => {
-                                          field.onChange(
-                                            selected
-                                              ? value.filter(
-                                                  (v) => v !== line._id,
-                                                )
-                                              : [...value, line._id],
-                                          );
-                                        }}
-                                        className="flex justify-between"
-                                      >
-                                        {line.name}
-                                        <Check
-                                          className={`mr-2 h-4 w-4 ${
-                                            selected
-                                              ? 'opacity-100'
-                                              : 'opacity-0'
-                                          }`}
-                                        />
-                                      </CommandItem>
-                                    );
-                                  },
-                                )
-                              )}
-                            </CommandGroup>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </FieldGroup>
-                  );
-                }}
-              />
+              <InnovationLinesFields form={form} />
             </FieldGroup>
           </CardContent>
         </Card>

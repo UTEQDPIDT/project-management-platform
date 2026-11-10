@@ -18,7 +18,12 @@ export const updateProjectSchema = z.object({
   impactAreas: z.array(mongoId),
   prioritiesPND: z.array(mongoId),
   sustainableObjectives: z.array(mongoId),
-  innovationLines: z.array(mongoId),
+  innovationLines: z
+    .array(mongoId)
+    .max(1, 'Solo puedes seleccionar una línea de innovación'),
+  innovationLinesSubcategories: z
+    .array(mongoId)
+    .max(2, 'Puedes seleccionar máximo 2 subcategorías'),
   impactLevel: z.enum(ImpactLevel),
   organization: z.string().optional(),
   team: mongoId.or(z.literal('')),

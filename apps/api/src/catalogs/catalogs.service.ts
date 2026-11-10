@@ -10,6 +10,7 @@ import { KnowledgeArea } from '../schemas/knowledge-area.schema.seed';
 import { ThemedImpactArea } from '../schemas/themed-impact-area.schema';
 import { PNDpriority } from '../schemas/pnd-priority.schema.seed';
 import { DevelopmentLine } from '../schemas/development-line.schema.seed';
+import { DevelopmentLineSubcategory } from '../schemas/development-line-subcategory.schema.seed';
 import { SustainabilityGoal } from '../schemas/sustainability-goal.schema.seed';
 import { Programa } from '../schemas/project-programs.seed';
 
@@ -39,6 +40,9 @@ export class CatalogsService {
 
         @InjectModel(DevelopmentLine.name)
         private developmentLineModel: Model<DevelopmentLine>,
+
+        @InjectModel(DevelopmentLineSubcategory.name)
+        private developmentLineSubcategoryModel: Model<DevelopmentLineSubcategory>,
 
         @InjectModel(SustainabilityGoal.name)
         private sustainabilityGoalModel: Model<SustainabilityGoal>,
@@ -181,6 +185,48 @@ export class CatalogsService {
     getDevelopmentLines() { 
         return this.getAll(this.developmentLineModel); 
     }
+    getDevelopmentLineSubcategories(developmentLineId?: string) {
+        if (developmentLineId && !isValidObjectId(developmentLineId)) {
+            throw new BadRequestException(`Invalid ID format: "${developmentLineId}"`);
+        }
+
+        return this.developmentLineSubcategoryModel
+            .find(developmentLineId ? { developmentLine: developmentLineId } : {})
+            .sort({ _id: 1 });
+    }
+    async addDevelopmentLineSubcategory(name: string, developmentLineId: string) {
+        if (!name || typeof name !== 'string' || !name.trim()) {
+            throw new BadRequestException('El valor enviado es inválido.');
+        }
+
+        if (!isValidObjectId(developmentLineId)) {
+            throw new BadRequestException(`Invalid ID format: "${developmentLineId}"`);
+        }
+
+        if (!(await this.developmentLineModel.exists({ _id: developmentLineId }))) {
+            throw new NotFoundException(`Item with ID "${developmentLineId}" not found.`);
+        }
+
+        const normalizedName = name.trim();
+        const exists = await this.developmentLineSubcategoryModel.findOne({
+            name: normalizedName,
+            developmentLine: developmentLineId,
+        });
+        if (exists) {
+            throw new ConflictException(`El valor "${normalizedName}" ya existe en esta línea de desarrollo.`);
+        }
+
+        return this.developmentLineSubcategoryModel.create({
+            name: normalizedName,
+            developmentLine: developmentLineId,
+        });
+    }
+    updateDevelopmentLineSubcategory(id: string, value: string) {
+        return this.update(this.developmentLineSubcategoryModel, 'name', id, value);
+    }
+    deleteDevelopmentLineSubcategory(id: string) {
+        return this.remove(this.developmentLineSubcategoryModel, id);
+    }
     getSustainabilityGoals() { 
         return this.getAll(this.sustainabilityGoalModel); 
     }
@@ -274,8 +320,10 @@ export class CatalogsService {
     deletePndPriority(id: string) { 
         return this.remove(this.pndPriorityModel, id); 
     }
-    deleteDevelopmentLine(id: string) { 
-        return this.remove(this.developmentLineModel, id); 
+    async deleteDevelopmentLine(id: string) {
+        const result = await this.remove(this.developmentLineModel, id);
+        await this.developmentLineSubcategoryModel.deleteMany({ developmentLine: id });
+        return result;
     }
     deleteSustainabilityGoal(id: string) { 
         return this.remove(this.sustainabilityGoalModel, id); 
