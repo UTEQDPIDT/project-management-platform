@@ -29,6 +29,9 @@ import React from 'react';
 import { DataTablePagination } from './data-table-pagination';
 import {
   DataTableToolbar,
+  type DateSortField,
+  type DateSortOrder,
+  type DateSortState,
   type FacetedFilterConfig,
 } from './data-table-toolbar';
 
@@ -58,12 +61,16 @@ export const facetedFilter: FilterFn<any> = (row, columnId, filterValue) => {
     .includes(String(cellValue));
 };
 
+export const DATE_SORT_FIELDS: DateSortField[] = ['createdAt', 'updatedAt'];
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   facetedFilters?: FacetedFilterConfig[];
   searchColumnId?: string; 
   persistStateKey?: string; // Nueva prop para la clave de persistencia
+  // Campos de fecha por los que se puede ordenar (se muestra un selector por campo).
+  dateSortFields?: DateSortField[];
 }
 
 export function DataTable<TData, TValue>({
@@ -72,6 +79,7 @@ export function DataTable<TData, TValue>({
   facetedFilters,
   searchColumnId,
   persistStateKey,
+  dateSortFields,
 }: DataTableProps<TData, TValue>) {
   // Si no se proporciona una clave, la tabla funciona sin persistencia.
   const storageKey = persistStateKey ? `data-table-state-${persistStateKey}` : null;
@@ -128,8 +136,38 @@ export function DataTable<TData, TValue>({
   );
 
 
+  // Solo un ordenamiento por fecha activo a la vez (creación o actualización).
+  const [dateSort, setDateSort] = React.useState<DateSortState>({
+    field: 'createdAt',
+    order: 'default',
+  });
+
+  const handleDateSortChange = React.useCallback(
+    (field: DateSortField, order: DateSortOrder) => {
+      setDateSort({ field, order });
+      setPaginationState((prev) =>
+        prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 },
+      );
+    },
+    [],
+  );
+
+  const sortedData = React.useMemo(() => {
+    if (!dateSortFields?.length || dateSort.order === 'default') return data;
+
+    const toTime = (item: TData) => {
+      const time = new Date(
+        (item as Record<string, unknown>)[dateSort.field] as string,
+      ).getTime();
+      return Number.isNaN(time) ? 0 : time;
+    };
+    const direction = dateSort.order === 'newest' ? -1 : 1;
+
+    return [...data].sort((a, b) => (toTime(a) - toTime(b)) * direction);
+  }, [data, dateSortFields, dateSort]);
+
   const table = useReactTable({
-    data,
+    data: sortedData,
     columns,
     state: {
       columnFilters, // Pasamos el estado de los filtros de columna
@@ -156,6 +194,9 @@ export function DataTable<TData, TValue>({
           table={table} 
           facetedFilters={facetedFilters} 
           searchColumnId={searchColumnId} 
+          dateSortFields={dateSortFields}
+          dateSort={dateSort}
+          onDateSortChange={handleDateSortChange}
         />
       </div>
 

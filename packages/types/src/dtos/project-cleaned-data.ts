@@ -12,4 +12,5 @@ export type ProjectCleanedData = {
   prioritiesPND: string[];
   sustainableObjectives: string[];
   innovationLines: string[];
+  innovationLinesSubcategories?: string[];
 };

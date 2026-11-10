@@ -10,7 +10,7 @@ import {
 } from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
-import { DataTable, FacetedFilterConfig, facetedFilter } from './ui/data-table';
+import { DataTable, DATE_SORT_FIELDS, FacetedFilterConfig, facetedFilter } from './ui/data-table';
 import LoadingMessage from './loading-message';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -342,6 +342,7 @@ export default function TeamsTable() {
           columns={columns}
           facetedFilters={facetedFilters}
           searchColumnId="teamName"
+          dateSortFields={DATE_SORT_FIELDS}
           persistStateKey="teams-table-state" // Clave para persistir el estado
         />
       )}

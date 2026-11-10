@@ -10,7 +10,7 @@ import {
 } from '@/hooks/projects';
 import React from 'react';
 import LoadingMessage from './loading-message';
-import { DataTable, FacetedFilterConfig, facetedFilter } from './ui/data-table';
+import { DataTable, DATE_SORT_FIELDS, FacetedFilterConfig, facetedFilter } from './ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useQueries } from '@tanstack/react-query';
 import { IActivity, IProject, ProjectStatus, ProjectValidation } from '@repo/types';
@@ -398,7 +398,7 @@ const columns: ColumnDef<ProjectTableRow>[] = [
   },
   {
     accessorKey: 'trlRating',
-    header: 'Nivel TRL',
+    header: 'TRL',
     filterFn: facetedFilter,
     meta: { className: 'hidden xl:table-cell' },
   },
@@ -407,7 +407,7 @@ const columns: ColumnDef<ProjectTableRow>[] = [
 const facetedFilters: FacetedFilterConfig[] = [
   {
     columnId: 'trlRating',
-    title: 'Nivel TRL',
+    title: 'TRL',
     options: [
       { label: 'TRL 1', value: '1' },
       { label: 'TRL 2', value: '2' },
@@ -422,7 +422,7 @@ const facetedFilters: FacetedFilterConfig[] = [
   },
   {
     columnId: 'impactLevel',
-    title: 'Nivel de Impacto',
+    title: 'Impacto',
     options: [
       { label: 'Local', value: 'Local' },
       { label: 'Nacional', value: 'Nacional' },
@@ -598,6 +598,7 @@ export default function ProjectsTable({
           columns={columns}
           data={sortedProjects}
           facetedFilters={projectFacetedFilters}
+          dateSortFields={DATE_SORT_FIELDS}
           persistStateKey={showHidden ? 'projects-under-review-table' : 'projects-table'}
         />
       )}

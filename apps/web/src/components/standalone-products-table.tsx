@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import LoadingMessage from './loading-message';
-import { DataTable, FacetedFilterConfig, facetedFilter } from './ui/data-table';
+import { DataTable, DATE_SORT_FIELDS, FacetedFilterConfig, facetedFilter } from './ui/data-table';
 import {
   useStandaloneProducts,
   useStandaloneProductsByUser,
@@ -317,6 +317,7 @@ export function StandaloneProductsTable({
           columns={columns}
           data={typedProducts}
           facetedFilters={facetedFilters}
+          dateSortFields={DATE_SORT_FIELDS}
           persistStateKey="standalone-products-table"
         />
       )}

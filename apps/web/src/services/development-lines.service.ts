@@ -5,4 +5,11 @@ const getDevelopmentLines = async () => {
   return data;
 };
 
-export { getDevelopmentLines };
+const getDevelopmentLineSubcategories = async (developmentLineId: string) => {
+  const { data } = await api.get('/catalogs/development-line-subcategories', {
+    params: { developmentLine: developmentLineId },
+  });
+  return data;
+};
+
+export { getDevelopmentLines, getDevelopmentLineSubcategories };

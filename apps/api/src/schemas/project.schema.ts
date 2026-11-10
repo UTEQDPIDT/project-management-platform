@@ -9,6 +9,7 @@ import { ThemedImpactArea } from './themed-impact-area.schema';
 import { PNDpriority } from './pnd-priority.schema.seed';
 import { SustainabilityGoal } from './sustainability-goal.schema.seed';
 import { DevelopmentLine } from './development-line.schema.seed';
+import { DevelopmentLineSubcategory } from './development-line-subcategory.schema.seed';
 import { Programa } from './project-programs.seed';
 
 @Schema({ timestamps: true })
@@ -75,8 +76,31 @@ export class Project extends Document {
   })
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: DevelopmentLine.name }],
+    validate: {
+      validator: (value: unknown[]) => value.length <= 1,
+      message: 'Un proyecto solo puede tener una línea de innovación.',
+    },
   })
   innovationLines: DevelopmentLine[];
+
+  @ApiPropertyOptional({
+    description:
+      'Subcategorías de la línea de innovación del proyecto (máximo 2).',
+  })
+  @Prop({
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: DevelopmentLineSubcategory.name,
+      },
+    ],
+    default: [],
+    validate: {
+      validator: (value: unknown[]) => value.length <= 2,
+      message: 'Un proyecto puede tener máximo 2 subcategorías de innovación.',
+    },
+  })
+  innovationLinesSubcategories: DevelopmentLineSubcategory[];
 
   @ApiPropertyOptional({
     description: 'Organización a la que le pertenece el proyecto.',

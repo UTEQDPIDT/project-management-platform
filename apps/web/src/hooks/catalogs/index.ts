@@ -1,6 +1,7 @@
 export * from './use-divisions';
 export * from './use-programs';
 export * from './use-development-lines';
+export * from './use-development-line-subcategories';
 export * from './use-knowledge-areas';
 export * from './use-pnd-priorities';
 export * from './use-sustainable-goals';

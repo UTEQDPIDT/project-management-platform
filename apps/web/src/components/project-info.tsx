@@ -194,6 +194,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
     sustainableObjectives,
     prioritiesPND,
     innovationLines,
+    innovationLinesSubcategories,
     relatedProjects,
     status,
     validationStatus,
@@ -531,6 +532,24 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
             <span>
               {concatWithCommaAndDot(
                 innovationLines.map((l: SeedCategory) => l.name),
+              )}
+            </span>
+          ) : (
+            <span className="text-gray-400">Vacío</span>
+          )}
+        </div>
+      </div>
+
+      <div className={rowClass}>
+        <span className={labelClass}>
+          <BrainCircuit size={14} className="shrink-0" />
+          Subcategorías LIIADT
+        </span>
+        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty w-full">
+          {innovationLinesSubcategories?.length ? (
+            <span>
+              {concatWithCommaAndDot(
+                innovationLinesSubcategories.map((s: SeedCategory) => s.name),
               )}
             </span>
           ) : (

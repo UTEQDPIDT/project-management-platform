@@ -5,6 +5,7 @@ import { FilePurpose, IEvent, IFile, ProjectValidation } from '@repo/types';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   DataTable,
+  DATE_SORT_FIELDS,
   facetedFilter,
   type FacetedFilterConfig,
 } from './ui/data-table';
@@ -436,7 +437,7 @@ const columns: ColumnDef<IEvent>[] = [
 const facetedFiltersConfig: FacetedFilterConfig[] = [
   {
     columnId: 'type',
-    title: 'Tipo de evento',
+    title: 'Tipo',
     options: [
       { value: 'interno', label: 'Interno' },
       { value: 'externo', label: 'Externo' },
@@ -539,6 +540,7 @@ export function EventsTable({
           columns={columns}
           data={typedEvents}
           facetedFilters={eventFacetedFilters}
+          dateSortFields={DATE_SORT_FIELDS}
           persistStateKey={showHidden ? 'events-under-review-table' : 'events-table'}
         />
       )}
