@@ -80,7 +80,7 @@ export function CreateTeamForm() {
       teamName: '',
       summary: '',
       division: '',
-      grade: TeamsGrade.GRUPO_DE_INVESTIGACION,
+      grade: TeamsGrade.SIN_GRADO,
       members: [],
       collaborators: [],
       isPrivate: true,
