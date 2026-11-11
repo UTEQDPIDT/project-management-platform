@@ -261,7 +261,7 @@ const columns: ColumnDef<ITeam>[] = [
 ];
 
 export default function TeamsTable() {
-  const { data, isLoading } = useAllTeams(true);
+  const { data, isLoading } = useAllTeams();
   const { data: divisions } = useDivisions();
 
   const leaderFilterOptions = useMemo<FacetedFilterConfig['options']>(() => {

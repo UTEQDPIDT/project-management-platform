@@ -13,8 +13,14 @@ describe('TeamsService', () => {
     exec: jest.fn(),
   };
 
+  const findQueryMock = {
+    populate: jest.fn().mockReturnThis(),
+    exec: jest.fn(),
+  };
+
   const teamModelMock = {
     findById: jest.fn().mockReturnValue(findByIdQueryMock),
+    find: jest.fn().mockReturnValue(findQueryMock),
     exists: jest.fn(),
   };
 
@@ -29,6 +35,43 @@ describe('TeamsService', () => {
     }).compile();
 
     service = module.get<TeamsService>(TeamsService);
+  });
+
+  it('lists public and private teams for an admin without a visibility filter', async () => {
+    const teams = [
+      { _id: 'public-team', isPrivate: false },
+      { _id: 'private-team', isPrivate: true },
+    ];
+    findQueryMock.exec.mockResolvedValue(teams);
+
+    await expect(
+      service.findAll({ userId: 'admin-1', userRole: UserRole.ADMIN }),
+    ).resolves.toEqual(teams);
+    expect(teamModelMock.find).toHaveBeenCalledWith({});
+  });
+
+  it('keeps private teams restricted to active members for regular users', async () => {
+    findQueryMock.exec.mockResolvedValue([]);
+
+    await service.findAll({ userId: 'user-1', userRole: UserRole.USER });
+
+    expect(teamModelMock.find).toHaveBeenCalledWith({
+      $or: [
+        { isPrivate: false },
+        {
+          memberships: {
+            $elemMatch: {
+              user: 'user-1',
+              $or: [
+                { status: 'ACTIVE' },
+                { status: { $regex: /^active$/i } },
+                { status: { $exists: false } },
+              ],
+            },
+          },
+        },
+      ],
+    });
   });
 
   it('should allow member to view private team when memberships.user is populated object', async () => {

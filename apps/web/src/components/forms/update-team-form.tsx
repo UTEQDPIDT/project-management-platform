@@ -99,12 +99,11 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
     users?.filter(
       (u: IUser) => u._id !== user._id && !existingUserIds.includes(u._id),
     ) || [];
-  const teachersAndAdmins = usersWithoutCurrentUserAndMembers.filter(
+  const eligibleMembers = usersWithoutCurrentUserAndMembers.filter(
     (u: IUser) =>
-      u.type === UserType.MAESTRO || u.type === UserType.ADMINISTRATIVO,
-  );
-  const teachersAndStudents = usersWithoutCurrentUserAndMembers.filter(
-    (u: IUser) => u.type === UserType.MAESTRO || u.type === UserType.ESTUDIANTE,
+      u.type === UserType.MAESTRO ||
+      u.type === UserType.ESTUDIANTE ||
+      u.type === UserType.ADMINISTRATIVO,
   );
 
   const form = useForm<z.infer<ReturnType<typeof teamSchema>>>({
@@ -342,8 +341,8 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                                 <CommandItem disabled>
                                   <LoadingMessage />
                                 </CommandItem>
-                              ) : teachersAndStudents?.length > 0 ? (
-                                teachersAndStudents.map((user: IUser) => {
+                              ) : eligibleMembers.length > 0 ? (
+                                eligibleMembers.map((user: IUser) => {
                                   const selected = value.includes(user._id);
                                   return (
                                     <CommandItem
