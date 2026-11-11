@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { removeMember } from '@/services/teams.service';
 import { toast } from 'sonner';
+import { AxiosError } from 'axios';
 
 export function useRemoveMember() {
   const queryClient = useQueryClient();
@@ -12,6 +13,13 @@ export function useRemoveMember() {
       queryClient.invalidateQueries({ queryKey: ['team', teamId] });
       toast.success('Miembro expulsado del equipo');
     },
-    onError: () => toast.error('No se expulsó al miembro'),
+    onError: (error) => {
+      const axiosError = error as AxiosError<{ message?: string | string[] }>;
+      const rawMessage = axiosError.response?.data?.message;
+      const message = Array.isArray(rawMessage)
+        ? rawMessage[0]
+        : rawMessage || 'No se expulsó al miembro';
+      toast.error(message);
+    },
   });
 }

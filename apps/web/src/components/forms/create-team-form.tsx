@@ -74,7 +74,7 @@ export function CreateTeamForm() {
   );
 
   const form = useForm<z.infer<ReturnType<typeof teamSchema>>>({
-    resolver: zodResolver(teamSchema(user.email)),
+    resolver: zodResolver(teamSchema(user._id, true)),
     mode: 'onChange',
     defaultValues: {
       teamName: '',
@@ -98,11 +98,11 @@ export function CreateTeamForm() {
         summary: data.summary === '' ? undefined : data.summary,
         division: data.division || undefined,
       };
-      createTeamMutation.mutate(cleanedData);
+      await createTeamMutation.mutateAsync(cleanedData);
       form.reset();
       router.push(`${baseUrl}/equipos`);
-    } catch (err) {
-      console.error('Error cleaning data', err);
+    } catch {
+      // The mutation displays the API error.
     }
   };
 
@@ -271,11 +271,12 @@ export function CreateTeamForm() {
               </FieldLegend>
               <FieldDescription>
                 Los miembros tienen acceso completo a los proyectos del equipo.
+                Selecciona al menos dos miembros además del líder.
               </FieldDescription>
               <Controller
                 control={form.control}
                 name="members"
-                render={({ field }) => {
+                render={({ field, fieldState }) => {
                   const value = field.value ?? [];
                   return (
                     <FieldGroup>
@@ -349,6 +350,9 @@ export function CreateTeamForm() {
                           </Command>
                         </PopoverContent>
                       </Popover>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
                     </FieldGroup>
                   );
                 }}

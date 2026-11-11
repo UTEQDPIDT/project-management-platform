@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBoolean,
+  IsArray,
   IsEnum,
   IsMongoId,
   IsOptional,
@@ -12,11 +13,12 @@ import { ObjectId } from 'mongoose';
 
 export class CreateTeamDto {
   @ApiPropertyOptional({
-    description: 'IDs de los usuarios que serán miembros del equipo.',
+    description: 'IDs de los miembros del equipo. Al crear, se requieren al menos dos miembros distintos además del líder.',
     type: [String],
     example: ['65a1b2c3d4e5f6a7b8c9d0e1'],
   })
   @IsOptional()
+  @IsArray()
   @IsMongoId({ each: true })
   members?: string[];
 
@@ -26,6 +28,7 @@ export class CreateTeamDto {
     example: ['65a1b2c3d4e5f6a7b8c9d0e2'],
   })
   @IsOptional()
+  @IsArray()
   @IsMongoId({ each: true })
   collaborators?: string[];
 

@@ -2,7 +2,11 @@ import { mongoId } from '@/lib/utils';
 import { TeamsGrade } from '@repo/types';
 import { z } from 'zod';
 
-export const teamSchema = (ownerEmail: string) =>
+export const teamSchema = (
+  ownerId: string,
+  requireMinimum = false,
+  existingMemberIds: string[] = [ownerId],
+) =>
   z.object({
     teamName: z
       .string()
@@ -17,14 +21,21 @@ export const teamSchema = (ownerEmail: string) =>
     collaborators: z
       .array(mongoId)
       .refine(
-        (values) => !values.includes(ownerEmail),
+        (values) => !values.includes(ownerId),
         'No puedes agregarte a ti como colaborador.',
       ),
     members: z
       .array(mongoId)
       .refine(
-        (values) => !values.includes(ownerEmail),
+        (values) => !values.includes(ownerId),
         'No puedes agregarte a ti como miembro.',
+      )
+      .refine(
+        (values) =>
+          !requireMinimum || new Set([...existingMemberIds, ...values]).size >= 3,
+        existingMemberIds.length === 1 && existingMemberIds[0] === ownerId
+          ? 'Selecciona al menos dos miembros además del líder.'
+          : 'El equipo debe tener al menos 3 integrantes activos, incluido el líder.',
       ),
     isPrivate: z.boolean(),
   });

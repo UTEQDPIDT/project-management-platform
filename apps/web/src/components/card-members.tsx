@@ -20,6 +20,7 @@ import {
 import { useUserProfile } from 'context/profile-provider';
 import { getBaseUrlBasedOnRole } from '@/lib/utils';
 import { useMemo } from 'react';
+import { toast } from 'sonner';
 
 export function CardMembers({
   team,
@@ -44,6 +45,28 @@ export function CardMembers({
         m.status === TeamMembershipStatus.ACTIVE,
     );
   }, [team.memberships]);
+
+  const removeTeamMember = (memberId: string) => {
+    const remaining = new Set(
+      team.memberships
+        .filter(
+          (membership) =>
+            (membership.role === TeamMembershipRole.OWNER ||
+              membership.role === TeamMembershipRole.MEMBER) &&
+            (membership.status === TeamMembershipStatus.ACTIVE ||
+              membership.status == null) &&
+            !(membership.role === TeamMembershipRole.MEMBER &&
+              membership.user?._id === memberId),
+        )
+        .map((membership) => membership.user?._id)
+        .filter(Boolean),
+    );
+    if (remaining.size < 3) {
+      toast.error('El equipo debe tener al menos 3 integrantes activos, incluido el líder.');
+      return;
+    }
+    removeMember.mutate({ teamId: team._id, userId: memberId });
+  };
 
   return (
     <Card className="w-full min-w-0 lg:max-w-96 border-neutral-400">
@@ -106,12 +129,7 @@ export function CardMembers({
                     <DropdownMenuItem
                       variant="destructive"
                       disabled={removeMember.isPending}
-                      onClick={() =>
-                        removeMember.mutate({
-                          teamId: team._id,
-                          userId: m.user._id,
-                        })
-                      }
+                      onClick={() => removeTeamMember(m.user._id)}
                     >
                       <UserMinus /> Expulsar
                     </DropdownMenuItem>
