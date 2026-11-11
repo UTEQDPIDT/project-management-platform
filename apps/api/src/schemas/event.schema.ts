@@ -43,7 +43,7 @@ export class Event extends Document {
   @Prop({ type: String, enum: Object.values(EventType), required: true })
   type: EventType;
 
-  @ApiProperty({ description: 'Lista de participantes del evento' })
+  @ApiProperty({ description: 'Lista de usuarios del comité organizador del evento' })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
   participants: User[];
 

@@ -333,8 +333,8 @@ export default function EventForm({ event }: EventFormProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Participación</CardTitle>
-          <CardDescription>Invita a participar en el evento.</CardDescription>
+          <CardTitle>Comité organizador</CardTitle>
+          <CardDescription>Selecciona a los organizadores del evento.</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -347,9 +347,9 @@ export default function EventForm({ event }: EventFormProps) {
               return (
                 <FieldGroup>
                   <FieldContent>
-                    <FieldLabel>Asistentes</FieldLabel>
+                    <FieldLabel>Organizadores</FieldLabel>
                     <FieldDescription>
-                      Quienes participan en el evento.
+                      Usuarios que forman parte del comité organizador.
                     </FieldDescription>
                   </FieldContent>
                   <Popover>

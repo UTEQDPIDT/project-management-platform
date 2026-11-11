@@ -1,6 +1,6 @@
 'use client';
 
-import { IEvent, IUser } from '@repo/types';
+import { IEvent, IUser, ProjectValidation } from '@repo/types';
 import { useUserProfile } from 'context/profile-provider';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -95,6 +95,7 @@ function EventCardComplete({ event }: { event: IEvent }) {
   const isParticipant = event.participants.some(
     (p: IUser) => p._id === currentUserId,
   );
+  const isClosed = event.validationStatus === ProjectValidation.FINAL_VALIDATION;
 
   const renderActionButton = () => {
     if (isOwner || isParticipant) {
@@ -112,10 +113,10 @@ function EventCardComplete({ event }: { event: IEvent }) {
       return (
         <Button
           size="sm"
-          disabled={event.isPrivate || registerParticipant.isPending}
+          disabled={isClosed || event.isPrivate || registerParticipant.isPending}
           onClick={() => registerParticipant.mutate({ eventId: event._id })}
         >
-          {event.isPrivate ? 'Evento Privado' : 'Entrar'}
+          {isClosed ? 'Evento cerrado' : event.isPrivate ? 'Evento Privado' : 'Unirse como organizador'}
         </Button>
       );
     }
@@ -141,9 +142,16 @@ function EventCardComplete({ event }: { event: IEvent }) {
               </CardDescription>
             </div>
           </div>
-          <Badge variant={visibilityBadge.variant} className="h-6 shrink-0 whitespace-nowrap">
-            {visibilityBadge.label}
-          </Badge>
+          <div className="flex flex-wrap justify-end gap-1">
+            {isClosed && (
+              <Badge variant="purple" className="h-6 whitespace-nowrap">
+                Cerrado
+              </Badge>
+            )}
+            <Badge variant={visibilityBadge.variant} className="h-6 shrink-0 whitespace-nowrap">
+              {visibilityBadge.label}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 h-full text-sm text-muted-foreground min-w-0">
