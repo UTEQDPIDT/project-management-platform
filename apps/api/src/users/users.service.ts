@@ -22,13 +22,15 @@ type ProfileEditableUserFields = Pick<
   | 'familyName'
   | 'type'
   | 'sex'
-  | 'state'
+  | 'hasDisability'
+  | 'speaksIndigenousLanguage'
+  | 'researcherType'
+  | 'educationLevel'
+  | 'sniiLevel'
   | 'dateOfBirth'
-  | 'matricula'
   | 'division'
   | 'educationalProgram'
   | 'careerLevel'
-  | 'employeeNumber'
 >;
 
 type AccessEditableUserFields = Pick<
@@ -52,17 +54,25 @@ export class UsersService {
     if (data.familyName !== undefined) safeData.familyName = data.familyName;
     if (data.type !== undefined) safeData.type = data.type;
     if (data.sex !== undefined) safeData.sex = data.sex;
-    if (data.state !== undefined) safeData.state = data.state;
+    if (data.hasDisability !== undefined) {
+      safeData.hasDisability = data.hasDisability;
+    }
+    if (data.speaksIndigenousLanguage !== undefined) {
+      safeData.speaksIndigenousLanguage = data.speaksIndigenousLanguage;
+    }
+    if (data.researcherType !== undefined) {
+      safeData.researcherType = data.researcherType;
+    }
+    if (data.educationLevel !== undefined) {
+      safeData.educationLevel = data.educationLevel;
+    }
+    if (data.sniiLevel !== undefined) safeData.sniiLevel = data.sniiLevel;
     if (data.dateOfBirth !== undefined) safeData.dateOfBirth = data.dateOfBirth;
-    if (data.matricula !== undefined) safeData.matricula = data.matricula;
     if (data.division !== undefined) safeData.division = data.division;
     if (data.educationalProgram !== undefined) {
       safeData.educationalProgram = data.educationalProgram;
     }
     if (data.careerLevel !== undefined) safeData.careerLevel = data.careerLevel;
-    if (data.employeeNumber !== undefined) {
-      safeData.employeeNumber = data.employeeNumber;
-    }
 
     return safeData;
   }
@@ -85,8 +95,7 @@ export class UsersService {
 
   /**
    * Clears properties based on user type:
-   * - ESTUDIANTE: clears employeeNumber
-   * - MAESTRO/ADMINISTRATIVO: clears matricula and educationalProgram
+   * - MAESTRO/ADMINISTRATIVO: clears educationalProgram
    * Returns an object with $set and $unset operations for MongoDB
    */
   private clearPropertiesByUserType(
@@ -95,18 +104,12 @@ export class UsersService {
     const fieldsToSet: Record<string, unknown> = { ...data };
     const fieldsToUnset: Record<string, ''> = {};
 
-    if (data.type === UserType.ESTUDIANTE) {
-      // Students shouldn't have employee number
-      delete fieldsToSet.employeeNumber;
-      fieldsToUnset.employeeNumber = '';
-    } else if (
+    if (
       data.type === UserType.MAESTRO ||
       data.type === UserType.ADMINISTRATIVO
     ) {
-      // Teachers and administrative staff shouldn't have matricula or educational program
-      delete fieldsToSet.matricula;
+      // Teachers and administrative staff shouldn't have an educational program
       delete fieldsToSet.educationalProgram;
-      fieldsToUnset.matricula = '';
       fieldsToUnset.educationalProgram = '';
     }
 
@@ -262,11 +265,6 @@ export class UsersService {
 
       return { id, message: 'User updated successfully' };
     } catch (err: any) {
-      if (err.code === 11000) {
-        throw new BadRequestException(
-          'User with this matricula or employee number already exists',
-        );
-      }
       throw new BadRequestException(err.message);
     }
   }

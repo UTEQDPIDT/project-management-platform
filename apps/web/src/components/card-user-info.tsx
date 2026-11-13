@@ -54,15 +54,22 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
     email,
     dateOfBirth,
     sex,
-    state,
+    hasDisability,
+    speaksIndigenousLanguage,
+    educationLevel,
+    researcherType,
+    sniiLevel,
     type,
-    matricula,
     educationalProgram,
     careerLevel,
     division,
-    employeeNumber,
     createdAt,
   } = profile;
+
+  const display = (value?: string | null) =>
+    value ? value : <span className="text-muted-foreground">Vacío</span>;
+  const yesNo = (value?: boolean | null) =>
+    value === null || value === undefined ? null : value ? 'Sí' : 'No';
 
   const typeBadge = getUserTypeBadge(type);
   const canToggleRole =
@@ -225,13 +232,35 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
             )}
             <TableRow>
               <TableCell className="text-gray-500 px-4">Sexo</TableCell>
-              <TableCell>{sex}</TableCell>
+              <TableCell>{display(sex)}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell className="text-gray-500 px-4">
-                Estado de residencia
+                ¿Tiene alguna discapacidad?
               </TableCell>
-              <TableCell>{state}</TableCell>
+              <TableCell>{display(yesNo(hasDisability))}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="text-gray-500 px-4">
+                ¿Habla alguna lengua indígena?
+              </TableCell>
+              <TableCell>{display(yesNo(speaksIndigenousLanguage))}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="text-gray-500 px-4">
+                Nivel de estudios
+              </TableCell>
+              <TableCell>{display(educationLevel)}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="text-gray-500 px-4">
+                Tipo de investigador
+              </TableCell>
+              <TableCell>{display(researcherType)}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="text-gray-500 px-4">Nivel SNII</TableCell>
+              <TableCell>{display(sniiLevel)}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -247,24 +276,6 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
           <TableBody>
             {type === UserType.ESTUDIANTE && (
               <>
-                <TableRow>
-                  <TableCell className="text-gray-500 px-4">
-                    Matricula
-                  </TableCell>
-                  <TableCell>
-                    {matricula ? (
-                      <div className="flex items-center gap-1 group">
-                        {matricula}
-                        <CopyButton
-                          valueToCopy={matricula}
-                          className="opacity-0 group-hover:opacity-100"
-                        />
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground">Vacío</span>
-                    )}
-                  </TableCell>
-                </TableRow>
                 <TableRow>
                   <TableCell className="text-gray-500 px-4">
                     Programa educativo
@@ -290,27 +301,6 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                   </TableCell>
                 </TableRow>
               </>
-            )}
-            {(type === UserType.MAESTRO ||
-              type === UserType.ADMINISTRATIVO) && (
-              <TableRow>
-                <TableCell className="text-gray-500 px-4">
-                  Número de empleado
-                </TableCell>
-                <TableCell>
-                  {employeeNumber ? (
-                    <div className="flex items-center gap-1 group">
-                      {employeeNumber}
-                      <CopyButton
-                        valueToCopy={employeeNumber}
-                        className="opacity-0 group-hover:opacity-100"
-                      />
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground">Vacío</span>
-                  )}
-                </TableCell>
-              </TableRow>
             )}
             <TableRow>
               <TableCell className="text-gray-500 px-4">Division</TableCell>

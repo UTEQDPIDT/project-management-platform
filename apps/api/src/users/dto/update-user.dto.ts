@@ -1,15 +1,22 @@
 import {
+  IsBoolean,
   IsDate,
   IsEnum,
   IsMongoId,
-  IsNumberString,
   IsOptional,
   IsString,
   Length,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ObjectId } from 'mongoose';
-import { CareerLevel, Sex, State, UserType } from '@repo/types';
+import {
+  CareerLevel,
+  EducationLevel,
+  ResearcherType,
+  Sex,
+  SniiLevel,
+  UserType,
+} from '@repo/types';
 
 export class UpdateUserDto {
 
@@ -29,21 +36,32 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsEnum(Sex)
-  sex?: Sex;
+  sex?: Sex | null;
 
   @IsOptional()
-  @IsEnum(State)
-  state?: State;
+  @IsBoolean()
+  hasDisability?: boolean | null;
+
+  @IsOptional()
+  @IsBoolean()
+  speaksIndigenousLanguage?: boolean | null;
+
+  @IsOptional()
+  @IsEnum(ResearcherType)
+  researcherType?: ResearcherType | null;
+
+  @IsOptional()
+  @IsEnum(EducationLevel)
+  educationLevel?: EducationLevel | null;
+
+  @IsOptional()
+  @IsEnum(SniiLevel)
+  sniiLevel?: SniiLevel | null;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
   dateOfBirth?: Date;
-
-  @IsOptional()
-  @IsNumberString()
-  @Length(10, 10)
-  matricula?: string;
 
   @IsOptional()
   @IsMongoId()
@@ -56,10 +74,5 @@ export class UpdateUserDto {
   @IsOptional()
   @IsEnum(CareerLevel)
   careerLevel?: CareerLevel;
-
-  @IsOptional()
-  @IsNumberString()
-  @Length(5, 10)
-  employeeNumber?: string;
 
 }
