@@ -1,5 +1,7 @@
 'use client';
 
+import axios from 'axios';
+
 import {
   IActivity,
   IUser,
@@ -162,7 +164,7 @@ export function ActivityForm({ activity, projectId, eventId }: Props) {
         });
       }
     } catch (err) {
-      console.error('Error on submit', err);
+      if (!(axios.isAxiosError(err) && err.response?.status === 409)) console.error('Error on submit', err);
     }
   };
 
