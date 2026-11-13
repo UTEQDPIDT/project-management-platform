@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
@@ -20,6 +21,7 @@ describe('ProductsService', () => {
   const filesServiceMock = {
     findFilesForEntity: jest.fn(),
     deleteFilesForResource: jest.fn(),
+    uploadFile: jest.fn(),
   };
 
   beforeEach(() => {
@@ -32,6 +34,26 @@ describe('ProductsService', () => {
       projectModelMock;
     (service as unknown as { filesService: typeof filesServiceMock }).filesService =
       filesServiceMock;
+  });
+
+  it('keeps the previous product file when a replacement has a duplicate name', async () => {
+    productModelMock.findById.mockReturnValue({
+      select: jest.fn().mockResolvedValue({ projectId: 'p1', owner: 'owner-1' }),
+    });
+    projectModelMock.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        populate: jest.fn().mockResolvedValue({
+          owner: 'owner-1', team: { memberships: [] }, status: 'PENDING',
+        }),
+      }),
+    });
+    filesServiceMock.findFilesForEntity.mockResolvedValue([{ _id: 'old-file' }]);
+    filesServiceMock.uploadFile.mockRejectedValue(new ConflictException('duplicate'));
+
+    await expect(service.update('product-1', {}, 'owner-1', UserRole.USER, {
+      originalname: 'duplicate.pdf',
+    } as Express.Multer.File)).rejects.toBeInstanceOf(ConflictException);
+    expect(filesServiceMock.deleteFilesForResource).not.toHaveBeenCalled();
   });
 
   it('should reject remove when actor is not owner and not admin', async () => {

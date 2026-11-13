@@ -66,6 +66,10 @@ const getFilesForEntity = async (entityId?: string) => {
   return data;
 };
 
+const checkProjectFileNames = async (projectId: string, names: string[]) => {
+  await api.post('/files/check-project-names', { projectId, names });
+};
+
 const downloadFile = async (fileId: string, fileName: string) => {
   try {
     const { data } = await api.get(`/files/download/${fileId}`, {
@@ -118,6 +122,7 @@ export {
   uploadMultipleFiles,
   getAllFiles,
   getFilesForEntity,
+  checkProjectFileNames,
   downloadFile,
   getFileBlobUrl,
   deleteFile,

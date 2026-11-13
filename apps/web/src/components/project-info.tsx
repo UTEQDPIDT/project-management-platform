@@ -86,6 +86,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
   const [financialReportToUpload, setFinancialReportToUpload] = useState<
       File[]
     >([]);
+  const [financialDialogOpen, setFinancialDialogOpen] = useState(false);
 
     // Validation for financial report upload
     const onFinancialFileValidate = useCallback(
@@ -122,9 +123,10 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
         entityId: project._id,
         entityType: EntityType.PROJECT,
         purpose: FilePurpose.PROJECT_FINANCIAL_REPORT,
-      });
-  
-      setFinancialReportToUpload([]);
+      }, { onSuccess: () => {
+        setFinancialReportToUpload([]);
+        setFinancialDialogOpen(false);
+      } });
     };
 
     
@@ -356,7 +358,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
                   className="max-w-52"
                 />
               ) : canManageFinancialReport ? (
-                <Dialog>
+                <Dialog open={financialDialogOpen} onOpenChange={setFinancialDialogOpen}>
                   <DialogTrigger className="border h-7 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
                     <Upload />
                     Subir Informe
@@ -413,11 +415,9 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
                       <DialogClose asChild>
                         <Button variant="outline">Cerrar</Button>
                       </DialogClose>
-                      <DialogClose asChild>
-                        <Button onClick={handleFinancialReportUpload}>
+                        <Button disabled={uploadFiles.isPending || !financialReportToUpload.length} onClick={handleFinancialReportUpload}>
                           Subir Informe
                         </Button>
-                      </DialogClose>
                     </div>
                   </DialogContent>
                 </Dialog>

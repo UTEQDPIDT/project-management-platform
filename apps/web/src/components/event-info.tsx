@@ -68,6 +68,8 @@ export function EventInfo({ event, isClosed = event.validationStatus === Project
   const [financialReportToUpload, setFinancialReportToUpload] = useState<
     File[]
   >([]);
+  const [technicalDialogOpen, setTechnicalDialogOpen] = useState(false);
+  const [financialDialogOpen, setFinancialDialogOpen] = useState(false);
 
   // Validation for technical report upload
   const onTechnicalFileValidate = useCallback(
@@ -117,9 +119,10 @@ export function EventInfo({ event, isClosed = event.validationStatus === Project
       entityId: event._id,
       entityType: EntityType.EVENT,
       purpose: FilePurpose.EVENT_TECHNICAL_REPORT,
-    });
-
-    setTechnicalReportToUpload([]);
+    }, { onSuccess: () => {
+      setTechnicalReportToUpload([]);
+      setTechnicalDialogOpen(false);
+    } });
   };
 
   const handleFinancialReportUpload = () => {
@@ -128,9 +131,10 @@ export function EventInfo({ event, isClosed = event.validationStatus === Project
       entityId: event._id,
       entityType: EntityType.EVENT,
       purpose: FilePurpose.EVENT_FINANCIAL_REPORT,
-    });
-
-    setFinancialReportToUpload([]);
+    }, { onSuccess: () => {
+      setFinancialReportToUpload([]);
+      setFinancialDialogOpen(false);
+    } });
   };
 
   return (
@@ -289,7 +293,7 @@ export function EventInfo({ event, isClosed = event.validationStatus === Project
                   className="max-w-52"
                 />
               ) : (
-                isClosed ? null : <Dialog>
+                isClosed ? null : <Dialog open={technicalDialogOpen} onOpenChange={setTechnicalDialogOpen}>
                   <DialogTrigger className="border h-7 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
                     <Upload />
                     Subir Informe
@@ -350,11 +354,9 @@ export function EventInfo({ event, isClosed = event.validationStatus === Project
                       <DialogClose asChild>
                         <Button variant="outline">Cerrar</Button>
                       </DialogClose>
-                      <DialogClose asChild>
-                        <Button onClick={handleTechnicalReportUpload}>
+                        <Button disabled={uploadFiles.isPending || !technicalReportToUpload.length} onClick={handleTechnicalReportUpload}>
                           Subir Informe
                         </Button>
-                      </DialogClose>
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -374,7 +376,7 @@ export function EventInfo({ event, isClosed = event.validationStatus === Project
                   className="max-w-52"
                 />
               ) : (
-                isClosed ? null : <Dialog>
+                isClosed ? null : <Dialog open={financialDialogOpen} onOpenChange={setFinancialDialogOpen}>
                   <DialogTrigger className="border h-7 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
                     <Upload />
                     Subir Informe
@@ -435,11 +437,9 @@ export function EventInfo({ event, isClosed = event.validationStatus === Project
                       <DialogClose asChild>
                         <Button variant="outline">Cerrar</Button>
                       </DialogClose>
-                      <DialogClose asChild>
-                        <Button onClick={handleFinancialReportUpload}>
+                        <Button disabled={uploadFiles.isPending || !financialReportToUpload.length} onClick={handleFinancialReportUpload}>
                           Subir Informe
                         </Button>
-                      </DialogClose>
                     </div>
                   </DialogContent>
                 </Dialog>

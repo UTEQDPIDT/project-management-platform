@@ -57,6 +57,8 @@ export default function EventInfoCard({ event }: EventInfoCardProps) {
   const [financialReportToUpload, setFinancialReportToUpload] = useState<
     File[]
   >([]);
+  const [technicalDialogOpen, setTechnicalDialogOpen] = useState(false);
+  const [financialDialogOpen, setFinancialDialogOpen] = useState(false);
 
   // Validation for technical report upload
   const onTechnicalFileValidate = useCallback(
@@ -106,9 +108,10 @@ export default function EventInfoCard({ event }: EventInfoCardProps) {
       entityId: event._id,
       entityType: EntityType.EVENT,
       purpose: FilePurpose.EVENT_TECHNICAL_REPORT,
-    });
-
-    setTechnicalReportToUpload([]);
+    }, { onSuccess: () => {
+      setTechnicalReportToUpload([]);
+      setTechnicalDialogOpen(false);
+    } });
   };
 
   const handleFinancialReportUpload = () => {
@@ -117,9 +120,10 @@ export default function EventInfoCard({ event }: EventInfoCardProps) {
       entityId: event._id,
       entityType: EntityType.EVENT,
       purpose: FilePurpose.EVENT_FINANCIAL_REPORT,
-    });
-
-    setFinancialReportToUpload([]);
+    }, { onSuccess: () => {
+      setFinancialReportToUpload([]);
+      setFinancialDialogOpen(false);
+    } });
   };
 
   return (
@@ -198,7 +202,7 @@ export default function EventInfoCard({ event }: EventInfoCardProps) {
                     className="max-w-52"
                   />
                 ) : (
-                  <Dialog>
+                  <Dialog open={technicalDialogOpen} onOpenChange={setTechnicalDialogOpen}>
                     <DialogTrigger className="border h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
                       <Upload />
                       Subir Informe
@@ -255,11 +259,9 @@ export default function EventInfoCard({ event }: EventInfoCardProps) {
                         <DialogClose asChild>
                           <Button variant="outline">Cerrar</Button>
                         </DialogClose>
-                        <DialogClose asChild>
-                          <Button onClick={handleTechnicalReportUpload}>
+                          <Button disabled={uploadFiles.isPending || !technicalReportToUpload.length} onClick={handleTechnicalReportUpload}>
                             Subir Informe
                           </Button>
-                        </DialogClose>
                       </div>
                     </DialogContent>
                   </Dialog>
@@ -277,7 +279,7 @@ export default function EventInfoCard({ event }: EventInfoCardProps) {
                     className="max-w-52"
                   />
                 ) : (
-                  <Dialog>
+                  <Dialog open={financialDialogOpen} onOpenChange={setFinancialDialogOpen}>
                     <DialogTrigger className="border h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
                       <Upload />
                       Subir Informe
@@ -334,11 +336,9 @@ export default function EventInfoCard({ event }: EventInfoCardProps) {
                         <DialogClose asChild>
                           <Button variant="outline">Cerrar</Button>
                         </DialogClose>
-                        <DialogClose asChild>
-                          <Button onClick={handleFinancialReportUpload}>
+                          <Button disabled={uploadFiles.isPending || !financialReportToUpload.length} onClick={handleFinancialReportUpload}>
                             Subir Informe
                           </Button>
-                        </DialogClose>
                       </div>
                     </DialogContent>
                   </Dialog>

@@ -27,6 +27,7 @@ import { Response } from 'express';
 import { File } from '../schemas/file.schema';
 import { FilesService } from './files.service';
 import { UploadFileDto } from './dto/upload-file.dto';
+import { CheckProjectFileNamesDto } from './dto/check-project-file-names.dto';
 import { FileValidationPipe } from '../common/pipes';
 import { FILE_MIME_TYPES } from '../common/constants';
 import { Throttle } from '@nestjs/throttler';
@@ -52,6 +53,19 @@ function sanitizeDownloadFilename(filename: string): string {
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
+
+  @Post('check-project-names')
+  checkProjectNames(
+    @Body() body: CheckProjectFileNamesDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.filesService.checkProjectFileNames(
+      body.projectId,
+      body.names,
+      req.user.id,
+      req.user.role,
+    );
+  }
 
   @Throttle({ default: { limit: 5, ttl: 60 } })
   @ApiConsumes('multipart/form-data')
