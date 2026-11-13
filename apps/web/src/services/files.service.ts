@@ -12,20 +12,17 @@ const uploadFile = async ({
   entityType,
   purpose = FilePurpose.GENERIC,
 }: UploadFilePayload) => {
-  try {
-    const formData = new FormData();
 
-    formData.append('file', file);
-    formData.append('entityId', entityId);
-    formData.append('entityType', String(entityType));
-    formData.append('purpose', String(purpose));
+  const formData = new FormData();
 
-    const { data } = await api.post('/files/upload', formData);
+  formData.append('file', file);
+  formData.append('entityId', entityId);
+  formData.append('entityType', String(entityType));
+  formData.append('purpose', String(purpose));
 
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const { data } = await api.post('/files/upload', formData);
+
+  return data;
 };
 
 const uploadMultipleFiles = async ({
