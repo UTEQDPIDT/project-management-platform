@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -414,20 +415,108 @@ export class FilesService {
     });
   }
 
-  async uploadFile(
-    file: Express.Multer.File,
+  async checkProjectFileNames(
+    projectId: string,
+    names: string[],
+    actorId: string,
+    actorRole: UserRole,
+  ) {
+    await this.ensureProjectAllowsFileWrites(projectId, EntityType.PROJECT);
+    if (!(await this.hasParentProjectAccess(projectId, EntityType.PROJECT, actorId, actorRole))) {
+      throw new AccessDeniedException({
+        reason: AccessDeniedReason.FILE_PROJECT_ACCESS_FORBIDDEN,
+        message: 'You are not allowed to manage files for this project.',
+        resourceType: 'file',
+        resourceId: projectId,
+        actorId,
+        actorRole,
+      });
+    }
+    await this.ensureUniqueFileNames(names, projectId, EntityType.PROJECT);
+  }
+
+  async ensureUniqueFileNames(
+    names: string[],
     entityId: string,
     entityType: EntityType,
-    purpose: FilePurpose,
+  ) {
+    const seen = new Set<string>();
+    for (const name of names) {
+      if (seen.has(name)) {
+        throw new ConflictException(`Ya existe un archivo con el nombre "${name}" en este proyecto o evento.`);
+      }
+      seen.add(name);
+    }
+
+    const type = this.normalizeEntityType(entityType);
+    let projectId: string | null = null;
+    let eventIds: string[] = [];
+
+    if (type === EntityType.PROJECT) {
+      projectId = entityId;
+    } else if (type === EntityType.EVENT) {
+      eventIds = [entityId];
+    } else if (type === EntityType.ACTIVITY) {
+      const activity = await this.activityModel.findById(entityId).select('entityId entityType');
+      if (!activity) {
+        throw new NotFoundException(`Activity with ID: ${entityId} not found`);
+      }
+      const parentId = this.toId(activity.entityId);
+      if (!parentId) {
+        throw new BadRequestException(`Activity with ID: ${entityId} has invalid parent reference`);
+      }
+      if (this.normalizeEntityType(activity.entityType) === EntityType.PROJECT) {
+        projectId = parentId;
+      } else if (this.normalizeEntityType(activity.entityType) === EntityType.EVENT) {
+        eventIds = [parentId];
+      }
+    } else if (type === EntityType.PRODUCT) {
+      projectId = await this.resolveParentProjectId(entityId, type);
+      const events = await this.eventModel.find({ products: entityId }).select('_id');
+      eventIds = events.map((event) => event._id.toString());
+    }
+
+    if (!projectId && eventIds.length === 0) {
+      return;
+    }
+
+    const scopes = [
+      ...(projectId ? [{ entityType: EntityType.PROJECT, entityId: projectId }] : []),
+      ...eventIds.map((id) => ({ entityType: EntityType.EVENT, entityId: id })),
+    ];
+    const activities = await this.activityModel.find({ $or: scopes }).select('_id');
+    const products = projectId
+      ? await this.productModel.find({ projectId }).select('_id')
+      : [];
+    const events = eventIds.length
+      ? await this.eventModel.find({ _id: { $in: eventIds } }).select('products')
+      : [];
+    const productIds = [
+      ...products.map((product) => product._id),
+      ...events.flatMap((event) => event.products ?? []),
+    ];
+
+    const existing = await this.fileModel.findOne({
+      originalName: { $in: names },
+      $or: [
+        ...scopes,
+        { entityType: EntityType.ACTIVITY, entityId: { $in: activities.map((activity) => activity._id) } },
+        { entityType: EntityType.PRODUCT, entityId: { $in: productIds } },
+      ],
+    }).select('originalName');
+
+    if (existing) {
+      throw new ConflictException(`Ya existe un archivo con el nombre "${existing.originalName}" en este proyecto o evento.`);
+    }
+  }
+
+  private async ensureCanUpload(
+    entityId: string,
+    entityType: EntityType,
     userId: string,
     actorRole?: UserRole,
   ) {
-    if (!file) {
-      throw new BadRequestException('No file provided');
-    }
-
     await this.ensureProjectAllowsFileWrites(entityId, entityType);
-
     if (
       actorRole &&
       (await this.resolveParentProjectId(entityId, entityType)) &&
@@ -442,7 +531,23 @@ export class FilesService {
         actorRole,
       });
     }
+  }
 
+  async uploadFile(
+    file: Express.Multer.File,
+    entityId: string,
+    entityType: EntityType,
+    purpose: FilePurpose,
+    userId: string,
+    actorRole?: UserRole,
+  ) {
+    if (!file) {
+      throw new BadRequestException('No file provided');
+    }
+
+    await this.ensureCanUpload(entityId, entityType, userId, actorRole);
+
+    await this.ensureUniqueFileNames([file.originalname], entityId, entityType);
     await this.validateUploadRules(file, entityId, entityType, purpose);
 
     // 1. Upload to gridFs
@@ -520,6 +625,9 @@ export class FilesService {
       throw new BadRequestException('No files provided');
     }
 
+    await this.ensureCanUpload(entityId, entityType, userId, actorRole);
+    await this.ensureUniqueFileNames(files.map((file) => file.originalname), entityId, entityType);
+
     const uploadedFiles: File[] = [];
 
     try {
@@ -544,7 +652,7 @@ export class FilesService {
       };
     } catch (error: any) {
       await this.deleteFilesForResource(uploadedFiles);
-      throw new BadRequestException(error.message);
+      throw error;
     }
   }
 

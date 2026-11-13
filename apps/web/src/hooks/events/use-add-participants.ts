@@ -11,8 +11,8 @@ export function useAddParticipants() {
     onSuccess: (_, { eventId }) => {
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
-      toast.success('Se han agregado participantes');
+      toast.success('Se han agregado organizadores');
     },
-    onError: () => toast.error('No se han agregado los participantes'),
+    onError: () => toast.error('No se han agregado los organizadores'),
   });
 }

@@ -9,8 +9,8 @@ export function useRemoveParticipant() {
     mutationFn: removeParticipant,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['event'] });
-      toast.success('Se ha expulsado al participante');
+      toast.success('Se ha expulsado al organizador');
     },
-    onError: () => toast.error('No se ha expulsado al participante'),
+    onError: () => toast.error('No se ha expulsado al organizador'),
   });
 }

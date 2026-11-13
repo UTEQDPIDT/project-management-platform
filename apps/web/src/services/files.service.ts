@@ -12,21 +12,17 @@ const uploadFile = async ({
   entityType,
   purpose = FilePurpose.GENERIC,
 }: UploadFilePayload) => {
-  try {
-    const formData = new FormData();
 
-    formData.append('file', file);
-    formData.append('entityId', entityId);
-    formData.append('entityType', String(entityType));
-    formData.append('purpose', String(purpose));
+  const formData = new FormData();
 
-    const { data } = await api.post('/files/upload', formData);
+  formData.append('file', file);
+  formData.append('entityId', entityId);
+  formData.append('entityType', String(entityType));
+  formData.append('purpose', String(purpose));
 
-    return data;
-  } catch (error) {
-    console.error('Error uploading file');
-    throw error;
-  }
+  const { data } = await api.post('/files/upload', formData);
+
+  return data;
 };
 
 const uploadMultipleFiles = async ({
@@ -64,6 +60,10 @@ const getAllFiles = async () => {
 const getFilesForEntity = async (entityId?: string) => {
   const { data } = await api.get(`/files/for-entity/${entityId}`);
   return data;
+};
+
+const checkProjectFileNames = async (projectId: string, names: string[]) => {
+  await api.post('/files/check-project-names', { projectId, names });
 };
 
 const downloadFile = async (fileId: string, fileName: string) => {
@@ -118,6 +118,7 @@ export {
   uploadMultipleFiles,
   getAllFiles,
   getFilesForEntity,
+  checkProjectFileNames,
   downloadFile,
   getFileBlobUrl,
   deleteFile,

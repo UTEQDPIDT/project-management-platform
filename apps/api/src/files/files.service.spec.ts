@@ -1,5 +1,5 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { EntityType, UserRole } from '@repo/types';
+import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { EntityType, FilePurpose, UserRole } from '@repo/types';
 import mongoose from 'mongoose';
 import { FilesService } from './files.service';
 
@@ -10,6 +10,8 @@ describe('FilesService', () => {
     findById: jest.fn(),
     findByIdAndDelete: jest.fn(),
     find: jest.fn(),
+    findOne: jest.fn(),
+    create: jest.fn(),
   };
 
   const projectModelMock = {
@@ -18,14 +20,17 @@ describe('FilesService', () => {
 
   const eventModelMock = {
     findById: jest.fn().mockResolvedValue({ validationStatus: undefined }),
+    find: jest.fn(),
   };
 
   const activityModelMock = {
     findById: jest.fn(),
+    find: jest.fn(),
   };
 
   const productModelMock = {
     findById: jest.fn(),
+    find: jest.fn(),
   };
 
   const bucketMock = {
@@ -43,6 +48,119 @@ describe('FilesService', () => {
     (service as unknown as { activityModel: typeof activityModelMock }).activityModel = activityModelMock;
     (service as unknown as { productModel: typeof productModelMock }).productModel = productModelMock;
     (service as unknown as { bucket: typeof bucketMock }).bucket = bucketMock;
+  });
+
+  describe('duplicate filenames', () => {
+    beforeEach(() => {
+      activityModelMock.find.mockReturnValue({ select: jest.fn().mockResolvedValue([{ _id: 'activity-1' }]) });
+      productModelMock.find.mockReturnValue({ select: jest.fn().mockResolvedValue([{ _id: 'product-1' }]) });
+      eventModelMock.find.mockReturnValue({ select: jest.fn().mockResolvedValue([]) });
+      fileModelMock.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue(null) });
+    });
+
+    it('checks project files, activity evidence and product files regardless of purpose', async () => {
+      fileModelMock.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ originalName: 'report.pdf' }) });
+
+      await expect(service.ensureUniqueFileNames(['report.pdf'], 'project-1', EntityType.PROJECT))
+        .rejects.toThrow('Ya existe un archivo con el nombre "report.pdf"');
+      expect(fileModelMock.findOne).toHaveBeenCalledWith({
+        originalName: { $in: ['report.pdf'] },
+        $or: [
+          { entityType: EntityType.PROJECT, entityId: 'project-1' },
+          { entityType: EntityType.ACTIVITY, entityId: { $in: ['activity-1'] } },
+          { entityType: EntityType.PRODUCT, entityId: { $in: ['product-1'] } },
+        ],
+      });
+    });
+
+    it('includes linked products and event activity evidence for event uploads', async () => {
+      eventModelMock.find.mockReturnValue({ select: jest.fn().mockResolvedValue([{ products: ['linked-product'] }]) });
+      await service.ensureUniqueFileNames(['evidence.pdf'], 'event-1', EntityType.EVENT);
+      expect(activityModelMock.find).toHaveBeenCalledWith({
+        $or: [{ entityType: EntityType.EVENT, entityId: 'event-1' }],
+      });
+      expect(fileModelMock.findOne).toHaveBeenCalledWith({
+        originalName: { $in: ['evidence.pdf'] },
+        $or: [
+          { entityType: EntityType.EVENT, entityId: 'event-1' },
+          { entityType: EntityType.ACTIVITY, entityId: { $in: ['activity-1'] } },
+          { entityType: EntityType.PRODUCT, entityId: { $in: ['linked-product'] } },
+        ],
+      });
+    });
+
+    it('checks the parent event when uploading activity evidence', async () => {
+      activityModelMock.findById.mockReturnValue({
+        select: jest.fn().mockResolvedValue({ entityId: 'event-1', entityType: EntityType.EVENT }),
+      });
+      eventModelMock.find.mockReturnValue({ select: jest.fn().mockResolvedValue([{ products: [] }]) });
+      await service.ensureUniqueFileNames(['evidence.pdf'], 'activity-1', EntityType.ACTIVITY);
+      expect(activityModelMock.find).toHaveBeenCalledWith({
+        $or: [{ entityType: EntityType.EVENT, entityId: 'event-1' }],
+      });
+    });
+
+    it('checks a product against its project and events it belongs to', async () => {
+      productModelMock.findById.mockReturnValue({
+        select: jest.fn().mockResolvedValue({ projectId: 'project-1' }),
+      });
+      eventModelMock.find
+        .mockReturnValueOnce({ select: jest.fn().mockResolvedValue([{ _id: 'event-1' }]) })
+        .mockReturnValueOnce({ select: jest.fn().mockResolvedValue([{ products: ['other-product'] }]) });
+      await service.ensureUniqueFileNames(['product.pdf'], 'product-1', EntityType.PRODUCT);
+      expect(fileModelMock.findOne).toHaveBeenCalledWith({
+        originalName: { $in: ['product.pdf'] },
+        $or: [
+          { entityType: EntityType.PROJECT, entityId: 'project-1' },
+          { entityType: EntityType.EVENT, entityId: 'event-1' },
+          { entityType: EntityType.ACTIVITY, entityId: { $in: ['activity-1'] } },
+          { entityType: EntityType.PRODUCT, entityId: { $in: ['product-1', 'other-product'] } },
+        ],
+      });
+    });
+
+    it('allows the same name when it exists only in another project', async () => {
+      fileModelMock.findOne.mockImplementation((query) => ({
+        select: jest.fn().mockResolvedValue(
+          query.$or.some((scope: { entityId: unknown }) => scope.entityId === 'other-project')
+            ? { originalName: 'report.pdf' }
+            : null,
+        ),
+      }));
+      await expect(service.ensureUniqueFileNames(['report.pdf'], 'project-1', EntityType.PROJECT))
+        .resolves.toBeUndefined();
+    });
+
+    it('rejects duplicate names in a batch before writing any file', async () => {
+      const file = { originalname: 'same.pdf' } as Express.Multer.File;
+      const upload = jest.spyOn(service, 'uploadToGridFS');
+      await expect(service.uploadFiles([file, file], 'event-1', EntityType.EVENT, FilePurpose.GENERIC, 'user'))
+        .rejects.toBeInstanceOf(ConflictException);
+      expect(upload).not.toHaveBeenCalled();
+      expect(fileModelMock.create).not.toHaveBeenCalled();
+    });
+
+    it('rejects an existing filename before writing to GridFS', async () => {
+      fileModelMock.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ originalName: 'same.pdf' }) });
+      const upload = jest.spyOn(service, 'uploadToGridFS');
+      await expect(service.uploadFile(
+        { originalname: 'same.pdf' } as Express.Multer.File,
+        'event-1', EntityType.EVENT, FilePurpose.GENERIC, 'user',
+      )).rejects.toBeInstanceOf(ConflictException);
+      expect(upload).not.toHaveBeenCalled();
+    });
+
+    it('checks the entire batch for existing names before writing any file', async () => {
+      fileModelMock.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ originalName: 'existing.pdf' }) });
+      const upload = jest.spyOn(service, 'uploadToGridFS');
+      const files = ['new.pdf', 'existing.pdf'].map((originalname) => ({ originalname }) as Express.Multer.File);
+      await expect(service.uploadFiles(files, 'event-1', EntityType.EVENT, FilePurpose.GENERIC, 'user'))
+        .rejects.toBeInstanceOf(ConflictException);
+      expect(fileModelMock.findOne).toHaveBeenCalledWith(expect.objectContaining({
+        originalName: { $in: ['new.pdf', 'existing.pdf'] },
+      }));
+      expect(upload).not.toHaveBeenCalled();
+    });
   });
 
   it('should delete file when actor owns the file', async () => {

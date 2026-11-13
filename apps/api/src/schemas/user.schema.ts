@@ -1,6 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { UserType, UserRole, CareerLevel, Sex, State } from '@repo/types';
+import {
+  UserType,
+  UserRole,
+  CareerLevel,
+  Sex,
+  ResearcherType,
+  EducationLevel,
+  SniiLevel,
+} from '@repo/types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Division } from './division.schema.seed';
 import { EducationalProgram } from './educational-program.schema.seed';
@@ -73,39 +81,55 @@ export class User extends Document {
 
   @ApiPropertyOptional({
     description: 'El genero del usuario.',
-    default: Sex.HOMBRE,
     enum: Sex,
+    nullable: true,
   })
-  @Prop({ type: String, enum: Object.values(Sex), default: Sex.HOMBRE })
-  sex: Sex;
+  @Prop({ type: String, enum: Object.values(Sex), default: null })
+  sex?: Sex | null;
 
   @ApiPropertyOptional({
-    description: 'El estado de origen del usuario.',
-    default: State.QRO,
-    enum: State,
+    description: '¿Tiene alguna discapacidad?',
+    nullable: true,
   })
-  @Prop({ type: String, enum: Object.values(State), default: State.QRO })
-  state: State;
+  @Prop({ type: Boolean, default: null })
+  hasDisability?: boolean | null;
+
+  @ApiPropertyOptional({
+    description: '¿Habla alguna lengua indígena?',
+    nullable: true,
+  })
+  @Prop({ type: Boolean, default: null })
+  speaksIndigenousLanguage?: boolean | null;
+
+  @ApiPropertyOptional({
+    description: 'Tipo de investigador.',
+    enum: ResearcherType,
+    nullable: true,
+  })
+  @Prop({ type: String, enum: Object.values(ResearcherType), default: null })
+  researcherType?: ResearcherType | null;
+
+  @ApiPropertyOptional({
+    description: 'Nivel de estudios.',
+    enum: EducationLevel,
+    nullable: true,
+  })
+  @Prop({ type: String, enum: Object.values(EducationLevel), default: null })
+  educationLevel?: EducationLevel | null;
+
+  @ApiPropertyOptional({
+    description: 'Nivel en el SNII.',
+    enum: SniiLevel,
+    nullable: true,
+  })
+  @Prop({ type: String, enum: Object.values(SniiLevel), default: null })
+  sniiLevel?: SniiLevel | null;
 
   @ApiProperty({
     description: 'Fecha de nacimiento.',
   })
   @Prop({ type: Date })
   dateOfBirth: Date;
-
-  @ApiPropertyOptional({
-    description: 'La matrícula del usuario (si es estudiante).',
-    maxLength: 10,
-    minLength: 10,
-  })
-  @Prop({
-    unique: true,
-    required: false,
-    sparse: true, // permite múltiples null
-    maxLength: 10,
-    minLength: 10,
-  })
-  matricula: string;
 
   @ApiPropertyOptional({
     description:
@@ -138,15 +162,6 @@ export class User extends Document {
     default: CareerLevel.LICENCIATURA,
   })
   careerLevel: CareerLevel;
-
-  @ApiPropertyOptional({
-    description:
-      'El número de empleado del usuario (si es docente o administartivo.)',
-    maxLength: 10,
-    minLength: 5,
-  })
-  @Prop({ unique: true, sparse: true, required: false })
-  employeeNumber: string;
 
   @ApiPropertyOptional({
     description: 'El token de refresco hasheado del usuario.',

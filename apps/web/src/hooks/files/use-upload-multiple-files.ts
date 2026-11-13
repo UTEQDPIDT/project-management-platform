@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { uploadMultipleFiles } from '@/services/files.service';
 import { toast } from 'sonner';
 import { EntityType, FilePurpose, UploadMultipleFilesResponse } from '@repo/types';
+import axios from 'axios';
 
 // Definimos la estructura exacta que el componente le envía a la mutación
 interface UploadMutationVariables {
@@ -36,8 +37,11 @@ export const useUploadMultipleFiles = () => {
         queryKey: ['products'],
       });
     },
-    onError: () => {
-      toast.error('No se subieron los archivos');
+    onError: (error) => {
+      const message = axios.isAxiosError<{ message?: string }>(error) && error.response?.status === 409
+        ? error.response.data?.message
+        : undefined;
+      toast.error('No se subieron los archivos', { description: message });
     },
   });
 };

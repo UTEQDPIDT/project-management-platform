@@ -88,6 +88,8 @@ import { TRLForm } from './trl-assesment-form';
 import { useUserProfile } from 'context/profile-provider';
 import { toast } from 'sonner';
 import FileButton from '../file-button';
+import { checkProjectFileNames } from '@/services/files.service';
+import axios from 'axios';
 
 type UpdateProjectFormProps = {
   project: IProject;
@@ -207,6 +209,18 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
    */
   const onSubmit = async (data: z.infer<typeof updateProjectSchema>) => {
     try {
+      if (data.isFunded && !financialReport && financialReportToUpload.length) {
+        try {
+          await checkProjectFileNames(project._id, financialReportToUpload.map((file) => file.name));
+        } catch (error) {
+          const message = axios.isAxiosError<{ message?: string }>(error) && error.response?.status === 409
+            ? error.response.data?.message
+            : undefined;
+          toast.error('No se pudo validar el archivo', { description: message });
+          return;
+        }
+      }
+
       const cleanedData = {
         ...data,
         organization: data.organization === '' ? undefined : data.organization,
@@ -1123,8 +1137,8 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
           <Button variant={'outline'} type="button" asChild>
             <Link href={`${baseUrl}/proyectos/${project._id}`}>Cancelar</Link>
           </Button>
-          <Button type="submit" disabled={updateProject.isPending}>
-            {updateProject.isPending ? (
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? (
               <LoadingMessage message="Actualizando" />
             ) : (
               'Actualizar'

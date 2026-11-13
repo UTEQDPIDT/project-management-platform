@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -8,6 +9,7 @@ import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Team } from '../schemas/team.schema';
+import { User } from '../schemas/user.schema';
 import { Model } from 'mongoose';
 import { UserRole } from '@repo/types';
 import { AccessDeniedException } from '../common/security/access-denied.exception';
@@ -15,7 +17,66 @@ import { AccessDeniedReason } from '../common/security/access-denied-reason.enum
 
 @Injectable()
 export class TeamsService {
-  constructor(@InjectModel(Team.name) private teamModel: Model<Team>) {}
+  constructor(
+    @InjectModel(Team.name) private teamModel: Model<Team>,
+    @InjectModel(User.name) private userModel: Model<User>,
+  ) {}
+
+  private readonly minimumMembersMessage =
+    'El equipo debe tener al menos 3 integrantes activos, incluido el líder.';
+
+  private memberRemovalGuard(userId: string) {
+    const activeMembers = {
+      $filter: {
+        input: { $ifNull: ['$memberships', []] },
+        as: 'membership',
+        cond: {
+          $and: [
+            { $in: ['$$membership.role', ['OWNER', 'MEMBER']] },
+            {
+              $eq: [
+                { $toUpper: { $trim: { input: { $ifNull: ['$$membership.status', 'ACTIVE'] } } } },
+                'ACTIVE',
+              ],
+            },
+          ],
+        },
+      },
+    };
+    const countDistinct = (input: unknown) => ({
+      $size: {
+        $setUnion: [
+          { $map: { input, as: 'membership', in: '$$membership.user' } },
+          [],
+        ],
+      },
+    });
+    const remaining = {
+      $filter: {
+        input: '$$activeMembers',
+        as: 'membership',
+        cond: {
+          $not: [{
+            $and: [
+              { $eq: ['$$membership.role', 'MEMBER'] },
+              { $eq: [{ $toString: '$$membership.user' }, userId.toLowerCase()] },
+            ],
+          }],
+        },
+      },
+    };
+    return {
+      $let: {
+        vars: { activeMembers },
+        in: {
+          $or: [
+            { $eq: [countDistinct('$$activeMembers'), countDistinct(remaining)] },
+            { $gte: [countDistinct(remaining), 3] },
+          ],
+        },
+      },
+    };
+  }
 
   private toId(value: unknown): string | null {
     if (value === null || value === undefined) {
@@ -97,10 +158,13 @@ export class TeamsService {
         existingMembership.status !== 'ACTIVE' ||
         existingMembership.role !== role
       ) {
-        await this.teamModel.updateOne(
+        const result = await this.teamModel.updateOne(
           {
             _id: teamId,
-            'memberships.user': userId,
+            memberships: { $elemMatch: { user: userId, role: { $ne: 'OWNER' } } },
+            ...(role === 'COLLABORATOR'
+              ? { $expr: this.memberRemovalGuard(userId) }
+              : {}),
           },
           {
             $set: {
@@ -109,6 +173,13 @@ export class TeamsService {
             },
           },
         );
+        if (result.matchedCount === 0) {
+          throw new BadRequestException(
+            existingMembership.role === 'OWNER'
+              ? 'No se puede cambiar el rol del líder del equipo.'
+              : this.minimumMembersMessage,
+          );
+        }
       }
     }
 
@@ -236,6 +307,23 @@ export class TeamsService {
   }
 
   async create(createTeamDto: CreateTeamDto, userId: string) {
+    const members = createTeamDto.members ?? [];
+    const collaborators = createTeamDto.collaborators ?? [];
+    const normalizedIds = [userId, ...members, ...collaborators].map((id) =>
+      id.toLowerCase(),
+    );
+    if (new Set(normalizedIds).size !== normalizedIds.length) {
+      throw new BadRequestException('Cada integrante debe ser una persona distinta.');
+    }
+    if (members.length < 2) {
+      throw new BadRequestException(this.minimumMembersMessage);
+    }
+    const memberCount = await this.userModel.countDocuments({
+      _id: { $in: members },
+    });
+    if (memberCount !== members.length) {
+      throw new BadRequestException('Uno o más miembros no existen.');
+    }
     try {
       // Build memberships array
       const memberships = [
@@ -366,7 +454,11 @@ export class TeamsService {
     userRole: string,
   ) {
     try {
-      const existingTeam = await this.teamModel.findById(id).select('memberships');
+      const existingTeam = await this.teamModel
+        .findById(id)
+        .select('memberships')
+        .lean()
+        .exec();
 
       if (!existingTeam) {
         throw new NotFoundException(`Team with ID: ${id} not found`);
@@ -374,9 +466,9 @@ export class TeamsService {
 
       const isOwner = existingTeam.memberships.some(
         (membership) =>
-          membership.user.toString() === userId &&
+          this.toId(membership.user) === userId &&
           membership.role === 'OWNER' &&
-          membership.status === 'ACTIVE',
+          this.isActiveMembershipStatus(membership.status),
       );
 
       const isAdmin = userRole === UserRole.ADMIN;
@@ -385,19 +477,75 @@ export class TeamsService {
         throw new ForbiddenException('Only team owners or admin users can edit this team.');
       }
 
-      const updatedTeam = await this.teamModel
-        .findByIdAndUpdate(id, updateTeamDto, { new: true })
-        .exec();
-
-      if (!updatedTeam) {
-        throw new NotFoundException(`Team with ID: ${id} not found`);
+      const { members = [], collaborators = [], ...teamData } = updateTeamDto;
+      const memberIds = [...new Set(members.map((memberId) => memberId.toLowerCase()))];
+      const collaboratorIds = [...new Set(collaborators.map((memberId) => memberId.toLowerCase()))];
+      const memberships: Array<Record<string, unknown>> = existingTeam.memberships.map(
+        (membership) => ({ ...membership }),
+      );
+      const missingMemberIds = memberIds.filter(
+        (memberId) => !memberships.some((membership) => this.toId(membership.user) === memberId),
+      );
+      if (missingMemberIds.length > 0) {
+        const foundMembers = await this.userModel.countDocuments({
+          _id: { $in: missingMemberIds },
+        });
+        if (foundMembers !== missingMemberIds.length) {
+          throw new BadRequestException('Uno o más miembros no existen.');
+        }
       }
 
-      await this.addMembers(id, updateTeamDto.members || []);
-      await this.addCollaborators(id, updateTeamDto.collaborators || []);
+      for (const [ids, role] of [
+        [memberIds, 'MEMBER'],
+        [collaboratorIds, 'COLLABORATOR'],
+      ] as const) {
+        for (const memberId of ids) {
+          const membership = memberships.find((entry) => this.toId(entry.user) === memberId);
+          if (membership) {
+            if (membership.role === 'OWNER') {
+              throw new BadRequestException('No se puede cambiar el rol del líder del equipo.');
+            }
+            membership.role = role;
+            membership.status = 'ACTIVE';
+          } else {
+            memberships.push({ user: memberId, role, status: 'ACTIVE' });
+          }
+        }
+      }
 
+      const activeMembers = new Set(
+        memberships
+          .filter(
+            (membership) =>
+              (membership.role === 'OWNER' || membership.role === 'MEMBER') &&
+              this.isActiveMembershipStatus(membership.status),
+          )
+          .map((membership) => this.toId(membership.user))
+          .filter((memberId): memberId is string => memberId !== null),
+      );
+      if (activeMembers.size < 3) {
+        throw new BadRequestException(this.minimumMembersMessage);
+      }
+
+      const updatedTeam = await this.teamModel.findOneAndUpdate(
+        {
+          _id: id,
+          $expr: { $eq: ['$memberships', { $literal: existingTeam.memberships }] },
+        },
+        { $set: { ...teamData, memberships } },
+        { new: true, runValidators: true },
+      ).exec();
+      if (!updatedTeam) {
+        throw new ConflictException(
+          'El equipo cambió mientras se editaba. Actualiza la página e inténtalo de nuevo.',
+        );
+      }
       return updatedTeam;
     } catch (err: any) {
+      if (err instanceof BadRequestException || err instanceof ForbiddenException ||
+          err instanceof NotFoundException || err instanceof ConflictException) {
+        throw err;
+      }
       if (err.code === 11000) {
         throw new BadRequestException('Team with this name already exists');
       }
@@ -524,7 +672,10 @@ export class TeamsService {
   ) {
     await this.ensureCanManageTeam(teamId, actorId, actorRole);
 
-    await this.teamModel.findByIdAndUpdate(teamId, {
+    const result = await this.teamModel.updateOne({
+      _id: teamId,
+      $expr: this.memberRemovalGuard(userId),
+    }, {
       $pull: {
         memberships: {
           user: userId,
@@ -532,6 +683,9 @@ export class TeamsService {
         },
       },
     });
+    if (result.matchedCount === 0) {
+      throw new BadRequestException(this.minimumMembersMessage);
+    }
 
     return { id: teamId, message: 'Member removed successfully' };
   }

@@ -106,9 +106,8 @@ const EventPage = () => {
       // 2. Limpiamos la lista local del Dropzone para que visualmente desaparezcan los archivos ya subidos
       setEvidenceFiles([]);
       return true;
-    } catch (error) {
-      // El error ya lo maneja el onError global de tu hook useUploadMultipleFiles con Sonner
-      console.error('Error al subir evidencias:', error);
+    } catch {
+      // El error ya lo maneja el onError del hook con Sonner
       return false;
     }
   }
@@ -123,8 +122,7 @@ const EventPage = () => {
       });
       setOtherFiles([]);
       return true;
-    } catch (error) {
-      console.error('Error al subir otros archivos:', error);
+    } catch {
       return false;
     }
   }

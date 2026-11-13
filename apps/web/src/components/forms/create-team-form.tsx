@@ -66,22 +66,21 @@ export function CreateTeamForm() {
 
   // Filter out the current user from the list
   const filteredUsers = users?.filter((u: IUser) => u._id !== user._id) || [];
-  const teachersAndAdmins = filteredUsers.filter(
+  const eligibleMembers = filteredUsers.filter(
     (u: IUser) =>
-      u.type === UserType.MAESTRO || u.type === UserType.ADMINISTRATIVO,
-  );
-  const teachersAndStudents = filteredUsers.filter(
-    (u: IUser) => u.type === UserType.MAESTRO || u.type === UserType.ESTUDIANTE,
+      u.type === UserType.MAESTRO ||
+      u.type === UserType.ESTUDIANTE ||
+      u.type === UserType.ADMINISTRATIVO,
   );
 
   const form = useForm<z.infer<ReturnType<typeof teamSchema>>>({
-    resolver: zodResolver(teamSchema(user.email)),
+    resolver: zodResolver(teamSchema(user._id, true)),
     mode: 'onChange',
     defaultValues: {
       teamName: '',
       summary: '',
       division: '',
-      grade: TeamsGrade.GRUPO_DE_INVESTIGACION,
+      grade: TeamsGrade.SIN_GRADO,
       members: [],
       collaborators: [],
       isPrivate: true,
@@ -99,11 +98,11 @@ export function CreateTeamForm() {
         summary: data.summary === '' ? undefined : data.summary,
         division: data.division || undefined,
       };
-      createTeamMutation.mutate(cleanedData);
+      await createTeamMutation.mutateAsync(cleanedData);
       form.reset();
       router.push(`${baseUrl}/equipos`);
-    } catch (err) {
-      console.error('Error cleaning data', err);
+    } catch {
+      // The mutation displays the API error.
     }
   };
 
@@ -272,11 +271,12 @@ export function CreateTeamForm() {
               </FieldLegend>
               <FieldDescription>
                 Los miembros tienen acceso completo a los proyectos del equipo.
+                Selecciona al menos dos miembros además del líder.
               </FieldDescription>
               <Controller
                 control={form.control}
                 name="members"
-                render={({ field }) => {
+                render={({ field, fieldState }) => {
                   const value = field.value ?? [];
                   return (
                     <FieldGroup>
@@ -308,8 +308,8 @@ export function CreateTeamForm() {
                                 <CommandItem disabled>
                                   <LoadingMessage />
                                 </CommandItem>
-                              ) : teachersAndStudents?.length > 0 ? (
-                                teachersAndStudents.map((user: IUser) => {
+                              ) : eligibleMembers.length > 0 ? (
+                                eligibleMembers.map((user: IUser) => {
                                   const selected = value.includes(user._id);
                                   return (
                                     <CommandItem
@@ -350,6 +350,9 @@ export function CreateTeamForm() {
                           </Command>
                         </PopoverContent>
                       </Popover>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
                     </FieldGroup>
                   );
                 }}

@@ -322,7 +322,7 @@ const columns: ColumnDef<IEvent>[] = [
   },
   {
     accessorKey: 'participants',
-    header: 'Participantes',
+    header: 'Organizadores',
     meta: { className: 'hidden xl:table-cell' }, // Visible solo en monitores grandes (xl)
     cell: ({ row }) => {
       const event = row.original;

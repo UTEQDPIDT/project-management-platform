@@ -32,15 +32,4 @@ export class SeedController {
     this.ensureAdmin(req);
     return this.seedService.runSeed(password);
   }
-
-  @ApiOkResponse({ description: 'Índices de matrícula y número de empleado reparados correctamente.'})
-  @ApiBadRequestResponse({ description: 'Contraseña incorrecta.'})
-  @Post('fix-matricula-index')
-  fixMatriculaIndex(
-    @Body('password') password: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
-    this.ensureAdmin(req);
-    return this.seedService.fixMatriculaIndex(password);
-  }
 }

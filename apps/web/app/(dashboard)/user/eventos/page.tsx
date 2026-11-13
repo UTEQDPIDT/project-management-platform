@@ -1,6 +1,7 @@
 'use client';
 
 import { EventCard } from '@/components/event-card';
+import ErrorCard from '@/components/error-card';
 import {
   Header,
   HeaderDescription,
@@ -17,11 +18,16 @@ import {
   EmptyDescription,
 } from '@/components/ui/empty';
 import { useGetAllEvents } from '@/hooks/events';
-import { IEvent } from '@repo/types';
+import { IEvent, ProjectValidation } from '@repo/types';
 import { Calendar } from 'lucide-react';
 
 const Page = () => {
-  const { data: events, isLoading: laodingEvents } = useGetAllEvents();
+  const { data: events, isLoading: loadingEvents, isError } = useGetAllEvents();
+  const publishedEvents = events?.filter(
+    (event: IEvent) =>
+      event.validationStatus === ProjectValidation.FIRST_VALIDATION ||
+      event.validationStatus === ProjectValidation.FINAL_VALIDATION,
+  );
 
   return (
     <div>
@@ -34,11 +40,13 @@ const Page = () => {
         </HeaderHeading>
       </Header>
       <PageContent>
-        {laodingEvents ? (
+        {loadingEvents ? (
           <LoadingMessage message="Cargando eventos" />
-        ) : events.length > 0 ? (
+        ) : isError ? (
+          <ErrorCard />
+        ) : publishedEvents && publishedEvents.length > 0 ? (
           <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
-            {events.map((e: IEvent) => (
+            {publishedEvents.map((e: IEvent) => (
               <EventCard key={e._id} event={e} />
             ))}
           </div>

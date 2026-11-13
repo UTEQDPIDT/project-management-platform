@@ -48,7 +48,7 @@ export default function ParticipantsCard({
               <Users />
             </IconSquare>
 
-            <CardTitle>Participantes</CardTitle>
+            <CardTitle>Organizadores</CardTitle>
           </div>
 
           {user.role === UserRole.ADMIN && !isClosed && (
@@ -57,7 +57,7 @@ export default function ParticipantsCard({
                 <Settings /> Gestionar
               </DialogTrigger>
               <DialogContent>
-                <DialogTitle>Gestionar Participantes</DialogTitle>
+                <DialogTitle>Gestionar organizadores</DialogTitle>
                 <ParticipantsForm
                   eventId={event._id}
                   participants={event.participants}
@@ -117,10 +117,9 @@ export default function ParticipantsCard({
               <EmptyMedia variant="icon">
                 <Users />
               </EmptyMedia>
-              <EmptyTitle>No Hay Participantes</EmptyTitle>
+              <EmptyTitle>No hay organizadores</EmptyTitle>
               <EmptyDescription>
-                No se han agregado participantes al evento. Agrega
-                participantes.
+                No se han agregado organizadores al evento.
               </EmptyDescription>
             </EmptyHeader>
           </Empty>

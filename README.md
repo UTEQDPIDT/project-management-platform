@@ -50,6 +50,14 @@ project-management-platform/
 
 ## Getting Started
 
+### Duplicate file names
+
+File names are compared exactly (including case) within each project and event.
+The check includes activity evidence and product files; event checks also include
+files of products linked to that event. A duplicate upload is rejected, including
+duplicate names in a single upload. Files in unrelated projects or events can
+have the same name.
+
 ### 1. Install Node.js
 
 Make sure you're using the correct Node.js version

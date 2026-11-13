@@ -126,6 +126,14 @@ export class ProductsService {
         createProductDto.projectId.toString(),
       );
 
+      if (file) {
+        await this.filesService.ensureUniqueFileNames(
+          [file.originalname],
+          createProductDto.projectId.toString(),
+          EntityType.PROJECT,
+        );
+      }
+
       const product = new this.productModel({
         ...createProductDto,
         owner: userId,
@@ -135,14 +143,19 @@ export class ProductsService {
       await product.save();
 
       if (product) {
-        await this.filesService.uploadFile(
-          file,
-          product._id.toString(),
-          EntityType.PRODUCT,
-          FilePurpose.GENERIC,
-          userId,
-          userRole,
-        );
+        try {
+          await this.filesService.uploadFile(
+            file,
+            product._id.toString(),
+            EntityType.PRODUCT,
+            FilePurpose.GENERIC,
+            userId,
+            userRole,
+          );
+        } catch (error) {
+          await this.productModel.findByIdAndDelete(product._id);
+          throw error;
+        }
       }
 
       return product;
@@ -288,11 +301,7 @@ export class ProductsService {
       );
 
       if (file) {
-        // Delete previous files
         const previousFiles = await this.filesService.findFilesForEntity(id);
-        await this.filesService.deleteFilesForResource(previousFiles);
-
-        // Upload new file
         await this.filesService.uploadFile(
           file,
           id,
@@ -301,6 +310,7 @@ export class ProductsService {
           userId,
           userRole,
         );
+        await this.filesService.deleteFilesForResource(previousFiles);
       }
 
       // Update product

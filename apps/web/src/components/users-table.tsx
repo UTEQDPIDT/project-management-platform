@@ -60,45 +60,6 @@ const columns: ColumnDef<IUser>[] = [
     },
   },
   {
-    id: 'identificator',
-    header: 'Matricula/No. Empleado',
-    meta: { className: 'hidden sm:table-cell' }, // Se oculta en móviles verticales
-    cell: ({ row }) => {
-      const { type } = row.original;
-      const { matricula } = row.original;
-      const { employeeNumber } = row.original;
-
-      return (
-        <div className="min-w-35">
-          {type === UserType.MAESTRO || type === UserType.ADMINISTRATIVO ? (
-            employeeNumber ? (
-              <div className="flex justify-between group">
-                <span>{employeeNumber}</span>
-                <CopyButton
-                  className="group-hover:opacity-100 opacity-0"
-                  valueToCopy={employeeNumber}
-                />
-              </div>
-            ) : (
-              <span className="text-muted-foreground">Vacío</span>
-            )
-          ) : matricula ? (
-            <div className="flex justify-between group">
-              <span>{matricula}</span>
-              <CopyButton
-                className="group-hover:opacity-100 opacity-0"
-                variant="outline"
-                valueToCopy={matricula}
-              />
-            </div>
-          ) : (
-            <span className="text-muted-foreground">Vacío</span>
-          )}
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: 'email',
     header: 'Correo',
     meta: { className: 'hidden md:table-cell' }, // Oculto en celulares
@@ -140,11 +101,6 @@ const columns: ColumnDef<IUser>[] = [
         </div>
       );
     },
-  },
-  { 
-    accessorKey: 'state', 
-    header: 'Estado de recidencia',
-    meta: { className: 'hidden lg:table-cell' }
   },
   {
     id: 'division',

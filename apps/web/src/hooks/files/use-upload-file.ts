@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { uploadFile } from '@/services/files.service';
 import { IFile, UploadFilePayload } from '@repo/types';
 import { toast } from 'sonner';
+import axios from 'axios';
 
 export const useUploadFile = () => {
   const queryClient = useQueryClient();
@@ -26,8 +27,11 @@ export const useUploadFile = () => {
         queryKey: ['products'],
       });
     },
-    onError: () => {
-      toast.error('No se pudo subir el archivo');
+    onError: (error) => {
+      const message = axios.isAxiosError<{ message?: string }>(error) && error.response?.status === 409
+        ? error.response.data?.message
+        : undefined;
+      toast.error('No se pudo subir el archivo', { description: message });
     },
   });
 };

@@ -1,5 +1,7 @@
 'use client';
 
+import axios from 'axios';
+
 import { Check, ChevronsUpDown } from 'lucide-react';
 import {
   useProductCategories,
@@ -145,7 +147,7 @@ export function StandaloneProductForm({
         );
       }
     } catch (err) {
-      console.error('Error on submit', err);
+      if (!(axios.isAxiosError(err) && err.response?.status === 409)) console.error('Error on submit', err);
     }
   };
 

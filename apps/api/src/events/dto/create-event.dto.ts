@@ -38,7 +38,7 @@ class AttendanceTotalsConstraint implements ValidatorConstraintInterface {
 
 export class EventAttendanceDto {
   @ApiProperty({
-    description: 'Número total de participantes',
+    description: 'Número total de asistentes al evento, independiente de la lista de organizadores.',
     example: 100,
   })
   @IsInt()
@@ -134,7 +134,7 @@ export class CreateEventDto {
   acceptsProducts: boolean;
 
   @ApiPropertyOptional({
-    description: 'Listado de IDs de usuarios participantes',
+    description: 'IDs de los usuarios del comité organizador (participants).',
     type: [String],
   })
   @IsOptional()

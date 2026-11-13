@@ -2,7 +2,9 @@ import { UserRole } from './enums/user-role.enum';
 import { CareerLevel } from './enums/career-level.enum';
 import { UserType } from './enums/user-type.enum';
 import { Sex } from './enums/sex-enum';
-import { State } from './enums/state.enum';
+import { ResearcherType } from './enums/researcher-type.enum';
+import { EducationLevel } from './enums/education-level.enum';
+import { SniiLevel } from './enums/snii-level.enum';
 import { SeedCategory } from './seed-category.type';
 
 export interface IUser {
@@ -15,14 +17,16 @@ export interface IUser {
   familyName: string;
   email: string;
   avatarUrl?: string;
-  sex: Sex;
-  state: State;
+  sex?: Sex | null;
+  hasDisability?: boolean | null;
+  speaksIndigenousLanguage?: boolean | null;
+  researcherType?: ResearcherType | null;
+  educationLevel?: EducationLevel | null;
+  sniiLevel?: SniiLevel | null;
   dateOfBirth: Date;
-  matricula?: string;
   division?: SeedCategory;
   educationalProgram?: SeedCategory;
   careerLevel?: CareerLevel;
-  employeeNumber?: string;
   hashedRefreshToken?: string | null;
   createdAt: string;
   updatedAt: string;
