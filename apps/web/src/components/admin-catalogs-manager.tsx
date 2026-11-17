@@ -298,7 +298,7 @@ export default function AdminCatalogsManager() {
   const knowledgeAreasQuery = useKnowledgeAreas();
   const themedImpactAreasQuery = useThemedImpactAreas();
   const pndPrioritiesQuery = usePndPriorities();
-  const developmentLinesQuery = useDevelopmentLines();
+  //const developmentLinesQuery = useDevelopmentLines();
   const sustainabilityGoalsQuery = useSustainableGoals();
   const projectProgramsQuery = useProjectPrograms();
 
@@ -373,16 +373,16 @@ export default function AdminCatalogsManager() {
       isLoading: pndPrioritiesQuery.isLoading,
       isError: pndPrioritiesQuery.isError,
     },
-    {
-      id: 'development-lines',
-      title: 'Líneas de Desarrollo',
-      endpoint: 'development-lines',
-      queryKey: 'development-lines',
-      fieldName: 'name',
-      items: (developmentLinesQuery.data ?? []) as CatalogRecord[],
-      isLoading: developmentLinesQuery.isLoading,
-      isError: developmentLinesQuery.isError,
-    },
+    // {
+    //   id: 'development-lines',
+    //   title: 'Líneas de Desarrollo',
+    //   endpoint: 'development-lines',
+    //   queryKey: 'development-lines',
+    //   fieldName: 'name',
+    //   items: (developmentLinesQuery.data ?? []) as CatalogRecord[],
+    //   isLoading: developmentLinesQuery.isLoading,
+    //   isError: developmentLinesQuery.isError,
+    // },
     {
       id: 'sustainability-goals',
       title: 'Objetivos de Sostenibilidad',
