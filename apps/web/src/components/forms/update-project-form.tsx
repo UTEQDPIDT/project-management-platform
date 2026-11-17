@@ -6,7 +6,6 @@ import { z } from 'zod';
 
 import {
   useDevelopmentLines,
-  useKnowledgeAreas,
   usePndPriorities,
   useSustainableGoals,
   useThemedImpactAreas,
@@ -111,8 +110,6 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
     useSustainableGoals();
   const { data: developmentLinesSeeds, isLoading: loadingDevelopmentLines } =
     useDevelopmentLines();
-  const { data: knowledgeAreasSeeds, isLoading: loadingKnowledgeAreas } =
-    useKnowledgeAreas();
   const { data: projectPrograms, isLoading: loadingProjectPrograms } =
     useProjectPrograms();
   const { data: teams, isLoading: loadingTeams } = useTeamsByUser();
@@ -139,9 +136,6 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
       name: project?.name ? project.name : '',
       objective: project?.objective ? project.objective : '',
       trlRating: project?.trlRating ? project.trlRating : 3,
-      knowledgeAreas: project?.knowledgeAreas
-        ? project.knowledgeAreas.map((k) => k?._id).filter(Boolean)
-        : [],
       impactAreas: project?.impactAreas
         ? project.impactAreas.map((a) => a?._id).filter(Boolean)
         : [],
@@ -667,85 +661,6 @@ export function UpdateProjectForm({ project }: UpdateProjectFormProps) {
                     )}
                   </Field>
                 )}
-              />
-
-              <Controller
-                control={form.control}
-                name="knowledgeAreas"
-                render={({ field }) => {
-                  const value = field.value ?? []; // ✅ FIX
-
-                  return (
-                    <FieldGroup>
-                      <FieldContent>
-                        <FieldLabel>Áreas del Conocimiento</FieldLabel>
-                        <FieldDescription>
-                          Selecciona las áreas del conocimiento asociadas al
-                          proyecto.
-                        </FieldDescription>
-                      </FieldContent>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className="w-full justify-between font-normal"
-                          >
-                            {value.length ? (
-                              `${value.length} seleccionados`
-                            ) : (
-                              <span className="text-muted-foreground">
-                                Sin selección
-                              </span>
-                            )}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-
-                        <PopoverContent className="w-full p-0">
-                          <Command>
-                            <CommandGroup>
-                              {loadingKnowledgeAreas ? (
-                                <CommandItem disabled>Cargando</CommandItem>
-                              ) : (
-                                knowledgeAreasSeeds.map(
-                                  (area: SeedCategory) => {
-                                    const selected = value.includes(area._id);
-
-                                    return (
-                                      <CommandItem
-                                        key={area._id}
-                                        onSelect={() => {
-                                          field.onChange(
-                                            selected
-                                              ? value.filter(
-                                                  (v) => v !== area._id,
-                                                )
-                                              : [...value, area._id],
-                                          );
-                                        }}
-                                        className="flex justify-between"
-                                      >
-                                        {area.name}
-                                        <Check
-                                          className={`mr-2 h-4 w-4 ${
-                                            selected
-                                              ? 'opacity-100'
-                                              : 'opacity-0'
-                                          }`}
-                                        />
-                                      </CommandItem>
-                                    );
-                                  },
-                                )
-                              )}
-                            </CommandGroup>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </FieldGroup>
-                  );
-                }}
               />
 
               <Controller

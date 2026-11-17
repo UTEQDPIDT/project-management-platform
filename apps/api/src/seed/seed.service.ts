@@ -9,7 +9,6 @@ import { Division } from '../schemas/division.schema.seed';
 import { EducationalProgram } from '../schemas/educational-program.schema.seed';
 import { ProductCategory } from '../schemas/product-category.schema.seed';
 import { ProductSubcategory } from '../schemas/product-subcategory.schema.seed';
-import { KnowledgeArea } from '../schemas/knowledge-area.schema.seed';
 import { ThemedImpactArea } from '../schemas/themed-impact-area.schema';
 import { PNDpriority } from '../schemas/pnd-priority.schema.seed';
 import { DevelopmentLine } from '../schemas/development-line.schema.seed';
@@ -23,7 +22,6 @@ import {
   educationalProgramsList,
   productCategoryList,
   productSubcategoryList,
-  knowledgeAreaList,
   themedImpactAreaList,
   PNDprioritiesList,
   developmentLinesList,
@@ -47,9 +45,6 @@ export class SeedService {
 
     @InjectModel(ProductSubcategory.name)
     private readonly productSubcategoryModel: Model<ProductSubcategory>,
-
-    @InjectModel(KnowledgeArea.name)
-    private readonly knowledgeAreaModel: Model<KnowledgeArea>,
 
     @InjectModel(ThemedImpactArea.name)
     private readonly themedImpactAreaModel: Model<ThemedImpactArea>,
@@ -159,12 +154,6 @@ export class SeedService {
     await this.seedCollection(
       this.productSubcategoryModel,
       productSubcategoryList,
-      'name',
-    );
-
-    await this.seedCollection(
-      this.knowledgeAreaModel,
-      knowledgeAreaList,
       'name',
     );
 

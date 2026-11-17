@@ -58,12 +58,6 @@ export class CatalogsController {
       return this.catalogsService.getProductSubcategories();
     }
 
-    @ApiOkResponse({ description: 'Lista de áreas de conocimiento obtenida correctamente.'})
-    @Get('knowledge-areas')
-    getKnowledgeAreas() {
-      return this.catalogsService.getKnowledgeAreas();
-    }
-
     @ApiOkResponse({ description: 'Lista de áreas de impacto temáticas obtenida correctamente.'})
     @Get('themed-impact-areas')
     getThemedImpactAreas() {
@@ -124,14 +118,6 @@ export class CatalogsController {
     addProductSubcategory(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
       this.ensureAdmin(req);
       return this.catalogsService.addProductSubcategory(value);
-    }
-
-    @ApiCreatedResponse({ description: 'Área de conocimiento agregada correctamente.'})
-    @ApiBadRequestResponse({ description: 'El área de conocimiento ya existe.'})
-    @Post('knowledge-areas')
-    addKnowledgeArea(@Body('value') value: string, @Req() req: AuthenticatedRequest) {
-      this.ensureAdmin(req);
-      return this.catalogsService.addKnowledgeArea(value);
     }
 
     @ApiCreatedResponse({ description: 'Área de impacto temática agregada correctamente.'})
@@ -217,17 +203,6 @@ export class CatalogsController {
     ) {
       this.ensureAdmin(req);
       return this.catalogsService.updateProductSubcategory(id, value);
-    }
-
-    @ApiOkResponse({ description: 'Área de conocimiento actualizada correctamente.'})
-    @Patch('knowledge-areas/:id')
-    updateKnowledgeArea(
-      @Param('id') id: string,
-      @Body('value') value: string,
-      @Req() req: AuthenticatedRequest,
-    ) {
-      this.ensureAdmin(req);
-      return this.catalogsService.updateKnowledgeArea(id, value);
     }
 
     @ApiOkResponse({ description: 'Área de impacto temática actualizada correctamente.'})
@@ -316,14 +291,6 @@ export class CatalogsController {
     deleteProductSubcategory(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
       this.ensureAdmin(req);
       return this.catalogsService.deleteProductSubcategory(id);
-    }
-
-    @ApiOkResponse({ description: 'Área de conocimiento eliminada correctamente.'})
-    @ApiNotFoundResponse({ description: 'No se encontró el área de conocimiento.'})
-    @Delete('knowledge-areas/:id')
-    deleteKnowledgeArea(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-      this.ensureAdmin(req);
-      return this.catalogsService.deleteKnowledgeArea(id);
     }
 
     @ApiOkResponse({ description: 'Área de impacto temática eliminada correctamente.'})

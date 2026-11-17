@@ -63,12 +63,10 @@ export function InnovationLinesFields({ form }: InnovationLinesFieldsProps) {
           <FieldGroup>
             <FieldContent>
               <FieldLabel>
-                Líneas Innovadoras de Investigación Aplicada y Desarrollo
-                Tecnológico (LIIADT&apos;s)
+                Áreas del Conocimiento
               </FieldLabel>
               <FieldDescription>
-                Selecciona la LIIADT estratégica de la UTEQ con la que se
-                relaciona el proyecto.
+                Selecciona el área del conocimiento con la que se relaciona el proyecto.
               </FieldDescription>
             </FieldContent>
             <Select
@@ -111,9 +109,9 @@ export function InnovationLinesFields({ form }: InnovationLinesFieldsProps) {
             return (
               <FieldGroup>
                 <FieldContent>
-                  <FieldLabel>Subcategorías de la línea</FieldLabel>
+                  <FieldLabel>Líneas Innovadoras de Investigación Aplicada y Desarrollo Tecnológico (LIIADT&apos;s)</FieldLabel>
                   <FieldDescription>
-                    Selecciona hasta {MAX_SUBCATEGORIES} subcategorías.
+                    Selecciona hasta {MAX_SUBCATEGORIES} líneas (como subcategorías de las áreas del conocimiento).
                   </FieldDescription>
                 </FieldContent>
                 <Popover>

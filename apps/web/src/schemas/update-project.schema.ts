@@ -14,7 +14,6 @@ export const updateProjectSchema = z.object({
   trlRating: z.number().min(0, 'El Nivel de TRL no puede ser 0'),
   program: mongoId.or(z.literal('')).optional(),
   isFunded: z.boolean().optional(),
-  knowledgeAreas: z.array(mongoId),
   impactAreas: z.array(mongoId),
   prioritiesPND: z.array(mongoId),
   sustainableObjectives: z.array(mongoId),

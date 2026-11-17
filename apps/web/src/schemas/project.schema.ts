@@ -17,7 +17,6 @@ export const projectSchema = z.object({
     .min(1, 'Debes seleccionar un programa')
     .pipe(mongoId),
   isFunded: z.boolean().optional(),
-  knowledgeAreas: z.array(mongoId),
   impactAreas: z.array(mongoId),
   prioritiesPND: z.array(mongoId),
   sustainableObjectives: z.array(mongoId),

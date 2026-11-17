@@ -41,14 +41,6 @@ export class CreateProjectDto {
   trlRating: number;
 
   @ApiPropertyOptional({
-    description: 'Áreas de conocimiento que alude el proyecto.',
-  })
-  @IsMongoId({ each: true })
-  @IsArray()
-  @IsOptional()
-  knowledgeAreas: string;
-
-  @ApiPropertyOptional({
     description: 'Áreas de impacto del proyecto.',
   })
   @IsMongoId({ each: true })

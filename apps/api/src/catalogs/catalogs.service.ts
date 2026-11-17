@@ -6,7 +6,6 @@ import { Division } from '../schemas/division.schema.seed';
 import { EducationalProgram } from '../schemas/educational-program.schema.seed';
 import { ProductCategory } from '../schemas/product-category.schema.seed';
 import { ProductSubcategory } from '../schemas/product-subcategory.schema.seed';
-import { KnowledgeArea } from '../schemas/knowledge-area.schema.seed';
 import { ThemedImpactArea } from '../schemas/themed-impact-area.schema';
 import { PNDpriority } from '../schemas/pnd-priority.schema.seed';
 import { DevelopmentLine } from '../schemas/development-line.schema.seed';
@@ -28,9 +27,6 @@ export class CatalogsService {
 
         @InjectModel(ProductSubcategory.name)
         private productSubcategoryModel: Model<ProductSubcategory>,
-
-        @InjectModel(KnowledgeArea.name)
-        private knowledgeAreaModel: Model<KnowledgeArea>,
 
         @InjectModel(ThemedImpactArea.name)
         private themedImpactAreaModel: Model<ThemedImpactArea>,
@@ -173,9 +169,6 @@ export class CatalogsService {
     getProductSubcategories() { 
         return this.getAll(this.productSubcategoryModel); 
     }
-    getKnowledgeAreas() { 
-        return this.getAll(this.knowledgeAreaModel); 
-    }
     getThemedImpactAreas() { 
         return this.getAll(this.themedImpactAreaModel); 
     }
@@ -247,9 +240,6 @@ export class CatalogsService {
     addProductSubcategory(value: string) { 
         return this.create(this.productSubcategoryModel, 'name', value); 
     }
-    addKnowledgeArea(value: string) { 
-        return this.create(this.knowledgeAreaModel, 'name', value); 
-    }
     addThemedImpactArea(value: string) { 
         return this.create(this.themedImpactAreaModel, 'name', value); 
     }
@@ -279,9 +269,6 @@ export class CatalogsService {
     updateProductSubcategory(id: string, value: string) {
         return this.update(this.productSubcategoryModel, 'name', id, value);
     }
-    updateKnowledgeArea(id: string, value: string) {
-        return this.update(this.knowledgeAreaModel, 'name', id, value);
-    }
     updateThemedImpactArea(id: string, value: string) {
         return this.update(this.themedImpactAreaModel, 'name', id, value);
     }
@@ -310,9 +297,6 @@ export class CatalogsService {
     }
     deleteProductSubcategory(id: string) { 
         return this.remove(this.productSubcategoryModel, id); 
-    }
-    deleteKnowledgeArea(id: string) { 
-        return this.remove(this.knowledgeAreaModel, id); 
     }
     deleteThemedImpactArea(id: string) { 
         return this.remove(this.themedImpactAreaModel, id); 

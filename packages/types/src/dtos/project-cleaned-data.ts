@@ -7,7 +7,6 @@ export type ProjectCleanedData = {
   name: string;
   objective: string;
   trlRating: number;
-  knowledgeAreas: string[];
   impactAreas: string[];
   prioritiesPND: string[];
   sustainableObjectives: string[];

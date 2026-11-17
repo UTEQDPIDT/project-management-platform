@@ -192,7 +192,6 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
     updatedBy,
     impactLevel,
     impactAreas,
-    knowledgeAreas,
     sustainableObjectives,
     prioritiesPND,
     innovationLines,
@@ -455,23 +454,6 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
 
       <div className={rowClass}>
         <span className={labelClass}>
-          <BookOpen size={14} className="shrink-0" /> Áreas de Conocimiento
-        </span>
-        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty w-full">
-          {knowledgeAreas?.length ? (
-            <span>
-              {concatWithCommaAndDot(
-                knowledgeAreas.map((a: SeedCategory) => a.name),
-              )}
-            </span>
-          ) : (
-            <span className="text-gray-400">Vacío</span>
-          )}
-        </div>
-      </div>
-
-      <div className={rowClass}>
-        <span className={labelClass}>
           <FoldVertical size={14} className="shrink-0" /> Impactos Transversales
         </span>
         <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty w-full">
@@ -524,8 +506,8 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
 
       <div className={rowClass}>
         <span className={labelClass}>
-          <BrainCircuit size={14} className="shrink-0" />
-          LIIADTs
+          <BookOpen size={14} className="shrink-0" />
+          Áreas del Conocimiento
         </span>
         <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty w-full">
           {innovationLines?.length ? (
@@ -543,7 +525,7 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
       <div className={rowClass}>
         <span className={labelClass}>
           <BrainCircuit size={14} className="shrink-0" />
-          Subcategorías LIIADT
+          LIIADTs
         </span>
         <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty w-full">
           {innovationLinesSubcategories?.length ? (

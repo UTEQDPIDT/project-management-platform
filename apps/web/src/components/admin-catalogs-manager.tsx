@@ -1,9 +1,8 @@
 'use client';
 
 import {
-  useDevelopmentLines,
+  //useDevelopmentLines,
   useDivisions,
-  useKnowledgeAreas,
   usePndPriorities,
   useProductCategories,
   useProductSubcategories,
@@ -295,10 +294,9 @@ export default function AdminCatalogsManager() {
   const programsQuery = usePrograms();
   const categoriesQuery = useProductCategories();
   const subcategoriesQuery = useProductSubcategories();
-  const knowledgeAreasQuery = useKnowledgeAreas();
   const themedImpactAreasQuery = useThemedImpactAreas();
   const pndPrioritiesQuery = usePndPriorities();
-  const developmentLinesQuery = useDevelopmentLines();
+  //const developmentLinesQuery = useDevelopmentLines();
   const sustainabilityGoalsQuery = useSustainableGoals();
   const projectProgramsQuery = useProjectPrograms();
 
@@ -344,16 +342,6 @@ export default function AdminCatalogsManager() {
       isError: subcategoriesQuery.isError,
     },
     {
-      id: 'knowledge-areas',
-      title: 'Áreas de Conocimiento',
-      endpoint: 'knowledge-areas',
-      queryKey: 'knowledge-areas',
-      fieldName: 'name',
-      items: (knowledgeAreasQuery.data ?? []) as CatalogRecord[],
-      isLoading: knowledgeAreasQuery.isLoading,
-      isError: knowledgeAreasQuery.isError,
-    },
-    {
       id: 'themed-impact-areas',
       title: 'Impactos Temáticos Transversales',
       endpoint: 'themed-impact-areas',
@@ -373,16 +361,16 @@ export default function AdminCatalogsManager() {
       isLoading: pndPrioritiesQuery.isLoading,
       isError: pndPrioritiesQuery.isError,
     },
-    {
-      id: 'development-lines',
-      title: 'Líneas de Desarrollo',
-      endpoint: 'development-lines',
-      queryKey: 'development-lines',
-      fieldName: 'name',
-      items: (developmentLinesQuery.data ?? []) as CatalogRecord[],
-      isLoading: developmentLinesQuery.isLoading,
-      isError: developmentLinesQuery.isError,
-    },
+    // {
+    //   id: 'development-lines',
+    //   title: 'Líneas de Desarrollo',
+    //   endpoint: 'development-lines',
+    //   queryKey: 'development-lines',
+    //   fieldName: 'name',
+    //   items: (developmentLinesQuery.data ?? []) as CatalogRecord[],
+    //   isLoading: developmentLinesQuery.isLoading,
+    //   isError: developmentLinesQuery.isError,
+    // },
     {
       id: 'sustainability-goals',
       title: 'Objetivos de Sostenibilidad',

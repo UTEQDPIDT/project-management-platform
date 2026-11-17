@@ -5,7 +5,6 @@ export type CatalogEndpoint =
   | 'educational-programs'
   | 'product-categories'
   | 'product-subcategories'
-  | 'knowledge-areas'
   | 'themed-impact-areas'
   | 'pnd-priorities'
   | 'development-lines'

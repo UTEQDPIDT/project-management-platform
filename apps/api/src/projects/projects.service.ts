@@ -335,7 +335,6 @@ export class ProjectsService {
     return await this.projectModel
       .find(queryFilter)
       .populate('impactAreas')
-      .populate('knowledgeAreas')
       .populate('prioritiesPND')
       .populate('sustainableObjectives')
       .populate('innovationLines')
@@ -362,7 +361,6 @@ export class ProjectsService {
     const project = await this.projectModel
       .findById(id)
       .populate('impactAreas')
-      .populate('knowledgeAreas')
       .populate('prioritiesPND')
       .populate('sustainableObjectives')
       .populate('innovationLines')
@@ -403,7 +401,6 @@ export class ProjectsService {
     return await this.projectModel
       .find({ owner: ownerId })
       .populate('impactAreas')
-      .populate('knowledgeAreas')
       .populate('prioritiesPND')
       .populate('sustainableObjectives')
       .populate('innovationLines')
