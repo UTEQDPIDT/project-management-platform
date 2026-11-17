@@ -1,9 +1,8 @@
 'use client';
 
 import {
-  useDevelopmentLines,
+  //useDevelopmentLines,
   useDivisions,
-  useKnowledgeAreas,
   usePndPriorities,
   useProductCategories,
   useProductSubcategories,
@@ -295,7 +294,6 @@ export default function AdminCatalogsManager() {
   const programsQuery = usePrograms();
   const categoriesQuery = useProductCategories();
   const subcategoriesQuery = useProductSubcategories();
-  const knowledgeAreasQuery = useKnowledgeAreas();
   const themedImpactAreasQuery = useThemedImpactAreas();
   const pndPrioritiesQuery = usePndPriorities();
   //const developmentLinesQuery = useDevelopmentLines();
@@ -342,16 +340,6 @@ export default function AdminCatalogsManager() {
       items: (subcategoriesQuery.data ?? []) as CatalogRecord[],
       isLoading: subcategoriesQuery.isLoading,
       isError: subcategoriesQuery.isError,
-    },
-    {
-      id: 'knowledge-areas',
-      title: 'Áreas de Conocimiento',
-      endpoint: 'knowledge-areas',
-      queryKey: 'knowledge-areas',
-      fieldName: 'name',
-      items: (knowledgeAreasQuery.data ?? []) as CatalogRecord[],
-      isLoading: knowledgeAreasQuery.isLoading,
-      isError: knowledgeAreasQuery.isError,
     },
     {
       id: 'themed-impact-areas',

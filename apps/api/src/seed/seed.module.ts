@@ -8,7 +8,6 @@ import { ProductCategory, ProductCategorySchema } from '../schemas/product-categ
 import { ProductSubcategory, ProductSubcategorySchema } from '../schemas/product-subcategory.schema.seed';
 import { PNDpriority, PNDprioritySchema } from '../schemas/pnd-priority.schema.seed';
 import { ThemedImpactArea, ThemedImpactAreaSchema } from '../schemas/themed-impact-area.schema';
-import { KnowledgeArea, KnowledgeAreaSchema } from '../schemas/knowledge-area.schema.seed';
 import { DevelopmentLine, DevelopmentLineSchema } from '../schemas/development-line.schema.seed';
 import { DevelopmentLineSubcategory, DevelopmentLineSubcategorySchema } from '../schemas/development-line-subcategory.schema.seed';
 import { SustainabilityGoal, SustainabilityGoalSchema } from '../schemas/sustainability-goal.schema.seed';
@@ -22,7 +21,6 @@ import { Programa, ProgramaSchema } from '../schemas/project-programs.seed';
         { name: EducationalProgram.name, schema: EducationalProgramSchema },
         { name: ProductCategory.name, schema: ProductCategorySchema },
         { name: ProductSubcategory.name, schema: ProductSubcategorySchema },
-        { name: KnowledgeArea.name, schema: KnowledgeAreaSchema },
         { name: ThemedImpactArea.name, schema: ThemedImpactAreaSchema },
         { name: PNDpriority.name, schema: PNDprioritySchema },
         { name: DevelopmentLine.name, schema: DevelopmentLineSchema },

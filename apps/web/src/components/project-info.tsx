@@ -192,7 +192,6 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
     updatedBy,
     impactLevel,
     impactAreas,
-    knowledgeAreas,
     sustainableObjectives,
     prioritiesPND,
     innovationLines,
@@ -451,23 +450,6 @@ export function ProjectInfo({ project, progress }: ProjectInfoProps) {
           <MapPinned size={14} /> Nivel de impacto
         </span>
         <div className="p-2 hover:bg-secondary rounded-md w-full">{impactLevel}</div>
-      </div>
-
-      <div className={rowClass}>
-        <span className={labelClass}>
-          <BookOpen size={14} className="shrink-0" /> Áreas de Conocimiento
-        </span>
-        <div className="p-2 hover:bg-secondary rounded-md lg:max-w-4xl text-pretty w-full">
-          {knowledgeAreas?.length ? (
-            <span>
-              {concatWithCommaAndDot(
-                knowledgeAreas.map((a: SeedCategory) => a.name),
-              )}
-            </span>
-          ) : (
-            <span className="text-gray-400">Vacío</span>
-          )}
-        </div>
       </div>
 
       <div className={rowClass}>

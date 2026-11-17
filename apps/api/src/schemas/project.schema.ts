@@ -4,7 +4,6 @@ import mongoose, { Document } from 'mongoose';
 import { User } from './user.schema';
 import { Team } from './team.schema';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { KnowledgeArea } from './knowledge-area.schema.seed';
 import { ThemedImpactArea } from './themed-impact-area.schema';
 import { PNDpriority } from './pnd-priority.schema.seed';
 import { SustainabilityGoal } from './sustainability-goal.schema.seed';
@@ -31,15 +30,6 @@ export class Project extends Document {
   })
   @Prop({ required: true, min: 1, max: 9 })
   trlRating: number;
-
-  @ApiPropertyOptional({
-    description:
-      'Áreas de conocimiento que alude el proyecto (referencia al catálogo).',
-  })
-  @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: KnowledgeArea.name }],
-  })
-  knowledgeAreas: KnowledgeArea[];
 
   @ApiPropertyOptional({
     description: 'Áreas de impacto del proyecto (referencia al catálogo).',

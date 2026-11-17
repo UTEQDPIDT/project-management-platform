@@ -6,7 +6,6 @@ import { z } from 'zod';
 
 import {
   useDevelopmentLines,
-  useKnowledgeAreas,
   usePndPriorities,
   useSustainableGoals,
   useThemedImpactAreas,
@@ -112,8 +111,6 @@ export function CreateProjectForm() {
     useSustainableGoals();
   const { data: developmentLines, isLoading: loadingDevelopmentLines } =
     useDevelopmentLines();
-  const { data: knowledgeAreas, isLoading: loadingKnowledgeAreas } =
-    useKnowledgeAreas();
   const { data: projectPrograms, isLoading: loadingProjectPrograms } =
     useProjectPrograms();
   const { data: teams, isLoading: loadingTeams } = useTeamsByUser();
@@ -135,7 +132,6 @@ export function CreateProjectForm() {
       trlRating: 1,
       program: '',
       isFunded: false,
-      knowledgeAreas: [],
       impactAreas: [],
       prioritiesPND: [],
       sustainableObjectives: [],
@@ -608,81 +604,6 @@ export function CreateProjectForm() {
                     )}
                   </Field>
                 )}
-              />
-
-              <Controller
-                control={form.control}
-                name="knowledgeAreas"
-                render={({ field }) => {
-                  const value = field.value ?? []; // ✅ FIX
-
-                  return (
-                    <FieldGroup>
-                      <FieldContent>
-                        <FieldLabel>Áreas del Conocimiento</FieldLabel>
-                        <FieldDescription>
-                          Selecciona las áreas del conocimiento asociadas al
-                          proyecto.
-                        </FieldDescription>
-                      </FieldContent>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className="w-full justify-between font-normal"
-                          >
-                            {value.length ? (
-                              `${value.length} seleccionados`
-                            ) : (
-                              <span className="text-muted-foreground">
-                                Sin selección
-                              </span>
-                            )}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-
-                        <PopoverContent className="w-full p-0 border border-gray-400">
-                          <Command>
-                            <CommandGroup>
-                              {loadingKnowledgeAreas ? (
-                                <CommandItem disabled>Cargando</CommandItem>
-                              ) : (
-                                knowledgeAreas.map((area: SeedCategory) => {
-                                  const selected = value.includes(area._id);
-
-                                  return (
-                                    <CommandItem
-                                      key={area._id}
-                                      onSelect={() => {
-                                        field.onChange(
-                                          selected
-                                            ? value.filter(
-                                                (v) => v !== area._id,
-                                              )
-                                            : [...value, area._id],
-                                        );
-                                      }}
-                                      className="flex justify-between cursor-pointer"
-                                    >
-                                      {area.name}
-                                      <Check
-                                        className={`mr-2 h-4 w-4 ${
-                                          selected ? 'opacity-100' : 'opacity-0'
-                                        }`}
-                                      />
-                                    </CommandItem>
-                                  );
-                                })
-                              )}
-                            </CommandGroup>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </FieldGroup>
-                  );
-                }}
               />
 
               <Controller

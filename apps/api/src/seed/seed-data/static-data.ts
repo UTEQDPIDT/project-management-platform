@@ -3,7 +3,6 @@ import { DevelopmentLine } from '../../schemas/development-line.schema.seed';
 import { DevelopmentLineSubcategory } from '../../schemas/development-line-subcategory.schema.seed';
 import { Division } from '../../schemas/division.schema.seed';
 import { EducationalProgram } from '../../schemas/educational-program.schema.seed';
-import { KnowledgeArea } from '../../schemas/knowledge-area.schema.seed';
 import { PNDpriority } from '../../schemas/pnd-priority.schema.seed';
 import { ProductCategory } from '../../schemas/product-category.schema.seed';
 import { ProductSubcategory } from '../../schemas/product-subcategory.schema.seed';
@@ -116,16 +115,6 @@ export const productSubcategoryList: Partial<ProductSubcategory>[] = [
   { name: 'Libro con ISBN (4° Autor)' },
   { name: 'Solicitud de patente' },
 
-];
-
-//Projects
-export const knowledgeAreaList: Partial<KnowledgeArea>[] = [
-  { name: 'Ciencias Agropecuarias' },
-  { name: 'Ciencias Naturales y Exactas' },
-  { name: 'Ciencias de la Salud' },
-  { name: 'Ciencias Sociales y Administrativas' },
-  { name: 'Educación, Humanidades y Arte' },
-  { name: 'Ingeniería y Tecnología' },
 ];
 
 //Projects

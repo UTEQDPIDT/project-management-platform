@@ -12,7 +12,6 @@ export interface IProject {
   name: string;
   objective: string;
   trlRating?: number;
-  knowledgeAreas?: SeedCategory[];
   impactAreas?: SeedCategory[];
   prioritiesPND?: SeedCategory[];
   sustainableObjectives?: SeedCategory[];
