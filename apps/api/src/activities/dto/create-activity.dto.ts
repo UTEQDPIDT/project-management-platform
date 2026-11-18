@@ -11,7 +11,6 @@ import {
   MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ObjectId } from 'mongoose';
 
 export class CreateActivityDto {
   @ApiProperty({
@@ -78,7 +77,7 @@ export class CreateActivityDto {
 
   @ApiProperty({description: 'Entidad a la que pertenece la actividad'})
   @IsMongoId()
-  entityId: ObjectId;
+  entityId: string;
 
   @ApiProperty({description: 'Tipo de entidad a la que pertenece la actividad (proyecto o evento)'})
   @IsEnum(EntityType)

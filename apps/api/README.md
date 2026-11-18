@@ -112,6 +112,33 @@ the selected period. These are current membership counts, not historical
 snapshots. Legacy memberships with a missing status or a case-insensitive
 `ACTIVE` status are treated as active, matching project access rules.
 
+### Constancias de investigación
+
+Administrators issue and refresh constancias from **Constancias**. Only teachers
+who own a project or are active, selected team participants are eligible, and
+projects under review are excluded. The administrator enters a folio, which is
+unique per issuance year. Refreshing replaces the stored PDF using the current
+project and activity data while retaining the same teacher, project, folio, and
+issuance date. The teacher and project must still be eligible. PDFs are stored
+in the `recognitions` GridFS bucket.
+
+Place the official single-page PDF letterhead at `apps/web/app/letterhead.pdf`
+before building either API Docker image. It is embedded on each page. To use
+another deployed file, set `LETTERHEAD_PATH` to an absolute path accessible to
+the API process. A missing or invalid letterhead prevents issuance; it does not
+produce an unletterheaded document.
+
+Project completion is the rounded percentage of completed project activities,
+or zero when there are none. For existing databases, run the following once
+with the MongoDB environment variables configured and activity writes paused:
+
+```bash
+pnpm --filter api migrate:project-progress
+```
+
+Back up the database before running the backfill. Normal activity creation,
+status updates, and deletion subsequently recalculate the stored percentage.
+
 ---
 
 ## Security Notes

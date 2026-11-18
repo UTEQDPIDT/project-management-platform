@@ -159,6 +159,13 @@ export class Project extends Document {
   })
   status: ProjectStatus;
 
+  @ApiProperty({ description: 'Porcentaje de actividades completadas.' })
+  @Prop({ type: Number, default: 0, min: 0, max: 100 })
+  completionPercentage: number;
+
+  @Prop({ type: Number })
+  progressRevision?: number;
+
   @ApiProperty({
     description: 'Programa al que pertenece el proyecto.',
   })

@@ -292,6 +292,12 @@ export class ActivitiesService {
 
       await createdActivity.save();
 
+      if (createdActivity.entityType === EntityType.PROJECT) {
+        await this.projectsService.recomputeProjectStatus(
+          createdActivity.entityId.toString(),
+        );
+      }
+
       return createdActivity;
     } catch (err: any) {
       if (err instanceof HttpException) {
@@ -349,9 +355,9 @@ export class ActivitiesService {
     return visibleActivities.filter(Boolean) as Activity[];
   }
 
-  async findByEntityId(entityId: string): Promise<Activity[]> {
+  async findByEntityId(entityId: string, entityType?: EntityType): Promise<Activity[]> {
     const activities = await this.activityModel
-      .find({ entityId })
+      .find({ entityId, ...(entityType ? { entityType } : {}) })
       .populate('createdBy')
       .populate('assignees')
       .exec();
@@ -422,6 +428,12 @@ export class ActivitiesService {
       throw new NotFoundException(`Activity with ID: ${id} not found`);
     }
 
+    const targetEntityId = updateActivityDto.entityId?.toString() ?? activity.entityId.toString();
+    const targetEntityType = updateActivityDto.entityType ?? activity.entityType;
+    const entityChanged =
+      targetEntityId !== activity.entityId.toString() ||
+      targetEntityType !== activity.entityType;
+
     if (activity.entityType === EntityType.PROJECT) {
       await this.ensureCanManageProjectActivities(
         activity.entityId.toString(),
@@ -433,8 +445,20 @@ export class ActivitiesService {
     if (activity.entityType === EntityType.EVENT) {
       await this.ensureEventIsOpen(activity.entityId.toString());
     }
-    if (activity.entityType === EntityType.EVENT) {
-      await this.ensureEventIsOpen(activity.entityId.toString());
+    if (entityChanged && activity.entityType === EntityType.PROJECT) {
+      const count = await this.activityModel.countDocuments({
+        entityId: activity.entityId,
+        entityType: EntityType.PROJECT,
+      });
+      if (count <= 3) {
+        throw new BadRequestException('El proyecto debe mantener al menos 3 actividades.');
+      }
+    }
+    if (entityChanged && targetEntityType === EntityType.PROJECT) {
+      await this.ensureCanManageProjectActivities(targetEntityId, userId, userRole, id);
+    }
+    if (entityChanged && targetEntityType === EntityType.EVENT) {
+      await this.ensureEventIsOpen(targetEntityId);
     }
 // Check if the status is being updated to COMPLETED and if it was not already COMPLETED
     const isTransitionToCompleted =
@@ -458,6 +482,9 @@ export class ActivitiesService {
       await this.projectsService.recomputeProjectStatus(
         activity.entityId.toString(),
       );
+    }
+    if (entityChanged && targetEntityType === EntityType.PROJECT) {
+      await this.projectsService.recomputeProjectStatus(targetEntityId);
     }
     if (activity.entityType === EntityType.EVENT) {
       await this.ensureEventIsOpen(activity.entityId.toString());

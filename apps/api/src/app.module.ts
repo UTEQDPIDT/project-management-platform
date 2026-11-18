@@ -19,6 +19,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { StandaloneProductsModule } from './standalone-products/standalone-products.module';
+import { DocumentsModule } from './documents/documents.module';
 
 @Module({
   imports: [
@@ -95,6 +96,7 @@ import { StandaloneProductsModule } from './standalone-products/standalone-produ
     DashboardModule,
 
     StandaloneProductsModule,
+    DocumentsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
