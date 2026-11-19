@@ -76,7 +76,7 @@ export class CreateUserDto {
   })
   @IsOptional()
   @IsEnum(UserType)
-  type: UserType;
+  type?: UserType;
 
   // @IsString()
   // matricula: string;

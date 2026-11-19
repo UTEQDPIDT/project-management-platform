@@ -10,6 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../schemas/user.schema';
 import { Model } from 'mongoose';
 import { UserRole, UserType } from '@repo/types';
+import { userTypeFromEmail } from './user-type-from-email';
 
 type UserUpdateOperations = {
   $set: Record<string, unknown>;
@@ -20,6 +21,7 @@ type ProfileEditableUserFields = Pick<
   UpdateUserDto,
   | 'givenName'
   | 'familyName'
+  | 'title'
   | 'type'
   | 'sex'
   | 'hasDisability'
@@ -52,6 +54,7 @@ export class UsersService {
 
     if (data.givenName !== undefined) safeData.givenName = data.givenName;
     if (data.familyName !== undefined) safeData.familyName = data.familyName;
+    if (data.title !== undefined) safeData.title = data.title;
     if (data.type !== undefined) safeData.type = data.type;
     if (data.sex !== undefined) safeData.sex = data.sex;
     if (data.hasDisability !== undefined) {
@@ -125,7 +128,10 @@ export class UsersService {
     createUserDto: CreateUserDto,
   ): Promise<{ id: string; message: string }> {
     try {
-      const createdUser = new this.userModel(createUserDto);
+      const createdUser = new this.userModel({
+        ...createUserDto,
+        type: createUserDto.type ?? userTypeFromEmail(createUserDto.email),
+      });
       await createdUser.save();
       return {
         id: createdUser._id.toString(),
@@ -157,6 +163,7 @@ export class UsersService {
         familyName,
         email,
         passwordHash,
+        type: userTypeFromEmail(email),
       });
 
       await createdUser.save();

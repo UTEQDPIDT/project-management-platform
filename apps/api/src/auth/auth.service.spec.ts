@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { EmailService } from '../email/email.service';
 import refreshJwtConfig from './config/refresh-jwt.config';
+import { UserRole } from '@repo/types';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -20,6 +21,7 @@ describe('AuthService', () => {
     updateHashedRefreshToken: jest.fn(),
     findOneWithSensitiveById: jest.fn(),
     findByEmail: jest.fn(),
+    findOne: jest.fn(),
     create: jest.fn(),
     findByEmailWithSensitive: jest.fn(),
     createWithPassword: jest.fn(),
@@ -62,6 +64,20 @@ describe('AuthService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('returns the created Google user for login', async () => {
+    usersServiceMock.findByEmail.mockResolvedValue(null);
+    usersServiceMock.create.mockResolvedValue({ id: 'user-1' });
+    usersServiceMock.findOne.mockResolvedValue({ _id: 'user-1', role: 'USER' });
+
+    await expect(service.validateGoogleUser({
+      givenName: 'Ana', familyName: 'Ruiz', email: ' ANA@uteq.edu.mx ',
+      role: UserRole.USER,
+    })).resolves.toEqual({ _id: 'user-1', role: 'USER' });
+    expect(usersServiceMock.create).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'ana@uteq.edu.mx' }),
+    );
   });
 
   it('should return generic response when email does not exist', async () => {

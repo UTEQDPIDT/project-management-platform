@@ -15,6 +15,7 @@ export interface IUser {
   type: UserType;
   givenName: string;
   familyName: string;
+  title?: string;
   email: string;
   avatarUrl?: string;
   sex?: Sex | null;

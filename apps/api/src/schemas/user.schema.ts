@@ -61,6 +61,10 @@ export class User extends Document {
   @Prop()
   familyName: string;
 
+  @ApiPropertyOptional({ description: 'Título académico o profesional del usuario.' })
+  @Prop({ type: String, maxlength: 40, default: '' })
+  title?: string;
+
   @ApiProperty({
     description: 'La dirección de correo institucional del usuario.',
   })

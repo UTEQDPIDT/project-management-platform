@@ -105,6 +105,7 @@ export default function UserForm({
     defaultValues: {
       givenName: profile.givenName || '',
       familyName: profile.familyName || '',
+      title: profile.title || '',
       sex: profile.sex ?? null,
       hasDisability: profile.hasDisability ?? null,
       speaksIndigenousLanguage: profile.speaksIndigenousLanguage ?? null,
@@ -188,6 +189,28 @@ export default function UserForm({
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor={field.name}>Apellido/s</FieldLabel>
                       <Input {...field} id={field.name} />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <Controller
+                  control={form.control}
+                  name="title"
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Título</FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        aria-describedby="title-description"
+                        aria-invalid={fieldState.invalid}
+                      />
+                      <FieldDescription id="title-description">
+                        Por ejemplo: M. en A., Msc., Dr., Dra.
+                      </FieldDescription>
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
                       )}

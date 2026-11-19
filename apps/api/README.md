@@ -139,6 +139,26 @@ pnpm --filter api migrate:project-progress
 Back up the database before running the backfill. Normal activity creation,
 status updates, and deletion subsequently recalculate the stored percentage.
 
+### User types
+
+New accounts default to Maestro when the email begins with an ASCII letter and
+Estudiante when it begins with a digit. Users can change their type in their
+profile. An email beginning with another character requires an explicitly
+selected type.
+
+To reclassify existing accounts, back up MongoDB and pause user profile writes.
+Configure the MongoDB environment variables for the target database. The first
+command previews counts without changing data; the second applies the migration:
+
+```bash
+pnpm --filter api migrate:user-types
+pnpm --filter api migrate:user-types --apply
+```
+
+The migration preserves Administrativo users, skips and counts unclassifiable
+emails, and leaves other profile fields untouched. It is safe to rerun, but
+reclassifies matching users again even if they manually changed their type.
+
 ---
 
 ## Security Notes

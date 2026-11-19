@@ -107,9 +107,9 @@ export class AuthController {
       );
 
       if (req.user.role == 'ADMIN') {
-        res.redirect(`${process.env.FRONTEND_URL}/admin/inicio`);
+        res.redirect(`${process.env.FRONTEND_URL}/admin/inicio?profileReminder=1`);
       } else {
-        res.redirect(`${process.env.FRONTEND_URL}/user/inicio`);
+        res.redirect(`${process.env.FRONTEND_URL}/user/inicio?profileReminder=1`);
       }
     } catch (error) {
       console.error('Google OAuth callback error:', error);
@@ -146,7 +146,7 @@ export class AuthController {
       );
 
       const redirectPath =
-        user.role === UserRole.ADMIN ? '/admin/inicio' : '/user/inicio';
+        user.role === UserRole.ADMIN ? '/admin/inicio?profileReminder=1' : '/user/inicio?profileReminder=1';
 
       return res.status(200).json({ redirectUrl: redirectPath });
     } catch (error) {
@@ -183,7 +183,7 @@ export class AuthController {
     );
 
     const redirectPath =
-      user.role === UserRole.ADMIN ? '/admin/inicio' : '/user/inicio';
+      user.role === UserRole.ADMIN ? '/admin/inicio?profileReminder=1' : '/user/inicio?profileReminder=1';
 
     return res.status(201).json({ redirectUrl: redirectPath });
   }
