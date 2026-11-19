@@ -23,16 +23,21 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   @Length(2, 40)
-  givenName: string;
+  givenName?: string;
 
   @IsOptional()
   @IsString()
   @Length(2, 40)
-  familyName: string;
+  familyName?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(0, 40)
+  title?: string;
 
   @IsOptional()
   @IsEnum(UserType)
-  type: UserType;
+  type?: UserType;
 
   @IsOptional()
   @IsEnum(Sex)

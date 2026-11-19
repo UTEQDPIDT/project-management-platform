@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { UserSidebar } from '@/components/user-sidebar';
 import { ProfileProvider } from 'context/profile-provider';
+import { OpenMobileSidebarForProfileReminder } from '@/components/nav-user';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -40,6 +41,7 @@ export default async function UserDashboardLayout({
   return (
     <ProfileProvider initialUser={user}>
       <SidebarProvider>
+        <OpenMobileSidebarForProfileReminder />
         <UserSidebar />
         <main className="w-full">{children}</main>
       </SidebarProvider>

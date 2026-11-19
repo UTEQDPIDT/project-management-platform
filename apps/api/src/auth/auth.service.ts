@@ -202,10 +202,11 @@ export class AuthService {
     const normalizedEmail = this.normalizeEmail(googleUser.email);
     const user = await this.userService.findByEmail(normalizedEmail);
     if (user) return user;
-    return await this.userService.create({
+    const created = await this.userService.create({
       ...googleUser,
       email: normalizedEmail,
     });
+    return this.userService.findOne(created.id);
   }
 
   async validateUser(email: string, password: string) {

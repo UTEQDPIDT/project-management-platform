@@ -4,7 +4,7 @@ import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import googleOauthConfig from '../config/google-oauth.config';
 import { ConfigType } from '@nestjs/config';
 import { AuthService } from '../auth.service';
-import { UserType, UserRole } from '@repo/types';
+import { UserRole } from '@repo/types';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
@@ -41,7 +41,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
 
       const user = await this.authService.validateGoogleUser({
         role: UserRole.USER,
-        type: UserType.ESTUDIANTE,
         email: profile.emails[0].value,
         givenName: profile.name.givenName,
         familyName: profile.name.familyName || '',

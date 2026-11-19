@@ -3,6 +3,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/admin-sidebar';
 import { cookies } from 'next/headers';
 import { ProfileProvider } from 'context/profile-provider';
+import { OpenMobileSidebarForProfileReminder } from '@/components/nav-user';
 import { redirect } from 'next/navigation';
 import { IUser, UserRole } from '@repo/types';
 
@@ -45,6 +46,7 @@ export default async function AdminDashboardLayout({
   return (
     <ProfileProvider initialUser={user}>
       <SidebarProvider>
+        <OpenMobileSidebarForProfileReminder />
         <AdminSidebar />
         <main className="w-full">{children}</main>
       </SidebarProvider>

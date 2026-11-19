@@ -50,6 +50,7 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
     role,
     givenName,
     familyName,
+    title,
     avatarUrl,
     email,
     dateOfBirth,
@@ -205,6 +206,10 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                   />
                 </div>
               </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="text-gray-500 px-4">Título</TableCell>
+              <TableCell>{display(title)}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell className="text-gray-500 px-4">
