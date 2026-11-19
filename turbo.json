@@ -13,7 +13,8 @@
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
     "GOOGLE_CALLBACK_URL",
-    "PORT"
+    "PORT",
+    "LETTERHEAD_PATH"
   ],
   "tasks": {
     "build": {

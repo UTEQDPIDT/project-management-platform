@@ -31,6 +31,7 @@ export interface IProject {
   createdAt: Date;
   updatedAt: Date;
   status: ProjectStatus;
+  completionPercentage?: number;
   validationStatus?: ProjectValidation;
   firstValidatedBy?: IUser; //redundant, correct if applicable
   ValidationBy?: IUser;

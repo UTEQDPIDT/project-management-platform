@@ -42,6 +42,7 @@ COPY --from=builder /app/packages/types/package.json ./packages/types/package.js
 
 # Copy the API build
 COPY --from=builder --chown=app:app /app/apps/api/dist ./apps/api/dist
+COPY --from=prune --chown=app:app /app/apps/web/app/letterhead.pdf ./apps/web/app/letterhead.pdf
 
 USER app
 EXPOSE 3001

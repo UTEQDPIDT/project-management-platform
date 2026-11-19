@@ -9,16 +9,17 @@ import { EntityType, Status, UserRole } from '@repo/types';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { Project } from '../schemas/project.schema';
 import { Event } from '../schemas/event.schema';
+import { Types } from 'mongoose';
 
 describe('ActivitiesService', () => {
   let service: ActivitiesService;
 
-  const activityModelMock = {
+  const activityModelMock = Object.assign(jest.fn(), {
     findById: jest.fn(),
     findByIdAndUpdate: jest.fn(),
     countDocuments: jest.fn(),
     findByIdAndDelete: jest.fn(),
-  };
+  });
 
   const projectModelMock = {
     findById: jest.fn(),
@@ -58,6 +59,24 @@ describe('ActivitiesService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('recomputes progress when a project activity is created', async () => {
+    const saved = jest.fn().mockResolvedValue(undefined);
+    activityModelMock.mockImplementation(() => ({
+      entityId: 'p1', entityType: EntityType.PROJECT, save: saved,
+    }));
+    projectModelMock.findById.mockReturnValue({
+      select: () => ({ populate: () => Promise.resolve({ owner: 'user-1', team: { memberships: [] } }) }),
+    });
+
+    await service.create(
+      { name: 'Nueva actividad', entityId: 'p1', entityType: EntityType.PROJECT },
+      'user-1',
+      UserRole.USER,
+    );
+    expect(saved).toHaveBeenCalled();
+    expect(projectsServiceMock.recomputeProjectStatus).toHaveBeenCalledWith('p1');
   });
 
   it('denies an excluded member access even when they created the activity', async () => {
@@ -171,6 +190,23 @@ describe('ActivitiesService', () => {
     await service.update('a1', updateDto, 'user-1', UserRole.USER);
 
     expect(projectsServiceMock.recomputeProjectStatus).not.toHaveBeenCalled();
+  });
+
+  it('recomputes both projects when an activity is moved', async () => {
+    const target = new Types.ObjectId();
+    activityModelMock.findById.mockResolvedValue({
+      _id: 'a1', status: Status.PENDING,
+      entityType: EntityType.PROJECT, entityId: 'p1',
+    });
+    projectModelMock.findById.mockReturnValue({
+      select: () => ({ populate: () => Promise.resolve({ owner: 'user-1', team: { memberships: [] } }) }),
+    });
+    activityModelMock.countDocuments.mockResolvedValue(4);
+    activityModelMock.findByIdAndUpdate.mockResolvedValue({ _id: 'a1' });
+
+    await service.update('a1', { entityId: target.toString() }, 'user-1', UserRole.USER);
+    expect(projectsServiceMock.recomputeProjectStatus).toHaveBeenCalledWith('p1');
+    expect(projectsServiceMock.recomputeProjectStatus).toHaveBeenCalledWith(target.toString());
   });
 
   it('should block removing a project activity when only 3 activities remain', async () => {

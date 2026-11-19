@@ -26,12 +26,13 @@ export interface FacetedFilterConfig {
 }
 
 export type DateSortOrder = 'default' | 'newest' | 'oldest';
-export type DateSortField = 'createdAt' | 'updatedAt';
+export type DateSortField = 'createdAt' | 'updatedAt' | 'issuedAt';
 export type DateSortState = { field: DateSortField; order: DateSortOrder };
 
 const DATE_SORT_LABELS: Record<DateSortField, string> = {
   createdAt: 'Fecha de creación',
   updatedAt: 'Última actualización',
+  issuedAt: 'Fecha de emisión',
 };
 
 interface DataTableToolbarProps<TData> {

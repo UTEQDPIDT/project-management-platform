@@ -13,6 +13,7 @@ WORKDIR /app
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages ./packages
 COPY apps/api ./apps/api
+COPY apps/web/app/letterhead.pdf ./apps/web/app/letterhead.pdf
 
 RUN pnpm install
 

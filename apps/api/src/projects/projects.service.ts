@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   forwardRef,
   Inject,
@@ -261,22 +262,32 @@ export class ProjectsService {
    * @param projectId The unique identifier of the project.
    */
   async recomputeProjectStatus(projectId: string): Promise<ProjectStatus> {
-    const project = await this.projectModel.findById(projectId);
-
-    if (!project) {
-      throw new NotFoundException(`Project with ID: ${projectId} not found`);
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const project = await this.projectModel.findById(projectId);
+      if (!project) {
+        throw new NotFoundException(`Project with ID: ${projectId} not found`);
+      }
+      if (project.get('validationStatus') === ProjectValidation.FINAL_VALIDATION) {
+        throw new ForbiddenException('Cannot change the status of a project that has been validated and closed.');
+      }
+      const activities = await this.activitiesService.findByEntityId(projectId, EntityType.PROJECT);
+      const status = this.getProjectStatusFromActivities(activities);
+      const completionPercentage = Math.round(
+        (activities.filter((activity) => activity.status === Status.COMPLETED).length /
+          activities.length) * 100,
+      );
+      const updated = await this.projectModel.findOneAndUpdate(
+        {
+          _id: projectId,
+          progressRevision: project.get('progressRevision') ?? null,
+          validationStatus: { $ne: ProjectValidation.FINAL_VALIDATION },
+        },
+        { $set: { status, completionPercentage }, $inc: { progressRevision: 1 } },
+        { new: true },
+      );
+      if (updated) return status;
     }
-
-    if (project.get('validationStatus') === ProjectValidation.FINAL_VALIDATION) {
-      throw new ForbiddenException('Cannot change the status of a project that has been validated and closed.');
-    }
-
-    const activities = await this.activitiesService.findByEntityId(projectId);
-    const status = this.getProjectStatusFromActivities(activities);
-
-    await this.projectModel.findByIdAndUpdate(projectId, { status });
-
-    return status;
+    throw new ConflictException('No se pudo actualizar el avance del proyecto por cambios simultáneos.');
   }
 
   /**

@@ -72,6 +72,7 @@ describe('ProjectsService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    projectModelMock.findOneAndUpdate.mockReset().mockResolvedValue({});
     teamModelMock.find.mockReturnValue({
       select: jest.fn().mockReturnValue({
         exec: jest.fn().mockResolvedValue([]),
@@ -348,9 +349,11 @@ describe('ProjectsService', () => {
     const status = await service.recomputeProjectStatus('project-1');
 
     expect(status).toBe(ProjectStatus.PENDING);
-    expect(projectModelMock.findByIdAndUpdate).toHaveBeenCalledWith('project-1', {
-      status: ProjectStatus.PENDING,
-    });
+    expect(projectModelMock.findOneAndUpdate).toHaveBeenCalledWith(
+      { _id: 'project-1', progressRevision: null, validationStatus: { $ne: ProjectValidation.FINAL_VALIDATION } },
+      { $set: { status: ProjectStatus.PENDING, completionPercentage: 0 }, $inc: { progressRevision: 1 } },
+      { new: true },
+    );
   });
 
   it('should set project status to COMPLETED when all activities are completed', async () => {
@@ -367,9 +370,11 @@ describe('ProjectsService', () => {
     const status = await service.recomputeProjectStatus('project-1');
 
     expect(status).toBe(ProjectStatus.COMPLETED);
-    expect(projectModelMock.findByIdAndUpdate).toHaveBeenCalledWith('project-1', {
-      status: ProjectStatus.COMPLETED,
-    });
+    expect(projectModelMock.findOneAndUpdate).toHaveBeenCalledWith(
+      expect.any(Object),
+      { $set: { status: ProjectStatus.COMPLETED, completionPercentage: 100 }, $inc: { progressRevision: 1 } },
+      { new: true },
+    );
   });
 
   it('should set project status to IN_PROGRESS when activities are mixed', async () => {
@@ -386,9 +391,28 @@ describe('ProjectsService', () => {
     const status = await service.recomputeProjectStatus('project-1');
 
     expect(status).toBe(ProjectStatus.IN_PROGRESS);
-    expect(projectModelMock.findByIdAndUpdate).toHaveBeenCalledWith('project-1', {
-      status: ProjectStatus.IN_PROGRESS,
+    expect(projectModelMock.findOneAndUpdate).toHaveBeenCalledWith(
+      expect.any(Object),
+      { $set: { status: ProjectStatus.IN_PROGRESS, completionPercentage: 33 }, $inc: { progressRevision: 1 } },
+      { new: true },
+    );
+  });
+
+  it('retries progress calculation after a concurrent update', async () => {
+    projectModelMock.findById.mockResolvedValue({
+      get: jest.fn().mockReturnValue(null),
     });
+    activitiesServiceMock.findByEntityId
+      .mockResolvedValueOnce([{ status: Status.PENDING }, { status: Status.PENDING }, { status: Status.PENDING }])
+      .mockResolvedValueOnce([{ status: Status.COMPLETED }, { status: Status.PENDING }, { status: Status.PENDING }]);
+    projectModelMock.findOneAndUpdate.mockResolvedValueOnce(null).mockResolvedValueOnce({});
+
+    await expect(service.recomputeProjectStatus('project-1')).resolves.toBe(ProjectStatus.IN_PROGRESS);
+    expect(projectModelMock.findOneAndUpdate).toHaveBeenLastCalledWith(
+      expect.any(Object),
+      { $set: { status: ProjectStatus.IN_PROGRESS, completionPercentage: 33 }, $inc: { progressRevision: 1 } },
+      { new: true },
+    );
   });
 
   it('should throw when recomputing status with fewer than 3 activities', async () => {
