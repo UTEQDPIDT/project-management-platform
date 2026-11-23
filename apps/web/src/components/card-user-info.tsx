@@ -73,6 +73,8 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
     value === null || value === undefined ? null : value ? 'Sí' : 'No';
 
   const typeBadge = getUserTypeBadge(type);
+  const showStaffFields =
+    type === UserType.MAESTRO || type === UserType.ADMINISTRATIVO;
   const canToggleRole =
     user.role === UserRole.ADMIN &&
     user.canCloseElements &&
@@ -117,7 +119,10 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem asChild>
-                  <Dialog open={isEditProfileOpen} onOpenChange={setIsEditProfileOpen}>
+                  <Dialog
+                    open={isEditProfileOpen}
+                    onOpenChange={setIsEditProfileOpen}
+                  >
                     <DialogTrigger className="w-full justify-start font-normal">
                       <Pencil /> Editar
                     </DialogTrigger>
@@ -154,8 +159,8 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                         <DialogHeader>
                           <DialogTitle>Cambiar rol</DialogTitle>
                           <DialogDescription>
-                            Esta acción actualizará el rol del usuario.
-                            Solo continúa si estás seguro.
+                            Esta acción actualizará el rol del usuario. Solo
+                            continúa si estás seguro.
                           </DialogDescription>
                         </DialogHeader>
                         <Separator />
@@ -207,10 +212,12 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
                 </div>
               </TableCell>
             </TableRow>
-            <TableRow>
-              <TableCell className="text-gray-500 px-4">Título</TableCell>
-              <TableCell>{display(title)}</TableCell>
-            </TableRow>
+            {showStaffFields && (
+              <TableRow>
+                <TableCell className="text-gray-500 px-4">Título</TableCell>
+                <TableCell>{display(title)}</TableCell>
+              </TableRow>
+            )}
             <TableRow>
               <TableCell className="text-gray-500 px-4">
                 Correo electrónico
@@ -239,34 +246,42 @@ export default function CardUserInfo({ profile }: CardUserInfoProps) {
               <TableCell className="text-gray-500 px-4">Sexo</TableCell>
               <TableCell>{display(sex)}</TableCell>
             </TableRow>
-            <TableRow>
-              <TableCell className="text-gray-500 px-4">
-                ¿Tiene alguna discapacidad?
-              </TableCell>
-              <TableCell>{display(yesNo(hasDisability))}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="text-gray-500 px-4">
-                ¿Habla alguna lengua indígena?
-              </TableCell>
-              <TableCell>{display(yesNo(speaksIndigenousLanguage))}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="text-gray-500 px-4">
-                Nivel de estudios
-              </TableCell>
-              <TableCell>{display(educationLevel)}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="text-gray-500 px-4">
-                Tipo de investigador
-              </TableCell>
-              <TableCell>{display(researcherType)}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="text-gray-500 px-4">Nivel SNII</TableCell>
-              <TableCell>{display(sniiLevel)}</TableCell>
-            </TableRow>
+            {showStaffFields && (
+              <>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    ¿Tiene alguna discapacidad?
+                  </TableCell>
+                  <TableCell>{display(yesNo(hasDisability))}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    ¿Habla alguna lengua indígena?
+                  </TableCell>
+                  <TableCell>
+                    {display(yesNo(speaksIndigenousLanguage))}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    Nivel de estudios
+                  </TableCell>
+                  <TableCell>{display(educationLevel)}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    Tipo de investigador
+                  </TableCell>
+                  <TableCell>{display(researcherType)}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="text-gray-500 px-4">
+                    Nivel SNII
+                  </TableCell>
+                  <TableCell>{display(sniiLevel)}</TableCell>
+                </TableRow>
+              </>
+            )}
           </TableBody>
         </Table>
       </CardContent>

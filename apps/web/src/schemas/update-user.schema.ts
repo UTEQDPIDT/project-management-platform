@@ -20,7 +20,7 @@ export const updateUserSchema = z.object({
     .trim()
     .min(2, 'El apellido debe tener al menos 2 caracteres')
     .max(40, 'El apellido no puede exceder 40 caracteres'),
-  title: z.string().trim().max(40, 'El título no puede exceder 40 caracteres'),
+  title: z.string().trim(),
   type: z.enum(UserType, 'No es una opción válida').optional(),
   sex: z.enum(Sex, 'No es una opción válida').nullable(),
   hasDisability: z.boolean().nullable(),
@@ -35,6 +35,17 @@ export const updateUserSchema = z.object({
   careerLevel: z.enum(CareerLevel, 'No es una opción válida').optional(),
   division: mongoId.optional().or(z.literal('')),
   educationalProgram: mongoId.optional().or(z.literal('')),
+}).superRefine((data, ctx) => {
+  if (
+    (data.type === UserType.MAESTRO || data.type === UserType.ADMINISTRATIVO) &&
+    data.title.length > 40
+  ) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['title'],
+      message: 'El título no puede exceder 40 caracteres',
+    });
+  }
 });
 
 export type UpdateUser = z.infer<typeof updateUserSchema>;
