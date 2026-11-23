@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { LogOut, CircleUserRound, EllipsisVertical } from 'lucide-react';
+import { LogOut, CircleUserRound, EllipsisVertical, Info } from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -137,19 +137,28 @@ export function NavUser() {
             </DropdownMenuContent>
           </DropdownMenu>
           <PopoverContent
+            className="w-80 max-w-[calc(100vw-2rem)] rounded-lg border-amber-400 bg-amber-50 p-5 text-amber-950 shadow-lg"
             side={isMobile ? 'top' : 'right'}
             align="end"
             sideOffset={8}
             onOpenAutoFocus={(event) => event.preventDefault()}
           >
-            <PopoverArrow className="fill-popover stroke-border" />
-            <p className="font-semibold">Conoce tu perfil</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Abre el menú de usuario para explorar tu perfil y actualizar tus
-              datos.
-            </p>
+            <PopoverArrow className="fill-amber-50 stroke-amber-400" />
+            <div className="flex items-start gap-3">
+              <Info
+                className="mt-0.5 size-6 shrink-0 text-amber-700"
+                aria-hidden="true"
+              />
+              <div>
+                <p className="text-lg font-semibold">Conoce tu perfil</p>
+                <p className="mt-1 text-sm leading-relaxed text-amber-900">
+                  Abre el menú de usuario para explorar tu perfil y actualizar
+                  tus datos.
+                </p>
+              </div>
+            </div>
             <Button
-              className="mt-3"
+              className="mt-4 bg-amber-800 text-white hover:bg-amber-900"
               size="sm"
               onClick={() => setReminderOpen(false)}
             >

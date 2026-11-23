@@ -209,7 +209,7 @@ export default function UserForm({
                         aria-invalid={fieldState.invalid}
                       />
                       <FieldDescription id="title-description">
-                        Por ejemplo: M. en A., Msc., Dr., Dra.
+                        Por ejemplo: Lic., Ing., M. en A., Msc., Dr., Dra.
                       </FieldDescription>
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
