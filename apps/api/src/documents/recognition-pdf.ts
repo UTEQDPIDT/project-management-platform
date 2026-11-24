@@ -183,6 +183,40 @@ export async function renderRecognition(content: RecognitionContent): Promise<Bu
   return Buffer.from(await result.save());
 }
 
+function renderActivityWithIndentation(doc: PDFKit.PDFDocument, activity: { name: string; dueDate?: Date }) {
+  const left = doc.page.margins.left;
+  const width = doc.page.width - left - doc.page.margins.right;
+  const bulletIndent = 12;
+  const bulletWidth = doc.widthOfString('• ');
+  const textIndent = bulletIndent + bulletWidth;
+  
+  const text = `${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`;
+  const availableWidth = width - textIndent;
+  
+  // Split text manually to handle indentation
+  const lines: string[] = [];
+  let currentLine = '';
+  
+  for (const word of text.split(/\s+/)) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    if (doc.widthOfString(testLine) <= availableWidth) {
+      currentLine = testLine;
+    } else {
+      if (currentLine) lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  if (currentLine) lines.push(currentLine);
+  
+  for (let i = 0; i < lines.length; i++) {
+    if (i === 0) {
+      doc.text(`• ${lines[i]}`, { indent: bulletIndent });
+    } else {
+      doc.text(lines[i], { indent: textIndent });
+    }
+  }
+}
+
 function renderConstancia(doc: PDFKit.PDFDocument, content: RecognitionContent) {
   const subject = 'Asunto';
   const subjectSuffix = ': Constancia de investigación';
@@ -236,25 +270,25 @@ function renderConstancia(doc: PDFKit.PDFDocument, content: RecognitionContent) 
   
   if (completedActivities.length > 0) {
     doc.font('Helvetica-Bold').fontSize(9).text('Completadas:', { indent: 0 });
-    doc.font('Helvetica');
+    doc.font('Helvetica').fontSize(9);
     completedActivities.forEach(activity => {
-      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
+      renderActivityWithIndentation(doc, activity);
     });
   }
   
   if (inProgressActivities.length > 0) {
     doc.font('Helvetica-Bold').fontSize(9).text('En Progreso:', { indent: 0 });
-    doc.font('Helvetica');
+    doc.font('Helvetica').fontSize(9);
     inProgressActivities.forEach(activity => {
-      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
+      renderActivityWithIndentation(doc, activity);
     });
   }
   
   if (pendingActivities.length > 0) {
     doc.font('Helvetica-Bold').fontSize(9).text('Pendientes:', { indent: 0 });
-    doc.font('Helvetica');
+    doc.font('Helvetica').fontSize(9);
     pendingActivities.forEach(activity => {
-      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
+      renderActivityWithIndentation(doc, activity);
     });
   }
   
@@ -324,25 +358,25 @@ function renderRecomendacion(doc: PDFKit.PDFDocument, content: RecognitionConten
   
   if (completedActivities.length > 0) {
     doc.font('Helvetica-Bold').fontSize(9).text('Completadas:', { indent: 0 });
-    doc.font('Helvetica');
+    doc.font('Helvetica').fontSize(9);
     completedActivities.forEach(activity => {
-      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
+      renderActivityWithIndentation(doc, activity);
     });
   }
   
   if (inProgressActivities.length > 0) {
     doc.font('Helvetica-Bold').fontSize(9).text('En Progreso:', { indent: 0 });
-    doc.font('Helvetica');
+    doc.font('Helvetica').fontSize(9);
     inProgressActivities.forEach(activity => {
-      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
+      renderActivityWithIndentation(doc, activity);
     });
   }
   
   if (pendingActivities.length > 0) {
     doc.font('Helvetica-Bold').fontSize(9).text('Pendientes:', { indent: 0 });
-    doc.font('Helvetica');
+    doc.font('Helvetica').fontSize(9);
     pendingActivities.forEach(activity => {
-      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
+      renderActivityWithIndentation(doc, activity);
     });
   }
   
@@ -370,7 +404,7 @@ function renderProjectTable(doc: PDFKit.PDFDocument, content: RecognitionContent
   const rows: [string, string][] = [
     ['Campo', 'Especificación'],
     ['Organización', content.organization],
-    ['Programa', content.program],
+    ['Programa', content.program || 'sin programa'],
     ['Periodo de Ejecución', `${date(content.startDate)} - ${date(content.endDate)}`],
     ['Estatus y Avance', `${content.projectStatus} (Avance registrado del ${content.progress}%)`],
     ['Nivel de TRL', `Nivel ${content.trlRating}`],
