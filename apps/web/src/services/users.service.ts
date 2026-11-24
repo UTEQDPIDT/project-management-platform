@@ -23,7 +23,7 @@ const updateUser = async ({
   data,
 }: {
   userId: string;
-  data: UpdateUser;
+  data: Partial<UpdateUser>;
 }) => {
   try {
     const { status } = await api.patch(`/users/${userId}`, data);

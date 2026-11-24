@@ -123,8 +123,28 @@ export default function UserForm({
   });
 
   const onSubmit = (data: UpdateUser) => {
+    const {
+      title,
+      hasDisability,
+      speaksIndigenousLanguage,
+      educationLevel,
+      researcherType,
+      sniiLevel,
+      ...commonData
+    } = data;
     const cleanedData = {
-      ...data,
+      ...commonData,
+      ...(data.type === UserType.MAESTRO ||
+      data.type === UserType.ADMINISTRATIVO
+        ? {
+            title,
+            hasDisability,
+            speaksIndigenousLanguage,
+            educationLevel,
+            researcherType,
+            sniiLevel,
+          }
+        : {}),
       educationalProgram:
         data.educationalProgram === '' ? undefined : data.educationalProgram,
       division: data.division === '' ? undefined : data.division,
@@ -148,6 +168,8 @@ export default function UserForm({
    * Reset values when user type changes
    */
   const userType = form.watch('type');
+  const showStaffFields =
+    userType === UserType.MAESTRO || userType === UserType.ADMINISTRATIVO;
   const { setValue } = form;
 
   useEffect(() => {
@@ -167,7 +189,6 @@ export default function UserForm({
             <FieldLegend>Información Personal</FieldLegend>
             <FieldGroup>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
-                
                 <Controller
                   control={form.control}
                   name="givenName"
@@ -196,27 +217,29 @@ export default function UserForm({
                   )}
                 />
 
-                <Controller
-                  control={form.control}
-                  name="title"
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor={field.name}>Título</FieldLabel>
-                      <Input
-                        {...field}
-                        id={field.name}
-                        aria-describedby="title-description"
-                        aria-invalid={fieldState.invalid}
-                      />
-                      <FieldDescription id="title-description">
-                        Por ejemplo: M. en A., Msc., Dr., Dra.
-                      </FieldDescription>
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
-                    </Field>
-                  )}
-                />
+                {showStaffFields && (
+                  <Controller
+                    control={form.control}
+                    name="title"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>Título</FieldLabel>
+                        <Input
+                          {...field}
+                          id={field.name}
+                          aria-describedby="title-description"
+                          aria-invalid={fieldState.invalid}
+                        />
+                        <FieldDescription id="title-description">
+                          Por ejemplo: Lic., Ing., M. en A., Msc., Dr., Dra.
+                        </FieldDescription>
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+                )}
 
                 <Controller
                   control={form.control}
@@ -257,125 +280,139 @@ export default function UserForm({
                   )}
                 />
 
-                <Controller
-                  control={form.control}
-                  name="hasDisability"
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor={field.name}>
-                        ¿Tiene alguna discapacidad?
-                      </FieldLabel>
-                      <NullableSelect
-                        id={field.name}
-                        value={field.value}
-                        onChange={(value) =>
-                          field.onChange(value === null ? null : value === 'true')
-                        }
-                        options={YES_NO_OPTIONS}
-                        invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
+                {showStaffFields && (
+                  <>
+                    <Controller
+                      control={form.control}
+                      name="hasDisability"
+                      render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                          <FieldLabel htmlFor={field.name}>
+                            ¿Tiene alguna discapacidad?
+                          </FieldLabel>
+                          <NullableSelect
+                            id={field.name}
+                            value={field.value}
+                            onChange={(value) =>
+                              field.onChange(
+                                value === null ? null : value === 'true',
+                              )
+                            }
+                            options={YES_NO_OPTIONS}
+                            invalid={fieldState.invalid}
+                          />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
                       )}
-                    </Field>
-                  )}
-                />
+                    />
 
-                <Controller
-                  control={form.control}
-                  name="speaksIndigenousLanguage"
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor={field.name}>
-                        ¿Habla alguna lengua indígena?
-                      </FieldLabel>
-                      <NullableSelect
-                        id={field.name}
-                        value={field.value}
-                        onChange={(value) =>
-                          field.onChange(value === null ? null : value === 'true')
-                        }
-                        options={YES_NO_OPTIONS}
-                        invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
+                    <Controller
+                      control={form.control}
+                      name="speaksIndigenousLanguage"
+                      render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                          <FieldLabel htmlFor={field.name}>
+                            ¿Habla alguna lengua indígena?
+                          </FieldLabel>
+                          <NullableSelect
+                            id={field.name}
+                            value={field.value}
+                            onChange={(value) =>
+                              field.onChange(
+                                value === null ? null : value === 'true',
+                              )
+                            }
+                            options={YES_NO_OPTIONS}
+                            invalid={fieldState.invalid}
+                          />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
                       )}
-                    </Field>
-                  )}
-                />
+                    />
+                  </>
+                )}
               </div>
             </FieldGroup>
           </FieldSet>
 
-          <FieldSeparator />
+          {showStaffFields && (
+            <>
+              <FieldSeparator />
 
-          <FieldSet>
-            <FieldLegend>Información Académica</FieldLegend>
-            <FieldGroup>
-              <Controller
-                control={form.control}
-                name="educationLevel"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Nivel de estudios</FieldLabel>
-                    <NullableSelect
-                      id={field.name}
-                      value={field.value}
-                      onChange={field.onChange}
-                      options={enumOptions(Object.values(EducationLevel))}
-                      invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
+              <FieldSet>
+                <FieldLegend>Información Académica</FieldLegend>
+                <FieldGroup>
+                  <Controller
+                    control={form.control}
+                    name="educationLevel"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>
+                          Nivel de estudios
+                        </FieldLabel>
+                        <NullableSelect
+                          id={field.name}
+                          value={field.value}
+                          onChange={field.onChange}
+                          options={enumOptions(Object.values(EducationLevel))}
+                          invalid={fieldState.invalid}
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
                     )}
-                  </Field>
-                )}
-              />
+                  />
 
-              <Controller
-                control={form.control}
-                name="researcherType"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Tipo de investigador
-                    </FieldLabel>
-                    <NullableSelect
-                      id={field.name}
-                      value={field.value}
-                      onChange={field.onChange}
-                      options={enumOptions(Object.values(ResearcherType))}
-                      invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
+                  <Controller
+                    control={form.control}
+                    name="researcherType"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>
+                          Tipo de investigador
+                        </FieldLabel>
+                        <NullableSelect
+                          id={field.name}
+                          value={field.value}
+                          onChange={field.onChange}
+                          options={enumOptions(Object.values(ResearcherType))}
+                          invalid={fieldState.invalid}
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
                     )}
-                  </Field>
-                )}
-              />
+                  />
 
-              <Controller
-                control={form.control}
-                name="sniiLevel"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Nivel SNII</FieldLabel>
-                    <NullableSelect
-                      id={field.name}
-                      value={field.value}
-                      onChange={field.onChange}
-                      options={enumOptions(Object.values(SniiLevel))}
-                      invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
+                  <Controller
+                    control={form.control}
+                    name="sniiLevel"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>Nivel SNII</FieldLabel>
+                        <NullableSelect
+                          id={field.name}
+                          value={field.value}
+                          onChange={field.onChange}
+                          options={enumOptions(Object.values(SniiLevel))}
+                          invalid={fieldState.invalid}
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
                     )}
-                  </Field>
-                )}
-              />
-            </FieldGroup>
-          </FieldSet>
+                  />
+                </FieldGroup>
+              </FieldSet>
+            </>
+          )}
 
           <FieldSeparator />
 
