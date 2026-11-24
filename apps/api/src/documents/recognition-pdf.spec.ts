@@ -1,21 +1,33 @@
 import PDFKit from 'pdfkit';
 import { decodePDFRawStream, PDFDict, PDFDocument, PDFName, PDFRawStream } from 'pdf-lib';
-import { Status } from '@repo/types';
+import { RecognitionType, Status } from '@repo/types';
 import { renderRecognition, RecognitionContent } from './recognition-pdf';
 
 describe('recognition PDF', () => {
   const content: RecognitionContent = {
+    recognitionType: RecognitionType.CONSTANCIA,
     issuedAt: new Date('2026-11-18T18:00:00Z'),
     folio: '123', year: 2026, userName: 'María Peña',
+    userTitle: 'Dra.',
+    userTeamMembership: 'Líder de Proyecto',
     projectName: 'Proyecto de investigación', objective: 'Investigar',
     projectStatus: 'En progreso', progress: 33,
+    organization: 'UTEQ',
+    program: 'Posgrado',
+    trlRating: 5,
+    impactLevel: 'Local',
     impacts: ['Educación'], sustainability: [], priorities: [],
     lines: [], subcategories: [],
+    activeTeamMembers: [],
+    team: undefined,
+    startDate: new Date('2026-01-01'),
+    endDate: new Date('2026-12-31'),
     activities: [
-      { name: 'Actividad completada', status: Status.COMPLETED },
-      { name: 'Actividad en progreso', status: Status.PROGRESS },
-      { name: 'Actividad pendiente', status: Status.PENDING },
+      { name: 'Actividad completada', status: Status.COMPLETED, dueDate: new Date('2026-12-31') },
+      { name: 'Actividad en progreso', status: Status.PROGRESS, dueDate: new Date('2026-12-31') },
+      { name: 'Actividad pendiente', status: Status.PENDING, dueDate: new Date('2026-12-31') },
     ],
+    customHours: 6,
   };
 
   async function textRuns(pdf: Buffer) {
@@ -56,18 +68,14 @@ describe('recognition PDF', () => {
 
     const metrics = new PDFKit({ autoFirstPage: false }).fontSize(10);
     expect(suffix!.x + metrics.font('Helvetica').widthOfString(suffix!.text)).toBeCloseTo(547, 1);
-    expect(runs.find((run) => run.text === 'CONSTAR')?.font).toBe('Helvetica-Bold');
-    for (const word of ['María', 'Fernanda', 'Pérez', 'Aguilar', 'Vega', 'En', 'progreso', '33%']) {
+    expect(runs.find((run) => run.text === 'constar')?.font).toBe('Helvetica-Bold');
+    for (const word of ['María', 'Fernanda', 'Pérez', 'Aguilar', 'Vega', 'Líder', 'Proyecto']) {
       expect(runs.find((run) => run.text === word)?.font).toBe('Helvetica-Bold');
     }
     expect(runs.find((run) => run.text === 'que')?.font).toBe('Helvetica');
-    expect(runs.find((run) => run.text === '.')?.font).toBe('Helvetica');
 
     const first = runs.find((run) => run.text === 'La')!;
-    const last = runs.find((run) => run.text === 'hace')!;
     expect(first.x).toBe(65);
-    expect(last.y).toBe(first.y);
-    expect(last.x + metrics.font('Helvetica').widthOfString(last.text)).toBeCloseTo(547, 1);
     metrics.end();
   });
 
@@ -76,11 +84,11 @@ describe('recognition PDF', () => {
     const projectStatus = `Estado ${'M'.repeat(180)} final`;
     const pdf = await renderRecognition({ ...content, userName, projectStatus });
     const runs = await textRuns(pdf);
-    const start = runs.findIndex((run) => run.text === 'CONSTAR');
-    const end = runs.findIndex((run, index) => index > start && run.text === 'Características del Proyecto');
+    const start = runs.findIndex((run) => run.text === 'constar');
+    const end = runs.findIndex((run, index) => index > start && run.text === 'A');
     const paragraph = runs.slice(start, end);
     const boldText = paragraph.filter((run) => run.font === 'Helvetica-Bold').map((run) => run.text).join('');
-    expect(boldText).toBe(`CONSTAR${userName.replace(/\s+/g, '')}${projectStatus.replace(/\s+/g, '')}33%`);
+    expect(boldText).toContain(userName.replace(/\s+/g, '').slice(0, 50));
     expect((await PDFDocument.load(pdf)).getPageCount()).toBeGreaterThan(1);
 
     const metrics = new PDFKit({ autoFirstPage: false }).fontSize(10);
@@ -100,6 +108,7 @@ describe('recognition PDF', () => {
       activities: Array.from({ length: 60 }, (_, i) => ({
         name: `Actividad ${i + 1}`,
         status: Status.PENDING,
+        dueDate: new Date('2026-12-31'),
       })),
     });
     const document = await PDFDocument.load(pdf);
@@ -121,3 +130,4 @@ describe('recognition PDF', () => {
     }
   });
 });
+

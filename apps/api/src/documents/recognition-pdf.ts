@@ -2,17 +2,24 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import PDFDocument from 'pdfkit';
 import { PDFDocument as PDFLibDocument } from 'pdf-lib';
-import { Status } from '@repo/types';
+import { RecognitionType, Status } from '@repo/types';
 
 export type RecognitionContent = {
+  recognitionType: RecognitionType;
   issuedAt: Date;
   folio: string;
   year: number;
   userName: string;
+  userTitle: string;
+  userTeamMembership: string; // e.g., "Líder de Grupo de Investigación", "Miembro de Grupo de Investigación", or "Líder de Proyecto"
   projectName: string;
   objective: string;
   projectStatus: string;
   progress: number;
+  organization: string;
+  program: string;
+  trlRating: number;
+  impactLevel: string;
   startDate?: Date;
   endDate?: Date;
   impacts: string[];
@@ -20,7 +27,10 @@ export type RecognitionContent = {
   priorities: string[];
   lines: string[];
   subcategories: string[];
+  activeTeamMembers: { name: string; type: string }[]; // name and tipo (maestro/estudiante)
+  team?: string; // Team name or null
   activities: { name: string; status: Status; dueDate?: Date }[];
+  customHours?: number;
 };
 
 const date = (value?: Date) =>
@@ -149,8 +159,35 @@ export async function renderRecognition(content: RecognitionContent): Promise<Bu
   doc.font('Helvetica').fontSize(10);
   doc.text(`Querétaro, Qro., ${date(content.issuedAt)}`, { align: 'right' });
   doc.text(`UTEQ/DPIDT/INV/${content.folio}/${content.year}`, { align: 'right' });
+  
+  if (content.recognitionType === RecognitionType.RECOMENDACION) {
+    renderRecomendacion(doc, content);
+  } else {
+    renderConstancia(doc, content);
+  }
+  
+  doc.end();
+
+  const textPdf = await PDFLibDocument.load(await rendered);
+  const result = await PDFLibDocument.create();
+  const [background] = await result.embedPdf(await template.save(), [0]);
+  const textPages = await result.embedPdf(
+    await textPdf.save(),
+    textPdf.getPageIndices(),
+  );
+  for (const textPage of textPages) {
+    const page = result.addPage([width, height]);
+    page.drawPage(background);
+    page.drawPage(textPage);
+  }
+  return Buffer.from(await result.save());
+}
+
+function renderConstancia(doc: PDFKit.PDFDocument, content: RecognitionContent) {
   const subject = 'Asunto';
   const subjectSuffix = ': Constancia de investigación';
+  const width = doc.page.width;
+  const height = doc.page.height;
   const subjectBoldWidth = doc.font('Helvetica-Bold').widthOfString(subject);
   const subjectWidth = subjectBoldWidth + doc.font('Helvetica').widthOfString(subjectSuffix);
   const subjectX = width - doc.page.margins.right - subjectWidth;
@@ -160,34 +197,189 @@ export async function renderRecognition(content: RecognitionContent): Promise<Bu
   doc.x = doc.page.margins.left;
   doc.y = subjectY + doc.currentLineHeight(true);
   doc.moveDown(1.5);
+  
   doc.font('Helvetica-Bold').text('A QUIEN CORRESPONDA');
   doc.moveDown();
+  
   justifiedText(doc.font('Helvetica'), [
     { text: 'La Dirección de Posgrado, Investigación y Desarrollo Tecnológico, por medio de la presente, hace ', bold: false },
-    { text: 'CONSTAR', bold: true },
-    { text: ' que ', bold: false },
-    { text: content.userName, bold: true },
-    { text: ' se encuentra desarrollando el siguiente proyecto registrado en el sistema PREP, el cual presenta un estado actual de ', bold: false },
-    { text: content.projectStatus, bold: true },
-    { text: ' con un avance general del ', bold: false },
-    { text: `${content.progress}%`, bold: true },
-    { text: '.', bold: false },
+    { text: 'constar', bold: true },
+    { text: ' que el/la ', bold: false },
+    { text: `${content.userTitle} ${content.userName}`, bold: true },
+    { text: ' se encuentra registrado(a) como ', bold: false },
+    { text: content.userTeamMembership, bold: true },
+    { text: ' en la Plataforma de Registro de Eventos y Proyectos (PREP) de la Universidad Tecnológica de Querétaro, desarrollando el proyecto titulado: ', bold: false },
   ]);
-  doc.moveDown();
-  doc.font('Helvetica-Bold').text('Características del Proyecto');
+  
   doc.moveDown(0.5);
+  doc.font('Helvetica-Bold').text(content.projectName, { align: 'center' });
+  doc.moveDown(0.5);
+  
+  justifiedText(doc.font('Helvetica'), [
+    { text: 'A continuación, se detallan las características generales del proyecto registrado en la Plataforma: ', bold: false },
+  ]);
+  
+  doc.moveDown(0.5);
+  renderProjectTable(doc, content, width, height);
+  
+  doc.moveDown(0.5);
+  doc.font('Helvetica-Bold').fontSize(10).text('Objetivo del proyecto:');
+  doc.font('Helvetica').fontSize(10);
+  justifiedText(doc, [{ text: content.objective, bold: false }]);
+  
+  doc.moveDown(0.5);
+  doc.font('Helvetica-Bold').text('Cronograma de actividades registradas:');
+  doc.font('Helvetica').fontSize(9);
+  
+  const completedActivities = content.activities.filter(a => a.status === Status.COMPLETED);
+  const inProgressActivities = content.activities.filter(a => a.status === Status.PROGRESS);
+  const pendingActivities = content.activities.filter(a => a.status === Status.PENDING);
+  
+  if (completedActivities.length > 0) {
+    doc.text('Completadas:', { indent: 0 });
+    completedActivities.forEach(activity => {
+      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
+    });
+  }
+  
+  if (inProgressActivities.length > 0) {
+    doc.text('En Progreso:', { indent: 0 });
+    inProgressActivities.forEach(activity => {
+      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
+    });
+  }
+  
+  if (pendingActivities.length > 0) {
+    doc.text('Pendientes:', { indent: 0 });
+    pendingActivities.forEach(activity => {
+      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
+    });
+  }
+  
+  doc.moveDown(1.5);
+  doc.fontSize(10);
+  justifiedText(doc, [
+    { text: 'Se extiende la presente constancia a petición del/la interesado(a) y para los fines académicos o administrativos a los que haya lugar. ', bold: false },
+  ]);
+  
+  doc.moveDown(2);
+  doc.font('Helvetica-Bold').text('ATENTAMENTE', { align: 'center' });
+  doc.moveDown(3);
+  doc.font('Helvetica-Bold').text('Dr. Juan Manuel Peña Aguilar', { align: 'center' });
+  doc.font('Helvetica').text('Director de Posgrado, Investigación y Desarrollo Tecnológico', { align: 'center' });
+}
 
+function renderRecomendacion(doc: PDFKit.PDFDocument, content: RecognitionContent) {
+  const subject = 'Asunto';
+  const subjectSuffix = ': Recomendación de horas';
+  const width = doc.page.width;
+  const height = doc.page.height;
+  const subjectBoldWidth = doc.font('Helvetica-Bold').widthOfString(subject);
+  const subjectWidth = subjectBoldWidth + doc.font('Helvetica').widthOfString(subjectSuffix);
+  const subjectX = width - doc.page.margins.right - subjectWidth;
+  const subjectY = doc.y;
+  doc.font('Helvetica-Bold').text(subject, subjectX, subjectY, { lineBreak: false });
+  doc.font('Helvetica').text(subjectSuffix, subjectX + subjectBoldWidth, subjectY, { lineBreak: false });
+  doc.x = doc.page.margins.left;
+  doc.y = subjectY + doc.currentLineHeight(true);
+  doc.moveDown(1.5);
+  
+  doc.font('Helvetica-Bold').text('A QUIEN CORRESPONDA');
+  doc.moveDown();
+  
+  justifiedText(doc.font('Helvetica'), [
+    { text: 'La Dirección de Posgrado, Investigación y Desarrollo Tecnológico, por medio de la presente, hace ', bold: false },
+    { text: 'constar', bold: true },
+    { text: ' que el/la ', bold: false },
+    { text: `${content.userTitle} ${content.userName}`, bold: true },
+    { text: ' se encuentra registrado(a) como ', bold: false },
+    { text: content.userTeamMembership, bold: true },
+    { text: ' en la Plataforma de Registro de Eventos y Proyectos (PREP) de la Universidad Tecnológica de Querétaro, desarrollando el proyecto titulado: ', bold: false },
+  ]);
+  
+  doc.moveDown(0.5);
+  doc.font('Helvetica-Bold').text(content.projectName, { align: 'center' });
+  doc.moveDown(0.5);
+  
+  justifiedText(doc.font('Helvetica'), [
+    { text: 'A continuación, se detallan las características generales del proyecto registrado en la Plataforma: ', bold: false },
+  ]);
+  
+  doc.moveDown(0.5);
+  renderProjectTable(doc, content, width, height);
+  
+  doc.moveDown(0.5);
+  doc.font('Helvetica-Bold').fontSize(10).text('Objetivo del proyecto:');
+  doc.font('Helvetica').fontSize(10);
+  justifiedText(doc, [{ text: content.objective, bold: false }]);
+  
+  doc.moveDown(0.5);
+  doc.font('Helvetica-Bold').text('Cronograma de actividades registradas:');
+  doc.font('Helvetica').fontSize(9);
+  
+  const completedActivities = content.activities.filter(a => a.status === Status.COMPLETED);
+  const inProgressActivities = content.activities.filter(a => a.status === Status.PROGRESS);
+  const pendingActivities = content.activities.filter(a => a.status === Status.PENDING);
+  
+  if (completedActivities.length > 0) {
+    doc.text('Completadas:', { indent: 0 });
+    completedActivities.forEach(activity => {
+      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
+    });
+  }
+  
+  if (inProgressActivities.length > 0) {
+    doc.text('En Progreso:', { indent: 0 });
+    inProgressActivities.forEach(activity => {
+      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
+    });
+  }
+  
+  if (pendingActivities.length > 0) {
+    doc.text('Pendientes:', { indent: 0 });
+    pendingActivities.forEach(activity => {
+      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
+    });
+  }
+  
+  doc.moveDown(1.5);
+  doc.fontSize(10);
+  justifiedText(doc, [
+    { text: 'Con base en lo anterior, la recomendación de la Dirección de Posgrado, Investigación y Desarrollo Tecnológico para la División Académica de adscripción del/la maestro(a), es otorgar un total de ', bold: false },
+    { text: `${content.customHours || 0}`, bold: true },
+    { text: ' horas a la semana para el desarrollo del proyecto. ', bold: false },
+  ]);
+  
+  doc.moveDown(0.5);
+  justifiedText(doc, [
+    { text: 'Se extiende la presente constancia a petición del/la interesado(a) y para los fines académicos o administrativos a los que haya lugar. ', bold: false },
+  ]);
+  
+  doc.moveDown(2);
+  doc.font('Helvetica-Bold').text('ATENTAMENTE', { align: 'center' });
+  doc.moveDown(3);
+  doc.font('Helvetica-Bold').text('Dr. Juan Manuel Peña Aguilar', { align: 'center' });
+  doc.font('Helvetica').text('Director de Posgrado, Investigación y Desarrollo Tecnológico', { align: 'center' });
+}
+
+function renderProjectTable(doc: PDFKit.PDFDocument, content: RecognitionContent, width: number, height: number) {
   const rows: [string, string][] = [
-    ['Campo', 'Detalle / Especificación'],
-    ['Título del Proyecto', content.projectName],
-    ['Objetivo General', content.objective],
+    ['Campo', 'Especificación'],
+    ['Organización', content.organization],
+    ['Programa', content.program],
     ['Periodo de Ejecución', `${date(content.startDate)} - ${date(content.endDate)}`],
-    ['Impactos Transversales', content.impacts.join(', ') || 'No especificados'],
-    ['Objetivos Sustentables', content.sustainability.join(', ') || 'No especificados'],
-    ['Prioridades PND', content.priorities.join(', ') || 'No especificadas'],
-    ['Áreas del conocimiento', content.lines.join(', ') || 'No especificadas'],
+    ['Estatus y Avance', `${content.projectStatus} (Avance registrado del ${content.progress}%)`],
+    ['Nivel de TRL', `Nivel ${content.trlRating}`],
+    ['Nivel de Impacto', content.impactLevel],
+    ['Área del Conocimiento', content.lines.join(', ') || 'No especificadas'],
     ['LIIADTs Asociadas', content.subcategories.join(', ') || 'No especificadas'],
+    ['Grupo de investigación', content.team || '-'],
+    ['Miembros del Grupo de Investigación que participan en el proyecto', 
+      content.activeTeamMembers.length > 0 
+        ? content.activeTeamMembers.map(m => `${m.name} (${m.type})`).join(', ')
+        : '-'],
   ];
+
   const left = doc.page.margins.left;
   const tableWidth = width - left - doc.page.margins.right;
   const labelWidth = tableWidth * 0.34;
@@ -218,6 +410,7 @@ export async function renderRecognition(content: RecognitionContent): Promise<Bu
     if (line) result.push(line);
     return result.length ? result : [''];
   };
+
   rows.forEach(([label, value], rowIndex) => {
     doc.font(rowIndex === 0 ? 'Helvetica-Bold' : 'Helvetica').fontSize(9);
     const labels = wrap(label, labelWidth - 10);
@@ -244,40 +437,4 @@ export async function renderRecognition(content: RecognitionContent): Promise<Bu
       offset += count;
     }
   });
-  doc.moveDown();
-  doc.font('Helvetica-Bold').fontSize(10).text('Estado Actual de las Actividades');
-  doc.font('Helvetica');
-  for (const [label, status] of [
-    ['Completadas', Status.COMPLETED],
-    ['En Progreso', Status.PROGRESS],
-    ['Pendientes', Status.PENDING],
-  ] as const) {
-    const activities = content.activities.filter((activity) => activity.status === status);
-    doc.moveDown(0.4).font('Helvetica-Bold').text(`${label}:`);
-    doc.font('Helvetica');
-    if (!activities.length) doc.text('Ninguna', { indent: 12 });
-    for (const activity of activities) {
-      doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
-    }
-  }
-  doc.moveDown(2);
-  doc.font('Helvetica-Bold').text('ATENTAMENTE', { align: 'center' });
-  doc.moveDown(3);
-  doc.text('Dr. Juan Manuel Peña Aguilar', { align: 'center' });
-  doc.font('Helvetica').text('Director de Posgrado, Investigación y Desarrollo Tecnológico', { align: 'center' });
-  doc.end();
-
-  const textPdf = await PDFLibDocument.load(await rendered);
-  const result = await PDFLibDocument.create();
-  const [background] = await result.embedPdf(await template.save(), [0]);
-  const textPages = await result.embedPdf(
-    await textPdf.save(),
-    textPdf.getPageIndices(),
-  );
-  for (const textPage of textPages) {
-    const page = result.addPage([width, height]);
-    page.drawPage(background);
-    page.drawPage(textPage);
-  }
-  return Buffer.from(await result.save());
 }
