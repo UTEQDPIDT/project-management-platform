@@ -229,28 +229,30 @@ function renderConstancia(doc: PDFKit.PDFDocument, content: RecognitionContent) 
   
   doc.moveDown(0.5);
   doc.font('Helvetica-Bold').text('Cronograma de actividades registradas:');
-  doc.font('Helvetica').fontSize(9);
   
   const completedActivities = content.activities.filter(a => a.status === Status.COMPLETED);
   const inProgressActivities = content.activities.filter(a => a.status === Status.PROGRESS);
   const pendingActivities = content.activities.filter(a => a.status === Status.PENDING);
   
   if (completedActivities.length > 0) {
-    doc.text('Completadas:', { indent: 0 });
+    doc.font('Helvetica-Bold').fontSize(9).text('Completadas:', { indent: 0 });
+    doc.font('Helvetica');
     completedActivities.forEach(activity => {
       doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
     });
   }
   
   if (inProgressActivities.length > 0) {
-    doc.text('En Progreso:', { indent: 0 });
+    doc.font('Helvetica-Bold').fontSize(9).text('En Progreso:', { indent: 0 });
+    doc.font('Helvetica');
     inProgressActivities.forEach(activity => {
       doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
     });
   }
   
   if (pendingActivities.length > 0) {
-    doc.text('Pendientes:', { indent: 0 });
+    doc.font('Helvetica-Bold').fontSize(9).text('Pendientes:', { indent: 0 });
+    doc.font('Helvetica');
     pendingActivities.forEach(activity => {
       doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
     });
@@ -315,28 +317,30 @@ function renderRecomendacion(doc: PDFKit.PDFDocument, content: RecognitionConten
   
   doc.moveDown(0.5);
   doc.font('Helvetica-Bold').text('Cronograma de actividades registradas:');
-  doc.font('Helvetica').fontSize(9);
   
   const completedActivities = content.activities.filter(a => a.status === Status.COMPLETED);
   const inProgressActivities = content.activities.filter(a => a.status === Status.PROGRESS);
   const pendingActivities = content.activities.filter(a => a.status === Status.PENDING);
   
   if (completedActivities.length > 0) {
-    doc.text('Completadas:', { indent: 0 });
+    doc.font('Helvetica-Bold').fontSize(9).text('Completadas:', { indent: 0 });
+    doc.font('Helvetica');
     completedActivities.forEach(activity => {
       doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
     });
   }
   
   if (inProgressActivities.length > 0) {
-    doc.text('En Progreso:', { indent: 0 });
+    doc.font('Helvetica-Bold').fontSize(9).text('En Progreso:', { indent: 0 });
+    doc.font('Helvetica');
     inProgressActivities.forEach(activity => {
       doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
     });
   }
   
   if (pendingActivities.length > 0) {
-    doc.text('Pendientes:', { indent: 0 });
+    doc.font('Helvetica-Bold').fontSize(9).text('Pendientes:', { indent: 0 });
+    doc.font('Helvetica');
     pendingActivities.forEach(activity => {
       doc.text(`• ${activity.name} (Fecha de vencimiento: ${date(activity.dueDate)})`, { indent: 12 });
     });
@@ -376,7 +380,7 @@ function renderProjectTable(doc: PDFKit.PDFDocument, content: RecognitionContent
     ['Grupo de investigación', content.team || '-'],
     ['Miembros del Grupo de Investigación que participan en el proyecto', 
       content.activeTeamMembers.length > 0 
-        ? content.activeTeamMembers.map(m => `${m.name} (${m.type})`).join(', ')
+        ? content.activeTeamMembers.map(m => `${m.name} (${m.type})`).join('\n')
         : '-'],
   ];
 

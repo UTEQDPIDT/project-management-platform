@@ -30,11 +30,11 @@ export class CreateRecognitionDto {
 }
 
 export class UpdateRecognitionDto {
-  @IsMongoId()
-  userId: string;
-
-  @IsMongoId()
-  projectId: string;
+  @IsString()
+  @MaxLength(40)
+  @Matches(/^[A-Za-z0-9-]+$/)
+  @IsOptional()
+  folio?: string;
 
   @IsEnum(RecognitionType)
   @IsOptional()

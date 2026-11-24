@@ -94,7 +94,7 @@ export class DocumentsService {
     const user = await this.users.findOne({ _id: userId, type: UserType.MAESTRO });
     if (!user) throw new NotFoundException('Docente no encontrado.');
     const project = await this.projects.findById(projectId)
-      .populate({ path: 'team', select: 'memberships' })
+      .populate({ path: 'team', select: 'teamName memberships' })
       .populate('impactAreas prioritiesPND sustainableObjectives innovationLines innovationLinesSubcategories');
     if (!project) throw new NotFoundException('Proyecto no encontrado.');
     if (project.validationStatus === ProjectValidation.UNDER_REVIEW ||
@@ -163,7 +163,7 @@ export class DocumentsService {
       lines: names(project.innovationLines),
       subcategories: names(project.innovationLinesSubcategories),
       activeTeamMembers,
-      team: project.team ? (project.team as any).name : undefined,
+      team: project.team ? (project.team as any).teamName : undefined,
       activities: activities.map((activity) => ({
         name: activity.name,
         status: activity.status,
@@ -273,12 +273,13 @@ export class DocumentsService {
     if (!existing) throw new NotFoundException('Constancia no encontrada.');
 
     const recognitionType = dto?.recognitionType || existing.recognitionType || RecognitionType.CONSTANCIA;
+    const folio = dto?.folio ? dto.folio.toUpperCase() : existing.folio;
 
     const { user, project, userName, pdf } = await this.prepare(
-      dto?.userId ?? existing.userId.toString(),
-      dto?.projectId ?? existing.projectId.toString(),
+      existing.userId.toString(),
+      existing.projectId.toString(),
       existing.issuedAt,
-      existing.folio,
+      folio,
       existing.year,
       recognitionType,
       dto?.customUserName || existing.customUserName,
@@ -290,12 +291,13 @@ export class DocumentsService {
       updated = await this.recognitions.findOneAndUpdate(
         { _id: id, fileId: existing.fileId },
         {
-          userId: user._id,
+          userId: existing.userId,
           userName,
           userEmail: user.email,
           userAvatarUrl: user.avatarUrl,
-          projectId: project._id,
+          projectId: existing.projectId,
           projectName: project.name,
+          folio,
           fileId,
           recognitionType,
           customUserName: dto?.customUserName,
@@ -306,6 +308,9 @@ export class DocumentsService {
       if (!updated) throw new ConflictException('La constancia fue modificada por otro usuario. Actualice la página.');
     } catch (error) {
       await this.cleanup(fileId);
+      if (error instanceof Error && 'code' in error && error.code === 11000) {
+        throw new ConflictException('El folio ya existe para este año.');
+      }
       throw error;
     }
     await this.cleanup(existing.fileId);

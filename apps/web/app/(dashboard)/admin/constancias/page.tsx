@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import axios from 'axios';
-import { Download, Eye, MoreHorizontal, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { Download, Eye, MoreHorizontal, Plus, RefreshCw, Trash2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/axios';
 import { Header, HeaderAction, HeaderHeading, HeaderTitle } from '@/components/header';
@@ -70,6 +70,7 @@ export default function ConstanciasPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<Recognition | null>(null);
   const previewRequest = useRef<AbortController | null>(null);
   const recognitions = useQuery({
     queryKey: ['recognitions'],
@@ -118,6 +119,20 @@ export default function ConstanciasPage() {
     },
     onError: (error) => toast.error(errorMessage(error)),
   });
+  const update = useMutation({
+    mutationFn: async (id: string) => api.patch(`/documents/${id}`, {
+      folio,
+      recognitionType,
+      customUserName: useCustomUserName ? customUserName : undefined,
+      customHours: useCustomHours && recognitionType === 'recomendacion' ? parseInt(customHours, 10) : undefined,
+    }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['recognitions'] });
+      setEditing(null);
+      toast.success('Documento actualizado.');
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  });
 
   useEffect(() => () => {
     previewRequest.current?.abort();
@@ -144,6 +159,15 @@ export default function ConstanciasPage() {
     setPreviewUrl(null);
     setPreviewError(null);
     setPreviewLoading(false);
+  };
+  const openEdit = (recognition: Recognition) => {
+    setFolio(recognition.folio);
+    setRecognitionType(recognition.recognitionType || 'constancia');
+    setCustomUserName('');
+    setUseCustomUserName(false);
+    setCustomHours('1');
+    setUseCustomHours(false);
+    setEditing(recognition);
   };
   const openPreview = async (recognition: Recognition) => {
     previewRequest.current?.abort();
@@ -183,6 +207,10 @@ export default function ConstanciasPage() {
   const submit = (event: FormEvent) => {
     event.preventDefault();
     save.mutate();
+  };
+  const submitEdit = (event: FormEvent) => {
+    event.preventDefault();
+    if (editing) update.mutate(editing._id);
   };
 
   const filters = useMemo<FacetedFilterConfig[]>(() => {
@@ -269,7 +297,8 @@ export default function ConstanciasPage() {
               <DropdownMenuItem onSelect={() => void openPreview(recognition)}><Eye /> Ver archivo</DropdownMenuItem>
               <DropdownMenuItem onSelect={() => void downloadFile(recognition)}><Download /> Descargar archivo</DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setRefreshing(recognition)}><RefreshCw /> Actualizar documento</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => delete_.mutate(recognition._id)} className="text-destructive"><Trash2 /> Eliminar constancia</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => openEdit(recognition)}><Edit /> Modificar datos</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => delete_.mutate(recognition._id)} variant="destructive"><Trash2 /> Eliminar constancia</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -403,6 +432,64 @@ export default function ConstanciasPage() {
               {refresh.isPending ? 'Actualizando...' : 'Actualizar documento'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={Boolean(editing)} onOpenChange={(isOpen) => { if (!isOpen && !update.isPending) setEditing(null); }}>
+        <DialogContent className="grid-cols-1">
+          <DialogHeader>
+            <DialogTitle>Modificar datos</DialogTitle>
+            <DialogDescription>Puedes cambiar el tipo de documento, el folio y las opciones personalizadas.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={submitEdit} className="min-w-0 w-full space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-recognition-type">Tipo de documento</Label>
+              <Select value={recognitionType} onValueChange={setRecognitionType}>
+                <SelectTrigger id="edit-recognition-type" className="w-full min-w-0 max-w-full [&>span]:block [&>span]:min-w-0 [&>span]:truncate"><SelectValue placeholder="Selecciona un tipo" /></SelectTrigger>
+                <SelectContent className="w-[var(--radix-select-trigger-width)] max-w-[var(--radix-popper-available-width)]">
+                  <SelectItem value="constancia">Constancia</SelectItem>
+                  <SelectItem value="recomendacion">Recomendación de horas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-3 border-t pt-4">
+              <div className="flex items-center gap-2">
+                <Checkbox id="edit-use-custom-name" checked={useCustomUserName} onCheckedChange={(checked) => setUseCustomUserName(Boolean(checked))} />
+                <Label htmlFor="edit-use-custom-name" className="cursor-pointer font-normal">Agregar nombre del docente manualmente</Label>
+              </div>
+              {useCustomUserName && (
+                <div className="ml-6 space-y-2">
+                  <Label htmlFor="edit-custom-name">Nombre del docente</Label>
+                  <Input id="edit-custom-name" value={customUserName} onChange={(e) => setCustomUserName(e.target.value)} placeholder="Nombre completo" maxLength={200} />
+                </div>
+              )}
+            </div>
+            {recognitionType === 'recomendacion' && (
+              <div className="space-y-3 border-t pt-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="edit-use-custom-hours" checked={useCustomHours} onCheckedChange={(checked) => setUseCustomHours(Boolean(checked))} />
+                  <Label htmlFor="edit-use-custom-hours" className="cursor-pointer font-normal">Agregar horas manualmente</Label>
+                </div>
+                {useCustomHours && (
+                  <div className="ml-6 space-y-2">
+                    <Label htmlFor="edit-custom-hours">Horas de desarrollo del proyecto</Label>
+                    <Select value={customHours} onValueChange={setCustomHours}>
+                      <SelectTrigger id="edit-custom-hours" className="w-full"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map((hour) => (
+                          <SelectItem key={hour} value={String(hour)}>{hour} {hour === 1 ? 'hora' : 'horas'}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="space-y-2 border-t pt-4">
+              <Label htmlFor="edit-recognition-folio">Folio</Label>
+              <Input id="edit-recognition-folio" value={folio} onChange={(event) => setFolio(event.target.value)} required maxLength={40} pattern="[A-Za-z0-9-]+" />
+            </div>
+            <DialogFooter><Button type="submit" disabled={!folio || update.isPending}>{update.isPending ? 'Guardando...' : 'Guardar cambios'}</Button></DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
