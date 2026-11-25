@@ -414,7 +414,7 @@ function renderProjectTable(doc: PDFKit.PDFDocument, content: RecognitionContent
     ['Grupo de investigación', content.team || '-'],
     ['Miembros del Grupo de Investigación que participan en el proyecto', 
       content.activeTeamMembers.length > 0 
-        ? content.activeTeamMembers.map(m => `${m.name} (${m.type})`).join('\n')
+        ? content.activeTeamMembers.map(m => `• ${m.name} (${m.type})`).join('\n')
         : '-'],
   ];
 
@@ -425,27 +425,32 @@ function renderProjectTable(doc: PDFKit.PDFDocument, content: RecognitionContent
 
   const wrap = (text: string, available: number) => {
     const result: string[] = [];
-    let line = '';
-    for (const word of text.split(/\s+/)) {
-      let remaining = word;
-      while (remaining) {
-        const candidate = line ? `${line} ${remaining}` : remaining;
-        if (doc.widthOfString(candidate) <= available) {
-          line = candidate;
-          break;
+    // First split by explicit newlines to handle multi-line content
+    const lines = text.split('\n');
+    
+    for (const line of lines) {
+      let currentLine = '';
+      for (const word of line.split(/\s+/)) {
+        let remaining = word;
+        while (remaining) {
+          const candidate = currentLine ? `${currentLine} ${remaining}` : remaining;
+          if (doc.widthOfString(candidate) <= available) {
+            currentLine = candidate;
+            break;
+          }
+          if (currentLine) {
+            result.push(currentLine);
+            currentLine = '';
+            continue;
+          }
+          let length = remaining.length;
+          while (length > 1 && doc.widthOfString(remaining.slice(0, length)) > available) length--;
+          result.push(remaining.slice(0, length));
+          remaining = remaining.slice(length);
         }
-        if (line) {
-          result.push(line);
-          line = '';
-          continue;
-        }
-        let length = remaining.length;
-        while (length > 1 && doc.widthOfString(remaining.slice(0, length)) > available) length--;
-        result.push(remaining.slice(0, length));
-        remaining = remaining.slice(length);
       }
+      if (currentLine) result.push(currentLine);
     }
-    if (line) result.push(line);
     return result.length ? result : [''];
   };
 
