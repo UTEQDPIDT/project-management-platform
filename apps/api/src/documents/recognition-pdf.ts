@@ -404,7 +404,7 @@ function renderProjectTable(doc: PDFKit.PDFDocument, content: RecognitionContent
   const rows: [string, string][] = [
     ['Campo', 'Especificación'],
     ['Organización', content.organization],
-    ['Programa', content.program || 'sin programa'],
+    ['Programa', content.program],
     ['Periodo de Ejecución', `${date(content.startDate)} - ${date(content.endDate)}`],
     ['Estatus y Avance', `${content.projectStatus} (Avance registrado del ${content.progress}%)`],
     ['Nivel de TRL', `Nivel ${content.trlRating}`],

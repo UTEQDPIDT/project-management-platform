@@ -95,6 +95,7 @@ export class DocumentsService {
     if (!user) throw new NotFoundException('Docente no encontrado.');
     const project = await this.projects.findById(projectId)
       .populate({ path: 'team', select: 'teamName memberships' })
+      .populate('program')
       .populate('impactAreas prioritiesPND sustainableObjectives innovationLines innovationLinesSubcategories');
     if (!project) throw new NotFoundException('Proyecto no encontrado.');
     if (project.validationStatus === ProjectValidation.UNDER_REVIEW ||
@@ -152,7 +153,11 @@ export class DocumentsService {
       projectStatus: statusLabels[project.status] || project.status,
       progress,
       organization: project.organization || '',
-      program: (project.program as any)?.name || (typeof project.program === 'string' ? project.program : ''),
+      program: typeof project.program === 'string' 
+        ? project.program 
+        : (project.program && typeof project.program === 'object' && 'name' in project.program 
+          ? (project.program as any).name 
+          : ''),
       trlRating: project.trlRating || 0,
       impactLevel: project.impactLevel || '',
       startDate: project.startDate,
