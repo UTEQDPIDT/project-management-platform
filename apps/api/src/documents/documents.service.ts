@@ -116,7 +116,7 @@ export class DocumentsService {
     if (project.team) {
       const team = await this.teams.findById(project.team);
       if (team) {
-        const teamMember = team.memberships?.find((m: any) => m.user?.toString() === userId || m.user?._id?.toString() === userId);
+        const teamMember = team.memberships?.find((m) => m.user?.toString() === userId || (m.user as any)?._id?.toString() === userId);
         if (teamMember) {
           userTeamMembership = teamMember.role === 'OWNER'
             ? 'Líder de Grupo de Investigación'
@@ -128,7 +128,7 @@ export class DocumentsService {
 
     // Get active team members with their types
     const activeTeamMembers = project.team && project.team
-      ? await this.getActiveTeamMembers(project.team as any)
+      ? await this.getActiveTeamMembers(project.team as unknown as Types.ObjectId)
       : [];
 
     const names = (values: { name: string }[] | undefined) => (values || []).map((value) => value.name);
@@ -174,7 +174,7 @@ export class DocumentsService {
     return { user, project, userName, pdf, recognitionType, customUserName, customHours };
   }
 
-  private async getActiveTeamMembers(teamId: any): Promise<{ name: string; type: string }[]> {
+  private async getActiveTeamMembers(teamId: Types.ObjectId | string): Promise<{ name: string; type: string }[]> {
     const team = await this.teams.findById(teamId);
     if (!team || !team.memberships) return [];
 
@@ -183,8 +183,16 @@ export class DocumentsService {
     const userMap = new Map(users.map(u => [u._id.toString(), u]));
 
     return team.memberships
-      .map((m: any) => {
-        const user = userMap.get(m.user.toString());
+      .map((m) => {
+        let userId: string;
+        if (typeof m.user === 'string') {
+          userId = m.user;
+        } else if (typeof m.user === 'object' && m.user && '_id' in m.user) {
+          userId = (m.user as any)._id?.toString() || '';
+        } else {
+          userId = m.user.toString();
+        }
+        const user = userMap.get(userId);
         return {
           name: user?.givenName && user?.familyName
             ? `${user.givenName} ${user.familyName}`
