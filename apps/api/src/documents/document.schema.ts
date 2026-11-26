@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { RecognitionType } from '@repo/types';
 import mongoose, { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
@@ -32,7 +33,17 @@ export class Recognition extends Document {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, required: true })
   fileId: mongoose.Types.ObjectId;
+
+  @Prop({ type: String, enum: RecognitionType, default: RecognitionType.CONSTANCIA })
+  recognitionType: RecognitionType;
+
+  @Prop({ default: '' })
+  customUserName?: string;
+
+  @Prop({ type: Number, min: 1, max: 12 })
+  customHours?: number;
 }
 
 export const RecognitionSchema = SchemaFactory.createForClass(Recognition);
 RecognitionSchema.index({ year: 1, folio: 1 }, { unique: true });
+

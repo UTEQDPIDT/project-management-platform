@@ -18,7 +18,7 @@ describe('DocumentsController authorization', () => {
     expect(() => controller.list(user)).toThrow(ForbiddenException);
     await expect(controller.file(user, 'id', {} as Response)).rejects.toBeInstanceOf(ForbiddenException);
     expect(() => controller.create(user, { userId: 'id', projectId: 'id', folio: '1' })).toThrow(ForbiddenException);
-    expect(() => controller.update(user, 'id', { userId: 'id', projectId: 'id' })).toThrow(ForbiddenException);
+    expect(() => controller.update(user, 'id', { folio: '1' })).toThrow(ForbiddenException);
     expect(() => controller.refresh(user, 'id')).toThrow(ForbiddenException);
     for (const method of Object.values(service)) expect(method).not.toHaveBeenCalled();
   });

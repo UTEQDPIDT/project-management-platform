@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import axios from 'axios';
-import { Download, Eye, MoreHorizontal, Plus, RefreshCw } from 'lucide-react';
+import { Download, Eye, MoreHorizontal, Plus, RefreshCw, Trash2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/axios';
 import { Header, HeaderAction, HeaderHeading, HeaderTitle } from '@/components/header';
@@ -14,6 +14,7 @@ import FilePreviewDialog from '@/components/file-preview-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -28,12 +29,13 @@ type Recognition = {
   folio: string;
   year: number;
   issuedAt: string;
+  recognitionType?: 'constancia' | 'recomendacion';
 };
 type Teacher = { _id: string; givenName: string; familyName: string; email: string };
 type Project = { _id: string; name: string };
 
 function recognitionFileName(recognition: Recognition) {
-  return `constancia-${recognition.folio}-${recognition.year}.pdf`;
+  return `${recognition.recognitionType || 'constancia'}-${recognition.folio}-${recognition.year}.pdf`;
 }
 
 function downloadBlob(url: string, fileName: string) {
@@ -59,10 +61,16 @@ export default function ConstanciasPage() {
   const [userId, setUserId] = useState('');
   const [projectId, setProjectId] = useState('');
   const [folio, setFolio] = useState('');
+  const [recognitionType, setRecognitionType] = useState('constancia');
+  const [customUserName, setCustomUserName] = useState('');
+  const [useCustomUserName, setUseCustomUserName] = useState(false);
+  const [customHours, setCustomHours] = useState('1');
+  const [useCustomHours, setUseCustomHours] = useState(false);
   const [preview, setPreview] = useState<Recognition | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<Recognition | null>(null);
   const previewRequest = useRef<AbortController | null>(null);
   const recognitions = useQuery({
     queryKey: ['recognitions'],
@@ -79,11 +87,18 @@ export default function ConstanciasPage() {
     enabled: open && Boolean(userId),
   });
   const save = useMutation({
-    mutationFn: async () => api.post('/documents', { userId, projectId, folio }),
+    mutationFn: async () => api.post('/documents', {
+      userId,
+      projectId,
+      folio,
+      recognitionType,
+      customUserName: useCustomUserName ? customUserName : undefined,
+      customHours: useCustomHours && recognitionType === 'recomendacion' ? parseInt(customHours, 10) : undefined,
+    }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['recognitions'] });
       setOpen(false);
-      toast.success('Constancia generada.');
+      toast.success('Documento generado.');
     },
     onError: (error) => toast.error(errorMessage(error)),
   });
@@ -92,7 +107,29 @@ export default function ConstanciasPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['recognitions'] });
       setRefreshing(null);
-      toast.success('Constancia actualizada.');
+      toast.success('Documento actualizado.');
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  });
+  const delete_ = useMutation({
+    mutationFn: async (id: string) => api.delete(`/documents/${id}`),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['recognitions'] });
+      toast.success('Documento eliminado.');
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  });
+  const update = useMutation({
+    mutationFn: async (id: string) => api.patch(`/documents/${id}`, {
+      folio,
+      recognitionType,
+      customUserName: useCustomUserName ? customUserName : undefined,
+      customHours: useCustomHours && recognitionType === 'recomendacion' ? parseInt(customHours, 10) : undefined,
+    }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['recognitions'] });
+      setEditing(null);
+      toast.success('Documento actualizado.');
     },
     onError: (error) => toast.error(errorMessage(error)),
   });
@@ -108,6 +145,11 @@ export default function ConstanciasPage() {
     setUserId('');
     setProjectId('');
     setFolio('');
+    setRecognitionType('constancia');
+    setCustomUserName('');
+    setUseCustomUserName(false);
+    setCustomHours('1');
+    setUseCustomHours(false);
     setOpen(true);
   };
   const closePreview = () => {
@@ -117,6 +159,15 @@ export default function ConstanciasPage() {
     setPreviewUrl(null);
     setPreviewError(null);
     setPreviewLoading(false);
+  };
+  const openEdit = (recognition: Recognition) => {
+    setFolio(recognition.folio);
+    setRecognitionType(recognition.recognitionType || 'constancia');
+    setCustomUserName('');
+    setUseCustomUserName(false);
+    setCustomHours('1');
+    setUseCustomHours(false);
+    setEditing(recognition);
   };
   const openPreview = async (recognition: Recognition) => {
     previewRequest.current?.abort();
@@ -137,7 +188,7 @@ export default function ConstanciasPage() {
     } catch (error) {
       if (!request.signal.aborted) {
         console.error('Failed to open recognition preview:', error);
-        setPreviewError('No se pudo cargar la vista previa de la constancia.');
+        setPreviewError('No se pudo cargar la vista previa del documento.');
       }
     } finally {
       if (!request.signal.aborted) setPreviewLoading(false);
@@ -157,13 +208,19 @@ export default function ConstanciasPage() {
     event.preventDefault();
     save.mutate();
   };
+  const submitEdit = (event: FormEvent) => {
+    event.preventDefault();
+    if (editing) update.mutate(editing._id);
+  };
 
   const filters = useMemo<FacetedFilterConfig[]>(() => {
     const users = new Map<string, string>();
     const years = new Set<string>();
+    const types = new Set<string>();
     for (const recognition of recognitions.data ?? []) {
       users.set(recognition.userId, `${recognition.userName} (${recognition.userEmail})`);
       years.add(String(recognition.year));
+      if (recognition.recognitionType) types.add(recognition.recognitionType);
     }
     return [
       {
@@ -176,6 +233,14 @@ export default function ConstanciasPage() {
         columnId: 'year',
         title: 'Año',
         options: Array.from(years).sort().reverse().map((year) => ({ value: year, label: year })),
+      },
+      {
+        columnId: 'recognitionType',
+        title: 'Tipo',
+        options: Array.from(types).map((type) => ({
+          value: type,
+          label: type === 'constancia' ? 'Constancia' : 'Recomendación',
+        })),
       },
     ];
   }, [recognitions.data]);
@@ -211,17 +276,29 @@ export default function ConstanciasPage() {
       cell: ({ row }) => `${row.original.folio}/${row.original.year}`,
     },
     {
+      id: 'recognitionType',
+      accessorFn: (row) => row.recognitionType || 'constancia',
+      header: 'Tipo',
+      filterFn: facetedFilter,
+      cell: ({ row }) => {
+        const type = row.original.recognitionType || 'constancia';
+        return type === 'constancia' ? 'Constancia' : 'Recomendación';
+      },
+    },
+    {
       id: 'actions',
       header: 'Acciones',
       cell: ({ row }) => {
         const recognition = row.original;
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label="Acciones de constancia"><MoreHorizontal /></Button></DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label="Acciones del documento"><MoreHorizontal /></Button></DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => void openPreview(recognition)}><Eye /> Ver archivo</DropdownMenuItem>
               <DropdownMenuItem onSelect={() => void downloadFile(recognition)}><Download /> Descargar archivo</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setRefreshing(recognition)}><RefreshCw /> Actualizar constancia</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setRefreshing(recognition)}><RefreshCw /> Actualizar documento</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => openEdit(recognition)}><Edit /> Modificar datos</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => delete_.mutate(recognition._id)} variant="destructive"><Trash2 /> Eliminar constancia</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -232,14 +309,14 @@ export default function ConstanciasPage() {
   return (
     <div className="w-full min-h-screen">
       <Header>
-        <HeaderHeading><HeaderTitle>Constancias generadas</HeaderTitle></HeaderHeading>
+        <HeaderHeading><HeaderTitle>Documentos generados</HeaderTitle></HeaderHeading>
         <HeaderAction>
-          <Button onClick={() => showForm()}><Plus /> Crear constancia</Button>
+          <Button onClick={() => showForm()}><Plus /> Crear documento</Button>
         </HeaderAction>
       </Header>
       <PageContent>
-        {recognitions.isLoading ? <p>Cargando constancias...</p> : recognitions.isError ? (
-          <p role="alert">No se pudieron cargar las constancias.</p>
+        {recognitions.isLoading ? <p>Cargando documentos...</p> : recognitions.isError ? (
+          <p role="alert">No se pudieron cargar los documentos.</p>
         ) : (
           <div className="max-w-7xl w-full p-1">
             <DataTable
@@ -256,7 +333,7 @@ export default function ConstanciasPage() {
       <FilePreviewDialog
         open={Boolean(preview)}
         onOpenChange={(isOpen) => { if (!isOpen) closePreview(); }}
-        fileName={preview ? recognitionFileName(preview) : 'Constancia'}
+        fileName={preview ? recognitionFileName(preview) : 'Documento'}
         mimeType="application/pdf"
         previewBlobUrl={previewUrl}
         isLoading={previewLoading}
@@ -267,10 +344,20 @@ export default function ConstanciasPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="grid-cols-1">
           <DialogHeader>
-            <DialogTitle>Crear constancia</DialogTitle>
-            <DialogDescription>Selecciona un docente, un proyecto elegible y escribe el folio.</DialogDescription>
+            <DialogTitle>Crear documento</DialogTitle>
+            <DialogDescription>Selecciona un docente, un proyecto elegible, el tipo de documento y escribe el folio.</DialogDescription>
           </DialogHeader>
           <form onSubmit={submit} className="min-w-0 w-full space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="recognition-type">Tipo de documento</Label>
+              <Select value={recognitionType} onValueChange={setRecognitionType}>
+                <SelectTrigger id="recognition-type" className="w-full min-w-0 max-w-full [&>span]:block [&>span]:min-w-0 [&>span]:truncate"><SelectValue placeholder="Selecciona un tipo" /></SelectTrigger>
+                <SelectContent className="w-[var(--radix-select-trigger-width)] max-w-[var(--radix-popper-available-width)]">
+                  <SelectItem value="constancia">Constancia</SelectItem>
+                  <SelectItem value="recomendacion">Recomendación de horas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="recognition-user">Usuario</Label>
               <Select value={userId} onValueChange={(value) => { setUserId(value); setProjectId(''); }}>
@@ -290,18 +377,51 @@ export default function ConstanciasPage() {
               {projects.isError && <p role="alert">No se pudieron cargar los proyectos.</p>}
               {userId && projects.data?.length === 0 && <p>No hay proyectos elegibles para este docente.</p>}
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3 border-t pt-4">
+              <div className="flex items-center gap-2">
+                <Checkbox id="use-custom-name" checked={useCustomUserName} onCheckedChange={(checked) => setUseCustomUserName(Boolean(checked))} />
+                <Label htmlFor="use-custom-name" className="cursor-pointer font-normal">Agregar nombre del docente manualmente</Label>
+              </div>
+              {useCustomUserName && (
+                <div className="ml-6 space-y-2">
+                  <Label htmlFor="custom-name">Nombre del docente</Label>
+                  <Input id="custom-name" value={customUserName} onChange={(e) => setCustomUserName(e.target.value)} placeholder="Nombre completo" maxLength={200} />
+                </div>
+              )}
+            </div>
+            {recognitionType === 'recomendacion' && (
+              <div className="space-y-3 border-t pt-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="use-custom-hours" checked={useCustomHours} onCheckedChange={(checked) => setUseCustomHours(Boolean(checked))} />
+                  <Label htmlFor="use-custom-hours" className="cursor-pointer font-normal">Agregar horas manualmente</Label>
+                </div>
+                {useCustomHours && (
+                  <div className="ml-6 space-y-2">
+                    <Label htmlFor="custom-hours">Horas de desarrollo del proyecto</Label>
+                    <Select value={customHours} onValueChange={setCustomHours}>
+                      <SelectTrigger id="custom-hours" className="w-full"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map((hour) => (
+                          <SelectItem key={hour} value={String(hour)}>{hour} {hour === 1 ? 'hora' : 'horas'}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="space-y-2 border-t pt-4">
               <Label htmlFor="recognition-folio">Folio</Label>
               <Input id="recognition-folio" value={folio} onChange={(event) => setFolio(event.target.value)} required maxLength={40} pattern="[A-Za-z0-9-]+" />
             </div>
-            <DialogFooter><Button type="submit" disabled={!userId || !projectId || !folio || save.isPending}>{save.isPending ? 'Guardando...' : 'Guardar constancia'}</Button></DialogFooter>
+            <DialogFooter><Button type="submit" disabled={!userId || !projectId || !folio || save.isPending}>{save.isPending ? 'Guardando...' : 'Guardar documento'}</Button></DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
       <Dialog open={Boolean(refreshing)} onOpenChange={(isOpen) => { if (!isOpen && !refresh.isPending) setRefreshing(null); }}>
         <DialogContent showCloseButton={!refresh.isPending}>
           <DialogHeader>
-            <DialogTitle>Actualizar constancia</DialogTitle>
+            <DialogTitle>Actualizar documento</DialogTitle>
             <DialogDescription>
               Se reemplazará el archivo con la información actual del proyecto, conservando el usuario, el folio y la fecha de emisión.
             </DialogDescription>
@@ -309,9 +429,67 @@ export default function ConstanciasPage() {
           <DialogFooter>
             <Button type="button" variant="outline" disabled={refresh.isPending} onClick={() => setRefreshing(null)}>Cancelar</Button>
             <Button type="button" disabled={refresh.isPending} onClick={() => { if (refreshing) refresh.mutate(refreshing._id); }}>
-              {refresh.isPending ? 'Actualizando...' : 'Actualizar constancia'}
+              {refresh.isPending ? 'Actualizando...' : 'Actualizar documento'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={Boolean(editing)} onOpenChange={(isOpen) => { if (!isOpen && !update.isPending) setEditing(null); }}>
+        <DialogContent className="grid-cols-1">
+          <DialogHeader>
+            <DialogTitle>Modificar datos</DialogTitle>
+            <DialogDescription>Puedes cambiar el tipo de documento, el folio y las opciones personalizadas.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={submitEdit} className="min-w-0 w-full space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-recognition-type">Tipo de documento</Label>
+              <Select value={recognitionType} onValueChange={setRecognitionType}>
+                <SelectTrigger id="edit-recognition-type" className="w-full min-w-0 max-w-full [&>span]:block [&>span]:min-w-0 [&>span]:truncate"><SelectValue placeholder="Selecciona un tipo" /></SelectTrigger>
+                <SelectContent className="w-[var(--radix-select-trigger-width)] max-w-[var(--radix-popper-available-width)]">
+                  <SelectItem value="constancia">Constancia</SelectItem>
+                  <SelectItem value="recomendacion">Recomendación de horas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-3 border-t pt-4">
+              <div className="flex items-center gap-2">
+                <Checkbox id="edit-use-custom-name" checked={useCustomUserName} onCheckedChange={(checked) => setUseCustomUserName(Boolean(checked))} />
+                <Label htmlFor="edit-use-custom-name" className="cursor-pointer font-normal">Agregar nombre del docente manualmente</Label>
+              </div>
+              {useCustomUserName && (
+                <div className="ml-6 space-y-2">
+                  <Label htmlFor="edit-custom-name">Nombre del docente</Label>
+                  <Input id="edit-custom-name" value={customUserName} onChange={(e) => setCustomUserName(e.target.value)} placeholder="Nombre completo" maxLength={200} />
+                </div>
+              )}
+            </div>
+            {recognitionType === 'recomendacion' && (
+              <div className="space-y-3 border-t pt-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="edit-use-custom-hours" checked={useCustomHours} onCheckedChange={(checked) => setUseCustomHours(Boolean(checked))} />
+                  <Label htmlFor="edit-use-custom-hours" className="cursor-pointer font-normal">Agregar horas manualmente</Label>
+                </div>
+                {useCustomHours && (
+                  <div className="ml-6 space-y-2">
+                    <Label htmlFor="edit-custom-hours">Horas de desarrollo del proyecto</Label>
+                    <Select value={customHours} onValueChange={setCustomHours}>
+                      <SelectTrigger id="edit-custom-hours" className="w-full"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map((hour) => (
+                          <SelectItem key={hour} value={String(hour)}>{hour} {hour === 1 ? 'hora' : 'horas'}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="space-y-2 border-t pt-4">
+              <Label htmlFor="edit-recognition-folio">Folio</Label>
+              <Input id="edit-recognition-folio" value={folio} onChange={(event) => setFolio(event.target.value)} required maxLength={40} pattern="[A-Za-z0-9-]+" />
+            </div>
+            <DialogFooter><Button type="submit" disabled={!folio || update.isPending}>{update.isPending ? 'Guardando...' : 'Guardar cambios'}</Button></DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

@@ -1,5 +1,5 @@
 import {
-  Body, Controller, ForbiddenException, Get, Param, Patch, Post, Query,
+  Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Query,
   Req, Res,
 } from '@nestjs/common';
 import { UserRole } from '@repo/types';
@@ -62,5 +62,11 @@ export class DocumentsController {
   refresh(@Req() req: RequestWithUser, @Param('id') id: string) {
     this.requireAdmin(req);
     return this.documents.refresh(id);
+  }
+
+  @Delete(':id')
+  delete(@Req() req: RequestWithUser, @Param('id') id: string) {
+    this.requireAdmin(req);
+    return this.documents.delete(id);
   }
 }
